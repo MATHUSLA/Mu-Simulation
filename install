@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# MATHUSLA Detector Simulation : Install Script
+
+CONFIG_CMAKE=0
+CLEAN_BUILD=0
+
+while [[ $# -gt 0 ]]; do
+    arg="$1"
+    case $arg in
+        --cmake) CONFIG_CMAKE=1
+            shift;;
+        --clean) CLEAN_BUILD=1
+            shift;;
+        *)
+            shift;;
+    esac
+done
+
+mkdir -p build
+cd build
+
+if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..; fi;
+if [[ "$CLEAN_BUILD"    -eq 1 ]]; then make clean; fi;
+
+make -j8
+
+mv simulation ../simulation
