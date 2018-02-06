@@ -33,6 +33,10 @@ G4bool TrackerSD::ProcessHits(G4Step* step, G4TouchableHistory* history) {
 
   if (edep == 0.) return false;
 
+  G4int ID = aStep->GetTotalEnergyDeposit();
+  
+  if (ID==0) {
+
   TrackerHit* newHit = new TrackerHit();
 
   newHit->SetTrackID(step->GetTrack()->GetTrackID());
@@ -42,7 +46,7 @@ G4bool TrackerSD::ProcessHits(G4Step* step, G4TouchableHistory* history) {
   newHit->SetPos(step->GetPostStepPoint()->GetPosition());
 
   fHitsCollection->insert(newHit);
-
+   }
   return true;
 }
 
