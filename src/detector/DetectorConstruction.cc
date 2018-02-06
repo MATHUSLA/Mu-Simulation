@@ -228,7 +228,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
   G4double firstLength   = trackerLength/10;
   G4double lastLength    = trackerLength;
 
-  G4double halfWidth = 0.5 * chamberWidth;
+  G4double halfWidth = 0.4 * chamberWidth;
   G4double rmaxFirst = 0.5 * firstLength;
 
   G4double rmaxIncr = 0.0;
