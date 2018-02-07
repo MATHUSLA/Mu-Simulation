@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# MATHUSLA Detector Simulation : Install Script
+# MATHUSLA (MU-) Detector Simulation : Install Script
 
 CONFIG_CMAKE=0
 CLEAN_BUILD=0
@@ -20,8 +20,8 @@ done
 mkdir -p build
 cd build
 
-if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..; fi;
-if [[ "$CLEAN_BUILD"    -eq 1 ]]; then make clean; fi;
+if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..;   fi;
+if [[ "$CLEAN_BUILD"  -eq 1 ]]; then make clean; fi;
 
 make -j8
 

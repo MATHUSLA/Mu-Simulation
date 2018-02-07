@@ -33,21 +33,22 @@ G4bool TrackerSD::ProcessHits(G4Step* step, G4TouchableHistory* history) {
 
   if (edep == 0.) return false;
 
-  G4int ID = aStep->GetTotalEnergyDeposit();
-  
-  if (ID==0) {
+  G4int parentID = step->GetTrack()->GetParentID();
 
-  TrackerHit* newHit = new TrackerHit();
+  if (parentID == 0) {
+    TrackerHit* newHit = new TrackerHit();
 
-  newHit->SetTrackID(step->GetTrack()->GetTrackID());
-  newHit->SetChamberNb(step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber());
-  newHit->SetEdep(edep);
-  newHit->SetTime(step->GetPostStepPoint()->GetGlobalTime());
-  newHit->SetPos(step->GetPostStepPoint()->GetPosition());
+    newHit->SetTrackID(step->GetTrack()->GetTrackID());
+    newHit->SetChamberNb(step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber());
+    newHit->SetEdep(edep);
+    newHit->SetTime(step->GetPostStepPoint()->GetGlobalTime());
+    newHit->SetPos(step->GetPostStepPoint()->GetPosition());
 
-  fHitsCollection->insert(newHit);
-   }
-  return true;
+    fHitsCollection->insert(newHit);
+
+    return true;
+  }
+  return false;
 }
 
 void TrackerSD::EndOfEvent(G4HCofThisEvent*) {
