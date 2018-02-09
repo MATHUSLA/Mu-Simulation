@@ -4,29 +4,29 @@
 #include "Geant4/G4UIcmdWithAString.hh"
 #include "Geant4/G4UIcmdWithADoubleAndUnit.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
     : G4UImessenger(),
       fDetectorConstruction(Det) {
 
-  fDirectory = new G4UIdirectory("/MATHUSLA/");
-  fDirectory->SetGuidance("UI commands specific to this example.");
+  fDirectory = new G4UIdirectory("/MATHUSLA/MU/");
+  fDirectory->SetGuidance("UI commands for MATHUSLA Muon Detector");
 
-  fDetDirectory = new G4UIdirectory("/MATHUSLA/det/");
+  fDetDirectory = new G4UIdirectory("/MATHUSLA/MU/det/");
   fDetDirectory->SetGuidance("Detector construction control");
 
-  fTargMatCmd = new G4UIcmdWithAString("/MATHUSLA/det/setTargetMaterial", this);
+  fTargMatCmd = new G4UIcmdWithAString("/MATHUSLA/MU/det/setTargetMaterial", this);
   fTargMatCmd->SetGuidance("Select Material of the Target.");
   fTargMatCmd->SetParameterName("choice", false);
   fTargMatCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  fChamMatCmd = new G4UIcmdWithAString("/MATHUSLA/det/setChamberMaterial", this);
+  fChamMatCmd = new G4UIcmdWithAString("/MATHUSLA/MU/det/setChamberMaterial", this);
   fChamMatCmd->SetGuidance("Select Material of the Chamber.");
   fChamMatCmd->SetParameterName("choice", false);
   fChamMatCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  fStepMaxCmd = new G4UIcmdWithADoubleAndUnit("/MATHUSLA/det/stepMax", this);
+  fStepMaxCmd = new G4UIcmdWithADoubleAndUnit("/MATHUSLA/MU/det/stepMax", this);
   fStepMaxCmd->SetGuidance("Define a step max");
   fStepMaxCmd->SetParameterName("stepMax", false);
   fStepMaxCmd->SetUnitCategory("Length");
@@ -51,4 +51,4 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
   }
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

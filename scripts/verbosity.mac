@@ -1,0 +1,71 @@
+/control/verbose 1
+# 0 : silent
+# 1 : commands
+# 2 : comments
+
+/cuts/verbose 1
+# 0 : silent
+# 1 : warnings
+# 2 : more
+# 3 : debug
+
+/event/stack/verbose 1
+# 0 : silent
+# 1 : minimum stats
+# 2 : reports
+
+/event/verbose 0
+# 0 : silent
+# 1 : stacking
+# 2 : more
+
+/geometry/navigator/verbose 0
+
+/globalField/verbose 0
+# 0 : silent
+# 1 : new field value
+
+/hits/verbose 3
+
+/material/verbose 0
+
+/particle/property/verbose 0
+# 0 : silent
+# 1 : warnings
+# 2 : more
+
+/particle/verbose 1
+# 0 : silent
+# 1 : warnings
+# 2 : more
+
+/process/had/cascade/verbose 0
+
+/process/verbose 0
+
+/run/particle/verbose 1
+# 0 : silent
+# 1 : warnings
+# 2 : more
+
+/run/verbose 2
+# 0 : silent
+# 1 : main topics
+# 2 : run summary
+
+/tracking/verbose 0
+# 0 : silent
+# 1 : minimum
+# 2 : secondary particles
+# 3 : step point after process
+# 4 : step point during process
+# 5 : step length
+
+/vis/verbose 2
+# 0 : quiet
+# 1 : startup
+# 2 : errors
+# 3 : warnings
+# 4 : messages
+# 5 : parameters
+# 6 : all

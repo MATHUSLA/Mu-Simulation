@@ -4,7 +4,7 @@
 
 #include "Geant4/G4VUserActionInitialization.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class ActionInitialization : public G4VUserActionInitialization {
  public:
@@ -15,6 +15,6 @@ class ActionInitialization : public G4VUserActionInitialization {
   virtual void Build() const;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* ACTIONINITIALIZATION_HH */

@@ -6,7 +6,7 @@
 #include "Geant4/G4TrajectoryContainer.hh"
 #include "Geant4/G4Trajectory.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 EventAction::EventAction() : G4UserEventAction() {}
 
@@ -35,4 +35,4 @@ void EventAction::EndOfEventAction(const G4Event* event) {
   }
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

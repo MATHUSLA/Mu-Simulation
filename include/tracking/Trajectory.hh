@@ -4,7 +4,7 @@
 
 #include "Geant4/G4Trajectory.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class Trajectory : public G4Trajectory {
  public:
@@ -18,6 +18,6 @@ class Trajectory : public G4Trajectory {
   virtual void DrawTrajectory() const;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* TRAJECTORY_HH */

@@ -7,7 +7,7 @@
 #include "action/TrackingAction.hh"
 #include "action/StackingAction.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
 
@@ -26,4 +26,4 @@ void ActionInitialization::Build() const {
   SetUserAction(new StackingAction);
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

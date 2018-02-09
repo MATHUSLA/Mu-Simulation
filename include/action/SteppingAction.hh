@@ -4,7 +4,7 @@
 
 #include "Geant4/G4UserSteppingAction.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class SteppingAction : public G4UserSteppingAction {
  public:
@@ -17,6 +17,6 @@ class SteppingAction : public G4UserSteppingAction {
   G4SteppingManager* fpSteppingManager;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* STEPPINGACTION_H */

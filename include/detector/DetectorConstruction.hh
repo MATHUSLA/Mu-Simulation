@@ -13,7 +13,7 @@
 
 #include "DetectorMessenger.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class DetectorMessenger;
 
@@ -24,6 +24,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
+
+  G4RotationMatrix* AddMatrix(G4double, G4double,
+                              G4double, G4double,
+                              G4double, G4double);
 
   void SetTargetMaterial(G4String);
   void SetChamberMaterial(G4String);
@@ -41,6 +45,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   G4Material* fTargetMaterial;
   G4Material* fChamberMaterial;
+  G4Material* Air;
+  G4Material* Scintillator;
   G4Material* SiO2;
   G4Material* Marl;
   G4Material* Kaolinite;
@@ -53,9 +59,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   G4bool fCheckOverlaps;
 
-  static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger;
+  static G4ThreadLocal G4GlobalMagFieldMessenger* fMagFieldMessenger;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* DETECTORCONSTRUCTION_HH */

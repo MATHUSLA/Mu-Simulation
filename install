@@ -1,28 +1,43 @@
 #!/bin/bash
-
-# MATHUSLA Detector Simulation : Install Script
+# MATHUSLA (MU) Detector Simulation : Build Script
 
 CONFIG_CMAKE=0
 CLEAN_BUILD=0
+RUN_BUILD=0
 
 while [[ $# -gt 0 ]]; do
     arg="$1"
     case $arg in
-        --cmake) CONFIG_CMAKE=1
+        --cmake | cmake) CONFIG_CMAKE=1
             shift;;
-        --clean) CLEAN_BUILD=1
+        --clean | clean) CLEAN_BUILD=1
             shift;;
+        --run) RUN_BUILD=1
+            shift;;
+        --help | help | -h)
+            echo -e "usage: ./install [--clean] [--cmake] [--run]"
+            echo -e "  --clean : rebuild all source files"
+            echo -e "  --cmake : build with CMake"
+            echo -e "    --run : run executable after building"
+            echo -e "   --help : open this help screen"
+            echo -e "   (both) : complete rebuild"
+            exit;;
         *)
             shift;;
     esac
 done
 
+
+if [[ "$CONFIG_CMAKE" -eq 1 && "$CLEAN_BUILD" -eq 1 ]]; then rm -rf build; fi
+
 mkdir -p build
 cd build
 
-if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..; fi;
-if [[ "$CLEAN_BUILD"    -eq 1 ]]; then make clean; fi;
+if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..;   fi;
+if [[ "$CLEAN_BUILD"  -eq 1 ]]; then make clean; fi;
 
 make -j8
 
 mv simulation ../simulation
+
+if [[ "$RUN_BUILD" -eq 1 ]]; then cd ..; ./simulation; fi;

@@ -4,21 +4,16 @@
 
 #include "Geant4/G4VUserRegionInformation.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class RegionInfo : public G4VUserRegionInformation {
  public:
   RegionInfo();
   ~RegionInfo();
 
-  enum {
-    
-  };
-
   virtual void Print() const;
-
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* REGIONINFO_HH */

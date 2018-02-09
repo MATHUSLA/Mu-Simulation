@@ -11,13 +11,7 @@
 
 #include "tracking/TrackerHit.hh"
 
-namespace MATHUSLA {
-
-/// Tracker sensitive detector class
-///
-/// The hits are accounted in hits in ProcessHits() function which is called
-/// by Geant4 kernel at each step. A hit is created with each step with non zero
-/// energy deposit.
+namespace MATHUSLA { namespace MU {
 
 class TrackerSD : public G4VSensitiveDetector {
  public:
@@ -32,6 +26,6 @@ class TrackerSD : public G4VSensitiveDetector {
   TrackerHitsCollection* fHitsCollection;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* TRACKERSD_HH */

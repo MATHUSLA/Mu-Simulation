@@ -2,21 +2,20 @@
 #define TRACKERHIT_HH
 #pragma once
 
-#include "Geant4/tls.hh"
-#include "Geant4/G4VHit.hh"
-#include "Geant4/G4THitsCollection.hh"
 #include "Geant4/G4Allocator.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/G4THitsCollection.hh"
 #include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4VHit.hh"
+#include "Geant4/tls.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class TrackerHit : public G4VHit {
  public:
-  TrackerHit();
-  TrackerHit(const TrackerHit&);
-  virtual ~TrackerHit();
+  explicit TrackerHit(G4Step*);
+  explicit TrackerHit(G4String, G4int, G4int, G4double, G4double, G4ThreeVector);
 
-  const TrackerHit& operator=(const TrackerHit&);
   G4int operator==(const TrackerHit&) const;
 
   inline void* operator new(size_t);
@@ -25,27 +24,30 @@ class TrackerHit : public G4VHit {
   virtual void Draw();
   virtual void Print();
 
-  void SetTrackID(G4int track)     { fTrackID = track;   }
-  void SetChamberNb(G4int chamber) { fChamber = chamber; }
-  void SetEdep(G4double e)         { fDeposit = e;       }
-  void SetTime(G4double t)         { fTime = t;          }
-  void SetPos(G4ThreeVector xyz)   { fPos = xyz;         }
-
-  G4int GetTrackID() const { return fTrackID; }
-  G4int GetChamber() const { return fChamber; }
-  G4double GetDeposit() const { return fDeposit; }
-  G4double GetTime() const { return fTime; }
-  G4ThreeVector GetPos() const { return fPos; }
+  G4String GetParticleName()  const { return fParticleName; }
+  G4int GetTrackID()          const { return fTrackID;      }
+  G4int GetChamberID()        const { return fChamberID;    }
+  G4double GetEnergyDeposit() const { return fDeposit;      }
+  G4double GetTime()          const { return fTime;         }
+  G4ThreeVector GetPosition() const { return fPosition;     }
 
  private:
-  G4int fTrackID;
-  G4int fChamber;
-  G4double fDeposit;
-  G4double fTime;
-  G4ThreeVector fPos;
+  G4String      fParticleName;
+  G4int         fTrackID;
+  G4int         fChamberID;
+  G4double      fDeposit;
+  G4double      fTime;
+  G4ThreeVector fPosition;
 };
 
 typedef G4THitsCollection<TrackerHit> TrackerHitsCollection;
+
+//______________________________________________________________________________
+// inline functions
+
+inline G4int TrackerHit::operator==(const TrackerHit& rhs) const {
+    return this == &rhs;
+}
 
 extern G4ThreadLocal G4Allocator<TrackerHit>* TrackerHitAllocator;
 
@@ -55,9 +57,9 @@ inline void* TrackerHit::operator new(size_t) {
 }
 
 inline void TrackerHit::operator delete(void* hit) {
-  TrackerHitAllocator->FreeSingle(reinterpret_cast<TrackerHit*>(hit));
+  TrackerHitAllocator->FreeSingle(static_cast<TrackerHit*>(hit));
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* TRACKERHIT_HH */

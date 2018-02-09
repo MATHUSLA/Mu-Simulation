@@ -5,7 +5,7 @@
 #include "Geant4/G4UserStackingAction.hh"
 #include "Geant4/G4ClassificationOfNewTrack.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class StackingAction : public G4UserStackingAction {
  public:
@@ -20,6 +20,6 @@ class StackingAction : public G4UserStackingAction {
   G4StackManager* fpStackManager;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* STACKINGACTION_HH */

@@ -2,7 +2,7 @@
 
 #include "tracking/TrajectoryPoint.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 G4ThreadLocal G4Allocator<Trajectory> *TrajectoryAllocator = 0;
 
@@ -27,4 +27,4 @@ void Trajectory::DrawTrajectory() const {
     G4Trajectory::DrawTrajectory();
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

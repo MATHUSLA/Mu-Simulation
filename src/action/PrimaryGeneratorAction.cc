@@ -8,7 +8,7 @@
 #include "Geant4/G4SystemOfUnits.hh"
 #include "Geant4/Randomize.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction() {
@@ -21,7 +21,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
   fParticleGun->SetParticleDefinition(particleDefinition);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
-  fParticleGun->SetParticleEnergy(3.0*GeV);
+  fParticleGun->SetParticleEnergy(60.0*GeV);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
@@ -46,4 +46,4 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event) {
   fParticleGun->GeneratePrimaryVertex(event);
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
