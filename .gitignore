@@ -22,7 +22,7 @@
 
 .DAWN_*
 .DS_Store
-G4History.macro
+G4History
 
 /.temp
 /build

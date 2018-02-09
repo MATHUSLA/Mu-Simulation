@@ -5,7 +5,7 @@
 #include "Geant4/G4UserTrackingAction.hh"
 #include "Geant4/G4TrackingManager.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class TrackingAction : public G4UserTrackingAction {
  public:
@@ -20,6 +20,6 @@ class TrackingAction : public G4UserTrackingAction {
   G4TrackingManager* fpTrackingManager;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* TRACKINGACTION_HH */

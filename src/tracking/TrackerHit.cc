@@ -2,69 +2,62 @@
 
 #include <iomanip>
 
-#include "Geant4/G4UnitsTable.hh"
-#include "Geant4/G4VVisManager.hh"
+#include "Geant4/G4Track.hh"
 #include "Geant4/G4Circle.hh"
 #include "Geant4/G4Colour.hh"
+#include "Geant4/G4UnitsTable.hh"
 #include "Geant4/G4VisAttributes.hh"
+#include "Geant4/G4VVisManager.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 G4ThreadLocal G4Allocator<TrackerHit>* TrackerHitAllocator = 0;
 
-TrackerHit::TrackerHit()
-    : G4VHit(),
-      fTrackID(-1),
-      fChamber(-1),
-      fDeposit(0.),
-      fTime(0.),
-      fPos(G4ThreeVector()) {}
+TrackerHit::TrackerHit(G4String particle,
+                       G4int track,
+                       G4int chamber,
+                       G4double deposit,
+                       G4double time,
+                       G4ThreeVector position)
+    : G4VHit(), fParticleName(particle), fTrackID(track), fChamberID(chamber),
+                fDeposit(deposit), fTime(time), fPosition(position) {}
 
-TrackerHit::~TrackerHit() {}
-
-TrackerHit::TrackerHit(const TrackerHit& right) : G4VHit() {
-  fTrackID = right.fTrackID;
-  fChamber = right.fChamber;
-  fDeposit = right.fDeposit;
-  fTime    = right.fTime;
-  fPos     = right.fPos;
-}
-
-const TrackerHit& TrackerHit::operator=(const TrackerHit& right) {
-  fTrackID = right.fTrackID;
-  fChamber = right.fChamber;
-  fDeposit = right.fDeposit;
-  fTime    = right.fTime;
-  fPos     = right.fPos;
-
-  return *this;
-}
-
-G4int TrackerHit::operator==(const TrackerHit& right) const {
-  return ( this == &right ) ? 1 : 0;
-}
+// FIXME: Optional constructor with all the behavior of the detector.
+// Not sure if it should stay here or stay in TrackerSD.cc.
+// At this point it is unused.
+TrackerHit::TrackerHit(G4Step* step)
+    : TrackerHit(step->GetTrack()->GetParticleDefinition()->GetParticleName(),
+                 step->GetTrack()->GetTrackID(),
+                 step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(),
+                 step->GetTotalEnergyDeposit(),
+                 step->GetPostStepPoint()->GetGlobalTime(),
+                 step->GetPostStepPoint()->GetPosition()) {}
 
 void TrackerHit::Draw() {
+  G4cout << "PRINTING HERE";
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if (pVVisManager) {
-    G4Circle circle(fPos);
-    circle.SetScreenSize(4.);
+    G4Circle circle(fPosition);
+    circle.SetScreenSize(5.);
     circle.SetFillStyle(G4Circle::filled);
-    G4Colour colour(1., 0., 0.);
-    G4VisAttributes attribs(colour);
-    circle.SetVisAttributes(attribs);
+    circle.SetVisAttributes(G4VisAttributes(G4Colour(1., 1., 1.)));
     pVVisManager->Draw(circle);
   }
 }
 
 void TrackerHit::Print() {
-  G4cout
-    << " trackID: "                        << fTrackID
-    << " chamber: "                        << fChamber
-    << " Energy Deposit: " << std::setw(7) << G4BestUnit(fDeposit, "Energy")
-    << " Time: "           << std::setw(7) << G4BestUnit(fTime, "Time")
-    << " Position: "       << std::setw(7) << G4BestUnit(fPos, "Length")
+  G4cout << " " << fParticleName
+         << " | TrackID: " << fTrackID
+         << " | ChamberID: " << fChamberID
+         << " | Energy Deposit: "
+           << std::setw(9) << G4BestUnit(fDeposit, "Energy")
+         << " | Spacetime: ["
+           << std::setw(9) << G4BestUnit(fTime, "Time") << " "
+           << std::setw(9) << G4BestUnit(fPosition[0], "Length")
+           << std::setw(9) << G4BestUnit(fPosition[1], "Length")
+           << std::setw(9) << G4BestUnit(fPosition[2], "Length")
+         << "]"
     << "\n";
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

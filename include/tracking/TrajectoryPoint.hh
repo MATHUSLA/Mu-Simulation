@@ -6,7 +6,7 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4ThreeVector.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class TrajectoryPoint : public G4TrajectoryPoint {
  public:
@@ -19,6 +19,6 @@ class TrajectoryPoint : public G4TrajectoryPoint {
  private:
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* TRAJECTORYPOINT_HH */

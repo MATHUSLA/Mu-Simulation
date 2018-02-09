@@ -5,7 +5,7 @@
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserEventAction.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class EventAction : public G4UserEventAction {
  public:
@@ -16,6 +16,6 @@ class EventAction : public G4UserEventAction {
   virtual void EndOfEventAction(const G4Event*);
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* EVENTACTION_HH */

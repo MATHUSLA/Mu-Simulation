@@ -1,17 +1,6 @@
-# /run/numberOfWorkers 4
-
-/run/initialize
-
-# /tracking/verbose 1
-/hits/verbose 2
-
-# /globalField/verbose 1
-# /globalField/setValue 0.2 0 0 tesla
-# /MATHUSLA/det/stepMax 1.0 mm
-/MATHUSLA/det/setTargetMaterial  G4_WATER
-/MATHUSLA/det/setChamberMaterial G4_Ar
+/MATHUSLA/MU/det/setTargetMaterial  G4_WATER
+/MATHUSLA/MU/det/setChamberMaterial G4_Ar
 
 /gun/particle mu-
-/gun/energy 55 GeV
-
-/run/beamOn 1
+/gun/energy 60 GeV
+/run/beamOn 30

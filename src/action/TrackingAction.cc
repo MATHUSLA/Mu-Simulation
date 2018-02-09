@@ -2,7 +2,7 @@
 
 #include "tracking/Trajectory.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 TrackingAction::TrackingAction() : G4UserTrackingAction() {}
 
@@ -19,4 +19,4 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track) {
 
 void TrackingAction::PostUserTrackingAction(const G4Track* track) {}
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

@@ -1,25 +1,28 @@
 #include "detector/DetectorConstruction.hh"
 
+#include "Geant4/G4AutoDelete.hh"
+#include "Geant4/G4Box.hh"
+#include "Geant4/G4Colour.hh"
+#include "Geant4/G4GeometryManager.hh"
+#include "Geant4/G4GeometryTolerance.hh"
+#include "Geant4/G4GlobalMagFieldMessenger.hh"
+#include "Geant4/G4LogicalVolume.hh"
+#include "Geant4/G4LogicalVolumeStore.hh"
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4NistManager.hh"
-#include "Geant4/G4SDManager.hh"
-#include "Geant4/G4Box.hh"
-#include "Geant4/G4Tubs.hh"
-#include "Geant4/G4LogicalVolume.hh"
+#include "Geant4/G4PhysicalVolumeStore.hh"
 #include "Geant4/G4PVPlacement.hh"
-#include "Geant4/G4GlobalMagFieldMessenger.hh"
-#include "Geant4/G4AutoDelete.hh"
-#include "Geant4/G4GeometryTolerance.hh"
-#include "Geant4/G4GeometryManager.hh"
+#include "Geant4/G4SDManager.hh"
+#include "Geant4/G4SDParticleFilter.hh"
+#include "Geant4/G4SolidStore.hh"
+#include "Geant4/G4SystemOfUnits.hh"
+#include "Geant4/G4Tubs.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4VisAttributes.hh"
-#include "Geant4/G4Colour.hh"
-#include "Geant4/G4SystemOfUnits.hh"
-#include "Geant4/G4SDParticleFilter.hh"
 
 #include "detector/TrackerSD.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 G4ThreadLocal G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0;
 
@@ -52,33 +55,41 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
 void DetectorConstruction::DefineMaterials() {
   // Material definition
-
   G4NistManager* nistManager = G4NistManager::Instance();
 
   // Air defined using NIST Manager
   nistManager->FindOrBuildMaterial("G4_AIR");
 
   // Lead defined using NIST Manager
-  fTargetMaterial  = nistManager->FindOrBuildMaterial("G4_Pb");
+  fTargetMaterial = nistManager->FindOrBuildMaterial("G4_Pb");
 
   // Xenon gas defined using NIST Manager
   fChamberMaterial = nistManager->FindOrBuildMaterial("G4_Xe");
 
-  // Print materials
-  G4cout << *(G4Material::GetMaterialTable()) << "\n";
-}
-
-G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
-  G4Material* air = G4Material::GetMaterial("G4_AIR");
-
   // Define Elements
-
   G4Element* H  = new G4Element("Hydrogen", "H",  1.,     1.01*g/mole);
   G4Element* C  = new G4Element("Carbon",   "C",  6.,    12.01*g/mole);
+  G4Element* N  = new G4Element("Nitrogen", "N",  7.,    14.01*g/mole);
   G4Element* O  = new G4Element("Oxygen",   "O",  8.,    16.00*g/mole);
   G4Element* Al = new G4Element("Aluminum", "Al", 13.,  26.981*g/mole);
   G4Element* Si = new G4Element("Silicon",  "Si", 14., 28.0855*g/mole);
   G4Element* Ca = new G4Element("Calcium",  "Ca", 20.,  40.078*g/mole);
+
+  Air = new G4Material("Air", 1.290*mg/cm3, 2);
+  Air->AddElement(N, 0.7);
+  Air->AddElement(O, 0.3);
+
+  Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2);
+  Scintillator->AddElement(C, 9);
+  Scintillator->AddElement(H, 10);
+
+  const G4int nSci = 1;
+  G4double eSci[nSci] = { 3.10*eV };
+  G4double rSci[nSci] = { 1.58    };
+
+  G4MaterialPropertiesTable* sciProp = new G4MaterialPropertiesTable();
+  sciProp->AddProperty("RINDEX", eSci, rSci, nSci);
+  Scintillator->SetMaterialPropertiesTable(sciProp);
 
   CaCO3 = new G4Material("CaCO3", 2.71*g/cm3, 3);
   CaCO3->AddElement(C,  1);
@@ -103,33 +114,32 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
   Mix->AddMaterial(Marl, 50*perCent);
   Mix->AddMaterial(SiO2, 50*perCent);
 
-  // Sizes of the principal geometrical components (solids)
+  // Print materials
+  G4cout << *(G4Material::GetMaterialTable()) << "\n";
+}
 
-  G4double chamberSpacing = 80*cm;  // from chamber center to center!
+G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
+  G4NistManager* nist  = G4NistManager::Instance();
+  G4Material* trap_mat = nist->FindOrBuildMaterial("G4_Al");
+  G4Material* pmt      = nist->FindOrBuildMaterial("G4_C");
 
-  G4double chamberWidth = 20.0*cm;  // width of the chambers
-  G4double targetLength =  5.0*cm;  // full length of Target
-
-  G4double trackerLength = (fNbOfChambers+1)*chamberSpacing;
-
-  G4double worldLength = 1.2 * (2*targetLength + trackerLength);
-
-  G4double targetRadius  = 0.5*targetLength;   // Radius of Target
-  targetLength = 0.5*targetLength;             // Half length of the Target
-  G4double trackerSize   = 0.5*trackerLength;  // Half length of the Tracker
+  G4GeometryManager::GetInstance()->OpenGeometry();
+  G4PhysicalVolumeStore::GetInstance()->Clean();
+  G4LogicalVolumeStore::GetInstance()->Clean();
+  G4SolidStore::GetInstance()->Clean();
 
   // Definitions of Solids, Logical Volumes, Physical Volumes
 
   // World
 
-  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldLength);
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(12000.0);
 
   G4cout << "Computed tolerance = "
          << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance()/mm
          << " mm\n";
 
   G4Box* worldS = new G4Box("world", 12000.0*cm, 12000.0*cm, 12000.0*cm);
-  G4LogicalVolume* worldLV = new G4LogicalVolume(worldS, air, "World");
+  G4LogicalVolume* worldLV = new G4LogicalVolume(worldS, Air, "World");
   G4VPhysicalVolume* worldPV
     = new G4PVPlacement(0,                // no rotation
                         G4ThreeVector(),  // at (0,0,0)
@@ -172,6 +182,25 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
                     false,
                     0);
 
+  // *************
+  // TO DELETE ...
+  // *************
+
+  // Sizes of the principal geometrical components (solids)
+
+  G4double chamberSpacing = 80*cm;  // from chamber center to center!
+
+  G4double chamberWidth = 20.0*cm;  // width of the chambers
+  G4double targetLength =  5.0*cm;  // full length of Target
+
+  G4double trackerLength = (fNbOfChambers+1)*chamberSpacing;
+
+  G4double worldLength = 1.2 * (2*targetLength + trackerLength);
+
+  G4double targetRadius = 0.5*targetLength;   // Radius of Target
+  targetLength          = 0.5*targetLength;   // Half length of the Target
+  G4double trackerSize  = 0.5*trackerLength;  // Half length of the Tracker
+
   // Target
 
   G4ThreeVector positionTarget = G4ThreeVector(0, 0, -(targetLength+trackerSize));
@@ -197,7 +226,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
   G4ThreeVector positionTracker = G4ThreeVector(0, 0, 10250.0*cm-10000*cm);
 
   G4Tubs* trackerS = new G4Tubs("tracker", 0, trackerSize, trackerSize, 0.*deg, 360.*deg);
-  G4LogicalVolume* trackerLV = new G4LogicalVolume(trackerS, air, "Tracker", 0, 0, 0);
+  G4LogicalVolume* trackerLV = new G4LogicalVolume(trackerS, Air, "Tracker", 0, 0, 0);
 
   new G4PVPlacement(0,                // no rotation
                     positionTracker,  // at (x,y,z)
@@ -265,32 +294,19 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes() {
                         fCheckOverlaps);                 // checking overlaps
   }
 
-  // Example of User Limits
-  //
-  // Below is an example of how to set tracking constraints in a given
-  // logical volume
-  //
-  // Sets a max step length in the tracker region, with G4StepLimiter
-
   G4double maxStep = 0.5 * chamberWidth;
   fStepLimit = new G4UserLimits(maxStep);
   trackerLV->SetUserLimits(fStepLimit);
 
-  /// Set additional contraints on the track, with G4UserSpecialCuts
-  ///
-  /// G4double maxLength = 2*trackerLength, maxTime = 0.1*ns, minEkin = 10*MeV;
-  /// trackerLV->SetUserLimits(new G4UserLimits(maxStep,
-  ///                                           maxLength,
-  ///                                           maxTime,
-  ///                                           minEkin));
+  // *************
+  // END TO DELETE
+  // *************
 
   return worldPV;
 }
 
 void DetectorConstruction::ConstructSDandField() {
-  TrackerSD* detector = new TrackerSD("MATHUSLA/TrackerSD", "TrackerHC");
-
-  detector->SetFilter(new G4SDParticleFilter("muon filter", "mu-"));
+  TrackerSD* detector = new TrackerSD("MATHUSLA/MU/TrackerSD", "TrackerHC");
   G4SDManager::GetSDMpointer()->AddNewDetector(detector);
 
   // Setting detector to all logical volumes with the same name
@@ -306,6 +322,45 @@ void DetectorConstruction::ConstructSDandField() {
 
   // Register the field messenger for deleting
   G4AutoDelete::Register(fMagFieldMessenger);
+}
+
+G4RotationMatrix* DetectorConstruction::AddMatrix(G4double th1,
+                                                  G4double phi1,
+                                                  G4double th2,
+                                                  G4double phi2,
+                                                  G4double th3,
+                                                  G4double phi3) {
+  G4double sinth1 = std::sin(th1);
+  G4double costh1 = std::cos(th1);
+  G4double sinth2 = std::sin(th2);
+  G4double costh2 = std::cos(th2);
+  G4double sinth3 = std::sin(th3);
+  G4double costh3 = std::cos(th3);
+
+  G4double sinph1 = std::sin(phi1);
+  G4double cosph1 = std::cos(phi1);
+  G4double sinph2 = std::sin(phi2);
+  G4double cosph2 = std::cos(phi2);
+  G4double sinph3 = std::sin(phi3);
+  G4double cosph3 = std::cos(phi3);
+
+  // xprime axis coordinates
+  CLHEP::Hep3Vector xprime(sinth1 * cosph1, sinth1 * sinph1, costh1);
+  // yprime axis coordinates
+  CLHEP::Hep3Vector yprime(sinth2 * cosph2, sinth2 * sinph2, costh2);
+  // zprime axis coordinates
+  CLHEP::Hep3Vector zprime(sinth3 * cosph3, sinth3 * sinph3, costh3);
+
+  G4RotationMatrix *rotMat = new G4RotationMatrix();
+  rotMat->rotateAxes(xprime, yprime, zprime);
+  if (*rotMat == G4RotationMatrix()) {
+    delete rotMat;
+    rotMat = 0;
+  } else {
+    rotMat->invert();
+  }
+
+  return rotMat;
 }
 
 void DetectorConstruction::SetTargetMaterial(G4String materialName) {
@@ -353,4 +408,4 @@ void DetectorConstruction::SetCheckOverlaps(G4bool checkOverlaps) {
   fCheckOverlaps = checkOverlaps;
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

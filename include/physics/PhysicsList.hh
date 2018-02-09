@@ -4,7 +4,7 @@
 
 #include "Geant4/G4VUserPhysicsList.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class PhysicsList : G4VUserPhysicsList {
  public:
@@ -15,6 +15,6 @@ class PhysicsList : G4VUserPhysicsList {
   void SetCuts();
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* PHYSICSLIST_H */

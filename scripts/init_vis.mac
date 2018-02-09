@@ -1,9 +1,0 @@
-/control/verbose 2
-/control/saveHistory scripts/G4History.macro
-/run/verbose 2
-
-# /run/numberOfThreads 4
-
-/run/initialize
-
-/control/execute vis.mac

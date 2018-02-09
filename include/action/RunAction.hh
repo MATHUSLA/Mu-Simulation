@@ -6,7 +6,7 @@
 #include "Geant4/G4UserRunAction.hh"
 #include "Geant4/G4Run.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class RunAction : public G4UserRunAction {
  public:
@@ -18,6 +18,6 @@ class RunAction : public G4UserRunAction {
   virtual void EndOfRunAction(const G4Run*);
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* RUNACTION_HH */

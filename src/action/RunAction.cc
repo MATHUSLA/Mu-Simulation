@@ -2,7 +2,7 @@
 
 #include "Geant4/G4RunManager.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 RunAction::RunAction() : G4UserRunAction() {
   // set printing event number per each 100 events
@@ -20,4 +20,4 @@ void RunAction::BeginOfRunAction(const G4Run*) {
 
 void RunAction::EndOfRunAction(const G4Run*) {}
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

@@ -7,7 +7,7 @@
 #include "Geant4/G4ParticleGun.hh"
 #include "Geant4/G4Event.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
@@ -24,6 +24,6 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
   G4ParticleGun* fParticleGun;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* PRIMARYGENERATORACTION_HH */

@@ -1,6 +1,6 @@
 #include "action/StackingAction.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 StackingAction::StackingAction() : G4UserStackingAction() {}
 
@@ -18,4 +18,4 @@ void StackingAction::PrepareNewEvent() {
   G4UserStackingAction::PrepareNewEvent();
 }
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */

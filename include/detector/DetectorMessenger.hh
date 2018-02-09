@@ -10,7 +10,7 @@
 
 #include "DetectorConstruction.hh"
 
-namespace MATHUSLA {
+namespace MATHUSLA { namespace MU {
 
 class DetectorConstruction;
 
@@ -33,6 +33,6 @@ class DetectorMessenger: public G4UImessenger {
   G4UIcmdWithADoubleAndUnit* fStepMaxCmd;
 };
 
-} /* namespace MATHUSLA */
+} } /* namespace MATHUSLA::MU */
 
 #endif /* DETECTORMESSENGER_HH */
