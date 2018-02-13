@@ -1,4 +1,4 @@
-#include "detector/RegionInfo.hh"
+#include "detector/RPC.hh"
 
 namespace MATHUSLA { namespace MU {
 

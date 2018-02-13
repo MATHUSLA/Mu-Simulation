@@ -1,6 +1,3 @@
-/MATHUSLA/MU/det/setTargetMaterial  G4_WATER
-/MATHUSLA/MU/det/setChamberMaterial G4_Ar
-
 /gun/particle mu-
 /gun/energy 60 GeV
-/run/beamOn 30
+/run/beamOn 1

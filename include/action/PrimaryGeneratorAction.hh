@@ -1,5 +1,5 @@
-#ifndef PRIMARYGENERATORACTION_HH
-#define PRIMARYGENERATORACTION_HH
+#ifndef ACTION_PRIMARYGENERATORACTION_HH
+#define ACTION_PRIMARYGENERATORACTION_HH
 #pragma once
 
 #include "Geant4/globals.hh"
@@ -26,4 +26,4 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PRIMARYGENERATORACTION_HH */
+#endif /* ACTION_PRIMARYGENERATORACTION_HH */

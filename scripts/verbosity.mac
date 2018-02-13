@@ -21,7 +21,7 @@
 
 /geometry/navigator/verbose 0
 
-/globalField/verbose 0
+# /globalField/verbose 0
 # 0 : silent
 # 1 : new field value
 

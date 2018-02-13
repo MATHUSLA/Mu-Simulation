@@ -22,9 +22,10 @@
 
 .DAWN_*
 .DS_Store
+.idea
+.temp
 G4History
 
-/.temp
-/build
+build
 
 simulation

@@ -1,5 +1,5 @@
-#ifndef TRAJECTORYPOINT_HH
-#define TRAJECTORYPOINT_HH
+#ifndef TRACKING_TRAJECTORYPOINT_HH
+#define TRACKING_TRAJECTORYPOINT_HH
 #pragma once
 
 #include "Geant4/G4TrajectoryPoint.hh"
@@ -21,4 +21,4 @@ class TrajectoryPoint : public G4TrajectoryPoint {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* TRAJECTORYPOINT_HH */
+#endif /* TRACKING_TRAJECTORYPOINT_HH */

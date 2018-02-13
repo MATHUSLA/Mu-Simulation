@@ -34,7 +34,6 @@ TrackerHit::TrackerHit(G4Step* step)
                  step->GetPostStepPoint()->GetPosition()) {}
 
 void TrackerHit::Draw() {
-  G4cout << "PRINTING HERE";
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if (pVVisManager) {
     G4Circle circle(fPosition);
@@ -47,11 +46,11 @@ void TrackerHit::Draw() {
 
 void TrackerHit::Print() {
   G4cout << " " << fParticleName
-         << " | TrackID: " << fTrackID
-         << " | ChamberID: " << fChamberID
-         << " | Energy Deposit: "
+         << " | Track: " << fTrackID
+         << " | Chamber: " << fChamberID
+         << " | Deposit: "
            << std::setw(9) << G4BestUnit(fDeposit, "Energy")
-         << " | Spacetime: ["
+         << " | Position : ["
            << std::setw(9) << G4BestUnit(fTime, "Time") << " "
            << std::setw(9) << G4BestUnit(fPosition[0], "Length")
            << std::setw(9) << G4BestUnit(fPosition[1], "Length")

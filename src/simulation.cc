@@ -11,8 +11,10 @@
 #include "Geant4/G4VisExecutive.hh"
 #include "Geant4/Randomize.hh"
 
+#include "Geant4/G4Material.hh"
+
 #include "action/ActionInitialization.hh"
-#include "detector/DetectorConstruction.hh"
+#include "detector/Construction.hh"
 
 int main(int argc, char** argv) {
   G4UIExecutive* ui = 0;
@@ -20,23 +22,23 @@ int main(int argc, char** argv) {
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
 
-#ifdef G4MULTITHREADED
-  G4MTRunManager* runManager = new G4MTRunManager;
-#else
-  G4RunManager* runManager = new G4RunManager;
-#endif
+  #ifdef G4MULTITHREADED
+    auto runManager = new G4MTRunManager;
+  #else
+    auto runManager = new G4RunManager;
+  #endif
 
   auto physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics());
 
   runManager->SetUserInitialization(physicsList);
-  runManager->SetUserInitialization(new MATHUSLA::MU::DetectorConstruction());
+  runManager->SetUserInitialization(new MATHUSLA::MU::Construction());
   runManager->SetUserInitialization(new MATHUSLA::MU::ActionInitialization());
 
-  G4VisManager* visManager = new G4VisExecutive("Quiet");
+  auto visManager = new G4VisExecutive("Quiet");
   visManager->Initialize();
 
-  G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  auto UImanager = G4UImanager::GetUIpointer();
 
   UImanager->ApplyCommand("/control/macroPath scripts/");
   UImanager->ApplyCommand("/control/saveHistory scripts/G4History");

@@ -2,11 +2,10 @@
 _simulation of muons through earth material_
 
 ## Build & Run
-Run the following commands to build and run the simulation:
+Run the following command to build and run the simulation:
 
 ```bash
-./install
-./simulation
+./install --run
 ```
 
 Run the following for more options:

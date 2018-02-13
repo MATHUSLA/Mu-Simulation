@@ -1,5 +1,5 @@
-#ifndef TRACKERHIT_HH
-#define TRACKERHIT_HH
+#ifndef TRACKING_TRACKERHIT_HH
+#define TRACKING_TRACKERHIT_HH
 #pragma once
 
 #include "Geant4/G4Allocator.hh"
@@ -62,4 +62,4 @@ inline void TrackerHit::operator delete(void* hit) {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* TRACKERHIT_HH */
+#endif /* TRACKING_TRACKERHIT_HH */

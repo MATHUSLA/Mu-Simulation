@@ -1,5 +1,5 @@
-#ifndef EVENTACTION_HH
-#define EVENTACTION_HH
+#ifndef ACTION_EVENTACTION_HH
+#define ACTION_EVENTACTION_HH
 #pragma once
 
 #include "Geant4/globals.hh"
@@ -18,4 +18,4 @@ class EventAction : public G4UserEventAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* EVENTACTION_HH */
+#endif /* ACTION_EVENTACTION_HH */

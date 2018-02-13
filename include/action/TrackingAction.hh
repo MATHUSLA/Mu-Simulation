@@ -1,5 +1,5 @@
-#ifndef TRACKINGACTION_HH
-#define TRACKINGACTION_HH
+#ifndef ACTION_TRACKINGACTION_HH
+#define ACTION_TRACKINGACTION_HH
 #pragma once
 
 #include "Geant4/G4UserTrackingAction.hh"
@@ -22,4 +22,4 @@ class TrackingAction : public G4UserTrackingAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* TRACKINGACTION_HH */
+#endif /* ACTION_TRACKINGACTION_HH */

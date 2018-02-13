@@ -20,28 +20,18 @@ set(SOURCES
     src/action/SteppingAction.cc
     src/action/TrackingAction.cc
 
-    src/detector/DetectorConstruction.cc
-    src/detector/DetectorMessenger.cc
-    src/detector/RegionInfo.cc
+    src/detector/Construction.cc
+    src/detector/Earth.cc
     src/detector/TrackerSD.cc
+    src/detector/TrapezoidCalorimeter.cc
 
     src/tracking/TrackerHit.cc
     src/tracking/Trajectory.cc
     src/tracking/TrajectoryPoint.cc
 
     src/physics/PhysicsList.cc
-)
 
-set(SCRIPTS
-    scripts/simulation.in
-
-    scripts/startup.mac
-    scripts/init_vis.mac
-    scripts/vis.mac
-    scripts/gui.mac
-
-    scripts/run1.mac
-    scripts/run2.mac
+    src/ui/Messenger.cc
 )
 
 add_executable(simulation ${SOURCES})

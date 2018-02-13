@@ -1,5 +1,5 @@
-#ifndef ACTIONINITIALIZATION_HH
-#define ACTIONINITIALIZATION_HH
+#ifndef ACTION_ACTIONINITIALIZATION_HH
+#define ACTION_ACTIONINITIALIZATION_HH
 #pragma once
 
 #include "Geant4/G4VUserActionInitialization.hh"
@@ -17,4 +17,4 @@ class ActionInitialization : public G4VUserActionInitialization {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* ACTIONINITIALIZATION_HH */
+#endif /* ACTION_ACTIONINITIALIZATION_HH */

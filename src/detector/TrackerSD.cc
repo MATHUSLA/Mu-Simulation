@@ -6,6 +6,8 @@
 #include "Geant4/G4SDParticleFilter.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4RunManager.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -14,10 +16,12 @@ TrackerSD::TrackerSD(const G4String& name, const G4String& hitsCollectionName)
   collectionName.insert(hitsCollectionName);
 }
 
-TrackerSD::~TrackerSD() {}
+G4VPhysicalVolume* TrackerSD::Construct(G4LogicalVolume*) {
+    return 0;
+}
 
 void TrackerSD::Initialize(G4HCofThisEvent* eventhc) {
-  fHitsCollection = new TrackerHitsCollection(SensitiveDetectorName, collectionName[0]);
+  fHitsCollection = new TrackerHitsCollection(this->GetName(), collectionName[0]);
   eventhc->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
     fHitsCollection);
@@ -47,21 +51,31 @@ G4bool TrackerSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 void TrackerSD::EndOfEvent(G4HCofThisEvent*) {
   if (verboseLevel > 1) {
-    G4int nofHits = fHitsCollection->entries();
-    G4cout << "\n--------> Hits Collection: in this event there are "
-           << nofHits << " hits in the tracker chambers: \n";
+    G4int hitCount = fHitsCollection->entries();
+    G4int eventID = 0;
+    const G4Event* event = G4RunManager::GetRunManager()->GetCurrentEvent();
+    if (event) eventID = event->GetEventID();
+
+    G4cout << "\n\n------> Event: " << eventID
+           << " | Hit Count: " << hitCount << "\n\n";
+
     G4int chamberID = -1, trackID = -1;
-    for (G4int i = 0; i < nofHits; i++) {
+    for (G4int i = 0; i < hitCount; i++) {
       auto hit = static_cast<TrackerHit*>(fHitsCollection->GetHit(i));
       G4int newChamberID = hit->GetChamberID();
       G4int newTrackID = hit->GetTrackID();
-      if (chamberID != newChamberID || trackID != newTrackID) {
-        G4cout << /* std::string(129 + hit->GetParticleName().size(), '-') << */ '\n';
-        chamberID = newChamberID;
-        trackID = newTrackID;
+      if (i != 0 && (chamberID != newChamberID || trackID != newTrackID)) {
+        const G4int barwidth = 116
+                             + std::to_string(newChamberID).length()
+                             + std::to_string(newTrackID).length()
+                             + hit->GetParticleName().length();
+        G4cout << std::string(barwidth, '-') << '\n';
       }
+      chamberID = newChamberID;
+      trackID = newTrackID;
       hit->Print();
     }
+    G4cout << "\n";
   }
 }
 
