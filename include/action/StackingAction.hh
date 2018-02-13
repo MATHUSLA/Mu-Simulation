@@ -1,5 +1,5 @@
-#ifndef STACKINGACTION_HH
-#define STACKINGACTION_HH
+#ifndef ACTION_STACKINGACTION_HH
+#define ACTION_STACKINGACTION_HH
 #pragma once
 
 #include "Geant4/G4UserStackingAction.hh"
@@ -22,4 +22,4 @@ class StackingAction : public G4UserStackingAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* STACKINGACTION_HH */
+#endif /* ACTION_STACKINGACTION_HH */

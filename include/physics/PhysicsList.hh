@@ -1,5 +1,5 @@
-#ifndef PHYSICSLIST_H
-#define PHYSICSLIST_H
+#ifndef PHYSICS_PHYSICSLIST_H
+#define PHYSICS_PHYSICSLIST_H
 #pragma once
 
 #include "Geant4/G4VUserPhysicsList.hh"
@@ -17,4 +17,4 @@ class PhysicsList : G4VUserPhysicsList {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PHYSICSLIST_H */
+#endif /* PHYSICS_PHYSICSLIST_H */

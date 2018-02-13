@@ -1,5 +1,5 @@
-#ifndef STEPPINGACTION_H
-#define STEPPINGACTION_H
+#ifndef ACTION_STEPPINGACTION_H
+#define ACTION_STEPPINGACTION_H
 #pragma once
 
 #include "Geant4/G4UserSteppingAction.hh"
@@ -19,4 +19,4 @@ class SteppingAction : public G4UserSteppingAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* STEPPINGACTION_H */
+#endif /* ACTION_STEPPINGACTION_H */

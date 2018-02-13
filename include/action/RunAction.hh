@@ -1,5 +1,5 @@
-#ifndef RUNACTION_HH
-#define RUNACTION_HH
+#ifndef ACTION_RUNACTION_HH
+#define ACTION_RUNACTION_HH
 #pragma once
 
 #include "Geant4/globals.hh"
@@ -20,4 +20,4 @@ class RunAction : public G4UserRunAction {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* RUNACTION_HH */
+#endif /* ACTION_RUNACTION_HH */
