@@ -15,8 +15,6 @@
 #include "detector/TrackerSD.hh"
 #include "detector/TrapezoidCalorimeter.hh"
 
-#include "detector/TestDetector.hh"
-
 namespace MATHUSLA { namespace MU {
 
 auto Construction::Material::H  = new G4Element("Hydrogen", "H",  1.,     1.01*g/mole);
