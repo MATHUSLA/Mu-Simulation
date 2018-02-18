@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 project(MATHUSLA_MU)
 
@@ -22,12 +22,11 @@ set(SOURCES
 
     src/detector/Construction.cc
     src/detector/Earth.cc
-    src/detector/TrackerSD.cc
+    src/detector/Envelope.cc
+    src/detector/Scintillator.cc
     src/detector/TrapezoidCalorimeter.cc
 
-    src/tracking/TrackerHit.cc
-    src/tracking/Trajectory.cc
-    src/tracking/TrajectoryPoint.cc
+    src/tracking/TrapezoidHit.cc
 
     src/physics/PhysicsList.cc
 

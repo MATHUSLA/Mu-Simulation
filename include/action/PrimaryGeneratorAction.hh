@@ -12,13 +12,9 @@ namespace MATHUSLA { namespace MU {
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
   PrimaryGeneratorAction();
-  virtual ~PrimaryGeneratorAction();
-
-  virtual void GeneratePrimaries(G4Event*);
-
-  G4ParticleGun* GetParticleGun() { return fParticleGun; }
-
+  void GeneratePrimaries(G4Event*);
   void SetRandomFlag(G4bool);
+  G4ParticleGun* GetParticleGun() { return fParticleGun; }
 
  private:
   G4ParticleGun* fParticleGun;

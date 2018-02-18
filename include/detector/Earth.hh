@@ -2,7 +2,9 @@
 #define DETECTOR_EARTH_HH
 #pragma once
 
-#include "Construction.hh"
+#include "Geant4/G4Material.hh"
+#include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4LogicalVolume.hh"
 
 namespace MATHUSLA { namespace MU {
 

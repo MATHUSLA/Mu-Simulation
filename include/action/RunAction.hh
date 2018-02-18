@@ -11,11 +11,9 @@ namespace MATHUSLA { namespace MU {
 class RunAction : public G4UserRunAction {
  public:
   RunAction();
-  virtual ~RunAction();
-
-  virtual G4Run* GenerateRun();
-  virtual void BeginOfRunAction(const G4Run*);
-  virtual void EndOfRunAction(const G4Run*);
+  G4Run* GenerateRun();
+  void BeginOfRunAction(const G4Run*);
+  void EndOfRunAction(const G4Run*);
 };
 
 } } /* namespace MATHUSLA::MU */

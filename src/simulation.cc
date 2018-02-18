@@ -15,12 +15,14 @@
 
 #include "action/ActionInitialization.hh"
 #include "detector/Construction.hh"
+#include "physics/Units.hh"
 
 int main(int argc, char** argv) {
   G4UIExecutive* ui = 0;
   if (argc == 1) ui = new G4UIExecutive(argc, argv);
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
+  G4Random::setTheSeed(time(0));
 
   #ifdef G4MULTITHREADED
     auto runManager = new G4MTRunManager;
@@ -30,6 +32,8 @@ int main(int argc, char** argv) {
 
   auto physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics());
+
+  MATHUSLA::MU::DefineNewUnits();
 
   runManager->SetUserInitialization(physicsList);
   runManager->SetUserInitialization(new MATHUSLA::MU::Construction());
