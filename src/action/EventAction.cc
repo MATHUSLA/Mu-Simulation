@@ -10,18 +10,12 @@ namespace MATHUSLA { namespace MU {
 
 EventAction::EventAction() : G4UserEventAction() {}
 
-EventAction::~EventAction() {}
-
 void EventAction::BeginOfEventAction(const G4Event*) {}
 
 void EventAction::EndOfEventAction(const G4Event* event) {
-  // get number of stored trajectories
-
   G4TrajectoryContainer* trajectoryContainer = event->GetTrajectoryContainer();
   G4int n_trajectories = 0;
   if (trajectoryContainer) n_trajectories = trajectoryContainer->entries();
-
-  // periodic printing
 
   G4int eventID = event->GetEventID();
   if (eventID < 100 || eventID % 100 == 0) {

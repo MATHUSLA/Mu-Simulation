@@ -4,8 +4,6 @@ namespace MATHUSLA { namespace MU {
 
 StackingAction::StackingAction() : G4UserStackingAction() {}
 
-StackingAction::~StackingAction() {}
-
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* track) {
   return G4UserStackingAction::ClassifyNewTrack(track);
 }

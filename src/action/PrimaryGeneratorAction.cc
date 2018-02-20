@@ -24,10 +24,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun->SetParticleEnergy(60.0*GeV);
 }
 
-PrimaryGeneratorAction::~PrimaryGeneratorAction() {
-  delete fParticleGun;
-}
-
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event) {
   G4double worldZHalfLength = 6000*cm;
   G4LogicalVolume* worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("World");

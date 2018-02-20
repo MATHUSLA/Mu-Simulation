@@ -9,12 +9,10 @@ namespace MATHUSLA { namespace MU {
 class SteppingAction : public G4UserSteppingAction {
  public:
   SteppingAction();
-  virtual ~SteppingAction();
-
-  virtual void UserSteppingAction(const G4Step*);
+  void UserSteppingAction(const G4Step*);
 
  private:
-  G4SteppingManager* fpSteppingManager;
+  // G4SteppingManager* fpSteppingManager;
 };
 
 } } /* namespace MATHUSLA::MU */
