@@ -14,7 +14,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
   PrimaryGeneratorAction();
   void GeneratePrimaries(G4Event*);
   void SetRandomFlag(G4bool);
-  G4ParticleGun* GetParticleGun() { return fParticleGun; }
+  G4ParticleGun* GetParticleGun() const { return fParticleGun; }
 
  private:
   G4ParticleGun* fParticleGun;

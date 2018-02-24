@@ -10,7 +10,6 @@
 #include "Geant4/G4SDManager.hh"
 #include "Geant4/G4SolidStore.hh"
 #include "Geant4/G4PVPlacement.hh"
-#include "Geant4/G4VReadOutGeometry.hh"
 
 #include "detector/Earth.hh"
 #include "detector/TrapezoidCalorimeter.hh"
@@ -89,20 +88,31 @@ G4Trap* Construction::Trap(const G4String& name,
 G4LogicalVolume* Construction::Volume(const G4String& name,
                                       G4VSolid* solid,
                                       G4Material* material,
-                                      const G4VisAttributes* attr,
-                                      G4VSensitiveDetector* detector,
-                                      G4FieldManager* fieldmgr) {
-  auto out = new G4LogicalVolume(solid, material, name, fieldmgr, detector);
+                                      const G4VisAttributes* attr) {
+  auto out = new G4LogicalVolume(solid, material, name);
+  out->SetVisAttributes(attr);
+  return out;
+}
+
+G4LogicalVolume* Construction::Volume(const G4String& name,
+                                      G4VSolid* solid,
+                                      G4Material* material,
+                                      const G4VisAttributes& attr) {
+  auto out = new G4LogicalVolume(solid, material, name);
   out->SetVisAttributes(attr);
   return out;
 }
 
 G4LogicalVolume* Construction::Volume(G4VSolid* solid,
                                       G4Material* material,
-                                      const G4VisAttributes* attr,
-                                      G4VSensitiveDetector* detector,
-                                      G4FieldManager* fieldmgr) {
-  return Volume(solid->GetName(), solid, material, attr, detector, fieldmgr);
+                                      const G4VisAttributes* attr) {
+  return Volume(solid->GetName(), solid, material, attr);
+}
+
+G4LogicalVolume* Construction::Volume(G4VSolid* solid,
+                                      G4Material* material,
+                                      const G4VisAttributes& attr) {
+  return Volume(solid->GetName(), solid, material, attr);
 }
 
 G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
@@ -133,6 +143,23 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4VSolid* solid,
   return PlaceVolume(solid->GetName(), solid, material, parent, transform);
 }
 
+G4RotationMatrix Construction::Matrix(const G4double th1, const G4double phi1,
+                                      const G4double th2, const G4double phi2,
+                                      const G4double th3, const G4double phi3) {
+  const G4double sinth1 = std::sin(th1);
+  const G4double sinth2 = std::sin(th2);
+  const G4double sinth3 = std::sin(th3);
+  G4RotationMatrix matrix = G4RotationMatrix();
+
+  matrix.rotateAxes(
+    G4ThreeVector(sinth1*std::cos(phi1), sinth1*std::sin(phi1), std::cos(th1)),
+    G4ThreeVector(sinth2*std::cos(phi2), sinth2*std::sin(phi2), std::cos(th2)),
+    G4ThreeVector(sinth3*std::cos(phi3), sinth3*std::sin(phi3), std::cos(th3)));
+
+  if (matrix != G4RotationMatrix()) matrix.invert();
+  return matrix;
+}
+
 G4Transform3D Construction::Transform(const G4ThreeVector& translate,
                                       const G4ThreeVector& axis,
                                       const G4double angle) {
@@ -155,6 +182,14 @@ G4Transform3D Construction::Rotate(const G4double axisx,
                                    const G4double axisz,
                                    const G4double angle) {
   return Transform(0, 0, 0, axisx, axisy, axisz, angle);
+}
+
+G4Transform3D Construction::SpecialTransformB(const G4double x,
+                                              const G4double y,
+                                              const G4double z)  {
+  return G4Transform3D(
+    Matrix(90*deg, 0*deg, 0*deg, 0*deg, 90*deg, 270*deg),
+    G4ThreeVector(x, y, z));
 }
 
 } } /* namespace MATHUSLA::MU */

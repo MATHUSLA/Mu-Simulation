@@ -10,7 +10,6 @@ namespace MATHUSLA { namespace MU {
 class Messenger: public G4UImessenger {
  public:
   Messenger();
-  virtual ~Messenger();
 
   virtual void SetNewValue(G4UIcommand*, G4String);
   virtual G4String GetCurrentValue(G4UIcommand*);

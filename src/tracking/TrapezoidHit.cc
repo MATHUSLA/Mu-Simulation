@@ -2,7 +2,6 @@
 
 #include <iomanip>
 
-#include "Geant4/G4Track.hh"
 #include "Geant4/G4Circle.hh"
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4UnitsTable.hh"
@@ -26,10 +25,10 @@ TrapezoidHit::TrapezoidHit(const G4String& particle,
                 fEnergy(energy), fMomentum(momentum) {}
 
 void TrapezoidHit::Draw() {
-  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+  auto pVVisManager = G4VVisManager::GetConcreteInstance();
   if (pVVisManager) {
     G4Circle point(fPosition);
-    point.SetScreenSize(5.);
+    point.SetScreenSize(4.);
     point.SetFillStyle(G4Circle::filled);
     point.SetVisAttributes(G4VisAttributes(G4Colour(1., 1., 1.)));
     pVVisManager->Draw(point);
@@ -39,16 +38,16 @@ void TrapezoidHit::Draw() {
 void TrapezoidHit::Print() {
   G4cout << " "            << fParticleName
          << " | Track: "   << fTrackID
-         << " | Chamber: " << fChamberID
+         << " | " /*" | Chamber: "*/ << fChamberID
          << " | Deposit: "
            << std::setw(9) << G4BestUnit(fDeposit, "Energy")
-         << " | Position : ["
+         << " | ["  //" | Position : ["  <- labels?
            << std::setw(9) << G4BestUnit(fTime,        "Time") << " "
            << std::setw(9) << G4BestUnit(fPosition[0], "Length")
            << std::setw(9) << G4BestUnit(fPosition[1], "Length")
            << std::setw(9) << G4BestUnit(fPosition[2], "Length")
          << "]"
-         << " | Momentum : ["
+         << " | ["  //" | Momentum : ["  <- labels?
            << std::setw(9) << G4BestUnit(fEnergy,      "Momentum")
            << std::setw(9) << G4BestUnit(fMomentum[0], "Momentum")
            << std::setw(9) << G4BestUnit(fMomentum[1], "Momentum")

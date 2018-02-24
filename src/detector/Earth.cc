@@ -34,7 +34,7 @@ void DefineMaterials() {
 
     Material::SiO2 = new G4Material("Quartz", 2.445*g/cm3, 2);
     Material::SiO2->AddElement(Si, 46.743*perCent);
-    Material::SiO2->AddElement(Construction::Material::O,  53.257*perCent);
+    Material::SiO2->AddElement(Construction::Material::O, 53.257*perCent);
 
     Material::Marl = new G4Material("Marl", 2.46*g/cm3, 2);
     Material::Marl->AddMaterial(Material::Kaolinite, 35*perCent);
@@ -52,17 +52,17 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
     new G4Box("Sandstone", 10000.0*cm, 10000.0*cm, 2265.0*cm),
     Material::SiO2,
     world,
-    G4Translate3D(0, 0, 2265*cm-10000*cm));
+    G4Translate3D(0, 0, 2265*cm));
   Construction::PlaceVolume(
     new G4Box("Marl", 10000.0*cm, 10000.0*cm, 912.5*cm),
     Material::Marl,
     world,
-    G4Translate3D(0, 0, 5442.5*cm-10000*cm));
+    G4Translate3D(0, 0, 5442.5*cm));
   Construction::PlaceVolume(
     new G4Box("Mix", 10000.0*cm, 10000.0*cm, 1822.5*cm),
     Material::Mix,
     world,
-    G4Translate3D(0, 0, 8177.5*cm-10000*cm));
+    G4Translate3D(0, 0, 8177.5*cm));
   return nullptr;
 }
 

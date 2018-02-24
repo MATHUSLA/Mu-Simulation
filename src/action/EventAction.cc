@@ -13,20 +13,23 @@ EventAction::EventAction() : G4UserEventAction() {}
 void EventAction::BeginOfEventAction(const G4Event*) {}
 
 void EventAction::EndOfEventAction(const G4Event* event) {
-  G4TrajectoryContainer* trajectoryContainer = event->GetTrajectoryContainer();
+  /* TODO: reimplement
+  
+  auto trajectoryContainer = event->GetTrajectoryContainer();
   G4int n_trajectories = 0;
   if (trajectoryContainer) n_trajectories = trajectoryContainer->entries();
 
-  G4int eventID = event->GetEventID();
+  auto eventID = event->GetEventID();
   if (eventID < 100 || eventID % 100 == 0) {
     G4cout << ">>> Event: " << eventID  << "\n";
     if (trajectoryContainer) {
       G4cout << "    " << n_trajectories
              << " trajectories stored in this event.\n";
     }
-    G4VHitsCollection* hc = event->GetHCofThisEvent()->GetHC(0);
+    auto hc = event->GetHCofThisEvent()->GetHC(0);
     G4cout << "    " << hc->GetSize() << " hits stored in this event\n";
   }
+  */
 }
 
 } } /* namespace MATHUSLA::MU */

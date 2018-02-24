@@ -8,8 +8,6 @@
 #include "Geant4/G4Transform3D.hh"
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4Material.hh"
-#include "Geant4/G4VSensitiveDetector.hh"
-#include "Geant4/G4FieldManager.hh"
 #include "Geant4/G4SystemOfUnits.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -38,15 +36,20 @@ class Construction : public G4VUserDetectorConstruction {
   static G4LogicalVolume* Volume(const G4String& name,
                                  G4VSolid* solid,
                                  G4Material* material,
-                                 const G4VisAttributes* attr=0,
-                                 G4VSensitiveDetector* detector=0,
-                                 G4FieldManager* fieldmgr=0);
+                                 const G4VisAttributes* attr=0);
+
+  static G4LogicalVolume* Volume(const G4String& name,
+                                 G4VSolid* solid,
+                                 G4Material* material,
+                                 const G4VisAttributes& attr);
 
   static G4LogicalVolume* Volume(G4VSolid* solid,
                                  G4Material* material,
-                                 const G4VisAttributes* attr=0,
-                                 G4VSensitiveDetector* detector=0,
-                                 G4FieldManager* fieldmgr=0);
+                                 const G4VisAttributes* attr=0);
+
+  static G4LogicalVolume* Volume(G4VSolid* solid,
+                                 G4Material* material,
+                                 const G4VisAttributes& attr);
 
   static G4VPhysicalVolume* PlaceVolume(const G4String& name,
                                         G4LogicalVolume* current,
@@ -72,6 +75,13 @@ class Construction : public G4VUserDetectorConstruction {
                                         const G4Transform3D& transform
                                             =G4Transform3D());
 
+  static G4RotationMatrix Matrix(const G4double th1,
+                                 const G4double phi1,
+                                 const G4double th2,
+                                 const G4double phi2,
+                                 const G4double th3,
+                                 const G4double phi3);
+
   static G4Transform3D Transform(const G4ThreeVector& translate,
                                  const G4ThreeVector& axis,
                                  const G4double angle);
@@ -88,6 +98,10 @@ class Construction : public G4VUserDetectorConstruction {
                               const G4double axisy,
                               const G4double axisz,
                               const G4double angle);
+
+  static G4Transform3D SpecialTransformB(const G4double x,
+                                         const G4double y,
+                                         const G4double z);
 
  private:
   void DefineMaterials();
