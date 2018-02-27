@@ -1,4 +1,4 @@
-#include "tracking/TrapezoidHit.hh"
+#include "tracking/PrototypeHit.hh"
 
 #include <iomanip>
 
@@ -10,9 +10,9 @@
 
 namespace MATHUSLA { namespace MU {
 
-G4ThreadLocal G4Allocator<TrapezoidHit>* TrapezoidHitAllocator = 0;
+G4ThreadLocal G4Allocator<PrototypeHit>* PrototypeHitAllocator = 0;
 
-TrapezoidHit::TrapezoidHit(const G4String& particle,
+PrototypeHit::PrototypeHit(const G4String& particle,
                            const G4int track,
                            const G4String& chamber,
                            const G4double deposit,
@@ -24,7 +24,7 @@ TrapezoidHit::TrapezoidHit(const G4String& particle,
                 fDeposit(deposit), fTime(time), fPosition(position),
                 fEnergy(energy), fMomentum(momentum) {}
 
-void TrapezoidHit::Draw() {
+void PrototypeHit::Draw() {
   auto pVVisManager = G4VVisManager::GetConcreteInstance();
   if (pVVisManager) {
     G4Circle point(fPosition);
@@ -35,7 +35,7 @@ void TrapezoidHit::Draw() {
   }
 }
 
-void TrapezoidHit::Print() {
+void PrototypeHit::Print() {
   G4cout << " "            << fParticleName
          << " | Track: "   << fTrackID
          << " | " /*" | Chamber: "*/ << fChamberID

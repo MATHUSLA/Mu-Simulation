@@ -1,4 +1,4 @@
-#include "detector/TrapezoidCalorimeter.hh"
+#include "detector/Prototype.hh"
 
 #include "Geant4/G4UnionSolid.hh"
 #include "Geant4/G4Box.hh"

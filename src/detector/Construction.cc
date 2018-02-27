@@ -12,7 +12,7 @@
 #include "Geant4/G4PVPlacement.hh"
 
 #include "detector/Earth.hh"
-#include "detector/TrapezoidCalorimeter.hh"
+#include "detector/Prototype.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -38,7 +38,7 @@ void Construction::DefineMaterials() {
   Material::Air->AddElement(Construction::Material::O, 0.3);
 
   Earth::DefineMaterials();
-  TrapezoidCalorimeter::DefineMaterials();
+  Prototype::DefineMaterials();
 
   G4cout << *(G4Material::GetMaterialTable()) << "\n";
 }
@@ -64,13 +64,13 @@ G4VPhysicalVolume* Construction::DefineVolumes() {
   auto worldPV = PlaceVolume(worldLV, nullptr);
 
   Earth::Construct(worldLV);
-  TrapezoidCalorimeter::Construct(worldLV);
+  Prototype::Construct(worldLV);
 
   return worldPV;
 }
 
 void Construction::ConstructSDandField() {
-  auto detector = new TrapezoidCalorimeter();
+  auto detector = new Prototype();
   G4SDManager::GetSDMpointer()->AddNewDetector(detector);
 }
 
