@@ -8,10 +8,11 @@
 /vis/viewer/set/autoRefresh false
 
 /vis/drawVolume
-/vis/viewer/set/viewpointThetaPhi 90. 180.
+/vis/viewer/set/viewpointThetaPhi  90. 180.
+/vis/viewer/set/lightsThetaPhi    180.   0.
 /vis/viewer/zoom 1.4
 
-/vis/scene/add/axes 0 0 0 1 m
+/vis/scene/add/axes 0 0 0 50 cm
 
 /vis/scene/add/trajectories smooth
 /vis/modeling/trajectories/create/drawByCharge

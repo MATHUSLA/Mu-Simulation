@@ -12,22 +12,20 @@ namespace MATHUSLA { namespace MU {
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction() {
+  fParticleGun = new G4ParticleGun(1);
 
-  G4int nofParticles = 1;
-  fParticleGun = new G4ParticleGun(nofParticles);
-
-  G4ParticleDefinition* particleDefinition
+  auto particleDefinition
     = G4ParticleTable::GetParticleTable()->FindParticle("mu-");
 
   fParticleGun->SetParticleDefinition(particleDefinition);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., -1.));
   fParticleGun->SetParticleEnergy(60.0*GeV);
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event) {
   G4double worldZHalfLength = 6000*cm;
-  G4LogicalVolume* worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
-  G4Box* worldBox = NULL;
+  auto worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
+  G4Box* worldBox = nullptr;
   if (worldLV) worldBox = dynamic_cast<G4Box*>(worldLV->GetSolid());
 
   if (worldBox) {
@@ -38,7 +36,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event) {
            << "The gun will be place in the center.\n";
   }
 
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
+  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., worldZHalfLength));
   fParticleGun->GeneratePrimaryVertex(event);
 }
 

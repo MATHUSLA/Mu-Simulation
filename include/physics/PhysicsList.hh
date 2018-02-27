@@ -9,7 +9,6 @@ namespace MATHUSLA { namespace MU {
 class PhysicsList : G4VUserPhysicsList {
  public:
   PhysicsList();
-  ~PhysicsList();
   void ConstructParticle();
   void ConstructProcess();
   void SetCuts();

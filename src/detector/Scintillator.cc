@@ -18,55 +18,53 @@ Scintillator::Scintillator(const G4String& name,
                            const G4double thickness,
                            const G4double spacing)
     : fName(name), fHeight(height), fMinWidth(minwidth), fMaxWidth(maxwidth),
-      fDepth(depth), fThickness(thickness), fSpacing(spacing), fVolume(nullptr),
-      fSRegion(nullptr), fCasing(nullptr), fPMT(nullptr) {
+      fDepth(depth), fThickness(thickness), fSpacing(spacing), fSolid(nullptr),
+      fVolume(nullptr), fSVolume(nullptr), fCasing(nullptr), fPMT(nullptr) {
 
-  auto casing = new G4SubtractionSolid(name + "_C",
-    Construction::Trap("", height, minwidth, maxwidth, depth),
-    Construction::Trap("", height   - thickness,
-                           minwidth - thickness,
-                           maxwidth - thickness,
-                           depth    - thickness));
+  fSolid = Construction::Trap(name, height, minwidth, maxwidth, depth);
 
-  auto sensitive = Construction::Trap(name + "_S",
-    height   - thickness - spacing,
-    minwidth - thickness - spacing,
-    maxwidth - thickness - spacing,
-    depth    - thickness - spacing);
+  const G4double dims[4] = {height   - thickness, minwidth - thickness,
+                            maxwidth - thickness, depth    - thickness};
 
-  auto trap = new G4UnionSolid(name + "_T", casing, sensitive);
+  auto casing = new G4SubtractionSolid(name + "_C", fSolid,
+    Construction::Trap("", dims[0], dims[1], dims[2], dims[3]));
+
+  auto sensitive = Construction::Trap(name,
+    dims[0] - spacing, dims[1] - spacing, dims[2] - spacing, dims[3] - spacing);
+
   auto pmt = PMTCylinder(name);
 
   auto pmtTransform = Construction::Transform(
-    -0.5 * (maxwidth + 0.5 * PMTLength), 0, 0.5 * (height + 0.5 * PMTLength),
-    0, 1, 0, -45*deg);
+    0.5 * (maxwidth + 0.5 * PMTLength), 0, 0.5 * (height + 0.5 * PMTLength),
+    0, 1, 0, 45*deg);
 
-  auto full = new G4UnionSolid(name, trap, pmt, pmtTransform);
+  auto full = new G4UnionSolid(name,
+    new G4UnionSolid("", casing, sensitive), pmt, pmtTransform);
 
   fVolume = Construction::Volume(
-    name, full, Construction::Material::Air, new G4VisAttributes(false));
+    name, full, Construction::Material::Air, G4VisAttributes(false));
 
-  auto casingAttr = new G4VisAttributes(G4Colour(0., 0., 1., 0.2));
-  casingAttr->SetForceSolid(true);
+  auto casingAttr = G4VisAttributes(G4Colour(0., 0., 1., 0.2));
+  casingAttr.SetForceSolid(true);
   auto casingLV = Construction::Volume(casing,
     TrapezoidCalorimeter::Material::Aluminum,
     casingAttr);
 
-  auto sensitiveAttr = new G4VisAttributes(G4Colour(0., 1., 0., 1.0));
-  sensitiveAttr->SetForceSolid(true);
+  auto sensitiveAttr = G4VisAttributes(G4Colour(0., 1., 0., 1.0));
+  sensitiveAttr.SetForceSolid(true);
   auto sensitiveLV = Construction::Volume(sensitive,
     TrapezoidCalorimeter::Material::Scintillator,
     sensitiveAttr);
 
-  auto pmtAttr = new G4VisAttributes(G4Colour(0.7, 0.7, 0.7));
-  pmtAttr->SetForceSolid(true);
+  auto pmtAttr = G4VisAttributes(G4Colour(0.7, 0.7, 0.7));
+  pmtAttr.SetForceSolid(true);
   auto pmtLV = Construction::Volume(pmt,
     TrapezoidCalorimeter::Material::Carbon,
     pmtAttr);
 
-  fCasing = Construction::PlaceVolume(casingLV, fVolume);
-  fSRegion = Construction::PlaceVolume(sensitiveLV, fVolume);
-  fPMT = Construction::PlaceVolume(pmtLV, fVolume, pmtTransform);
+  fCasing  = Construction::PlaceVolume(casingLV, fVolume);
+  fSVolume = Construction::PlaceVolume(sensitiveLV, fVolume);
+  fPMT     = Construction::PlaceVolume(pmtLV, fVolume, pmtTransform);
 }
 
 G4Tubs* Scintillator::PMTCylinder(const G4String& name) {

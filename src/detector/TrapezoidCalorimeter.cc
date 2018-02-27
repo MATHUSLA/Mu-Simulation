@@ -1,20 +1,13 @@
 #include "detector/TrapezoidCalorimeter.hh"
 
-#include "Geant4/G4Trap.hh"
 #include "Geant4/G4Material.hh"
-#include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4NistManager.hh"
-#include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4SDManager.hh"
 #include "Geant4/G4Step.hh"
-#include "Geant4/G4ThreeVector.hh"
-#include "Geant4/G4Event.hh"
 #include "Geant4/G4RunManager.hh"
 #include "Geant4/G4ios.hh"
-
-#include "detector/PMT.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -25,9 +18,8 @@ TrapezoidCalorimeter::TrapezoidCalorimeter()
       fHitsCollection(NULL) {
   collectionName.insert("TrapCal_HC");
   for (auto envelope : fEnvelopes) {
-    for (auto trap : envelope.GetScintillatorList()) {
-      trap.GetSensitiveRegion()->GetLogicalVolume()->SetSensitiveDetector(this);
-    }
+    for (auto trap : envelope.GetScintillatorList())
+      trap.GetSensitiveVolume()->GetLogicalVolume()->SetSensitiveDetector(this);
   }
 }
 
@@ -39,7 +31,7 @@ void TrapezoidCalorimeter::Initialize(G4HCofThisEvent* eventHitsCollection) {
 }
 
 G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
-  G4double deposit = step->GetTotalEnergyDeposit();
+  auto deposit = step->GetTotalEnergyDeposit();
 
   if (deposit == 0) return false;
 
@@ -47,14 +39,11 @@ G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
   auto post_step = step->GetPostStepPoint();
 
   if (track->GetParentID() == 0) {
-    auto touchable = track->GetTouchable();
-    auto trap_name = touchable->GetVolume()->GetName();
-    auto env_name = touchable->GetHistory()->GetVolume(2)->GetName();
     fHitsCollection->insert(
       new TrapezoidHit(
         track->GetParticleDefinition()->GetParticleName(),
         track->GetTrackID(),
-        env_name + "/" + trap_name,
+        track->GetTouchable()->GetHistory()->GetVolume(4)->GetName(),
         deposit,
         post_step->GetGlobalTime(),
         post_step->GetPosition(),
@@ -66,36 +55,40 @@ G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
 }
 
 void TrapezoidCalorimeter::EndOfEvent(G4HCofThisEvent*) {
-  if (verboseLevel > 1) {
-    G4int eventID = 0;
-    const G4Event* event = G4RunManager::GetRunManager()->GetCurrentEvent();
-    if (event) eventID = event->GetEventID();
-    G4int hitCount = fHitsCollection->entries();
+  if (verboseLevel < 2) return;
 
-    if (!hitCount) return;
+  G4int eventID = 0;
+  auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
+  if (event) eventID = event->GetEventID();
+  G4int hitCount = fHitsCollection->entries();
 
-    G4cout << "\n\n------> Event: " << eventID
-           << " | Hit Count: " << hitCount << "\n\n";
+  if (!hitCount) return;
 
-    G4int trackID = -1;
-    G4String chamberID = "";
-    for (G4int i = 0; i < hitCount; i++) {
-      auto hit = static_cast<TrapezoidHit*>(fHitsCollection->GetHit(i));
-      G4String newChamberID = hit->GetChamberID();
-      G4int newTrackID = hit->GetTrackID();
-      if (i != 0 && (chamberID != newChamberID || trackID != newTrackID)) {
-        const G4int barwidth = 180
-                             + hit->GetParticleName().length()
-                             + std::to_string(newTrackID).length()
-                             + newChamberID.length();
-        G4cout << std::string(barwidth, '-') << '\n';
-      }
-      chamberID = newChamberID;
-      trackID = newTrackID;
-      hit->Print();
+  auto boxside = std::string(25 + std::to_string(eventID).length()
+                                + std::to_string(hitCount).length(), '-');
+
+  G4cout << "\n\n" << boxside << '\n'
+         << "| Event: " << eventID << " | Hit Count: " << hitCount << " |\n"
+         << boxside << '\n';
+
+  G4int trackID = -1;
+  G4String chamberID = "";
+  for (G4int i = 0; i < hitCount; ++i) {
+    auto hit = static_cast<TrapezoidHit*>(fHitsCollection->GetHit(i));
+    auto newChamberID = hit->GetChamberID();
+    auto newTrackID = hit->GetTrackID();
+    if (i != 0 && (chamberID != newChamberID || trackID != newTrackID)) {
+      const auto barlength = 162
+        + hit->GetParticleName().length()
+        + std::to_string(newTrackID).length()
+        + newChamberID.length();
+      G4cout << std::string(barlength, '-') << '\n';
     }
-    G4cout << "\n";
+    chamberID = newChamberID;
+    trackID = newTrackID;
+    hit->Print();
   }
+  G4cout << '\n';
 }
 
 G4Material* TrapezoidCalorimeter::Material::Aluminum     = 0;
@@ -110,7 +103,7 @@ void TrapezoidCalorimeter::DefineMaterials() {
   Material::Scintillator->AddElement(Construction::Material::C, 9);
   Material::Scintillator->AddElement(Construction::Material::H, 10);
 
-  const G4int nSci = 1;
+  constexpr G4int nSci = 1;
   G4double eSci[nSci] = { 3.10*eV };
   G4double rSci[nSci] = { 1.58    };
 
@@ -120,90 +113,162 @@ void TrapezoidCalorimeter::DefineMaterials() {
 }
 
 G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
-  // TODO: move to ROgeometry
   auto Calorimeter = Construction::Volume(
-    new G4Box("TrapezoidCalorimeter", 1000.0*cm, 1000.0*cm, 1000.0*cm),
+    new G4Box("TrapezoidCalorimeter", 250.0*cm, 250.0*cm, 250.0*cm),
     Construction::Material::Air);
 
-  auto TopFirst = Envelope::LayerType::TopFirst;
+  auto TopFirst    = Envelope::LayerType::TopFirst;
   auto BottomFirst = Envelope::LayerType::BottomFirst;
+  auto Left        = Envelope::Alignment::Left;
+  auto Center      = Envelope::Alignment::Center;
+  auto Right       = Envelope::Alignment::Right;
 
-/*
-
-  // Tentative constants
-  G4double depth = 2.0*cm;
+  G4double depth     = 2.0*cm;
   G4double thickness = 0.1*cm;
-  G4double spacing = 0.1*cm;
-  G4double angle = 4.5*deg;        // what is this
-  G4double cfac = tan(0.5*angle);  // what is this
+  G4double spacing   = 0.1*cm;
 
-  // TODO: calculate the minwidth, maxwidth of each scintillator
+  auto A10 = Scintillator("A10",     34.2735559430568*cm, 32.52*cm, 35.78*cm,
+    depth, thickness, spacing);
+  auto A11 = Scintillator("A11",     39.2697011242604*cm, 35.78*cm, 39.52*cm,
+    depth, thickness, spacing);
+  auto A12 = Scintillator("A12",                55.68*cm, 39.52*cm, 43.90*cm,
+    depth, thickness, spacing);
 
-  auto A10 = Scintillator("A10", 34.2735559430568*cm,,,depth, thickness, spacing);
-  auto A11 = Scintillator("A11", 39.2697011242604*cm,);
-  // NO DEFINITION FOUND: auto A12 = Scintillator("A12");
+  auto B6 = Scintillator("B6",       46.9637647033140*cm, 26.31*cm, 30.23*cm,
+    depth, thickness, spacing);
+  auto B7 = Scintillator("B7",       55.5571344149842*cm, 30.23*cm, 34.79*cm,
+    depth, thickness, spacing);
+  auto B8 = Scintillator("B8",       66.8484225245044*cm, 34.79*cm, 40.37*cm,
+    depth, thickness, spacing);
+  auto B9 = Scintillator("B9",       37.8707804735234*cm, 40.37*cm, 43.51*cm,
+    depth, thickness, spacing);
+  auto B10 = Scintillator("B10",     42.3673111366067*cm, 43.51*cm, 47.11*cm,
+    depth, thickness, spacing);
+  auto B11 = Scintillator("B11",     55.8569031258564*cm, 47.11*cm, 51.86*cm,
+    depth, thickness, spacing);
+  auto B12 = Scintillator("B12",     64.8499644520229*cm, 51.86*cm, 57.31*cm,
+    depth, thickness, spacing);
+  auto B12_1 = Scintillator("B12-1", 64.8499644520229*cm, 43.51*cm, 47.11*cm,  // tentative numbers, definition not found
+    depth, thickness, spacing);
 
-  auto B6 = Scintillator("B6", 46.963764703314*cm,,,depth, thickness, spacing);
-  auto B7 = Scintillator("B7", 55.5571344149842*cm,,,depth, thickness, spacing);
-  auto B8 = Scintillator("B8", 66.8484225245044*cm,,,depth, thickness, spacing);
-  auto B9 = Scintillator("B9", 37.8707804735234*cm,,,depth, thickness, spacing);
-  auto B10 = Scintillator("B10", 42.3673111366067*cm,,,depth, thickness, spacing);
-  auto B11 = Scintillator("B11", 55.8569031258564*cm,,,depth, thickness, spacing);
-  auto B12 = Scintillator("B12", 64.8499644520229*cm,,,depth, thickness, spacing);
-  auto B12_1 = Scintillator("B12-1", 64.8499644520229*cm,,,depth, thickness, spacing);
+  auto C3 = Scintillator("C3",       36.9714743409067*cm, 21.97*cm, 24.94*cm,
+    depth, thickness, spacing);
+  auto C4 = Scintillator("C4",       42.6670798474789*cm, 24.94*cm, 28.29*cm,
+    depth, thickness, spacing);
+  auto C5 = Scintillator("C5",       49.5617601975399*cm, 28.29*cm, 32.41*cm,
+    depth, thickness, spacing);
+  auto C6 = Scintillator("C6",       57.8553611983379*cm, 32.41*cm, 37.05*cm,
+    depth, thickness, spacing);
+  auto C7 = Scintillator("C7",       68.9468035006099*cm, 37.05*cm, 42.59*cm,
+    depth, thickness, spacing);
+  auto C8 = Scintillator("C8",       81.9367809717393*cm, 42.59*cm, 49.68*cm,
+    depth, thickness, spacing);
+  auto C9 = Scintillator("C9",       46.8638417996899*cm, 49.68*cm, 53.55*cm,
+    depth, thickness, spacing);
+  auto C10 = Scintillator("C10",     52.2596785953898*cm, 53.55*cm, 57.80*cm,
+    depth, thickness, spacing);
+  auto C11 = Scintillator("C11",     69.2465722114821*cm, 57.80*cm, 63.53*cm,
+    depth, thickness, spacing);
 
-  auto C3 = Scintillator("C3", 36.9714743409067*cm,,,depth, thickness, spacing);
-  auto C4 = Scintillator("C4", 42.6670798474789*cm,,,depth, thickness, spacing);
-  auto C5 = Scintillator("C5", 49.5617601975399*cm,,,depth, thickness, spacing);
-  auto C6 = Scintillator("C6", 57.8553611983379*cm,,,depth, thickness, spacing);
-  auto C7 = Scintillator("C7", 68.9468035006099*cm,,,depth, thickness, spacing);
-  auto C8 = Scintillator("C8", 81.9367809717393*cm,,,depth, thickness, spacing);
-  auto C9 = Scintillator("C9", 46.8638417996899*cm,,,depth, thickness, spacing);
-  auto C10 = Scintillator("C10", 52.2596785953898*cm,,,depth, thickness, spacing);
-  auto C11 = Scintillator("C11", 69.2465722114821*cm,,,depth, thickness, spacing);
+  const G4double trap_spacing = 4*cm;  // what is the real value?
 
-  auto SA1 = Envelope("SA1", 10*cm, BottomFirst, {C3, C4, C5, C6, C7});
-  auto SA2 = Envelope("SA2", 10*cm, BottomFirst, {C3, C4, C5, C6, C7});
-  auto SA3 = Envelope("SA3", 10*cm, BottomFirst, {B7, B8, B9, B10, B11});
-  auto SA4 = Envelope("SA4", 10*cm, TopFirst, {B8, B9, B10, B11, B12});
-  auto SA5 = Envelope("SA5", 10*cm, TopFirst, {C8, C9, C10, C11});
-  auto SA6 = Envelope("SA6", 10*cm, TopFirst, {C8, C9, C10, C11});
+  auto A1_L = Envelope("A1-L", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
+  auto A2_H = Envelope("A2-H", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
+  auto A3_L = Envelope("A3-L", trap_spacing, BottomFirst, Center, {B7, B8, B9, B10, B11});
+  auto A4_H = Envelope("A4-H", trap_spacing, TopFirst,    Center, {B8, B9, B10, B11, B12});
+  auto A5_L = Envelope("A5-L", trap_spacing, TopFirst,    Center, {C8, C9, C10, C11});
+  auto A6_H = Envelope("A6-H", trap_spacing, TopFirst,    Center, {C8, C9, C10, C11});
 
-  auto SB1 = Envelope("SB1", 10*cm, BottomFirst, {C3, C4, B6, B7, C7});
-  auto SB2 = Envelope("SB2", 10*cm, BottomFirst, {C3, C4, C5, C6, C7});
-  auto SB3 = Envelope("SB3", 10*cm, BottomFirst, {B7, B8, B9, C9, C9});
-  auto SB4 = Envelope("SB4", 10*cm, TopFirst, {A10, A11, A11, B9, B12_1, B11});
-  auto SB5 = Envelope("SB5", 10*cm, TopFirst, {A10, A12, C7, C8, C9});
-  auto SB6 = Envelope("SB6", 10*cm, TopFirst, {B11, B11, C9, B11, B11});
+  auto B1_L = Envelope("B1-L", trap_spacing, BottomFirst, Right,  {C3, C4, B6, B7, C7});
+  auto B2_H = Envelope("B2-H", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
+  auto B3_L = Envelope("B3-L", trap_spacing, BottomFirst, Right,  {B7, B8, B9, C9, C9});
+  auto B4_H = Envelope("B4-H", trap_spacing, TopFirst,    Left,   {A10, A11, A11, B9, B12_1, B11});
+  auto B5_L = Envelope("B5-L", trap_spacing, TopFirst,    Left,   {A10, A12, C7, C8, C9});
+  auto B6_H = Envelope("B6-H", trap_spacing, TopFirst,    Left,   {B11, B11, C9, B11, B11});
 
   fEnvelopes = EnvelopeList(
-    {SA1, SA2, SA3, SA4, SA5, SA6, SB1, SB2, SB3, SB4, SB5, SB6});
-*/
+    {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
 
-  auto test_env1 = Envelope("TEST_ENV1", 10*cm, TopFirst, {
-    Scintillator("TEST1A", 30*cm, 40*cm, 50*cm, 5*cm, 1*cm, 0.5*cm),
-    Scintillator("TEST2A", 30*cm, 50*cm, 60*cm, 5*cm, 1*cm, 0.5*cm),
-    Scintillator("TEST3A", 30*cm, 60*cm, 70*cm, 5*cm, 1*cm, 0.5*cm)
-  });
+  const G4double env_spacing = 16*cm;  // what is the correct distance between envelopes?
+  const G4double layer_spacing = 400*cm; // what is the correct distance between layers?
 
-  auto test_env2 = Envelope("TEST_ENV2", 10*cm, BottomFirst, {
-    Scintillator("TEST1B", 10*cm, 40*cm, 50*cm, 5*cm, 1*cm, 0.5*cm),
-    Scintillator("TEST2B", 9*cm, 50*cm, 60*cm, 5*cm, 1*cm, 0.5*cm),
-    Scintillator("TEST3B", 8*cm, 60*cm, 70*cm, 5*cm, 1*cm, 0.5*cm)
-  });
+  const G4double height_A = 2.55*m,
+                  width_A = 2.54*m,
+                  depth_A =  40*cm;
+  auto layerA = Construction::Volume(
+    new G4Box("A-Layer", 0.5 * width_A, 0.5 * depth_A, 0.5 * height_A),
+    Construction::Material::Air);
 
-  fEnvelopes.push_back(test_env1);
-  fEnvelopes.push_back(test_env2);
+  G4double shift_A = 0;
+  bool flip_A = 0, stack_A = 0;
+  for (auto aenv : {A6_H, A5_L, A4_H, A3_L, A2_H, A1_L}) {
+    auto env_width = flip_A ? aenv.GetBottomWidth() : aenv.GetTopWidth();
+    shift_A += 0.5 * env_width;
+    Construction::PlaceVolume(
+      aenv.GetVolume(),
+      layerA,
+      Construction::Transform(
+        0.5 * width_A - shift_A,
+        (stack_A ? 1 : -1) * env_spacing,
+        0.5 * (aenv.GetHeight() - height_A),
+        0, 1, 0, flip_A ? 0*deg : 180*deg)
+    );
+    shift_A += 0.5 * env_width;
+    flip_A = !flip_A;
+    stack_A = !stack_A;
+  }
 
-  Construction::PlaceVolume(
-    test_env1.GetVolume(),
-    Calorimeter,
-    Construction::Rotate(1, 0, 0, -90*deg));
+  Construction::PlaceVolume(layerA, Calorimeter,
+    Construction::Transform(0, 0, -0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
-  Construction::PlaceVolume(
-    test_env2.GetVolume(),
-    Calorimeter,
-    Construction::Transform(0, 0, 1.1*m, 1, 0, 0, -90*deg));
+
+  const G4double height_B = 2.54*m,
+                  width_B = 2.36*m,
+                  depth_B =  40*cm;
+  auto layerB = Construction::Volume(
+    new G4Box("B-Layer", 0.5 * height_B, 0.5 * depth_B, 0.5 * width_B),
+    Construction::Material::Air);
+
+  G4double shift_B = 0;
+  bool flip_B = 1, stack_B = 1;
+  for (auto benv : {B1_L, B2_H, B3_L}) {
+    auto env_width = flip_B ? benv.GetBottomWidth() : benv.GetTopWidth();
+    shift_B += 0.5 * env_width;
+    Construction::PlaceVolume(
+      benv.GetVolume(),
+      layerB,
+      Construction::Transform(
+        0.5 * (benv.GetHeight() - height_B),
+        (stack_B ? 1 : -1) * env_spacing,
+        0.5 * width_B - shift_B,
+        0, 1, 0, flip_B ? 90*deg : -90*deg)
+    );
+    shift_B += 0.5 * env_width;
+    flip_B = !flip_B;
+    stack_B = !stack_B;
+  }
+
+  shift_B += 0.5 * (B3_L.GetTopWidth() - B3_L.GetBottomWidth());
+
+  for (auto benv : {B4_H, B5_L, B6_H}) {
+    auto env_width = !flip_B ? benv.GetBottomWidth() : benv.GetTopWidth();
+    shift_B += 0.5 * env_width;
+    Construction::PlaceVolume(
+      benv.GetVolume(),
+      layerB,
+      Construction::Transform(
+        0.5 * (2 * B4_H.GetHeight() - benv.GetHeight() - height_B),
+        (stack_B ? 1 : -1) * env_spacing,
+        0.5 * width_B - shift_B,
+        0, 1, 0, flip_B ? 90*deg : -90*deg)
+    );
+    shift_B += 0.5 * env_width;
+    flip_B = !flip_B;
+    stack_B = !stack_B;
+  }
+
+  Construction::PlaceVolume(layerB, Calorimeter,
+    Construction::Transform(0, 0, 0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
   return Construction::PlaceVolume(Calorimeter, world);
 }
