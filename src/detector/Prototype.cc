@@ -1,4 +1,4 @@
-#include "detector/TrapezoidCalorimeter.hh"
+#include "detector/Prototype.hh"
 
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4NistManager.hh"
@@ -11,26 +11,27 @@
 
 namespace MATHUSLA { namespace MU {
 
-EnvelopeList TrapezoidCalorimeter::fEnvelopes = EnvelopeList();
+EnvelopeList Prototype::fEnvelopes = EnvelopeList();
 
-TrapezoidCalorimeter::TrapezoidCalorimeter()
-    : G4VSensitiveDetector("MATHUSLA/MU/TrapezoidCalorimeter"),
+Prototype::Prototype()
+    : G4VSensitiveDetector("MATHUSLA/MU/Prototype"),
       fHitsCollection(NULL) {
-  collectionName.insert("TrapCal_HC");
+  collectionName.insert("Prototype_HC");
   for (auto envelope : fEnvelopes) {
-    for (auto trap : envelope.GetScintillatorList())
+    for (auto trap : envelope.GetScintillatorList()) {
       trap.GetSensitiveVolume()->GetLogicalVolume()->SetSensitiveDetector(this);
+    }
   }
 }
 
-void TrapezoidCalorimeter::Initialize(G4HCofThisEvent* eventHitsCollection) {
-  fHitsCollection = new TrapezoidHC(this->GetName(), collectionName[0]);
+void Prototype::Initialize(G4HCofThisEvent* eventHitsCollection) {
+  fHitsCollection = new PrototypeHC(this->GetName(), collectionName[0]);
   eventHitsCollection->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
     fHitsCollection);
 }
 
-G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
+G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   auto deposit = step->GetTotalEnergyDeposit();
 
   if (deposit == 0) return false;
@@ -40,7 +41,7 @@ G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   if (track->GetParentID() == 0) {
     fHitsCollection->insert(
-      new TrapezoidHit(
+      new PrototypeHit(
         track->GetParticleDefinition()->GetParticleName(),
         track->GetTrackID(),
         track->GetTouchable()->GetHistory()->GetVolume(4)->GetName(),
@@ -54,7 +55,7 @@ G4bool TrapezoidCalorimeter::ProcessHits(G4Step* step, G4TouchableHistory*) {
   return false;
 }
 
-void TrapezoidCalorimeter::EndOfEvent(G4HCofThisEvent*) {
+void Prototype::EndOfEvent(G4HCofThisEvent*) {
   if (verboseLevel < 2) return;
 
   G4int eventID = 0;
@@ -74,7 +75,7 @@ void TrapezoidCalorimeter::EndOfEvent(G4HCofThisEvent*) {
   G4int trackID = -1;
   G4String chamberID = "";
   for (G4int i = 0; i < hitCount; ++i) {
-    auto hit = static_cast<TrapezoidHit*>(fHitsCollection->GetHit(i));
+    auto hit = static_cast<PrototypeHit*>(fHitsCollection->GetHit(i));
     auto newChamberID = hit->GetChamberID();
     auto newTrackID = hit->GetTrackID();
     if (i != 0 && (chamberID != newChamberID || trackID != newTrackID)) {
@@ -91,11 +92,11 @@ void TrapezoidCalorimeter::EndOfEvent(G4HCofThisEvent*) {
   G4cout << '\n';
 }
 
-G4Material* TrapezoidCalorimeter::Material::Aluminum     = 0;
-G4Material* TrapezoidCalorimeter::Material::Carbon       = 0;
-G4Material* TrapezoidCalorimeter::Material::Scintillator = 0;
+G4Material* Prototype::Material::Aluminum     = 0;
+G4Material* Prototype::Material::Carbon       = 0;
+G4Material* Prototype::Material::Scintillator = 0;
 
-void TrapezoidCalorimeter::DefineMaterials() {
+void Prototype::DefineMaterials() {
   Material::Aluminum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
   Material::Carbon = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
 
@@ -112,9 +113,9 @@ void TrapezoidCalorimeter::DefineMaterials() {
   Material::Scintillator->SetMaterialPropertiesTable(sciProp);
 }
 
-G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
-  auto Calorimeter = Construction::Volume(
-    new G4Box("TrapezoidCalorimeter", 250.0*cm, 250.0*cm, 250.0*cm),
+G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
+  auto Detector = Construction::Volume(
+    new G4Box("Prototype", 300.0*cm, 300.0*cm, 300.0*cm),
     Construction::Material::Air);
 
   auto TopFirst    = Envelope::LayerType::TopFirst;
@@ -170,7 +171,7 @@ G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
   auto C11 = Scintillator("C11",     69.2465722114821*cm, 57.80*cm, 63.53*cm,
     depth, thickness, spacing);
 
-  const G4double trap_spacing = 4*cm;  // what is the real value?
+  const G4double trap_spacing = 5*cm;  // what is the real value?
 
   auto A1_L = Envelope("A1-L", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
   auto A2_H = Envelope("A2-H", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
@@ -189,8 +190,8 @@ G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
   fEnvelopes = EnvelopeList(
     {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
 
-  const G4double env_spacing = 16*cm;  // what is the correct distance between envelopes?
-  const G4double layer_spacing = 400*cm; // what is the correct distance between layers?
+  const G4double env_spacing = 5*cm + 2*depth;  // what is the correct distance between envelopes?
+  const G4double layer_spacing = 500*cm; // what is the correct distance between layers?
 
   const G4double height_A = 2.55*m,
                   width_A = 2.54*m,
@@ -218,7 +219,8 @@ G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
     stack_A = !stack_A;
   }
 
-  Construction::PlaceVolume(layerA, Calorimeter,
+
+  Construction::PlaceVolume(layerA, Detector,
     Construction::Transform(0, 0, -0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
 
@@ -267,10 +269,10 @@ G4VPhysicalVolume* TrapezoidCalorimeter::Construct(G4LogicalVolume* world) {
     stack_B = !stack_B;
   }
 
-  Construction::PlaceVolume(layerB, Calorimeter,
+  Construction::PlaceVolume(layerB, Detector,
     Construction::Transform(0, 0, 0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
-  return Construction::PlaceVolume(Calorimeter, world);
+  return Construction::PlaceVolume(Detector, world, G4Translate3D(0, 0, -3*m));
 }
 
 } } /* namespace MATHUSLA::MU */

@@ -24,9 +24,9 @@ set(SOURCES
     src/detector/Earth.cc
     src/detector/Envelope.cc
     src/detector/Scintillator.cc
-    src/detector/TrapezoidCalorimeter.cc
+    src/detector/Prototype.cc
 
-    src/tracking/TrapezoidHit.cc
+    src/tracking/PrototypeHit.cc
 
     src/physics/PhysicsList.cc
 

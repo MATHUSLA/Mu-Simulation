@@ -1,5 +1,5 @@
-#ifndef TRACKING_TRACKERHIT_HH
-#define TRACKING_TRACKERHIT_HH
+#ifndef TRACKING_PROTOTYPEHIT_HH
+#define TRACKING_PROTOTYPEHIT_HH
 #pragma once
 
 #include "Geant4/G4Allocator.hh"
@@ -10,9 +10,9 @@
 
 namespace MATHUSLA { namespace MU {
 
-class TrapezoidHit : public G4VHit {
+class PrototypeHit : public G4VHit {
  public:
-  TrapezoidHit(const G4String& particle,
+  PrototypeHit(const G4String& particle,
                const G4int track,
                const G4String& chamber,
                const G4double deposit,
@@ -21,7 +21,7 @@ class TrapezoidHit : public G4VHit {
                const G4double energy,
                const G4ThreeVector momentum);
 
-  inline G4bool operator==(const TrapezoidHit& rhs) const;
+  inline G4bool operator==(const PrototypeHit& rhs) const;
 
   inline void* operator new(size_t);
   inline void  operator delete(void*);
@@ -49,24 +49,24 @@ class TrapezoidHit : public G4VHit {
   G4ThreeVector fMomentum;
 };
 
-using TrapezoidHC = G4THitsCollection<TrapezoidHit>;
+using PrototypeHC = G4THitsCollection<PrototypeHit>;
 
-extern G4ThreadLocal G4Allocator<TrapezoidHit>* TrapezoidHitAllocator;
+extern G4ThreadLocal G4Allocator<PrototypeHit>* PrototypeHitAllocator;
 
-inline G4bool TrapezoidHit::operator==(const TrapezoidHit& rhs) const {
+inline G4bool PrototypeHit::operator==(const PrototypeHit& rhs) const {
   return this == &rhs;
 }
 
-inline void* TrapezoidHit::operator new(size_t) {
-  if (!TrapezoidHitAllocator)
-    TrapezoidHitAllocator = new G4Allocator<TrapezoidHit>;
-  return TrapezoidHitAllocator->MallocSingle();
+inline void* PrototypeHit::operator new(size_t) {
+  if (!PrototypeHitAllocator)
+    PrototypeHitAllocator = new G4Allocator<PrototypeHit>;
+  return PrototypeHitAllocator->MallocSingle();
 }
 
-inline void TrapezoidHit::operator delete(void* hit) {
-  TrapezoidHitAllocator->FreeSingle(static_cast<TrapezoidHit*>(hit));
+inline void PrototypeHit::operator delete(void* hit) {
+  PrototypeHitAllocator->FreeSingle(static_cast<PrototypeHit*>(hit));
 }
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* TRACKING_TRACKERHIT_HH */
+#endif /* TRACKING_PROTOTYPEHIT_HH */
