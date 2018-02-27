@@ -1,5 +1,5 @@
-#ifndef DETECTOR_TRAPEZOIDCALORIMETER_HH
-#define DETECTOR_TRAPEZOIDCALORIMETER_HH
+#ifndef DETECTOR_PROTOTYPE_HH
+#define DETECTOR_PROTOTYPE_HH
 #pragma once
 
 #include "Geant4/G4VSensitiveDetector.hh"
@@ -8,7 +8,7 @@
 #include <initializer_list>
 
 #include "detector/Construction.hh"
-#include "tracking/TrapezoidHit.hh"
+#include "tracking/PrototypeHit.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -105,9 +105,19 @@ class Envelope {
 
 using EnvelopeList = std::vector<Envelope>;
 
-class TrapezoidCalorimeter : public G4VSensitiveDetector {
+class RPC {
  public:
-  TrapezoidCalorimeter();
+  RPC(G4int id);
+
+  inline G4int GetID() const { return fID; }
+
+ private:
+  G4int fID;
+};
+
+class Prototype : public G4VSensitiveDetector {
+ public:
+  Prototype();
 
   struct Material {
     static G4Material* Aluminum;
@@ -126,9 +136,9 @@ class TrapezoidCalorimeter : public G4VSensitiveDetector {
  private:
   static EnvelopeList fEnvelopes;
 
-  TrapezoidHC* fHitsCollection;
+  PrototypeHC* fHitsCollection;
 };
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* DETECTOR_TRAPEZOIDCALORIMETER_HH */
+#endif /* DETECTOR_PROTOTYPE_HH */

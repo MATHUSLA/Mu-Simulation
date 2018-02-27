@@ -1,4 +1,4 @@
-#include "detector/TrapezoidCalorimeter.hh"
+#include "detector/Prototype.hh"
 
 #include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4UnionSolid.hh"
@@ -47,19 +47,19 @@ Scintillator::Scintillator(const G4String& name,
   auto casingAttr = G4VisAttributes(G4Colour(0., 0., 1., 0.2));
   casingAttr.SetForceSolid(true);
   auto casingLV = Construction::Volume(casing,
-    TrapezoidCalorimeter::Material::Aluminum,
+    Prototype::Material::Aluminum,
     casingAttr);
 
   auto sensitiveAttr = G4VisAttributes(G4Colour(0., 1., 0., 1.0));
   sensitiveAttr.SetForceSolid(true);
   auto sensitiveLV = Construction::Volume(sensitive,
-    TrapezoidCalorimeter::Material::Scintillator,
+    Prototype::Material::Scintillator,
     sensitiveAttr);
 
   auto pmtAttr = G4VisAttributes(G4Colour(0.7, 0.7, 0.7));
   pmtAttr.SetForceSolid(true);
   auto pmtLV = Construction::Volume(pmt,
-    TrapezoidCalorimeter::Material::Carbon,
+    Prototype::Material::Carbon,
     pmtAttr);
 
   fCasing  = Construction::PlaceVolume(casingLV, fVolume);
