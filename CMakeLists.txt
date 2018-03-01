@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 find_package(Geant4 REQUIRED ui_all vis_all)
 find_package(Pythia8 REQUIRED)
+find_package(ROOT REQUIRED)
 
 include(${Geant4_USE_FILE})
 
@@ -19,6 +20,8 @@ set(SOURCES
     src/action/StackingAction.cc
     src/action/SteppingAction.cc
     src/action/TrackingAction.cc
+
+    src/analysis/HistoManager.cc
 
     src/detector/Construction.cc
     src/detector/Earth.cc
@@ -34,7 +37,7 @@ set(SOURCES
 )
 
 add_executable(simulation ${SOURCES})
-target_link_libraries(simulation ${Geant4_LIBRARIES})
+target_link_libraries(simulation ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>

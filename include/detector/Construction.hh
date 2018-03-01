@@ -20,7 +20,11 @@ class Construction : public G4VUserDetectorConstruction {
     static G4Element* N;
     static G4Element* O;
     static G4Material* Air;
-   private:
+
+  public:
+    const G4String GetLayer()   {return "A-Layer";};
+   
+  private:
     Material();
   };
 
