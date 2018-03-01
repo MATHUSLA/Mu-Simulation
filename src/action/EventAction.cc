@@ -8,9 +8,26 @@
 
 namespace MATHUSLA { namespace MU {
 
-EventAction::EventAction() : G4UserEventAction() {}
+EventAction::EventAction(RunAction* run, HistoManager* histo) 
+:G4UserEventAction(),
+ fRunAct(run),fHistoManager(histo),
+ fEnergy(0.),
+ fPrintModulo(0)                             
+{
+ fPrintModulo = 100; }
 
-void EventAction::BeginOfEventAction(const G4Event*) {}
+ EventAction::~EventAction()
+{}
+
+void EventAction::BeginOfEventAction(const G4Event*event) 
+{
+  G4int eventNb = event->GetEventID();
+  if (eventNb%fPrintModulo == 0) 
+    G4cout << "\n---> Begin of event: " << eventNb << G4endl;
+ 
+ // initialisation per event
+ fEnergy = 0.;
+}
 
 void EventAction::EndOfEventAction(const G4Event* event) {
   /* TODO: reimplement
@@ -30,6 +47,11 @@ void EventAction::EndOfEventAction(const G4Event* event) {
     G4cout << "    " << hc->GetSize() << " hits stored in this event\n";
   }
   */
+  auto Collection = static_cast <PrototypeHC* > (event->GetHCofThisEvent()->GetHC(0));
+
+  fRunAct->FillPerEvent(fEnergy);
+
+  fHistoManager->FillHisto(0, fEnergy);
 }
 
 } } /* namespace MATHUSLA::MU */
