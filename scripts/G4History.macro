@@ -1,0 +1,52 @@
+/run/verbose 2
+/run/initialize
+/control/execute vis.mac
+/vis/open OGL 700x700-0+0
+/vis/sceneHandler/create OGL
+/vis/viewer/create ! ! 700x700-0+0
+/vis/viewer/refresh
+/vis/viewer/set/autoRefresh false
+/vis/verbose errors
+/vis/drawVolume
+/vis/scene/create
+/vis/scene/add/volume world
+/vis/sceneHandler/attach
+/vis/viewer/set/viewpointThetaPhi 90. 180.
+/vis/viewer/zoom 1.4
+/vis/scene/add/axes 0 0 0 1 m
+/vis/scene/notifyHandlers
+/vis/scene/add/trajectories smooth
+/tracking/storeTrajectory 2
+/vis/scene/notifyHandlers
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/scene/notifyHandlers scene-0
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+/vis/scene/notifyHandlers scene-0
+/vis/scene/add/hits
+/vis/scene/notifyHandlers
+/vis/scene/endOfEventAction accumulate
+/vis/viewer/set/autoRefresh true
+/vis/viewer/refresh
+/vis/verbose warnings
+/vis/viewer/flush
+/vis/viewer/refresh viewer-0
+/vis/viewer/update viewer-0
+/control/execute run1.mac
+/run/initialize
+/hits/verbose 2
+/MATHUSLA/det/setTargetMaterial G4_WATER
+/MATHUSLA/det/setChamberMaterial G4_Ar
+/gun/particle mu-
+/gun/energy 55 GeV
+/run/beamOn 1
+/vis/scene/notifyHandlers scene-0
+/vis/ogl/set/displayListLimit 2000000
+/control/execute run1.mac
+/run/initialize
+/hits/verbose 2
+/MATHUSLA/det/setTargetMaterial G4_WATER
+/MATHUSLA/det/setChamberMaterial G4_Ar
+/gun/particle mu-
+/gun/energy 55 GeV
+/run/beamOn 1
