@@ -14,7 +14,7 @@ G4Material* Material::SiO2      = 0;
 G4Material* Material::Marl      = 0;
 G4Material* Material::Mix       = 0;
 
-void DefineMaterials() {
+void Material::Define() {
   static bool defined = false;
   if (!defined) {
     auto Al = new G4Element("Aluminum", "Al", 13.,  26.981*g/mole);
@@ -49,7 +49,7 @@ void DefineMaterials() {
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   Construction::PlaceVolume(
-    new G4Box("Sandstone", 10000.0*cm, 10000.0*cm, 2265.0*cm),
+    new G4Box("Sandstone", 10000.0*cm, 10000.0*cm, 2265*cm),
     Material::SiO2,
     world,
     G4Translate3D(0, 0, 2265*cm));

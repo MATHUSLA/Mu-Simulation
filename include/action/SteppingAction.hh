@@ -3,16 +3,17 @@
 #pragma once
 
 #include "Geant4/G4UserSteppingAction.hh"
+#include "Geant4/G4Step.hh"
 
 namespace MATHUSLA { namespace MU {
 
 class SteppingAction : public G4UserSteppingAction {
- public:
+public:
   SteppingAction();
-  void UserSteppingAction(const G4Step*);
+  void UserSteppingAction(const G4Step* step);
 
- private:
-  // G4SteppingManager* fpSteppingManager;
+private:
+  // G4SteppingManager* _manager;
 };
 
 } } /* namespace MATHUSLA::MU */

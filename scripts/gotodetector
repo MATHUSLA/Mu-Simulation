@@ -1,0 +1,9 @@
+/vis/viewer/set/autoRefresh false
+/vis/viewer/set/upVector 0 1 0
+/vis/viewer/set/viewpointVector 0 0 -1
+/vis/viewer/panTo -50 50 m
+/vis/viewer/zoomTo 40
+/vis/viewer/set/viewpointThetaPhi 90 180 deg
+/vis/viewer/pan -3 0 m
+/vis/viewer/set/viewpointThetaPhi 210 -30 deg
+/vis/viewer/set/autoRefresh true

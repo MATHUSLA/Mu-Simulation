@@ -7,7 +7,6 @@
 
 namespace MATHUSLA { namespace MU {
 
-
 } } /* namespace MATHUSLA::MU */
 
 #endif /* ANALYSIS_ANALYSIS_HH */

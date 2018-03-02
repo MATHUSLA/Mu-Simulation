@@ -8,11 +8,11 @@
 namespace MATHUSLA { namespace MU {
 
 class Messenger: public G4UImessenger {
- public:
+public:
   Messenger();
 
-  virtual void SetNewValue(G4UIcommand*, G4String);
-  virtual G4String GetCurrentValue(G4UIcommand*);
+  void SetNewValue(G4UIcommand*, G4String);
+  G4String GetCurrentValue(G4UIcommand*);
 };
 
 } } /* namespace MATHUSLA::MU */

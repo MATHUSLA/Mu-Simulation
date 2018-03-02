@@ -9,9 +9,6 @@
 #include "Geant4/G4UIExecutive.hh"
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4VisExecutive.hh"
-#include "Geant4/Randomize.hh"
-
-#include "Geant4/G4Material.hh"
 
 #include "action/ActionInitialization.hh"
 #include "detector/Construction.hh"
@@ -30,14 +27,14 @@ int main(int argc, char** argv) {
     auto runManager = new G4RunManager;
   #endif
 
-  auto physicsList = new FTFP_BERT;
-  physicsList->RegisterPhysics(new G4StepLimiterPhysics());
-
   MATHUSLA::MU::DefineNewUnits();
 
+  auto physicsList = new FTFP_BERT;
+  physicsList->RegisterPhysics(new G4StepLimiterPhysics);
+
   runManager->SetUserInitialization(physicsList);
-  runManager->SetUserInitialization(new MATHUSLA::MU::Construction());
-  runManager->SetUserInitialization(new MATHUSLA::MU::ActionInitialization());
+  runManager->SetUserInitialization(new MATHUSLA::MU::Construction);
+  runManager->SetUserInitialization(new MATHUSLA::MU::ActionInitialization);
 
   auto visManager = new G4VisExecutive("Quiet");
   visManager->Initialize();

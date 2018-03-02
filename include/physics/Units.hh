@@ -9,10 +9,10 @@
 namespace MATHUSLA { namespace MU {
 
 void DefineNewUnits() {
-  new G4UnitDefinition("GeV/c", "GeV/c","Momentum", GeV*c_light);
-  new G4UnitDefinition("MeV/c", "MeV/c","Momentum", MeV*c_light);
-  new G4UnitDefinition("keV/c", "keV/c","Momentum", keV*c_light);
-  new G4UnitDefinition( "eV/c",  "eV/c","Momentum",  eV*c_light);
+  new G4UnitDefinition("GeV/c", "GeV/c", "Momentum", GeV*c_light);
+  new G4UnitDefinition("MeV/c", "MeV/c", "Momentum", MeV*c_light);
+  new G4UnitDefinition("keV/c", "keV/c", "Momentum", keV*c_light);
+  new G4UnitDefinition( "eV/c",  "eV/c", "Momentum",  eV*c_light);
 }
 
 } } /* namespace MATHUSLA::MU */

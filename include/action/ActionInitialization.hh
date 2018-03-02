@@ -7,8 +7,7 @@
 namespace MATHUSLA { namespace MU {
 
 class ActionInitialization : public G4VUserActionInitialization {
- public:
-  ActionInitialization();
+public:
   void BuildForMaster() const;
   void Build() const;
 };

@@ -3,11 +3,10 @@
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4GeometryManager.hh"
 #include "Geant4/G4GeometryTolerance.hh"
-#include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4LogicalVolumeStore.hh"
-#include "Geant4/G4Material.hh"
 #include "Geant4/G4PhysicalVolumeStore.hh"
 #include "Geant4/G4SDManager.hh"
+#include "Geant4/G4Colour.hh"
 #include "Geant4/G4SolidStore.hh"
 #include "Geant4/G4PVPlacement.hh"
 
@@ -37,8 +36,8 @@ void Construction::DefineMaterials() {
   Material::Air->AddElement(Construction::Material::N, 0.7);
   Material::Air->AddElement(Construction::Material::O, 0.3);
 
-  Earth::DefineMaterials();
-  Prototype::DefineMaterials();
+  Earth::Material::Define();
+  Prototype::Material::Define();
 
   G4cout << *(G4Material::GetMaterialTable()) << "\n";
 }
@@ -72,6 +71,18 @@ G4VPhysicalVolume* Construction::DefineVolumes() {
 void Construction::ConstructSDandField() {
   auto detector = new Prototype();
   G4SDManager::GetSDMpointer()->AddNewDetector(detector);
+}
+
+const G4VisAttributes Construction::SensitiveAttributes() {
+  auto attr = G4VisAttributes(G4Colour(0., 1., 0., 1.0));
+  attr.SetForceSolid(true);
+  return attr;
+}
+
+const G4VisAttributes Construction::CasingAttributes() {
+  auto attr = G4VisAttributes(G4Colour(0., 0., 1., 0.2));
+  attr.SetForceSolid(true);
+  return attr;
 }
 
 G4Trap* Construction::Trap(const G4String& name,
@@ -115,6 +126,16 @@ G4LogicalVolume* Construction::Volume(G4VSolid* solid,
   return Volume(solid->GetName(), solid, material, attr);
 }
 
+G4LogicalVolume* Construction::Volume(G4VSolid* solid,
+                                      const G4VisAttributes* attr) {
+  return Volume(solid, Construction::Material::Air, attr);
+}
+
+G4LogicalVolume* Construction::Volume(G4VSolid* solid,
+                                      const G4VisAttributes& attr) {
+  return Volume(solid, Construction::Material::Air, attr);
+}
+
 G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
                                              G4LogicalVolume* current,
                                              G4LogicalVolume* parent,
@@ -141,6 +162,41 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4VSolid* solid,
                                              G4LogicalVolume* parent,
                                              const G4Transform3D& transform) {
   return PlaceVolume(solid->GetName(), solid, material, parent, transform);
+}
+
+
+G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+                                             G4LogicalVolume* current,
+                                             const G4VisAttributes& attr,
+                                             G4LogicalVolume* parent,
+                                             const G4Transform3D& transform) {
+  current->SetVisAttributes(attr);
+  return PlaceVolume(name, current, parent, transform);
+}
+
+G4VPhysicalVolume* Construction::PlaceVolume(G4LogicalVolume* current,
+                                             const G4VisAttributes& attr,
+                                             G4LogicalVolume* parent,
+                                             const G4Transform3D& transform) {
+  current->SetVisAttributes(attr);
+  return PlaceVolume(current, parent, transform);
+}
+
+G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+                                             G4VSolid* solid,
+                                             G4Material* material,
+                                             const G4VisAttributes& attr,
+                                             G4LogicalVolume* parent,
+                                             const G4Transform3D& transform) {
+  return PlaceVolume(name, Volume(solid, material, attr), parent, transform);
+}
+
+G4VPhysicalVolume* Construction::PlaceVolume(G4VSolid* solid,
+                                             G4Material* material,
+                                             const G4VisAttributes& attr,
+                                             G4LogicalVolume* parent,
+                                             const G4Transform3D& transform) {
+  return PlaceVolume(Volume(solid, material, attr), parent, transform);
 }
 
 G4RotationMatrix Construction::Matrix(const G4double th1, const G4double phi1,

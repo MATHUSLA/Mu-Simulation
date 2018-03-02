@@ -11,24 +11,29 @@
 
 namespace MATHUSLA { namespace MU {
 
-EnvelopeList Prototype::fEnvelopes = EnvelopeList();
+auto Prototype::_envelopes = EnvelopeList();
+auto Prototype::_rpcs = RPCList();
 
 Prototype::Prototype()
-    : G4VSensitiveDetector("MATHUSLA/MU/Prototype"),
-      fHitsCollection(NULL) {
+    : G4VSensitiveDetector("MATHUSLA/MU/Prototype"), _hit_collection(nullptr) {
   collectionName.insert("Prototype_HC");
-  for (auto envelope : fEnvelopes) {
-    for (auto trap : envelope.GetScintillatorList()) {
+  for (auto& envelope : _envelopes) {
+    for (auto& trap : envelope.GetScintillatorList())
       trap.GetSensitiveVolume()->GetLogicalVolume()->SetSensitiveDetector(this);
+  }
+  for (auto& rpc : _rpcs) {
+    for (auto& pad : rpc.GetPads()) {
+      for (auto& strip : pad.strips)
+        strip->GetLogicalVolume()->SetSensitiveDetector(this);
     }
   }
 }
 
 void Prototype::Initialize(G4HCofThisEvent* eventHitsCollection) {
-  fHitsCollection = new PrototypeHC(this->GetName(), collectionName[0]);
+  _hit_collection = new PrototypeHC(this->GetName(), collectionName[0]);
   eventHitsCollection->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
-    fHitsCollection);
+    _hit_collection);
 }
 
 G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
@@ -38,14 +43,17 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   auto track = step->GetTrack();
   auto post_step = step->GetPostStepPoint();
+  auto nonionizing_depoist = step->GetNonIonizingEnergyDeposit();
 
-  if (track->GetParentID() == 0) {
-    fHitsCollection->insert(
+  if (track->GetParentID() == 0
+      && step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary) {
+    _hit_collection->insert(
       new PrototypeHit(
         track->GetParticleDefinition()->GetParticleName(),
         track->GetTrackID(),
         track->GetTouchable()->GetHistory()->GetVolume(4)->GetName(),
-        deposit,
+        deposit - nonionizing_depoist,
+        nonionizing_depoist,
         post_step->GetGlobalTime(),
         post_step->GetPosition(),
         post_step->GetTotalEnergy(),
@@ -61,7 +69,7 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
   G4int eventID = 0;
   auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
   if (event) eventID = event->GetEventID();
-  G4int hitCount = fHitsCollection->entries();
+  G4int hitCount = _hit_collection->entries();
 
   if (!hitCount) return;
 
@@ -75,7 +83,7 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
   G4int trackID = -1;
   G4String chamberID = "";
   for (G4int i = 0; i < hitCount; ++i) {
-    auto hit = static_cast<PrototypeHit*>(fHitsCollection->GetHit(i));
+    auto hit = static_cast<PrototypeHit*>(_hit_collection->GetHit(i));
     auto newChamberID = hit->GetChamberID();
     auto newTrackID = hit->GetTrackID();
     if (i != 0 && (chamberID != newChamberID || trackID != newTrackID)) {
@@ -96,7 +104,7 @@ G4Material* Prototype::Material::Aluminum     = 0;
 G4Material* Prototype::Material::Carbon       = 0;
 G4Material* Prototype::Material::Scintillator = 0;
 
-void Prototype::DefineMaterials() {
+void Prototype::Material::Define() {
   Material::Aluminum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
   Material::Carbon = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
 
@@ -115,18 +123,17 @@ void Prototype::DefineMaterials() {
 
 G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto Detector = Construction::Volume(
-    new G4Box("Prototype", 300.0*cm, 300.0*cm, 300.0*cm),
-    Construction::Material::Air);
+    new G4Box("Prototype", 300.0*cm, 300.0*cm, 300.0*cm));
 
-  auto TopFirst    = Envelope::LayerType::TopFirst;
-  auto BottomFirst = Envelope::LayerType::BottomFirst;
-  auto Left        = Envelope::Alignment::Left;
-  auto Center      = Envelope::Alignment::Center;
-  auto Right       = Envelope::Alignment::Right;
+  constexpr auto TopFirst    = Envelope::LayerType::TopFirst;
+  constexpr auto BottomFirst = Envelope::LayerType::BottomFirst;
+  constexpr auto Left        = Envelope::Alignment::Left;
+  constexpr auto Center      = Envelope::Alignment::Center;
+  constexpr auto Right       = Envelope::Alignment::Right;
 
-  G4double depth     = 2.0*cm;
-  G4double thickness = 0.1*cm;
-  G4double spacing   = 0.1*cm;
+  constexpr G4double depth     = 2.0*cm;
+  constexpr G4double thickness = 0.1*cm;
+  constexpr G4double spacing   = 0.1*cm;
 
   auto A10 = Scintillator("A10",     34.2735559430568*cm, 32.52*cm, 35.78*cm,
     depth, thickness, spacing);
@@ -171,7 +178,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto C11 = Scintillator("C11",     69.2465722114821*cm, 57.80*cm, 63.53*cm,
     depth, thickness, spacing);
 
-  const G4double trap_spacing = 5*cm;  // what is the real value?
+  constexpr G4double trap_spacing = 5*cm;  // what is the real value?
 
   auto A1_L = Envelope("A1-L", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
   auto A2_H = Envelope("A2-H", trap_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
@@ -187,15 +194,15 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto B5_L = Envelope("B5-L", trap_spacing, TopFirst,    Left,   {A10, A12, C7, C8, C9});
   auto B6_H = Envelope("B6-H", trap_spacing, TopFirst,    Left,   {B11, B11, C9, B11, B11});
 
-  fEnvelopes = EnvelopeList(
-    {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
+  _envelopes = EnvelopeList({
+    A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
 
-  const G4double env_spacing = 5*cm + 2*depth;  // what is the correct distance between envelopes?
-  const G4double layer_spacing = 500*cm; // what is the correct distance between layers?
+  constexpr G4double env_spacing = 5*cm + 2*depth;  // what is the correct distance between envelopes?
+  constexpr G4double layer_spacing = 500*cm;        // what is the correct distance between layers?
 
-  const G4double height_A = 2.55*m,
-                  width_A = 2.54*m,
-                  depth_A =  40*cm;
+  constexpr G4double height_A = 255*cm,
+                      width_A = 254*cm,
+                      depth_A =  40*cm;
   auto layerA = Construction::Volume(
     new G4Box("A-Layer", 0.5 * width_A, 0.5 * depth_A, 0.5 * height_A),
     Construction::Material::Air);
@@ -219,14 +226,29 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
     stack_A = !stack_A;
   }
 
-
   Construction::PlaceVolume(layerA, Detector,
     Construction::Transform(0, 0, -0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
 
-  const G4double height_B = 2.54*m,
-                  width_B = 2.36*m,
-                  depth_B =  40*cm;
+  constexpr G4double rpc_angle = 15*deg;  // what is the real value?
+  constexpr G4double rpc_small_spacing = 20*cm;
+  constexpr G4double rpc_large_spacing = 100*cm;
+
+  for (G4int rpc_index = 0; rpc_index < 12; ++rpc_index) {
+    auto current_rpc = RPC(1 + rpc_index);
+    Construction::PlaceVolume(current_rpc.GetVolume(), Detector,
+      Construction::Transform(
+        (rpc_index % 2 ? 0.5 : -0.5) * RPC::Width,
+        0,
+        0,
+        0, 0, -1, rpc_angle + (rpc_index / 2 % 2 ? 90*deg : 0*deg)));
+    _rpcs.push_back(current_rpc);
+  }
+
+
+  constexpr G4double height_B = 254*cm,
+                      width_B = 236*cm,
+                      depth_B =  40*cm;
   auto layerB = Construction::Volume(
     new G4Box("B-Layer", 0.5 * height_B, 0.5 * depth_B, 0.5 * width_B),
     Construction::Material::Air);
@@ -272,7 +294,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   Construction::PlaceVolume(layerB, Detector,
     Construction::Transform(0, 0, 0.5 * layer_spacing, 1, 0, 0, 90*deg));
 
-  return Construction::PlaceVolume(Detector, world, G4Translate3D(0, 0, -3*m));
+  return Construction::PlaceVolume(Detector, world, G4Translate3D(50*m, 50*m, -3*m));
 }
 
 } } /* namespace MATHUSLA::MU */

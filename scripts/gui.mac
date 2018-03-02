@@ -22,6 +22,7 @@
 
 # Viewer menu :
 /gui/addMenu viewer Viewer
+/gui/addButton viewer "View Detector" "/control/execute gotodetector"
 /gui/addButton viewer "Set style surface" "/vis/viewer/set/style surface"
 /gui/addButton viewer "Set style wireframe" "/vis/viewer/set/style wireframe"
 /gui/addButton viewer "Refresh viewer" "/vis/viewer/refresh"

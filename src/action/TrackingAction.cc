@@ -5,7 +5,7 @@ namespace MATHUSLA { namespace MU {
 TrackingAction::TrackingAction() : G4UserTrackingAction() {}
 
 void TrackingAction::SetTrackingManagerPointer(G4TrackingManager* manager) {
-  fpTrackingManager = manager;
+  _manager = manager;
 }
 
 void TrackingAction::PreUserTrackingAction(const G4Track*) {}
