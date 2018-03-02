@@ -231,18 +231,34 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
 
 
   constexpr G4double rpc_angle = 15*deg;  // what is the real value?
-  constexpr G4double rpc_small_spacing = 20*cm;
-  constexpr G4double rpc_large_spacing = 100*cm;
+  constexpr G4double rpc_small_spacing = 10*cm;  // what is the real value?
+  constexpr G4double rpc_large_spacing = 140*cm;  // what is the real value?
+  constexpr G4double rpc_top_gap = 30*cm;  // what is the real value?
 
-  for (G4int rpc_index = 0; rpc_index < 12; ++rpc_index) {
-    auto current_rpc = RPC(1 + rpc_index);
-    Construction::PlaceVolume(current_rpc.GetVolume(), Detector,
+  for (short layer_index = 0; layer_index < 6; ++layer_index) {
+    auto layer = Construction::Volume(
+      new G4Box("Layer" + std::to_string(1 + layer_index),
+        RPC::Width, 0.5 * RPC::Height, 0.5 * RPC::Depth));
+    for (short rpc_index = 0; rpc_index < 2; ++rpc_index) {
+      auto rpc = RPC(rpc_index + layer_index + 1);
+      Construction::PlaceVolume(rpc.GetVolume(), layer,
+        G4Translate3D(
+          (rpc_index % 2 ? -0.5 : 0.5) * RPC::Width, 0, 0
+        ));
+      _rpcs.push_back(rpc);
+    }
+    auto layer_shift = -rpc_top_gap;
+    switch (layer_index % 3) {
+        case 0: layer_shift = rpc_large_spacing; break;
+        case 1: layer_shift = 0; break;
+        case 2: layer_shift = -rpc_large_spacing; break;
+    }
+    Construction::PlaceVolume(layer, Detector,
       Construction::Transform(
-        (rpc_index % 2 ? 0.5 : -0.5) * RPC::Width,
-        0,
-        0,
-        0, 0, -1, rpc_angle + (rpc_index / 2 % 2 ? 90*deg : 0*deg)));
-    _rpcs.push_back(current_rpc);
+        0, 0,
+        (layer_index % 2 ? -1 : 1) * rpc_small_spacing + layer_shift,
+        0, 0, -1, rpc_angle + (layer_index % 2 ? 90*deg : 0*deg)
+      ));
   }
 
 

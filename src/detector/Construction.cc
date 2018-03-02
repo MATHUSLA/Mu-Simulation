@@ -15,13 +15,13 @@
 
 namespace MATHUSLA { namespace MU {
 
-auto Construction::Material::H
+G4Element* Construction::Material::H
   = new G4Element("Hydrogen", "H", 1., 1.01*g/mole);
-auto Construction::Material::C
+G4Element* Construction::Material::C
   = new G4Element("Carbon",   "C", 6., 12.01*g/mole);
-auto Construction::Material::N
+G4Element* Construction::Material::N
   = new G4Element("Nitrogen", "N", 7., 14.01*g/mole);
-auto Construction::Material::O
+G4Element* Construction::Material::O
   = new G4Element("Oxygen",   "O", 8., 16.00*g/mole);
 
 G4Material* Construction::Material::Air = 0;
