@@ -243,9 +243,12 @@ G4Transform3D Construction::Rotate(const G4double axisx,
 G4Transform3D Construction::SpecialTransformB(const G4double x,
                                               const G4double y,
                                               const G4double z)  {
+  G4double alpha = 10*deg; //calculate alpha
+  G4double th1 = 270*deg + alpha,  phi1 = 0*deg;
+  G4double th2 = 0*deg + alpha, phi2 = 0*deg;
+  G4double th3 = 90*deg,  phi3 = 90*deg;
   return G4Transform3D(
-    Matrix(90*deg, 0*deg, 0*deg, 0*deg, 90*deg, 270*deg),
-    G4ThreeVector(x, y, z));
+    Matrix(th1, phi1, th2, phi2, th3, phi3), G4ThreeVector(x, y, z));
 }
 
 } } /* namespace MATHUSLA::MU */

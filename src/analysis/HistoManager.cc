@@ -47,4 +47,4 @@ void HistoManager::Normalize(G4int id, G4double fac) {
 
 void HistoManager::PrintStatistic() {}
 
-} } /* namespace MATHUSLA::MU */
+} } /* namespace MATHUSLA::MU *

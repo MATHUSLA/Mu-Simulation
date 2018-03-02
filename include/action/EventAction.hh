@@ -2,6 +2,10 @@
 #define ACTION_EVENTACTION_HH
 #pragma once
 
+#include "tracking/PrototypeHit.hh"
+#include "analysis/HistoManager.hh"
+#include "action/RunAction.hh"
+
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserEventAction.hh"
 

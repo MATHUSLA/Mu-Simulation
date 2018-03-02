@@ -5,6 +5,7 @@
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserRunAction.hh"
 #include "Geant4/G4Run.hh"
+#include "analysis/HistoManager.hh"
 
 namespace MATHUSLA { namespace MU {
 
