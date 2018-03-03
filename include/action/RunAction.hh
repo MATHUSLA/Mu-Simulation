@@ -10,19 +10,17 @@
 namespace MATHUSLA { namespace MU {
 
 class RunAction : public G4UserRunAction {
- public:
-  RunAction(HistoManager*);
-  ~RunAction();
-  G4Run* GenerateRun();
-  void BeginOfRunAction(const G4Run*);
-  void EndOfRunAction(const G4Run*);
+public:
+  RunAction();
 
-  void FillPerEvent(G4double);
+  G4Run* GenerateRun();
+
+  void BeginOfRunAction(const G4Run* run);
+  void FillPerEvent(G4double Edep);
+  void EndOfRunAction(const G4Run* run);
 
 private:
-	HistoManager* fHistoManager;
-
-	G4double fAvgEdep;
+  G4double fAvgEdep;
 };
 
 } } /* namespace MATHUSLA::MU */

@@ -9,26 +9,23 @@
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserEventAction.hh"
 
+#include "action/RunAction.hh"
+
 namespace MATHUSLA { namespace MU {
 
-class EventAction : public G4UserEventAction 
-{
- public:
-  EventAction(RunAction*, HistoManager*);
-  		~EventAction();
+class EventAction : public G4UserEventAction {
+public:
+  EventAction(RunAction* action);
 
-  void BeginOfEventAction(const G4Event*);
-  void EndOfEventAction(const G4Event*);
+  void BeginOfEventAction(const G4Event* event);
+  void EndOfEventAction(const G4Event* event);
 
-  void AddE(G4double de) {fEnergy += de;};
+  void AddE(G4double de) { fEnergy += de; }
 
- private:
-   RunAction*    fRunAct;
-   HistoManager* fHistoManager;
-
-   G4double fEnergy;
-
-   G4int fPrintModulo;    
+private:
+  RunAction* fRunAction;
+  G4double   fEnergy;
+  G4int      fPrintModulo;
 };
 
 } } /* namespace MATHUSLA::MU */

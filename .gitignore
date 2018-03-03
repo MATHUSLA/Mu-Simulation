@@ -21,11 +21,13 @@
 *~
 
 .DAWN_*
-.DS_Store
-.idea
-.temp
-G4History
+G4History*
 
-build
+.DS_Store
+
+/.idea
+/.temp
+/build
+/data
 
 simulation

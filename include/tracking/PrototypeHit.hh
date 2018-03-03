@@ -11,11 +11,12 @@
 namespace MATHUSLA { namespace MU {
 
 class PrototypeHit : public G4VHit {
- public:
+public:
   PrototypeHit(const G4String& particle,
                const G4int track,
                const G4String& chamber,
-               const G4double deposit,
+               const G4double ionizing,
+               const G4double nonionizing,
                const G4double time,
                const G4ThreeVector position,
                const G4double energy,
@@ -29,24 +30,28 @@ class PrototypeHit : public G4VHit {
   void Draw();
   void Print();
 
-  inline const G4String& GetParticleName() const { return fParticleName; }
-  inline G4int           GetTrackID()      const { return fTrackID;      }
-  inline const G4String& GetChamberID()    const { return fChamberID;    }
-  inline G4double        GetDeposit()      const { return fDeposit;      }
-  inline G4double        GetTime()         const { return fTime;         }
-  inline G4ThreeVector   GetPosition()     const { return fPosition;     }
-  inline G4double        GetEnergy()       const { return fEnergy;       }
-  inline G4ThreeVector   GetMomentum()     const { return fMomentum;     }
+  inline const G4String& GetParticleName()       const { return _particle_name; }
+  inline G4int           GetTrackID()            const { return _trackID;      }
+  inline const G4String& GetChamberID()          const { return _chamberID;    }
+  inline G4double        GetIonizingDeposit()    const { return _ionizing;     }
+  inline G4double        GetNonIonizingDeposit() const { return _nonionizing;  }
+  inline G4double        GetTotalDeposit()       const { return _ionizing
+                                                              + _nonionizing;  }
+  inline G4double        GetTime()               const { return _time;         }
+  inline G4ThreeVector   GetPosition()           const { return _position;     }
+  inline G4double        GetEnergy()             const { return _energy;       }
+  inline G4ThreeVector   GetMomentum()           const { return _momentum;     }
 
- private:
-  G4String      fParticleName;
-  G4int         fTrackID;
-  G4String      fChamberID;
-  G4double      fDeposit;
-  G4double      fTime;
-  G4ThreeVector fPosition;
-  G4double      fEnergy;
-  G4ThreeVector fMomentum;
+private:
+  G4String      _particle_name;
+  G4int         _trackID;
+  G4String      _chamberID;
+  G4double      _ionizing;
+  G4double      _nonionizing;
+  G4double      _time;
+  G4ThreeVector _position;
+  G4double      _energy;
+  G4ThreeVector _momentum;
 };
 
 using PrototypeHC = G4THitsCollection<PrototypeHit>;

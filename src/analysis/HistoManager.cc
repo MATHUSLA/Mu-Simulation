@@ -1,63 +1,50 @@
-#include <CLHEP/Units/SystemOfUnits.h>
-
 #include "analysis/HistoManager.hh"
+
 #include "Geant4/G4UnitsTable.hh"
 
-HistoManager::HistoManager()
-:fRootFile(0),
-fEsci(0.)
-{for (G4int k=0; k<kMaxHisto; k++) fHisto[k] = 0;}
+namespace MATHUSLA { namespace MU {
 
-HistoManager::~HistoManager()
-{
-  if (fRootFile) delete fRootFile;
-}
+std::array<TH1D*, HistoManager::MaxHistoCount> HistoManager::fHisto = {};
+TFile* HistoManager::fRootFile = nullptr;
+G4double HistoManager::fEsci = 0;
 
-void HistoManager::Book()
-{
-  G4String fileName = "Prototype.root";
-  fRootFile = new TFile(fileName,"EnergyDeposit");
-  if (! fRootFile) {
-    G4cout << " HistoManager::Book :" 
-           << " problem creating the ROOT TFile "
-           << G4endl;
-       }
+void HistoManager::Book() {
+  fRootFile = new TFile("data/Prototype.root", "RECREATE", "EnergyDeposit");
+  if (!fRootFile) {
+    G4cout << " HistoManager::Book : problem creating the ROOT TFile\n";
     return;
-  for ( G4int i=0; i<kMaxHisto; ++i ) {
-    if (! fHisto[i]) G4cout << "\n can't create histo " << i << G4endl;
+  }
+  for (G4int i = 0; i < MaxHistoCount; ++i) {
+    if (!fHisto[i]) G4cout << "\n can't create histo " << i << '\n';
   }
 }
 
-void HistoManager::Save()
-{ 
-  if (! fRootFile) return;
-  
+void HistoManager::Save() {
+  if (!fRootFile) return;
   fRootFile->Write();       // Writing the histograms to the file
   fRootFile->Close();       // and closing the tree (and the file)
-  
-  G4cout << "\n----> Histograms are saved\n" << G4endl;
+  G4cout << "\n----> Histograms are saved\n\n";
 }
 
-void HistoManager::FillHisto(G4int ih, G4double xbin, G4double weight)
-{
-  if (ih >= kMaxHisto) {
-    G4cerr << "---> warning from HistoManager::FillHisto() : histo " << ih
-           << " does not exist. (xbin=" << xbin << " weight=" << weight << ")"
-           << G4endl;
+void HistoManager::FillHisto(G4int id, G4double xbin, G4double weight) {
+  if (id >= MaxHistoCount) {
+    G4cout << "---> warning from HistoManager::FillHisto() : histo " << id
+           << " does not exist. (xbin=" << xbin << " weight=" << weight
+           << ")\n";
     return;
   }
-  if  (fHisto[ih]) { fHisto[ih]->Fill(xbin, weight); }
+  if (fHisto[id]) { fHisto[id]->Fill(xbin, weight); }
 }
 
-void HistoManager::Normalize(G4int ih, G4double fac)
-{
-  if (ih >= kMaxHisto) {
-    G4cout << "---> warning from HistoManager::Normalize() : histo " << ih
-           << " does not exist. (fac=" << fac << ")" << G4endl;
+void HistoManager::Normalize(G4int id, G4double fac) {
+  if (id >= MaxHistoCount) {
+    G4cout << "---> warning from HistoManager::Normalize() : histo " << id
+           << " does not exist. (fac=" << fac << ")\n";
     return;
   }
-  if (fHisto[ih]) fHisto[ih]->Scale(fac);
+  if (fHisto[id]) fHisto[id]->Scale(fac);
 }
 
-void HistoManager::PrintStatistic()
-{}
+void HistoManager::PrintStatistic() {}
+
+} } /* namespace MATHUSLA::MU *

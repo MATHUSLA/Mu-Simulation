@@ -1,5 +1,5 @@
-#ifndef PHYSICS_PHYSICSLIST_H
-#define PHYSICS_PHYSICSLIST_H
+#ifndef PHYSICS_PHYSICSLIST_HH
+#define PHYSICS_PHYSICSLIST_HH
 #pragma once
 
 #include "Geant4/G4VUserPhysicsList.hh"
@@ -7,7 +7,7 @@
 namespace MATHUSLA { namespace MU {
 
 class PhysicsList : G4VUserPhysicsList {
- public:
+public:
   PhysicsList();
   void ConstructParticle();
   void ConstructProcess();
@@ -16,4 +16,4 @@ class PhysicsList : G4VUserPhysicsList {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PHYSICS_PHYSICSLIST_H */
+#endif /* PHYSICS_PHYSICSLIST_HH */

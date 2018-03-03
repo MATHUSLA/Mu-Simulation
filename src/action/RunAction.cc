@@ -3,46 +3,41 @@
 
 #include "Geant4/G4Run.hh"
 #include "Geant4/G4RunManager.hh"
+#include "Geant4/G4SystemOfUnits.hh"
 #include "Geant4/G4UnitsTable.hh"
+
+#include "analysis/HistoManager.hh"
 
 namespace MATHUSLA { namespace MU {
 
-RunAction::RunAction(HistoManager* histo) 
-: G4UserRunAction(),
-  fHistoManager(histo),
-  fAvgEdep(0.) 
-  {G4RunManager::GetRunManager()->SetPrintProgress(1000);}
-
-RunAction::~RunAction()
-{}
+RunAction::RunAction() : G4UserRunAction(), fAvgEdep(0) {
+  G4RunManager::GetRunManager()->SetPrintProgress(1000);
+}
 
 G4Run* RunAction::GenerateRun() { return G4UserRunAction::GenerateRun(); }
 
 void RunAction::BeginOfRunAction(const G4Run*) {
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-  fAvgEdep = 0.;
-  fHistoManager->Book();
+  fAvgEdep = 0;
+  HistoManager::Book();
 }
 
-void RunAction::FillPerEvent(G4double Edep)
-{
-	fAvgEdep += Edep;
+void RunAction::FillPerEvent(G4double Edep) {
+  fAvgEdep += Edep;
 }
 
-void RunAction::EndOfRunAction(const G4Run* aRun) 
-{
-	G4int NbOfEvents = aRun->GetNumberOfEvent();
-	if (NbOfEvents == 0) return;
+void RunAction::EndOfRunAction(const G4Run* run) {
+  auto event_count = run->GetNumberOfEvent();
+  if (event_count == 0) return;
 
-	fAvgEdep /= NbOfEvents;
+  fAvgEdep /= event_count;
 
-	G4cout
-		<< "\nEnd of Run:\n"
-     	<< "\n mean Energy in Scinillator : " << G4BestUnit(fAvgEdep,"Energy")
-     	<< G4endl;
+  G4cout << "\nEnd of Run:\n\n mean Energy in Scinillator : "
+         << G4BestUnit(fAvgEdep, "Energy")
+         << '\n';
 
-    fHistoManager->PrintStatistic();
-  	fHistoManager->Save();   
+  HistoManager::PrintStatistic();
+  HistoManager::Save();
 }
 
 } } /* namespace MATHUSLA::MU */

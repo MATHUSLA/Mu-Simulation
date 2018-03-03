@@ -2,28 +2,27 @@
 
 #include "action/RunAction.hh"
 #include "action/EventAction.hh"
-#include "action/PrimaryGeneratorAction.hh"
 #include "action/SteppingAction.hh"
 #include "action/TrackingAction.hh"
 #include "action/StackingAction.hh"
 
-namespace MATHUSLA { namespace MU {
+#include "physics/BasicGenerator.hh"
+#include "physics/Pythia8Generator.hh"
 
-ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
+namespace MATHUSLA { namespace MU {
 
 void ActionInitialization::BuildForMaster() const {
   //SetUserAction(new RunAction);
 }
 
 void ActionInitialization::Build() const {
-  auto manager = new HistoManager();
-  auto run_action = new RunAction(manager);
+  auto run_action = new RunAction;
   SetUserAction(run_action);
-  SetUserAction(new EventAction(run_action, manager));
-  SetUserAction(new PrimaryGeneratorAction);
+  SetUserAction(new EventAction(run_action));
   SetUserAction(new SteppingAction);
   SetUserAction(new TrackingAction);
   SetUserAction(new StackingAction);
+  SetUserAction(new BasicGeneratorAction);
 }
 
 } } /* namespace MATHUSLA::MU */

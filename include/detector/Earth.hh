@@ -16,11 +16,11 @@ struct Material {
   static G4Material* SiO2;
   static G4Material* Marl;
   static G4Material* Mix;
+  static void Define();
  private:
   Material();
 };
 
-void DefineMaterials();
 G4VPhysicalVolume* Construct(G4LogicalVolume*);
 
 } /* namespace Earth */

@@ -2,13 +2,17 @@
 _simulation of muons through earth material_
 
 ## Build & Run
-Run the following command to build and run the simulation:
 
-```bash
-./install --run
-```
+This repository comes with a simple build script called `install` that will allow you to customize the build process and execution of the muon simulation.
 
-Run the following for more options:
-```bash
-./install --help
-```
+Here is a list of useful commands:
+
+| Action | Arguments after `./install` |
+|:-:|:-:|
+| Build Only | `(none)`  |
+| Build and Auto Run | `--run`  |
+| Clean CMake Build | `--cmake --clean` |
+| More Options | `--help` |
+
+## Plugin HepMC Generator
+_coming soon..._

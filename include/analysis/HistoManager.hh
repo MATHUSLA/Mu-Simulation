@@ -1,33 +1,33 @@
 #ifndef ANALYSIS_HISTOMANAGER_HH
-#define ANALYSIS_HISTOMANAGER_HH 1
+#define ANALYSIS_HISTOMANAGER_HH
 #pragma once
+
+#include <array>
+
+#include "Geant4/globals.hh"
 
 #include "ROOT/TH1D.h"
 #include "ROOT/TFile.h"
 #include "ROOT/TTree.h"
-#include "Geant4/globals.hh"
 
-const G4int kMaxHisto = 1;
+namespace MATHUSLA { namespace MU {
 
-class HistoManager
-{
+class HistoManager {
 public:
-	HistoManager();
-   ~HistoManager();
-
-    void Book();
-    void Save();
-
-    void FillHisto(G4int id, G4double bin, G4double weight = 1.0);
-    void Normalize(G4int id, G4double fac);    
-    
-    void PrintStatistic();
+  static void Book();
+  static void Save();
+  static void FillHisto(G4int id, G4double bin, G4double weight=1.0);
+  static void Normalize(G4int id, G4double fac);
+  static void PrintStatistic();
 
 private:
-    TFile*   fRootFile;
-    TH1D*    fHisto[kMaxHisto];                
-
-    G4double fEsci;
+  HistoManager();
+  constexpr static G4int MaxHistoCount = 1;
+  static std::array<TH1D*, MaxHistoCount> fHisto;
+  static TFile* fRootFile;
+  static G4double fEsci;
 };
 
-#endif
+} } /* namespace MATHUSLA::MU */
+
+#endif /* ANALYSIS_HISTOMANAGER_HH */

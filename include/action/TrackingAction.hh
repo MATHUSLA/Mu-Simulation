@@ -8,14 +8,14 @@
 namespace MATHUSLA { namespace MU {
 
 class TrackingAction : public G4UserTrackingAction {
- public:
+public:
   TrackingAction();
   void SetTrackingManagerPointer(G4TrackingManager*);
   void PreUserTrackingAction(const G4Track*);
   void PostUserTrackingAction(const G4Track*);
 
- private:
-  G4TrackingManager* fpTrackingManager;
+private:
+  G4TrackingManager* _manager;
 };
 
 } } /* namespace MATHUSLA::MU */

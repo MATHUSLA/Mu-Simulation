@@ -6,6 +6,7 @@
 #include "Geant4/G4Tubs.hh"
 
 #include <initializer_list>
+#include <vector>
 
 #include "detector/Construction.hh"
 #include "tracking/PrototypeHit.hh"
@@ -13,7 +14,7 @@
 namespace MATHUSLA { namespace MU {
 
 class Scintillator {
- public:
+public:
   Scintillator();
   Scintillator(const G4String& name,
                const G4double height,
@@ -23,27 +24,27 @@ class Scintillator {
                const G4double thickness,
                const G4double spacing);
 
-  inline const G4String&    GetName()            const { return fName;      }
-  inline G4double           GetHeight()          const { return fHeight;    }
-  inline G4double           GetMinWidth()        const { return fMinWidth;  }
-  inline G4double           GetMaxWidth()        const { return fMaxWidth;  }
-  inline G4double           GetDepth()           const { return fDepth;     }
-  inline G4double           GetThickness()       const { return fThickness; }
-  inline G4double           GetSpacing()         const { return fSpacing;   }
-  inline G4VSolid*          GetSolid()           const { return fSolid;     }
-  inline G4LogicalVolume*   GetVolume()          const { return fVolume;    }
-  inline G4VPhysicalVolume* GetSensitiveVolume() const { return fSVolume;   }
-  inline G4VPhysicalVolume* GetCasingVolume()    const { return fCasing;    }  // may remove
-  inline G4VPhysicalVolume* GetPMTVolume()       const { return fPMT;       }  // may remove
+  inline const G4String&    GetName()            const { return _name;      }
+  inline G4double           GetHeight()          const { return _height;    }
+  inline G4double           GetMinWidth()        const { return _min_width; }
+  inline G4double           GetMaxWidth()        const { return _max_width; }
+  inline G4double           GetDepth()           const { return _depth;     }
+  inline G4double           GetThickness()       const { return _thickness; }
+  inline G4double           GetSpacing()         const { return _spacing;   }
+  inline G4VSolid*          GetSolid()           const { return _solid;     }
+  inline G4LogicalVolume*   GetVolume()          const { return _volume;    }
+  inline G4VPhysicalVolume* GetSensitiveVolume() const { return _sensitive; }
+  inline G4VPhysicalVolume* GetCasingVolume()    const { return _casing;    }  // may remove
+  inline G4VPhysicalVolume* GetPMTVolume()       const { return _pmt;       }  // may remove
 
   inline bool operator==(const Scintillator& rhs) const {
-    return (fName      == rhs.fName)
-        && (fHeight    == rhs.fHeight)
-        && (fMinWidth  == rhs.fMinWidth)
-        && (fMaxWidth  == rhs.fMaxWidth)
-        && (fDepth     == rhs.fDepth)
-        && (fThickness == rhs.fThickness)
-        && (fSpacing   == rhs.fSpacing);
+    return (_name      == rhs._name)
+        && (_height    == rhs._height)
+        && (_min_width == rhs._min_width)
+        && (_max_width == rhs._max_width)
+        && (_depth     == rhs._depth)
+        && (_thickness == rhs._thickness)
+        && (_spacing   == rhs._spacing);
   }
 
   inline bool operator!=(const Scintillator& rhs) const {
@@ -53,27 +54,25 @@ class Scintillator {
   constexpr static G4double PMTRadius =  2.1*cm;
   constexpr static G4double PMTLength = 19.3*cm;
 
- private:
-  static G4Tubs* PMTCylinder(const G4String& name);
-
-  G4String           fName;
-  G4double           fHeight;
-  G4double           fMinWidth;
-  G4double           fMaxWidth;
-  G4double           fDepth;
-  G4double           fThickness;
-  G4double           fSpacing;
-  G4VSolid*          fSolid;
-  G4LogicalVolume*   fVolume;
-  G4VPhysicalVolume* fSVolume;
-  G4VPhysicalVolume* fCasing;   // may remove
-  G4VPhysicalVolume* fPMT;      // may remove
+private:
+  G4String           _name;
+  G4double           _height;
+  G4double           _min_width;
+  G4double           _max_width;
+  G4double           _depth;
+  G4double           _thickness;
+  G4double           _spacing;
+  G4VSolid*          _solid;
+  G4LogicalVolume*   _volume;
+  G4VPhysicalVolume* _sensitive;
+  G4VPhysicalVolume* _casing;   // may remove
+  G4VPhysicalVolume* _pmt;      // may remove
 };
 
 using ScintillatorList = std::vector<Scintillator>;
 
 class Envelope {
- public:
+public:
   enum class LayerType { TopFirst, BottomFirst };
   enum class Alignment : signed char { Left = -1, Center = 0, Right = 1 };
 
@@ -83,60 +82,104 @@ class Envelope {
            const Alignment alignment,    // getter ?
            std::initializer_list<Scintillator> scintillators);
 
-  inline const G4String&  GetName()             const { return fName;          }
-  inline G4double         GetLayerSpacing()     const { return fLayerSpacing;  }
-  inline G4double         GetHeight()           const { return fHeight;        }
-  inline G4double         GetTopWidth()         const { return fTopWidth;      }
-  inline G4double         GetBottomWidth()      const { return fBottomWidth;   }
-  inline ScintillatorList GetScintillatorList() const { return fScintillators; }
-  inline G4LogicalVolume* GetVolume()           const { return fVolume;        }
+  inline const G4String&  GetName()             const { return _name;          }
+  inline G4double         GetLayerSpacing()     const { return _layer_spacing; }
+  inline G4double         GetHeight()           const { return _height;        }
+  inline G4double         GetTopWidth()         const { return _top_width;     }
+  inline G4double         GetBottomWidth()      const { return _bottom_width;  }
+  inline ScintillatorList GetScintillatorList() const { return _scintillators; }
+  inline G4LogicalVolume* GetVolume()           const { return _volume;        }
 
   const Scintillator GetScintillator(const G4String& name) const;
 
- private:
-  G4String         fName;
-  G4double         fLayerSpacing;
-  G4double         fHeight;
-  G4double         fTopWidth;
-  G4double         fBottomWidth;
-  ScintillatorList fScintillators;
-  G4LogicalVolume* fVolume;
+private:
+  G4String         _name;
+  G4double         _layer_spacing;
+  G4double         _height;
+  G4double         _top_width;
+  G4double         _bottom_width;
+  ScintillatorList _scintillators;
+  G4LogicalVolume* _volume;
 };
 
 using EnvelopeList = std::vector<Envelope>;
 
 class RPC {
- public:
+public:
+  struct Pad {
+    Pad(G4int id);
+    G4int id;
+    G4VPhysicalVolume* volume;
+    std::vector<G4VPhysicalVolume*> strips;
+  };
+
+  struct Material {
+    static G4Material* Casing;
+    static G4Material* Pad;
+    static G4Material* Strip;
+    static void Define();
+  private:
+    Material();
+  };
+
   RPC(G4int id);
 
-  inline G4int GetID() const { return fID; }
+  inline G4int            GetID()     const { return _id;     }
+  inline std::vector<Pad> GetPads()   const { return _pads;   }
+  inline G4LogicalVolume* GetVolume() const { return _volume; }
 
- private:
-  G4int fID;
+  Pad GetPad(G4int id) const { return _pads[id - 1]; }
+
+  constexpr static G4double Width  = 1257*mm;
+  constexpr static G4double Height = 2854*mm;
+  constexpr static G4double Depth  =   60*mm;  // what is true value?
+
+  constexpr static G4double PadWidth    = 618*mm;
+  constexpr static G4double PadHeight   = 556*mm;
+  constexpr static G4double PadDepth    =  55*mm;  // what is true value?
+  constexpr static G4double PadXGap     =   2*mm;
+  constexpr static G4double PadYGap     =   1*mm;
+  constexpr static G4double PadStartX   = 318*mm;
+  constexpr static G4double PadStartY   = 312*mm;
+  constexpr static G4double PadSpacingX = 620*mm;  // PadWidth + PadXGap
+  constexpr static G4double PadSpacingY = 557*mm;  // PadHeight + PadYGap
+
+  constexpr static G4double StripWidth  =  618*mm;
+  constexpr static G4double StripHeight = 67.5*mm;
+  constexpr static G4double StripDepth  =   50*mm;  // what is true value?
+  constexpr static G4double StripTopGap =    1*mm;
+  constexpr static G4double StripYGap   =    2*mm;
+
+private:
+  G4int _id;
+  std::vector<Pad> _pads;
+  G4LogicalVolume* _volume;
 };
 
+using RPCList = std::vector<RPC>;
+
 class Prototype : public G4VSensitiveDetector {
- public:
+public:
   Prototype();
 
   struct Material {
     static G4Material* Aluminum;
     static G4Material* Carbon;
     static G4Material* Scintillator;
-   private:
+    static void Define();
+  private:
     Material();
   };
 
-  static void               DefineMaterials();
   static G4VPhysicalVolume* Construct(G4LogicalVolume*);
          void               Initialize(G4HCofThisEvent*);
          G4bool             ProcessHits(G4Step*, G4TouchableHistory*);
          void               EndOfEvent(G4HCofThisEvent*);
 
- private:
-  static EnvelopeList fEnvelopes;
-
-  PrototypeHC* fHitsCollection;
+private:
+  static EnvelopeList _envelopes;
+  static RPCList _rpcs;
+  PrototypeHC* _hit_collection;
 };
 
 } } /* namespace MATHUSLA::MU */

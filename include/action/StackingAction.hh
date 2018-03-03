@@ -8,14 +8,14 @@
 namespace MATHUSLA { namespace MU {
 
 class StackingAction : public G4UserStackingAction {
- public:
+public:
   StackingAction();
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
   void NewStage();
   void PrepareNewEvent();
 
- private:
-  // G4StackManager* fpStackManager;
+private:
+  // G4StackManager* _manager;
 };
 
 } } /* namespace MATHUSLA::MU */

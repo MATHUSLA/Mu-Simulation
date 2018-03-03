@@ -5,6 +5,7 @@
 #include "Geant4/G4VUserDetectorConstruction.hh"
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4Transform3D.hh"
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4Material.hh"
@@ -13,7 +14,7 @@
 namespace MATHUSLA { namespace MU {
 
 class Construction : public G4VUserDetectorConstruction {
- public:
+public:
   struct Material {
     static G4Element* H;
     static G4Element* C;
@@ -30,6 +31,9 @@ class Construction : public G4VUserDetectorConstruction {
 
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
+
+  static const G4VisAttributes SensitiveAttributes();
+  static const G4VisAttributes CasingAttributes();
 
   static G4Trap* Trap(const G4String& name,
                       const G4double height,
@@ -55,6 +59,12 @@ class Construction : public G4VUserDetectorConstruction {
                                  G4Material* material,
                                  const G4VisAttributes& attr);
 
+  static G4LogicalVolume* Volume(G4VSolid* solid,
+                                 const G4VisAttributes* attr=0);
+
+  static G4LogicalVolume* Volume(G4VSolid* solid,
+                                 const G4VisAttributes& attr);
+
   static G4VPhysicalVolume* PlaceVolume(const G4String& name,
                                         G4LogicalVolume* current,
                                         G4LogicalVolume* parent,
@@ -75,6 +85,34 @@ class Construction : public G4VUserDetectorConstruction {
 
   static G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
                                         G4Material* material,
+                                        G4LogicalVolume* parent,
+                                        const G4Transform3D& transform
+                                            =G4Transform3D());
+
+  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+                                        G4LogicalVolume* current,
+                                        const G4VisAttributes& attr,
+                                        G4LogicalVolume* parent,
+                                        const G4Transform3D& transform
+                                            =G4Transform3D());
+
+  static G4VPhysicalVolume* PlaceVolume(G4LogicalVolume* current,
+                                        const G4VisAttributes& attr,
+                                        G4LogicalVolume* parent,
+                                        const G4Transform3D& transform
+                                            =G4Transform3D());
+
+  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+                                        G4VSolid* solid,
+                                        G4Material* material,
+                                        const G4VisAttributes& attr,
+                                        G4LogicalVolume* parent,
+                                        const G4Transform3D& transform
+                                            =G4Transform3D());
+
+  static G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
+                                        G4Material* material,
+                                        const G4VisAttributes& attr,
                                         G4LogicalVolume* parent,
                                         const G4Transform3D& transform
                                             =G4Transform3D());
@@ -107,7 +145,7 @@ class Construction : public G4VUserDetectorConstruction {
                                          const G4double y,
                                          const G4double z);
 
- private:
+private:
   void DefineMaterials();
   G4VPhysicalVolume* DefineVolumes();
 };
