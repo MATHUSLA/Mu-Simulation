@@ -1,5 +1,7 @@
 #include "action/RunAction.hh"
+#include "analysis/HistoManager.hh"
 
+#include "Geant4/G4Run.hh"
 #include "Geant4/G4RunManager.hh"
 #include "Geant4/G4SystemOfUnits.hh"
 #include "Geant4/G4UnitsTable.hh"
