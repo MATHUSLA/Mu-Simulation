@@ -14,8 +14,8 @@
 #include "detector/Construction.hh"
 #include "physics/Units.hh"
 
-int main(int argc, char** argv) {
-  G4UIExecutive* ui = 0;
+int main(int argc, char* argv[]) {
+  G4UIExecutive* ui = nullptr;
   if (argc == 1) ui = new G4UIExecutive(argc, argv);
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);

@@ -8,11 +8,11 @@ namespace MATHUSLA { namespace MU {
 
 namespace Earth {
 
-G4Material* Material::CaCO3     = 0;
-G4Material* Material::Kaolinite = 0;
-G4Material* Material::SiO2      = 0;
-G4Material* Material::Marl      = 0;
-G4Material* Material::Mix       = 0;
+G4Material* Material::CaCO3     = nullptr;
+G4Material* Material::Kaolinite = nullptr;
+G4Material* Material::SiO2      = nullptr;
+G4Material* Material::Marl      = nullptr;
+G4Material* Material::Mix       = nullptr;
 
 void Material::Define() {
   static bool defined = false;

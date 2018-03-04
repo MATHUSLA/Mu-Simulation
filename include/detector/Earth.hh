@@ -21,7 +21,7 @@ struct Material {
   Material();
 };
 
-G4VPhysicalVolume* Construct(G4LogicalVolume*);
+G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
 } /* namespace Earth */
 

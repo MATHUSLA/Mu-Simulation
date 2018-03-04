@@ -20,9 +20,14 @@ void EventAction::BeginOfEventAction(const G4Event*event) {
 }
 
 void EventAction::EndOfEventAction(const G4Event* event) {
-  auto collection = dynamic_cast<PrototypeHC*>(event->GetHCofThisEvent()->GetHC(0));
-  fRunAction->FillPerEvent(fEnergy);
-  HistoManager::FillHisto(0, fEnergy);
+  auto hit_collections = event->GetHCofThisEvent();
+  auto collection_count = hit_collections->GetNumberOfCollections();
+
+  for (size_t i = 0; i < collection_count; ++i) {
+    auto collection = dynamic_cast<PrototypeHC*>(hit_collections->GetHC(i));
+    fRunAction->FillPerEvent(fEnergy);
+    HistoManager::FillHisto(0, fEnergy);
+  }
 }
 
 } } /* namespace MATHUSLA::MU */

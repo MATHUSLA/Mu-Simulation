@@ -21,9 +21,12 @@ public:
     static G4Element* N;
     static G4Element* O;
     static G4Material* Air;
+    static void Define();
    private:
     Material();
   };
+
+  constexpr static G4double WorldLength = 240*m;
 
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
@@ -39,27 +42,32 @@ public:
 
   static G4LogicalVolume* Volume(const G4String& name,
                                  G4VSolid* solid,
-                                 G4Material* material,
-                                 const G4VisAttributes* attr=0);
+                                 G4Material* material
+                                   =Material::Air,
+                                 const G4VisAttributes& attr
+                                   =G4VisAttributes());
+
+  static G4LogicalVolume* Volume(G4VSolid* solid,
+                                 G4Material* material
+                                   =Material::Air,
+                                 const G4VisAttributes& attr
+                                   =G4VisAttributes());
 
   static G4LogicalVolume* Volume(const G4String& name,
                                  G4VSolid* solid,
-                                 G4Material* material,
                                  const G4VisAttributes& attr);
 
   static G4LogicalVolume* Volume(G4VSolid* solid,
-                                 G4Material* material,
-                                 const G4VisAttributes* attr=0);
-
-  static G4LogicalVolume* Volume(G4VSolid* solid,
-                                 G4Material* material,
                                  const G4VisAttributes& attr);
 
-  static G4LogicalVolume* Volume(G4VSolid* solid,
-                                 const G4VisAttributes* attr=0);
-
-  static G4LogicalVolume* Volume(G4VSolid* solid,
-                                 const G4VisAttributes& attr);
+  static G4LogicalVolume* BoxVolume(const G4String& name,
+                                    const G4double width,
+                                    const G4double height,
+                                    const G4double depth,
+                                    G4Material* material
+                                      =Material::Air,
+                                    const G4VisAttributes& attr
+                                      =G4VisAttributes());
 
   static G4VPhysicalVolume* PlaceVolume(const G4String& name,
                                         G4LogicalVolume* current,
@@ -136,14 +144,6 @@ public:
                               const G4double axisy,
                               const G4double axisz,
                               const G4double angle);
-
-  static G4Transform3D SpecialTransformB(const G4double x,
-                                         const G4double y,
-                                         const G4double z);
-
-private:
-  void DefineMaterials();
-  G4VPhysicalVolume* DefineVolumes();
 };
 
 } } /* namespace MATHUSLA::MU */

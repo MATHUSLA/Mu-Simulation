@@ -11,7 +11,7 @@ Envelope::Envelope(const G4String& name,
                    const G4double layer_spacing,
                    const LayerType layer_type,
                    const Alignment alignment,
-                   std::initializer_list<Scintillator> scintillators)
+                   std::initializer_list<Scintillator*> scintillators)
     : _name(name), _layer_spacing(layer_spacing), _height(0), _top_width(0),
       _bottom_width(0), _scintillators(scintillators), _volume(nullptr) {
 
@@ -20,9 +20,9 @@ Envelope::Envelope(const G4String& name,
 
   auto align = static_cast<signed char>(alignment);
   G4double height = 0, depth = 0;
-  for (auto& s : _scintillators) {
-    height += s.GetHeight();
-    depth = depth < s.GetDepth() ? s.GetDepth() : depth;
+  for (auto s : _scintillators) {
+    height += s->GetHeight();
+    depth = depth < s->GetDepth() ? s->GetDepth() : depth;
   }
   depth = 2 * depth + layer_spacing;
   _height = height;
@@ -31,19 +31,19 @@ Envelope::Envelope(const G4String& name,
   G4VSolid* solid = new G4Box("", 0.1, 0.1, 0.1);
 
   G4double align_shift = 0, stack_shift = 0;
-  G4double last_maxwidth = _scintillators[0].GetMinWidth();
+  G4double last_maxwidth = _scintillators[0]->GetMinWidth();
   bool layer = layer_type == LayerType::BottomFirst;
 
   _bottom_width = last_maxwidth;
-  for (auto& s : _scintillators) {
-    stack_shift += 0.5 * s.GetHeight();
-    align_shift += 0.5 * align * (s.GetMinWidth() - last_maxwidth);
+  for (auto s : _scintillators) {
+    stack_shift += 0.5 * s->GetHeight();
+    align_shift += 0.5 * align * (s->GetMinWidth() - last_maxwidth);
     transform.push_back(align_shift);
-    transform.push_back((layer ? 0.5 : -0.5) * (layer_spacing + s.GetDepth()));
+    transform.push_back((layer ? 0.5 : -0.5) * (layer_spacing + s->GetDepth()));
     transform.push_back(stack_shift - 0.5 * height);
-    stack_shift += 0.5 * s.GetHeight();
+    stack_shift += 0.5 * s->GetHeight();
     layer = !layer;
-    last_maxwidth = s.GetMaxWidth();
+    last_maxwidth = s->GetMaxWidth();
   }
   _top_width = last_maxwidth;
 
@@ -51,29 +51,31 @@ Envelope::Envelope(const G4String& name,
     auto s = _scintillators[i];
     solid = new G4UnionSolid("", solid,
       Construction::Trap("",
-        s.GetHeight(),
-        s.GetMinWidth(),
-        s.GetMaxWidth(),
+        s->GetHeight(),
+        s->GetMinWidth(),
+        s->GetMaxWidth(),
         depth),
-      G4Translate3D(transform[3*i], 0, transform[3*i+2]));
+      G4Translate3D(transform[3*i], 0, transform[3*i + 2]));
   }
 
-  _volume = Construction::Volume(name, solid, Construction::Material::Air);
+  _volume = Construction::Volume(name, solid);
 
   for (unsigned char i = 0; i < size; ++i) {
     auto s = _scintillators[i];
-    auto volume = s.GetVolume();
-    volume->SetName(G4String()
-      + name[0] + name[1] + std::to_string(1 + i) + '/' + s.GetName());
-    Construction::PlaceVolume(volume, _volume,
-      G4Translate3D(transform[3*i], transform[3*i+1], transform[3*i+2]));
-  }
-}
 
-const Scintillator Envelope::GetScintillator(const G4String& name) const {
-  for (auto s : _scintillators)
-    if (s.GetName() == name) return s;
-  return Scintillator();
+    const G4String fullname = G4String() + name[0] + name[1]
+                            + std::to_string(1 + i) + ':' + s->GetName();
+
+    auto copy_name = s->GetSensitiveVolume()->GetName();
+    if (copy_name != s->GetName() && copy_name != fullname)
+      s = Scintillator::Clone(s);
+
+    s->GetVolume()->SetName(fullname);
+    s->GetSensitiveVolume()->SetName(fullname);
+
+    Construction::PlaceVolume(s->GetVolume(), _volume,
+      G4Translate3D(transform[3*i], transform[3*i + 1], transform[3*i + 2]));
+  }
 }
 
 } } /* namespace MATHUSLA::MU */
