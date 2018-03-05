@@ -5,6 +5,7 @@
 #include "Geant4/G4Allocator.hh"
 #include "Geant4/G4THitsCollection.hh"
 #include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4LorentzVector.hh"
 #include "Geant4/G4VHit.hh"
 #include "Geant4/tls.hh"
 
@@ -17,10 +18,8 @@ public:
                const G4String& chamber,
                const G4double ionizing,
                const G4double nonionizing,
-               const G4double time,
-               const G4ThreeVector position,
-               const G4double energy,
-               const G4ThreeVector momentum);
+               const G4LorentzVector position,
+               const G4LorentzVector momentum);
 
   inline G4bool operator==(const PrototypeHit& rhs) const;
 
@@ -30,28 +29,24 @@ public:
   void Draw();
   void Print();
 
-  inline const G4String& GetParticleName()       const { return _particle_name; }
-  inline G4int           GetTrackID()            const { return _trackID;      }
-  inline const G4String& GetChamberID()          const { return _chamberID;    }
-  inline G4double        GetIonizingDeposit()    const { return _ionizing;     }
-  inline G4double        GetNonIonizingDeposit() const { return _nonionizing;  }
+  inline const G4String& GetParticleName()       const { return _particle;    }
+  inline G4int           GetTrackID()            const { return _trackID;     }
+  inline const G4String& GetChamberID()          const { return _chamberID;   }
+  inline G4double        GetIonizingDeposit()    const { return _ionizing;    }
+  inline G4double        GetNonIonizingDeposit() const { return _nonionizing; }
   inline G4double        GetTotalDeposit()       const { return _ionizing
-                                                              + _nonionizing;  }
-  inline G4double        GetTime()               const { return _time;         }
-  inline G4ThreeVector   GetPosition()           const { return _position;     }
-  inline G4double        GetEnergy()             const { return _energy;       }
-  inline G4ThreeVector   GetMomentum()           const { return _momentum;     }
+                                                              + _nonionizing; }
+  inline G4LorentzVector GetPosition()           const { return _position;    }
+  inline G4LorentzVector GetMomentum()           const { return _momentum;    }
 
 private:
-  G4String      _particle_name;
-  G4int         _trackID;
-  G4String      _chamberID;
-  G4double      _ionizing;
-  G4double      _nonionizing;
-  G4double      _time;
-  G4ThreeVector _position;
-  G4double      _energy;
-  G4ThreeVector _momentum;
+  G4String        _particle;
+  G4int           _trackID;
+  G4String        _chamberID;
+  G4double        _ionizing;
+  G4double        _nonionizing;
+  G4LorentzVector _position;
+  G4LorentzVector _momentum;
 };
 
 using PrototypeHC = G4THitsCollection<PrototypeHit>;

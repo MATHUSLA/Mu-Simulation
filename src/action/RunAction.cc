@@ -27,10 +27,10 @@ void RunAction::FillPerEvent(G4double Edep) {
 }
 
 void RunAction::EndOfRunAction(const G4Run* run) {
-  auto event_count = run->GetNumberOfEvent();
-  if (event_count == 0) return;
+  auto event_number = run->GetNumberOfEvent();
+  if (event_number == 0) return;
 
-  fAvgEdep /= event_count;
+  fAvgEdep /= event_number;
 
   G4cout << "\nEnd of Run:\n\n mean Energy in Scinillator : "
          << G4BestUnit(fAvgEdep, "Energy")

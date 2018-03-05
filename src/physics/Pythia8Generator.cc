@@ -9,8 +9,8 @@
 namespace MATHUSLA { namespace MU {
 
 Pythia8Generator::Pythia8Generator(Pythia8::Pythia* pythia)
-    : _hepmcevt(nullptr), _world(nullptr), _pythia(pythia), _hepmc_converter() {
-}
+    : _hepmcevt(nullptr), _world(nullptr), _pythia(pythia),
+      _hepmc_converter() {}
 
 void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
   if (!_pythia) {
@@ -48,7 +48,7 @@ void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
     auto is_real_vertex = false;
     for (auto p_iter = vertex->particles_begin(HepMC::children);
               p_iter != vertex->particles_end(HepMC::children); ++p_iter) {
-      if (!(*p_iter)->end_vertex() && (*p_iter)->is_undecayed()) {  // change to "is_undecayed()"status() == 1
+      if (!(*p_iter)->end_vertex() && (*p_iter)->is_undecayed()) {
         is_real_vertex = true;
         break;
       }
@@ -81,12 +81,10 @@ void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
 Pythia8GeneratorAction::Pythia8GeneratorAction() {
   auto pythia = new Pythia8::Pythia;
   pythia->readString("Beams:eCM = 13000.");
-  pythia->readString("WeakSingleBoson:all = on");
-  pythia->readString("PhaseSpace:pTHatMin = 20.");
-  pythia->readString("23:onMode = 0");
-  pythia->readString("24:onMode = 0");
-  pythia->readString("23:onIfAll = 13");
-  pythia->readString("24:onIfAll = 13");
+  pythia->readString("WeakSingleBoson:ffbar2W = on");
+  pythia->readString("PhaseSpace:pTHatMin = 200.");
+  pythia->readString("24:onMode = off");
+  pythia->readString("24:onIfAny = 13");
   pythia->init();
   _p8generator = Pythia8Generator(pythia);
 }

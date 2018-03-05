@@ -32,12 +32,12 @@ add_executable(simulation
     src/detector/RPC.cc
     src/detector/Scintillator.cc
 
-    src/tracking/PrototypeHit.cc
-
     src/physics/BasicGenerator.cc
     src/physics/Field.cc
     src/physics/PhysicsList.cc
     src/physics/Pythia8Generator.cc
+
+    src/tracking/PrototypeHit.cc
 
     src/ui/Messenger.cc
 )

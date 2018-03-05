@@ -28,6 +28,7 @@ G4History*
 /.idea
 /.temp
 /build
+/cmake-build*
 /data
 
 simulation

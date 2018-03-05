@@ -1,7 +1,5 @@
 #include "analysis/HistoManager.hh"
 
-#include "Geant4/G4UnitsTable.hh"
-
 namespace MATHUSLA { namespace MU {
 
 std::array<TH1D*, HistoManager::MaxHistoCount> HistoManager::fHisto = {};
