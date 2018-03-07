@@ -7,6 +7,8 @@ namespace MATHUSLA { namespace MU {
 using byte = unsigned char;
 using sbyte = signed char;
 
+using uint = unsigned;
+
 } } /* namespace MATHUSLA::MU */
 
 #endif /* UTIL_TYPES_HH */

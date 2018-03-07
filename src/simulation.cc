@@ -1,5 +1,6 @@
 #ifdef G4MULTITHREADED
 #include "Geant4/G4MTRunManager.hh"
+#include "Geant4/G4RunManager.hh"
 #else
 #include "Geant4/G4RunManager.hh"
 #endif
@@ -13,6 +14,21 @@
 #include "action/ActionInitialization.hh"
 #include "detector/Construction.hh"
 #include "physics/Units.hh"
+#include "physics/BasicGenerator.hh"
+#include "physics/Pythia8Generator.hh"
+
+/* TODO:
+custom arguments:
+--mt      -m
+--gen     -g
+--script  -s
+--events  -e
+...
+
+example:
+./simulation --mt=on --gen=basic --script=run2.mac
+./simulation -m -g pythia8 -e 1000000
+ */
 
 int main(int argc, char* argv[]) {
   G4UIExecutive* ui = nullptr;
@@ -22,7 +38,7 @@ int main(int argc, char* argv[]) {
   G4Random::setTheSeed(time(0));
 
   #ifdef G4MULTITHREADED
-    auto runManager = new G4MTRunManager;
+    auto runManager = new G4RunManager;//G4MTRunManager;
   #else
     auto runManager = new G4RunManager;
   #endif
@@ -34,7 +50,11 @@ int main(int argc, char* argv[]) {
 
   runManager->SetUserInitialization(physicsList);
   runManager->SetUserInitialization(new MATHUSLA::MU::Construction);
-  runManager->SetUserInitialization(new MATHUSLA::MU::ActionInitialization);
+
+  auto generator = "basic";
+
+  runManager->SetUserInitialization(
+    new MATHUSLA::MU::ActionInitialization(generator));
 
   auto visManager = new G4VisExecutive("Quiet");
   visManager->Initialize();

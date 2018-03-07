@@ -53,19 +53,17 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   auto volume = track->GetTouchable()->GetHistory()->GetTopVolume();
 
-  if (!track->GetParentID()) {
-    _hit_collection->insert(
-      new PrototypeHit(
-        track->GetParticleDefinition()->GetParticleName(),
-        track->GetTrackID(),
-        volume->GetName(),
-        deposit - nonionizing_deposit,
-        nonionizing_deposit,
-        G4LorentzVector(post_step->GetGlobalTime(),post_step->GetPosition()),
-        G4LorentzVector(post_step->GetTotalEnergy(),post_step->GetMomentum())));
-    return true;
-  }
-  return false;
+  _hit_collection->insert(
+    new PrototypeHit(
+      track->GetParticleDefinition()->GetParticleName(),
+      track->GetTrackID(),
+      volume->GetName(),
+      deposit - nonionizing_deposit,
+      nonionizing_deposit,
+      G4LorentzVector(post_step->GetGlobalTime(), post_step->GetPosition()),
+      G4LorentzVector(post_step->GetTotalEnergy(), post_step->GetMomentum())
+    ));
+  return true;
 }
 
 void Prototype::EndOfEvent(G4HCofThisEvent* eventHC) {
