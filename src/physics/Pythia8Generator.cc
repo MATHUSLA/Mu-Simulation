@@ -57,7 +57,7 @@ void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
 
     // check world boundary
     auto pos = vertex->position();
-    G4LorentzVector xvtx(pos.x(), pos.y(), pos.z(), pos.t());
+    G4LorentzVector xvtx(pos.z(), pos.y(), -pos.x(), pos.t());
     if (_world->Inside(xvtx.vect()*mm) != kInside) continue;
 
     auto g4vtx = new G4PrimaryVertex(
@@ -70,9 +70,18 @@ void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
       if (particle->status() != 1) continue;
 
       pos = particle->momentum();
+      auto momentum = G4ThreeVector(pos.pz(), pos.py(), -pos.px());
+
+      auto xbyz = momentum.x()/momentum.z();
+      auto ybyz = momentum.y()/momentum.z();
+
+      G4double cut = 0.3;
+
+      if (momentum.z() > 0) continue;
+      if (!(-cut < xbyz && xbyz < cut && -cut < ybyz && ybyz < cut)) continue;
 
       g4vtx->SetPrimary(new G4PrimaryParticle(
-        particle->pdg_id(), pos.px()*GeV, pos.py()*GeV, pos.pz()*GeV));
+        particle->pdg_id(), momentum.x()*GeV, momentum.y()*GeV, momentum.z()*GeV));
     }
     event->AddPrimaryVertex(g4vtx);
   }

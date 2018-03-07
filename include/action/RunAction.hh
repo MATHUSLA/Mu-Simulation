@@ -5,22 +5,22 @@
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserRunAction.hh"
 #include "Geant4/G4Run.hh"
-#include "analysis/HistoManager.hh"
 
 namespace MATHUSLA { namespace MU {
 
 class RunAction : public G4UserRunAction {
 public:
   RunAction();
+  ~RunAction();
 
   G4Run* GenerateRun();
 
   void BeginOfRunAction(const G4Run* run);
-  void FillPerEvent(G4double Edep);
+  void FillPerEvent(G4double deposit);
   void EndOfRunAction(const G4Run* run);
 
 private:
-  G4double fAvgEdep;
+  G4double _deposit;
 };
 
 } } /* namespace MATHUSLA::MU */

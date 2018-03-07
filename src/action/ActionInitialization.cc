@@ -11,8 +11,11 @@
 
 namespace MATHUSLA { namespace MU {
 
+ActionInitialization::ActionInitialization(const G4String& generator)
+    : G4VUserActionInitialization(), _generator(generator) {}
+
 void ActionInitialization::BuildForMaster() const {
-  //SetUserAction(new RunAction);
+  SetUserAction(new RunAction);
 }
 
 void ActionInitialization::Build() const {
@@ -22,7 +25,15 @@ void ActionInitialization::Build() const {
   SetUserAction(new SteppingAction);
   SetUserAction(new TrackingAction);
   SetUserAction(new StackingAction);
-  SetUserAction(new BasicGeneratorAction);
+
+  G4VUserPrimaryGeneratorAction* generator_action;
+  if (_generator == "pythia" || _generator == "pythia8") {
+    generator_action = new Pythia8GeneratorAction;
+  } else {
+    generator_action = new BasicGeneratorAction;
+  }
+
+  SetUserAction(generator_action);
 }
 
 } } /* namespace MATHUSLA::MU */
