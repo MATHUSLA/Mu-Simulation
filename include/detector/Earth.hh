@@ -5,6 +5,7 @@
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4LogicalVolume.hh"
+#include "Geant4/G4SystemOfUnits.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -20,6 +21,12 @@ struct Material {
  private:
   Material();
 };
+
+constexpr G4double LayerWidthX    = 20000*cm;
+constexpr G4double LayerWidthY    = 20000*cm;
+constexpr G4double SandstoneDepth =  4530*cm;
+constexpr G4double MarlDepth      =  1825*cm;
+constexpr G4double MixDepth       =  3645*cm - 20*m;
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
