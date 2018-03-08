@@ -15,7 +15,7 @@ EventAction::EventAction(RunAction* action)
 void EventAction::BeginOfEventAction(const G4Event* event) {
   _energy = 0;
   auto eventID = event->GetEventID();
-  if (eventID % _print_modulo == 0)
+  if (eventID && !(eventID % _print_modulo))
     G4cout << "\n\n\n [ Beginning of event: " << eventID << " ]\n\n\n";
 }
 

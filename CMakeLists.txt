@@ -40,6 +40,8 @@ add_executable(simulation
     src/tracking/PrototypeHit.cc
 
     src/ui/Messenger.cc
+
+    src/util/CommandLineParser.cc
 )
 
 target_link_libraries(simulation

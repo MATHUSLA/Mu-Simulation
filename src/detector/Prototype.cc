@@ -287,8 +287,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   Construction::PlaceVolume(layerB, Detector,
     Construction::Transform(0, 0, 0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
-  return Construction::PlaceVolume(Detector, world,
-    G4Translate3D(50*m, 50*m, -3*m));
+  return Construction::PlaceVolume(Detector, world, G4Translate3D(0, 0, -3*m));
 }
 
 } } /* namespace MATHUSLA::MU */

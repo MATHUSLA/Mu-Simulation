@@ -16,16 +16,14 @@ class HistoManager {
 public:
   static void Book();
   static void Save();
-  static void FillHisto(G4int id, G4double bin, G4double weight=1.0);
-  static void Normalize(G4int id, G4double fac);
+  static void FillHisto(size_t id, G4double bin, G4double weight=1.0);
+  static void Normalize(size_t id, G4double fac);
   static void PrintStatistic();
 
 private:
   HistoManager();
-  constexpr static G4int MaxHistoCount = 1;
-  static std::array<TH1D*, MaxHistoCount> fHisto;
-  static TFile* fRootFile;
-  static G4double fEsci;
+  static std::vector<TH1D*> _histograms;
+  static std::vector<TFile*> _root_files;
 };
 
 } } /* namespace MATHUSLA::MU */
