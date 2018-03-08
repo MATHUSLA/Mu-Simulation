@@ -48,21 +48,21 @@ void Material::Define() {
 }
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
-  Construction::PlaceVolume(
-    new G4Box("Sandstone", 10000.0*cm, 10000.0*cm, 2265*cm),
-    Material::SiO2,
+  Construction::PlaceVolume(Construction::BoxVolume("Sandstone",
+    LayerWidthX, LayerWidthY, SandstoneDepth,
+    Material::SiO2),
     world,
-    G4Translate3D(0, 0, 2265*cm));
-  Construction::PlaceVolume(
-    new G4Box("Marl", 10000.0*cm, 10000.0*cm, 912.5*cm),
-    Material::Marl,
+    G4Translate3D(0, 0, 0.5 * SandstoneDepth));
+ Construction::PlaceVolume(Construction::BoxVolume("Marl",
+    LayerWidthX, LayerWidthY, MarlDepth,
+    Material::Marl),
     world,
-    G4Translate3D(0, 0, 5442.5*cm));
-  Construction::PlaceVolume(
-    new G4Box("Mix", 10000.0*cm, 10000.0*cm, 1822.5*cm),
-    Material::Mix,
+    G4Translate3D(0, 0, SandstoneDepth + 0.5 * MarlDepth));
+ Construction::PlaceVolume(Construction::BoxVolume("Mix",
+    LayerWidthX, LayerWidthY, MixDepth,
+    Material::Mix),
     world,
-    G4Translate3D(0, 0, 8177.5*cm));
+    G4Translate3D(0, 0, SandstoneDepth + MarlDepth + 0.5 * MixDepth));
   return nullptr;
 }
 

@@ -19,9 +19,9 @@ public:
                const G4double height,
                const G4double minwidth,
                const G4double maxwidth,
-               const G4double depth,
-               const G4double thickness,
-               const G4double spacing);
+               const G4double depth=Depth,
+               const G4double thickness=Thickness,
+               const G4double spacing=Spacing);
 
   struct Material {
     static G4Material* PMT;
@@ -53,6 +53,9 @@ public:
 
   static Scintillator* Clone(const Scintillator* other);
 
+  constexpr static G4double Depth     =  2.0*cm;
+  constexpr static G4double Thickness =  0.1*cm;
+  constexpr static G4double Spacing   =  0.1*cm;
   constexpr static G4double PMTRadius =  2.1*cm;
   constexpr static G4double PMTLength = 19.3*cm;
 
