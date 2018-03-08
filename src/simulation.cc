@@ -12,6 +12,21 @@
 #include "action/ActionInitialization.hh"
 #include "detector/Construction.hh"
 #include "physics/Units.hh"
+#include "physics/BasicGenerator.hh"
+#include "physics/Pythia8Generator.hh"
+
+/* TODO:
+custom arguments:
+--mt      -m
+--gen     -g
+--script  -s
+--events  -e
+...
+
+example:
+./simulation --mt=on --gen=basic --script=run2.mac
+./simulation -m -g pythia8 -e 1000000
+ */
 
 #include "util/CommandLineParser.hh"
 
