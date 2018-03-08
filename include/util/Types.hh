@@ -2,6 +2,8 @@
 #define UTIL_TYPES_HH
 #pragma once
 
+#include <functional>
+
 namespace MATHUSLA { namespace MU {
 
 using byte = unsigned char;

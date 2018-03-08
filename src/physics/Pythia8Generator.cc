@@ -75,7 +75,7 @@ void Pythia8Generator::GeneratePrimaryVertex(G4Event* event) {
       auto xbyz = momentum.x()/momentum.z();
       auto ybyz = momentum.y()/momentum.z();
 
-      G4double cut = 0.3;
+      G4double cut = 0.1;
 
       if (momentum.z() > 0) continue;
       if (!(-cut < xbyz && xbyz < cut && -cut < ybyz && ybyz < cut)) continue;

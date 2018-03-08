@@ -7,12 +7,20 @@ This repository comes with a simple build script called `install` that will allo
 
 Here is a list of useful commands:
 
-| Action | Arguments after `./install` |
+| Action | Options after `./install` |
 |:-:|:-:|
 | Build Only | `(none)`  |
 | Build and Auto Run | `--run`  |
 | Clean CMake Build | `--cmake --clean` |
 | More Options | `--help` |
 
-## Plugin HepMC Generator
-_coming soon..._
+The simulation executable also comes with several configuration parameters:
+
+| Action | Short Options after `./simulation` | Long Options after `./simulation` |
+|:-:|:-:|:-:|
+| Event Count | `-e <count>` | `--events=<count>`  |
+| Particle Generator | `-g <generator>` | `--gen=<generator>` |
+| Number of Threads | `-j <count>`  | `--threads=<count>`  |
+| Visualization  | `-v` | `--vis` |
+| Custom Script  | `-s <file>`  | `--script=<file>`  |
+| More Options | `-h` | `--help` |
