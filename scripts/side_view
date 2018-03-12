@@ -1,0 +1,20 @@
+/vis/viewer/set/autoRefresh false
+
+/vis/viewer/set/viewpointVector -1 0 0
+/vis/viewer/set/upVector 0 1 0
+/vis/viewer/set/projection orthogonal
+/vis/viewer/zoomTo 83
+/vis/viewer/scaleTo 1 1 1
+/vis/viewer/set/targetPoint 0 0 -3.325 m
+
+/vis/viewer/dollyTo 0 fm
+/vis/viewer/set/lightsMove object
+/vis/viewer/set/lightsVector 0 0 -1
+/vis/viewer/set/rotationStyle constrainUpDirection
+/vis/viewer/set/background 0 0 0 1
+/vis/viewer/set/defaultColour 1 1 1 1
+/vis/viewer/set/defaultTextColour 0 0 1 1
+
+/vis/viewer/clearVisAttributesModifiers
+
+/vis/viewer/set/autoRefresh true

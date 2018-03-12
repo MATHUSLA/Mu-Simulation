@@ -23,7 +23,7 @@ add_executable(simulation
     src/action/SteppingAction.cc
     src/action/TrackingAction.cc
 
-    src/analysis/HistoManager.cc
+    src/analysis/Analysis.cc
 
     src/detector/Construction.cc
     src/detector/Earth.cc
@@ -34,8 +34,8 @@ add_executable(simulation
 
     src/physics/BasicGenerator.cc
     src/physics/Field.cc
-    src/physics/PhysicsList.cc
-    src/physics/Pythia8Generator.cc
+    src/physics/Filter.cc
+    src/physics/PythiaGenerator.cc
 
     src/tracking/PrototypeHit.cc
 

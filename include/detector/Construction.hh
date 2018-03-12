@@ -28,6 +28,8 @@ public:
 
   constexpr static G4double WorldLength = 240*m;
 
+  static G4VPhysicalVolume* WorldVolume;
+
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
 

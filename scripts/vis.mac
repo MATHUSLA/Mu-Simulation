@@ -16,13 +16,9 @@
 
 # /vis/filtering/trajectories/create/particleFilter
 # /vis/filtering/trajectories/particleFilter-0/add mu+
+# /vis/filtering/trajectories/particleFilter-0/add mu-
 # /vis/filtering/trajectories/particleFilter-0/verbose false
 # /vis/filtering/trajectories/particleFilter-0/active true
-
-# /vis/filtering/trajectories/create/particleFilter
-# /vis/filtering/trajectories/particleFilter-1/add mu-
-# /vis/filtering/trajectories/particleFilter-1/verbose false
-# /vis/filtering/trajectories/particleFilter-1/active true
 
 /vis/scene/add/trajectories smooth
 /vis/modeling/trajectories/create/drawByCharge

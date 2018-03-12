@@ -4,6 +4,6 @@ namespace MATHUSLA { namespace MU {
 
 SteppingAction::SteppingAction() : G4UserSteppingAction() {}
 
-void SteppingAction::UserSteppingAction(const G4Step* step) {}
+void SteppingAction::UserSteppingAction(const G4Step*) {}
 
 } } /* namespace MATHUSLA::MU */

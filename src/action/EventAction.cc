@@ -8,34 +8,17 @@
 
 namespace MATHUSLA { namespace MU {
 
-EventAction::EventAction(RunAction* action)
-    : G4UserEventAction(), _run_action(action), _energy(0),
-      _print_modulo(100) {}
+EventAction::EventAction(G4int print_modulo)
+    : G4UserEventAction(), _print_modulo(print_modulo) {}
 
 void EventAction::BeginOfEventAction(const G4Event* event) {
-  _energy = 0;
   auto eventID = event->GetEventID();
   if (eventID && !(eventID % _print_modulo))
-    G4cout << "\n\n\n [ Beginning of event: " << eventID << " ]\n\n\n";
+    G4cout << "\n\n\n [ Beginning of Event " << eventID << " ]\n\n\n";
 }
 
-void EventAction::EndOfEventAction(const G4Event* event) {
-  auto hit_collections = event->GetHCofThisEvent();
-  auto collection_count = hit_collections->GetNumberOfCollections();
+void EventAction::EndOfEventAction(const G4Event*) {
 
-  for (size_t i = 0; i < collection_count; ++i) {
-    auto collection = dynamic_cast<PrototypeHC*>(hit_collections->GetHC(i));
-
-    auto hit_count = collection->GetSize();
-    for (size_t i = 0; i < collection->GetSize(); ++i) {
-      auto hit = dynamic_cast<PrototypeHit*>(collection->GetHit(i));
-
-      auto analysis = G4AnalysisManager::Instance();
-      _energy = hit->GetTotalDeposit();
-      _run_action->FillPerEvent(_energy);
-      analysis->FillH1(1, _energy);
-    }
-  }
 }
 
 } } /* namespace MATHUSLA::MU */
