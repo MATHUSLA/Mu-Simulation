@@ -9,7 +9,8 @@
 
 # Viewer menu :
 /gui/addMenu viewer Viewer
-/gui/addButton viewer "View Detector" "/control/execute view_detector"
+/gui/addButton viewer "Side View" "/control/execute side_view"
+/gui/addButton viewer "Front View" "/control/execute front_view"
 /gui/addButton viewer "Set style surface" "/vis/viewer/set/style surface"
 /gui/addButton viewer "Set style wireframe" "/vis/viewer/set/style wireframe"
 /gui/addButton viewer "Refresh viewer" "/vis/viewer/refresh"

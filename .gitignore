@@ -27,6 +27,7 @@ G4History*
 
 /.idea
 /.temp
+/.vscode
 /build
 /cmake-build*
 /data

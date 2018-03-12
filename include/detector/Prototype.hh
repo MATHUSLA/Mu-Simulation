@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Geant4/G4VSensitiveDetector.hh"
-#include "Geant4/G4MultiSensitiveDetector.hh"
 
 #include <initializer_list>
 #include <vector>
@@ -13,7 +12,7 @@
 
 namespace MATHUSLA { namespace MU {
 
-class Scintillator : public G4VSensitiveDetector {
+class Scintillator {
 public:
   Scintillator(const G4String& name,
                const G4double height,
@@ -45,11 +44,14 @@ public:
   inline G4VPhysicalVolume* GetCasingVolume()    const { return _casing;    }
   inline G4VPhysicalVolume* GetPMTVolume()       const { return _pmt;       }
 
+  const G4String GetFullName() const;
+
   struct Point { G4double up, right; };
 
-  void   Initialize(G4HCofThisEvent* eventHC);
-  G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
-  void   EndOfEvent(G4HCofThisEvent*);
+  // TODO: find distance from hit to pmt
+  G4bool ProcessHits(G4Step* step);
+
+  void Register(G4VSensitiveDetector* detector);
 
   static Scintillator* Clone(const Scintillator* other);
 
@@ -58,6 +60,9 @@ public:
   constexpr static G4double Spacing   =  0.1*cm;
   constexpr static G4double PMTRadius =  2.1*cm;
   constexpr static G4double PMTLength = 19.3*cm;
+
+  constexpr static G4double MinDeposit = 50*keV;
+  constexpr static G4double MaxDeposit = 10*MeV;
 
 private:
   PrototypeHC*       _hit_collection;
@@ -108,7 +113,7 @@ private:
 
 using EnvelopeList = std::vector<Envelope*>;
 
-class RPC : public G4VSensitiveDetector {
+class RPC {
 public:
   struct Pad {
     Pad(int id);
@@ -129,17 +134,19 @@ public:
   RPC(int id);
 
   inline int              GetID()        const { return _id;           }
+  inline const G4String&  GetName()      const { return _name;         }
   inline G4LogicalVolume* GetVolume()    const { return _volume;       }
   inline Pad              GetPad(int id) const { return _pads[id - 1]; }
   inline std::vector<Pad> GetPadList()   const { return _pads;         }
 
-  void   Initialize(G4HCofThisEvent* eventHC);
-  G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
-  void   EndOfEvent(G4HCofThisEvent*);
+  G4bool ProcessHits(G4Step* step);
+
+  void Register(G4VSensitiveDetector* detector);
 
   constexpr static G4double Width  = 1257*mm;
   constexpr static G4double Height = 2854*mm;
   constexpr static G4double Depth  =   60*mm;  // what is true value?
+  constexpr static G4double Angle  =   12*deg; // what is true value?
 
   constexpr static G4double PadWidth    = 618*mm;
   constexpr static G4double PadHeight   = 556*mm;
@@ -155,11 +162,15 @@ public:
   constexpr static G4double StripTopGap =    1*mm;
   constexpr static G4double StripYGap   =    2*mm;
 
+  constexpr static G4double MinDeposit = 1*keV;
+  constexpr static G4double MaxDeposit = 10*MeV;
+
 private:
   PrototypeHC* _hit_collection;
   G4LogicalVolume* _volume;
   std::vector<Pad> _pads;
   int _id;
+  G4String _name;
 };
 
 using RPCList = std::vector<RPC*>;

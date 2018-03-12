@@ -1,7 +1,5 @@
 #include "detector/Earth.hh"
 
-#include "Geant4/G4Box.hh"
-
 #include "detector/Construction.hh"
 
 namespace MATHUSLA { namespace MU {

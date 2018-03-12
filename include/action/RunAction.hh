@@ -2,16 +2,20 @@
 #define ACTION_RUNACTION_HH
 #pragma once
 
+#include <fstream>
+
 #include "Geant4/globals.hh"
 #include "Geant4/G4UserRunAction.hh"
 #include "Geant4/G4Run.hh"
+
+#include "util/FileIO.hh"
+#include "util/Time.hh"
 
 namespace MATHUSLA { namespace MU {
 
 class RunAction : public G4UserRunAction {
 public:
   RunAction();
-  ~RunAction();
 
   G4Run* GenerateRun();
 
@@ -19,8 +23,12 @@ public:
   void FillPerEvent(G4double deposit);
   void EndOfRunAction(const G4Run* run);
 
-private:
-  G4double _deposit;
+  static std::ofstream& GetStream() {
+    static std::ofstream _file(
+      "data/" + Time::GetDate() + "/" + Time::GetTime() + "/output.dat");
+    return _file;
+  }
+
 };
 
 } } /* namespace MATHUSLA::MU */

@@ -64,11 +64,14 @@ Envelope::Envelope(const G4String& name,
     auto s = _scintillators[i];
 
     const G4String fullname = G4String() + name[0] + name[1]
-                            + std::to_string(1 + i) + ':' + s->GetName();
+                            + std::to_string(1 + i) + '_' + s->GetName();
 
-    auto copy_name = s->GetSensitiveVolume()->GetName();
-    if (copy_name != s->GetName() && copy_name != fullname)
-      s = Scintillator::Clone(s);
+    auto copyname = s->GetFullName();
+
+    if (copyname != fullname && copyname != s->GetName()) {
+      _scintillators[i] = Scintillator::Clone(s);
+      s = _scintillators[i];
+    }
 
     s->GetVolume()->SetName(fullname);
     s->GetSensitiveVolume()->SetName(fullname);

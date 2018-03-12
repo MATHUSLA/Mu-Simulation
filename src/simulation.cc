@@ -48,11 +48,13 @@ int main(int argc, char* argv[]) {
 
   #ifdef G4MULTITHREADED
     if (thread_opt->argument) {
-      auto opt = G4String(thread_opt->argument);
+      auto opt = std::string(thread_opt->argument);
       if (opt == "on") {
         thread_opt->count = 2;
       } else if (opt == "off") {
         thread_opt->count = 1;
+      } else {
+        thread_opt->count = std::stoi(opt);
       }
     } else if (!thread_opt->count) {
       thread_opt->count = 2;

@@ -7,8 +7,6 @@
 #include "Geant4/G4Tubs.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4NistManager.hh"
-#include "Geant4/G4SDManager.hh"
-#include "Geant4/G4RunManager.hh"
 
 #include "detector/Construction.hh"
 
@@ -21,13 +19,11 @@ Scintillator::Scintillator(const G4String& name,
                            const G4double depth,
                            const G4double thickness,
                            const G4double spacing)
-    : G4VSensitiveDetector("MATHUSLA/MU/Prototype/Scintillators/" + name),
-      _hit_collection(nullptr), _name(name), _height(height),
+    : _hit_collection(nullptr), _name(name), _height(height),
       _minwidth(minwidth), _maxwidth(maxwidth), _depth(depth),
       _thickness(thickness), _spacing(spacing), _solid(nullptr),
       _volume(nullptr), _sensitive(nullptr), _casing(nullptr), _pmt(nullptr) {
 
-  collectionName.insert("Prototype_Scintillator" + name + "_HC");
   _solid = Construction::Trap(name, height, minwidth, maxwidth, depth);
 
   const G4double dims[4] = {height   - thickness, minwidth - thickness,
@@ -66,8 +62,6 @@ Scintillator::Scintillator(const G4String& name,
   _casing    = Construction::PlaceVolume(casingLV, _volume);
   _sensitive = Construction::PlaceVolume(sensitiveLV, _volume);
   _pmt       = Construction::PlaceVolume(pmtLV, _volume, pmtTransform);
-
-  // _sensitive->GetLogicalVolume()->SetSensitiveDetector(this);
 }
 
 G4Material* Scintillator::Material::PMT          = nullptr;
@@ -91,14 +85,12 @@ void Scintillator::Material::Define() {
   Material::Scintillator->SetMaterialPropertiesTable(sciProp);
 }
 
-void Scintillator::Initialize(G4HCofThisEvent* eventHC) {
-  _hit_collection = new PrototypeHC(GetName(), collectionName[0]);
-  eventHC->AddHitsCollection(
-    G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
-    _hit_collection);
+const G4String Scintillator::GetFullName() const {
+  return _sensitive ? _sensitive->GetName() : "";
 }
 
-G4bool Scintillator::ProcessHits(G4Step* step, G4TouchableHistory*) {
+G4bool Scintillator::ProcessHits(G4Step* /*step*/) {
+  /* TODO: PMT-relative coordinates
   auto position = step->GetPostStepPoint()->GetPosition();
   auto rotation = _casing->GetRotation()->inverse();
   auto delta = (_casing->GetTranslation() - position).transform(rotation);
@@ -112,49 +104,12 @@ G4bool Scintillator::ProcessHits(G4Step* step, G4TouchableHistory*) {
     0.5 * _height - y,
     std::sqrt(y*y + (center_half_width - x)*(center_half_width - x))
   };
+  */
   return false;
 }
 
-void Scintillator::EndOfEvent(G4HCofThisEvent*) {
-  if (verboseLevel < 2) return;
-
-  G4int eventID = 0;
-  auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
-  if (event) eventID = event->GetEventID();
-  auto hitCount = _hit_collection->entries();
-
-  if (!hitCount) return;
-
-  auto boxside = std::string(25 + std::to_string(eventID).length()
-                                + std::to_string(hitCount).length(), '-');
-
-  G4cout << "\n\n" << boxside << '\n'
-         << "| Event: " << eventID << " | Hit Count: " << hitCount << " |\n"
-         << boxside << '\n';
-
-  G4int trackID = -1;
-  G4String chamberID = "";
-  for (G4int i = 0; i < hitCount; ++i) {
-    auto hit = dynamic_cast<PrototypeHit*>(_hit_collection->GetHit(i));
-
-    auto new_chamberID = hit->GetChamberID();
-    auto new_trackID = hit->GetTrackID();
-    G4bool hit_type = chamberID[0] == 'A' || chamberID[0] == 'B';
-    G4bool new_hit_type = new_chamberID[0] == 'A' || new_chamberID[0] == 'B';
-
-    if (i != 0 && (hit_type != new_hit_type || trackID != new_trackID)) {
-      const auto barlength = 162
-        + hit->GetParticleName().length()
-        + std::to_string(new_trackID).length()
-        + new_chamberID.length();
-      G4cout << std::string(barlength, '-') << '\n';
-    }
-
-    chamberID = new_chamberID;
-    trackID = new_trackID;
-    hit->Print();
-  }
-  G4cout << '\n';
+void Scintillator::Register(G4VSensitiveDetector* detector) {
+  _sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);
 }
 
 Scintillator* Scintillator::Clone(const Scintillator* other) {

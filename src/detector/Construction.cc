@@ -21,6 +21,8 @@ G4Element*  Construction::Material::N   = nullptr;
 G4Element*  Construction::Material::O   = nullptr;
 G4Material* Construction::Material::Air = nullptr;
 
+G4VPhysicalVolume* Construction::WorldVolume = nullptr;
+
 void Construction::Material::Define() {
   Material::H = new G4Element("Hydrogen", "H", 1., 1.01*g/mole);
   Material::C = new G4Element("Carbon",   "C", 6., 12.01*g/mole);
@@ -56,7 +58,8 @@ G4VPhysicalVolume* Construction::Construct() {
   Earth::Construct(worldLV);
   Prototype::Construct(worldLV);
 
-  return PlaceVolume(worldLV, nullptr);
+  WorldVolume = PlaceVolume(worldLV, nullptr);
+  return WorldVolume;
 }
 
 void Construction::ConstructSDandField() {

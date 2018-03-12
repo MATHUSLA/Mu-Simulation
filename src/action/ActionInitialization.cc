@@ -7,7 +7,7 @@
 #include "action/StackingAction.hh"
 
 #include "physics/BasicGenerator.hh"
-#include "physics/Pythia8Generator.hh"
+#include "physics/PythiaGenerator.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -19,16 +19,15 @@ void ActionInitialization::BuildForMaster() const {
 }
 
 void ActionInitialization::Build() const {
-  auto run_action = new RunAction;
-  SetUserAction(run_action);
-  SetUserAction(new EventAction(run_action));
+  SetUserAction(new RunAction);
+  SetUserAction(new EventAction(100));
   SetUserAction(new SteppingAction);
   SetUserAction(new TrackingAction);
   SetUserAction(new StackingAction);
 
   G4VUserPrimaryGeneratorAction* generator_action;
   if (_generator == "pythia" || _generator == "pythia8") {
-    generator_action = new Pythia8GeneratorAction;
+    generator_action = new PythiaGeneratorAction;
   } else {
     generator_action = new BasicGeneratorAction;
   }
