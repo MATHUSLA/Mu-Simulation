@@ -10,6 +10,8 @@
 
 #include "detector/Construction.hh"
 
+#include "physics/Units.hh"
+
 namespace MATHUSLA { namespace MU {
 
 Scintillator::Scintillator(const G4String& name,
@@ -19,9 +21,8 @@ Scintillator::Scintillator(const G4String& name,
                            const G4double depth,
                            const G4double thickness,
                            const G4double spacing)
-    : _hit_collection(nullptr), _name(name), _height(height),
-      _minwidth(minwidth), _maxwidth(maxwidth), _depth(depth),
-      _thickness(thickness), _spacing(spacing), _solid(nullptr),
+    : _name(name), _height(height), _minwidth(minwidth), _maxwidth(maxwidth),
+      _depth(depth), _thickness(thickness), _spacing(spacing), _solid(nullptr),
       _volume(nullptr), _sensitive(nullptr), _casing(nullptr), _pmt(nullptr) {
 
   _solid = Construction::Trap(name, height, minwidth, maxwidth, depth);
@@ -89,23 +90,26 @@ const G4String Scintillator::GetFullName() const {
   return _sensitive ? _sensitive->GetName() : "";
 }
 
-G4bool Scintillator::ProcessHits(G4Step* /*step*/) {
-  /* TODO: PMT-relative coordinates
-  auto position = step->GetPostStepPoint()->GetPosition();
-  auto rotation = _casing->GetRotation()->inverse();
-  auto delta = (_casing->GetTranslation() - position).transform(rotation);
+Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
+                                                 const Scintillator* sci,
+                                                 const G4ThreeVector translation,
+                                                 const G4RotationMatrix rotation) {
 
-  auto x = delta.x();
-  auto y = delta.y();
-  auto z = delta.z();
+  auto delta = rotation*(translation - position);
 
-  auto center_half_width = 0.25 * (_maxwidth + _minwidth);
-  auto point = Point{
-    0.5 * _height - y,
-    std::sqrt(y*y + (center_half_width - x)*(center_half_width - x))
+  auto x = -delta.x();
+  auto y = -delta.z();
+  // Trapezoid coordinates
+
+  auto up_distance = 0.5 * sci->_height - y;
+  auto side_distance = 0.5 * sci->_maxwidth - x;
+  auto center_half_width = 0.25 * (sci->_maxwidth + sci->_minwidth);
+
+  return {
+    up_distance,
+    std::sqrt(y*y + (center_half_width - x)*(center_half_width - x)),
+    std::sqrt(up_distance*up_distance + side_distance*side_distance)
   };
-  */
-  return false;
 }
 
 void Scintillator::Register(G4VSensitiveDetector* detector) {

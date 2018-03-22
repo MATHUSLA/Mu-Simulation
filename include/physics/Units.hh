@@ -8,11 +8,16 @@
 
 namespace MATHUSLA { namespace MU {
 
-void DefineNewUnits() {
-  new G4UnitDefinition("GeV/c", "GeV/c", "Momentum", GeV*c_light);
-  new G4UnitDefinition("MeV/c", "MeV/c", "Momentum", MeV*c_light);
-  new G4UnitDefinition("keV/c", "keV/c", "Momentum", keV*c_light);
-  new G4UnitDefinition( "eV/c",  "eV/c", "Momentum",  eV*c_light);
+const auto GeVperC = GeV;
+const auto MeVperC = MeV;
+const auto keVperC = keV;
+const auto  eVperC =  eV;
+
+inline void DefineNewUnits() {
+  new G4UnitDefinition("GeV/c", "GeV/c", "Momentum", GeVperC);
+  new G4UnitDefinition("MeV/c", "MeV/c", "Momentum", MeVperC);
+  new G4UnitDefinition("keV/c", "keV/c", "Momentum", keVperC);
+  new G4UnitDefinition( "eV/c",  "eV/c", "Momentum",  eVperC);
 }
 
 } } /* namespace MATHUSLA::MU */

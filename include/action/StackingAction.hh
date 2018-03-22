@@ -13,7 +13,6 @@ public:
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
   void NewStage();
   void PrepareNewEvent();
-
 private:
   // G4StackManager* _manager;
 };

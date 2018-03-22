@@ -22,5 +22,12 @@ The simulation executable also comes with several configuration parameters:
 | Particle Generator | `-g <generator>` | `--gen=<generator>` |
 | Number of Threads | `-j <count>`  | `--threads=<count>`  |
 | Visualization  | `-v` | `--vis` |
+| Quiet Mode  | `-q` | `--quiet` |
 | Custom Script  | `-s <file>`  | `--script=<file>`  |
 | More Options | `-h` | `--help` |
+
+Available Generators:
+
+```
+basic | range | pythia
+```

@@ -1,6 +1,9 @@
 #include "detector/Prototype.hh"
 
-#include "Geant4/G4Material.hh"
+#include <algorithm>
+#include <unordered_map>
+#include <vector>
+
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4SDManager.hh"
 #include "Geant4/G4Step.hh"
@@ -8,35 +11,50 @@
 #include "Geant4/G4ios.hh"
 
 #include "analysis/Analysis.hh"
-#include "action/RunAction.hh"
+#include "physics/Units.hh"
+#include "ui/VIS.hh"
 
 namespace MATHUSLA { namespace MU {
 
 auto Prototype::_envelopes = EnvelopeList();
 auto Prototype::_rpcs = RPCList();
 
+static std::unordered_map<std::string, Scintillator*> _sci_map;
+static std::unordered_map<std::string, G4int>         _encoding;
+static std::unordered_map<G4int, std::string>         _decoding;
+
 Prototype::Prototype()
     : G4VSensitiveDetector("MATHUSLA/MU/Prototype"), _hit_collection(nullptr) {
   collectionName.insert("Prototype_HC");
 
-  Analysis::CreateH1("Prototype", 100, 0, 0.5*MeV);
+  Analysis::CreateNTuple("Prototype", {
+    "Event", "Deposit", "Time", "Detector",
+    "PDG", "TrackID", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT"
+  });
 
   for (auto envelope : _envelopes) {
     for (auto sci : envelope->GetScintillatorList()) {
       sci->Register(this);
-      Analysis::CreateH1(sci->GetFullName(),
-      60,
-      Scintillator::MinDeposit,
-      Scintillator::MaxDeposit);
+      auto name = sci->GetFullName();
+      auto id = _decoding.size();
+      _sci_map.insert({name, sci});
+      _encoding.insert({name, id});
+      _decoding.insert({id, name});
     }
   }
 
   for (auto rpc : _rpcs) {
     rpc->Register(this);
-    Analysis::CreateH1(rpc->GetName(),
-    60,
-    RPC::MinDeposit,
-    RPC::MaxDeposit);
+    for (auto pad : rpc->GetPadList()) {
+      for (auto strip : pad.strips) {
+        auto name = strip->GetName();
+        auto copy = name;
+        copy.erase(std::remove(copy.begin(), copy.end(), '_'), copy.end());
+        auto id = std::stoi(copy);
+        _encoding.insert({name, id});
+        _decoding.insert({id, name});
+      }
+    }
   }
 }
 
@@ -58,43 +76,78 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   auto min_deposit = Scintillator::MinDeposit < RPC::MinDeposit ?
                      Scintillator::MinDeposit : RPC::MinDeposit;
 
-  if (deposit < min_deposit)
+  if (deposit == 0 || deposit < min_deposit)
     return false;
 
-  auto track = step->GetTrack();
-  auto volume = track->GetTouchable()->GetHistory()->GetTopVolume();
-  auto name = volume->GetName();
-
-  G4String histname;
-
-  if (name[0] == 'A' || name[0] == 'B') {
-    if (deposit > Scintillator::MaxDeposit)
-      return false;
-    histname = name;
-  } else {
-    if (deposit > RPC::MaxDeposit)
-      return false;
-    histname = G4String() + "RPC" + name[0];
-    if (name[2] == '_')
-      histname += name[1];
-  }
-
-  auto post_step = step->GetPostStepPoint();
-  auto nonionizing_deposit = step->GetNonIonizingEnergyDeposit();
+  const auto track        =      step->GetTrack();
+  const auto trackID      =     track->GetTrackID();
+  const auto particle     =     track->GetParticleDefinition();
+  const auto history      =     track->GetTouchable()->GetHistory();
+  const auto name         =     history->GetTopVolume()->GetName();
+  const auto post_step    =      step->GetPostStepPoint();
+  const auto global_time  = post_step->GetGlobalTime();
+  const auto position     = post_step->GetPosition();
+  const auto total_energy = post_step->GetTotalEnergy();
+  const auto momentum     = post_step->GetMomentum();
 
   _hit_collection->insert(
     new PrototypeHit(
-      track->GetParticleDefinition()->GetParticleName(),
-      track->GetTrackID(),
+      particle->GetParticleName(),
+      trackID,
       track->GetParentID(),
-      volume->GetName(),
-      deposit - nonionizing_deposit,
-      nonionizing_deposit,
-      G4LorentzVector(post_step->GetGlobalTime(), post_step->GetPosition()),
-      G4LorentzVector(post_step->GetTotalEnergy(), post_step->GetMomentum())
-    ));
+      name,
+      deposit,
+      G4LorentzVector(global_time, position),
+      G4LorentzVector(total_energy, momentum)));
 
-  Analysis::FillH1(histname, deposit);
+  G4int eventID = 0;
+  auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
+  if (event)
+    eventID = event->GetEventID();
+
+  const auto sensitive_id = EncodeDetector(name);
+
+  Scintillator::PMTPoint pmt_point;
+  if (sensitive_id < 100) {
+    const auto sci = _sci_map[name];
+
+    const auto volume1 = history->GetVolume(history->GetDepth() - 1);
+    const auto volume2 = history->GetVolume(history->GetDepth() - 2);
+    const auto volume3 = history->GetVolume(history->GetDepth() - 3);
+    const auto volume4 = history->GetVolume(history->GetDepth() - 4);
+
+    const auto t1 = volume1->GetObjectTranslation();
+    const auto t2 = volume2->GetObjectTranslation();
+    const auto t3 = volume3->GetObjectTranslation();
+    const auto t4 = volume4->GetObjectTranslation();
+
+    const auto r1 = volume1->GetObjectRotationValue();
+    const auto r2 = volume2->GetObjectRotationValue();
+    const auto r3 = volume3->GetObjectRotationValue();
+    const auto r4 = volume4->GetObjectRotationValue();
+
+    const auto translation = r4 * (r3 * (r2 * (t1) + t2) + t3) + t4;
+    const auto rotation = (r4*r3*r2).inverse();
+
+    if (sci)
+      pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
+  }
+
+  Analysis::FillNTuple("Prototype", {
+    static_cast<G4double>(eventID),
+    deposit/MeV,
+    global_time/ns,
+    static_cast<G4double>(sensitive_id),
+    static_cast<G4double>(particle->GetPDGEncoding()),
+    static_cast<G4double>(trackID),
+    position.x()/cm,
+    position.y()/cm,
+    position.z()/cm,
+    total_energy/MeV,
+    momentum.x()/MeVperC,
+    momentum.y()/MeVperC,
+    momentum.z()/MeVperC,
+    pmt_point.r/cm});
 
   return true;
 }
@@ -117,7 +170,6 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
                  + " |\n" + boxside + '\n';
 
   if (verboseLevel > 2) G4cout << "\n\n" << box;
-  RunAction::GetStream() << box;
 
   G4int trackID = -1;
   G4String chamberID = "";
@@ -139,17 +191,22 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
       const auto bar = std::string(barlength, '-') + '\n';
 
       if (verboseLevel > 2) G4cout << bar;
-      RunAction::GetStream() << bar;
     }
 
     chamberID = new_chamberID;
     trackID = new_trackID;
 
     if (verboseLevel > 2) hit->Print();
-    hit->Print(RunAction::GetStream());
   }
   if (verboseLevel > 2) G4cout << '\n';
-  RunAction::GetStream() << '\n';
+}
+
+G4int Prototype::EncodeDetector(const G4String& name) {
+  return _encoding[name];
+}
+
+const G4String Prototype::DecodeDetector(G4int id) {
+  return _decoding[id];
 }
 
 G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
@@ -159,11 +216,11 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto Detector = Construction::BoxVolume(
     "Prototype", 2800*mm, 2800*mm, total_outer_box_height);
 
-  constexpr auto TopFirst    = Envelope::LayerType::TopFirst;
-  constexpr auto BottomFirst = Envelope::LayerType::BottomFirst;
-  constexpr auto Left        = Envelope::Alignment::Left;
-  constexpr auto Center      = Envelope::Alignment::Center;
-  constexpr auto Right       = Envelope::Alignment::Right;
+  constexpr auto Top    = Envelope::LayerType::TopFirst;
+  constexpr auto Bottom = Envelope::LayerType::BottomFirst;
+  constexpr auto Left   = Envelope::Alignment::Left;
+  constexpr auto Center = Envelope::Alignment::Center;
+  constexpr auto Right  = Envelope::Alignment::Right;
 
   auto A10 = new Scintillator("A10", 34.2735559430568*cm, 32.52*cm, 35.78*cm);
   auto A11 = new Scintillator("A11", 39.2697011242604*cm, 35.78*cm, 39.52*cm);
@@ -189,28 +246,28 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto C10 = new Scintillator("C10", 52.2596785953898*cm, 53.55*cm, 57.80*cm);
   auto C11 = new Scintillator("C11", 69.2465722114821*cm, 57.80*cm, 63.53*cm);
 
-  constexpr G4double sci_spacing = 5*cm;
+  constexpr G4double sci_gap = 5*cm;
 
-  auto A1_L = new Envelope("A1_L", sci_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
-  auto A2_H = new Envelope("A2_H", sci_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
-  auto A3_L = new Envelope("A3_L", sci_spacing, BottomFirst, Center, {B7, B8, B9, B10, B11});
-  auto A4_H = new Envelope("A4_H", sci_spacing, TopFirst,    Center, {B8, B9, B10, B11, B12});
-  auto A5_L = new Envelope("A5_L", sci_spacing, TopFirst,    Center, {C8, C9, C10, C11});
-  auto A6_H = new Envelope("A6_H", sci_spacing, TopFirst,    Center, {C8, C9, C10, C11});
+  auto A1_L = new Envelope("A1_L", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
+  auto A2_H = new Envelope("A2_H", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
+  auto A3_L = new Envelope("A3_L", sci_gap, Bottom, Center, {B7, B8, B9, B10, B11});
+  auto A4_H = new Envelope("A4_H", sci_gap, Top,    Center, {B8, B9, B10, B11, B12});
+  auto A5_L = new Envelope("A5_L", sci_gap, Top,    Center, {C8, C9, C10, C11});
+  auto A6_H = new Envelope("A6_H", sci_gap, Top,    Center, {C8, C9, C10, C11});
 
-  auto B1_L = new Envelope("B1_L", sci_spacing, BottomFirst, Right,  {C3, C4, B6, B7, C7});
-  auto B2_H = new Envelope("B2_H", sci_spacing, BottomFirst, Center, {C3, C4, C5, C6, C7});
-  auto B3_L = new Envelope("B3_L", sci_spacing, BottomFirst, Right,  {B7, B8, B9, C9, C9});
-  auto B4_H = new Envelope("B4_H", sci_spacing, TopFirst,    Left,   {A10, A11, A11, B9, B12_1, B11});
-  auto B5_L = new Envelope("B5_L", sci_spacing, TopFirst,    Left,   {A10, A12, C7, C8, C9});
-  auto B6_H = new Envelope("B6_H", sci_spacing, TopFirst,    Left,   {B11, B11, C9, B11, B11});
+  auto B1_L = new Envelope("B1_L", sci_gap, Bottom, Right,  {C3, C4, B6, B7, C7});
+  auto B2_H = new Envelope("B2_H", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
+  auto B3_L = new Envelope("B3_L", sci_gap, Bottom, Right,  {B7, B8, B9, C9, C9});
+  auto B4_H = new Envelope("B4_H", sci_gap, Top,    Left,   {A10, A11, A11, B9, B12_1, B11});
+  auto B5_L = new Envelope("B5_L", sci_gap, Top,    Left,   {A10, A12, C7, C8, C9});
+  auto B6_H = new Envelope("B6_H", sci_gap, Top,    Left,   {B11, B11, C9, B11, B11});
 
   _envelopes = EnvelopeList({
     A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
 
   constexpr G4double envelope_spacing = 24*cm;
-
   constexpr G4double outer_layer_spacing = total_height - 50*cm;
+
 
   constexpr G4double height_A = 255*cm,
                       width_A = 254*cm,
@@ -239,9 +296,10 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
     Construction::Transform(0, 0, -0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
 
-  constexpr G4double rpc_top_gap       =  900*mm;
-  constexpr G4double rpc_small_spacing =  344*mm;
-  constexpr G4double rpc_large_spacing = 1738*mm;
+  constexpr G4double rpc_top_gap          =  900*mm;
+  constexpr G4double rpc_sublayer_spacing =   97*mm;
+  constexpr G4double rpc_small_spacing    =  344*mm;
+  constexpr G4double rpc_large_spacing    = 1738*mm;
 
   for (short layer_i = 0; layer_i < 6; ++layer_i) {
     auto layer_mod2 = layer_i % 2;
@@ -252,7 +310,9 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
       auto rpc = new RPC(2 * layer_i + rpc_i);
       Construction::PlaceVolume(rpc->GetVolume(), layer,
         G4Translate3D(
-          (layer_mod2 ? -1 : 1) * (rpc_i % 2 ? 0.5 : -0.5) * RPC::Width, 0, 0));
+          (layer_mod2 ? -1 : 1) * (rpc_i % 2 ? 0.5 : -0.5) * RPC::Width,
+          0,
+          (rpc_i % 2 ? -0.5 : 0.5) * rpc_sublayer_spacing));
       _rpcs.push_back(rpc);
     }
     Construction::PlaceVolume(layer, Detector,

@@ -19,8 +19,7 @@ public:
                const G4int track,
                const G4int parent,
                const G4String& chamber,
-               const G4double ionizing,
-               const G4double nonionizing,
+               const G4double deposit,
                const G4LorentzVector position,
                const G4LorentzVector momentum);
 
@@ -33,24 +32,20 @@ public:
   void Print();
   void Print(std::ostream& os);
 
-  inline const G4String& GetParticleName()       const { return _particle;    }
-  inline G4int           GetTrackID()            const { return _trackID;     }
-  inline G4int           GetParentID()           const { return _parentID;    }
-  inline const G4String& GetChamberID()          const { return _chamberID;   }
-  inline G4double        GetIonizingDeposit()    const { return _ionizing;    }
-  inline G4double        GetNonIonizingDeposit() const { return _nonionizing; }
-  inline G4double        GetTotalDeposit()       const { return _ionizing
-                                                              + _nonionizing; }
-  inline G4LorentzVector GetPosition()           const { return _position;    }
-  inline G4LorentzVector GetMomentum()           const { return _momentum;    }
+  inline const G4String& GetParticleName() const { return _particle;  }
+  inline G4int           GetTrackID()      const { return _trackID;   }
+  inline G4int           GetParentID()     const { return _parentID;  }
+  inline const G4String& GetChamberID()    const { return _chamberID; }
+  inline G4double        GetDeposit()      const { return _deposit;   }
+  inline G4LorentzVector GetPosition()     const { return _position;  }
+  inline G4LorentzVector GetMomentum()     const { return _momentum;  }
 
 private:
   G4String        _particle;
   G4int           _trackID;
   G4int           _parentID;
   G4String        _chamberID;
-  G4double        _ionizing;
-  G4double        _nonionizing;
+  G4double        _deposit;
   G4LorentzVector _position;
   G4LorentzVector _momentum;
 };
