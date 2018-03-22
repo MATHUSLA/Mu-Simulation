@@ -19,8 +19,7 @@ void RPC::Material::Define() {
 }
 
 RPC::RPC(int id)
-    : _hit_collection(nullptr), _volume(nullptr), _pads(), _id(id),
-      _name("RPC" + std::to_string(id)) {
+    : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_string(id)) {
   _volume = Construction::BoxVolume(_name,
     Width, Height, Depth, Material::Casing);
 

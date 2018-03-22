@@ -46,12 +46,14 @@ public:
 
   const G4String GetFullName() const;
 
-  struct Point { G4double up, right; };
-
-  // TODO: find distance from hit to pmt
-  G4bool ProcessHits(G4Step* step);
-
   void Register(G4VSensitiveDetector* detector);
+
+  struct PMTPoint { G4double up, right, r; };
+
+  static PMTPoint PMTDistance(const G4ThreeVector position,
+                              const Scintillator* sci,
+                              const G4ThreeVector translation,
+                              const G4RotationMatrix rotation);
 
   static Scintillator* Clone(const Scintillator* other);
 
@@ -61,11 +63,10 @@ public:
   constexpr static G4double PMTRadius =  2.1*cm;
   constexpr static G4double PMTLength = 19.3*cm;
 
-  constexpr static G4double MinDeposit = 50*keV;
+  constexpr static G4double MinDeposit =  0*keV;
   constexpr static G4double MaxDeposit = 10*MeV;
 
 private:
-  PrototypeHC*       _hit_collection;
   G4String           _name;
   G4double           _height;
   G4double           _minwidth;
@@ -162,11 +163,10 @@ public:
   constexpr static G4double StripTopGap =    1*mm;
   constexpr static G4double StripYGap   =    2*mm;
 
-  constexpr static G4double MinDeposit = 1*keV;
+  constexpr static G4double MinDeposit =  0*keV;
   constexpr static G4double MaxDeposit = 10*MeV;
 
 private:
-  PrototypeHC* _hit_collection;
   G4LogicalVolume* _volume;
   std::vector<Pad> _pads;
   int _id;
@@ -185,10 +185,12 @@ public:
     Material();
   };
 
-  void   Initialize(G4HCofThisEvent* eventHC);
+  void Initialize(G4HCofThisEvent* eventHC);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
-  void   EndOfEvent(G4HCofThisEvent*);
+  void EndOfEvent(G4HCofThisEvent*);
 
+  static G4int EncodeDetector(const G4String& name);
+  static const G4String DecodeDetector(G4int id);
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
 private:

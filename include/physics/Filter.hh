@@ -6,26 +6,62 @@
 
 namespace MATHUSLA { namespace MU {
 
-class Filter {
+namespace {
+
+template<class T>
+union _minmax {
+  T value;
+  struct { T min, max; } range;
+};
+
+} /* annonymous namespace */
+
+struct Filter {
+  G4int id;
+  union _minmax<G4double> pT;
+  union _minmax<G4double> eta;
+  union _minmax<G4double> phi;
+  union _minmax<G4double> E;
+};
+
+class AdvancedFilter {
 public:
   enum class Ordering { Greater, GreaterEqual, Equal, LesserEqual, Lesser };
   enum class RangeOrdering { Inside, Outside };
 
-  static Filter id(G4int id);
-  static Filter id(std::initializer_list<G4int> ids);
+  static AdvancedFilter id(G4int id);
+  static AdvancedFilter id(std::initializer_list<G4int> ids);
 
-  static Filter pT(G4double pT,
-                   Ordering ord=Ordering::GreaterEqual);
+  static AdvancedFilter pT(G4double pT,
+                           Ordering ord=Ordering::GreaterEqual);
 
-  static Filter eta(G4double eta,
-                    Ordering ord=Ordering::LesserEqual);
+  static AdvancedFilter pT(G4double pT_min, G4double pT_max,
+                           RangeOrdering ord=RangeOrdering::Inside);
 
-  static Filter phi(G4double phi_min, G4double phi_max,
-                    RangeOrdering ord=RangeOrdering::Inside);
+  static AdvancedFilter eta(G4double eta,
+                            Ordering ord=Ordering::LesserEqual);
 
-  inline Filter operator&&(const Filter& rhs);
-  inline Filter operator||(const Filter& rhs);
-  inline Filter operator~();
+  static AdvancedFilter eta(G4double eta_min, G4double eta_max,
+                            RangeOrdering ord=RangeOrdering::Inside);
+
+  static AdvancedFilter phi(G4double phi);
+
+  static AdvancedFilter phi(G4double phi_min, G4double phi_max,
+                            RangeOrdering ord=RangeOrdering::Inside);
+
+  static AdvancedFilter E(G4double energy);
+
+  inline AdvancedFilter operator&&(const AdvancedFilter& rhs) {
+
+  }
+
+  inline AdvancedFilter operator||(const AdvancedFilter& rhs) {
+
+  }
+
+  inline AdvancedFilter operator~() {
+
+  }
 
   template <class Particle>
   bool eval(const Particle& particle);
@@ -33,9 +69,8 @@ public:
   template <class List>
   bool find(const List& list);
 
-
 private:
-  Filter();
+  AdvancedFilter();
   bool _evaluator;
   G4int _id;
   G4double _pT;

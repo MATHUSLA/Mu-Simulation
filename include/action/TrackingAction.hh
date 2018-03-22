@@ -13,7 +13,6 @@ public:
   void SetTrackingManagerPointer(G4TrackingManager*);
   void PreUserTrackingAction(const G4Track*);
   void PostUserTrackingAction(const G4Track*);
-
 private:
   G4TrackingManager* _manager;
 };

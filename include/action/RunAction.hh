@@ -16,9 +16,7 @@ namespace MATHUSLA { namespace MU {
 class RunAction : public G4UserRunAction {
 public:
   RunAction();
-
   G4Run* GenerateRun();
-
   void BeginOfRunAction(const G4Run* run);
   void FillPerEvent(G4double deposit);
   void EndOfRunAction(const G4Run* run);
@@ -28,7 +26,6 @@ public:
       "data/" + Time::GetDate() + "/" + Time::GetTime() + "/output.dat");
     return _file;
   }
-
 };
 
 } } /* namespace MATHUSLA::MU */

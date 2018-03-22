@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 project(MATHUSLA_MU)
 
@@ -11,7 +11,6 @@ find_package(HepMC   REQUIRED)
 find_package(Pythia8 REQUIRED)
 
 include(${Geant4_USE_FILE})
-include(${ROOT_USE_FILE})
 
 add_executable(simulation
     src/simulation.cc
@@ -32,14 +31,15 @@ add_executable(simulation
     src/detector/RPC.cc
     src/detector/Scintillator.cc
 
-    src/physics/BasicGenerator.cc
     src/physics/Field.cc
     src/physics/Filter.cc
+    src/physics/Generator.cc
     src/physics/PythiaGenerator.cc
 
     src/tracking/PrototypeHit.cc
 
     src/ui/Messenger.cc
+    src/ui/VIS.cc
 
     src/util/CommandLineParser.cc
 )

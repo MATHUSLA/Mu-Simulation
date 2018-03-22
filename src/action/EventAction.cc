@@ -15,6 +15,10 @@ void EventAction::BeginOfEventAction(const G4Event* event) {
   auto eventID = event->GetEventID();
   if (eventID && !(eventID % _print_modulo))
     G4cout << "\n\n\n [ Beginning of Event " << eventID << " ]\n\n\n";
+
+  if (eventID > 0) {
+    // create new file
+  }
 }
 
 void EventAction::EndOfEventAction(const G4Event*) {

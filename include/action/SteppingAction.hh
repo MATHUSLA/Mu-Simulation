@@ -11,7 +11,6 @@ class SteppingAction : public G4UserSteppingAction {
 public:
   SteppingAction();
   void UserSteppingAction(const G4Step* step);
-
 private:
   // G4SteppingManager* _manager;
 };

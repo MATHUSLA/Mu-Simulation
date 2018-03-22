@@ -24,7 +24,7 @@ G4Material* Construction::Material::Air = nullptr;
 G4VPhysicalVolume* Construction::WorldVolume = nullptr;
 
 void Construction::Material::Define() {
-  Material::H = new G4Element("Hydrogen", "H", 1., 1.01*g/mole);
+  Material::H = new G4Element("Hydrogen", "H", 1.,  1.01*g/mole);
   Material::C = new G4Element("Carbon",   "C", 6., 12.01*g/mole);
   Material::N = new G4Element("Nitrogen", "N", 7., 14.01*g/mole);
   Material::O = new G4Element("Oxygen",   "O", 8., 16.00*g/mole);
@@ -63,8 +63,7 @@ G4VPhysicalVolume* Construction::Construct() {
 }
 
 void Construction::ConstructSDandField() {
-  auto detector = new Prototype();
-  G4SDManager::GetSDMpointer()->AddNewDetector(detector);
+  G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype());
 }
 
 const G4VisAttributes Construction::SensitiveAttributes() {

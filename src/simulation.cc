@@ -17,11 +17,12 @@
 
 using Option = MATHUSLA::MU::CommandLineOption;
 
-auto help_opt   = new Option('h', "help",   "Muon Simulation",    Option::NoArguments);
-auto gen_opt    = new Option('g', "gen",    "Particle Generator", Option::RequiredArguments);
-auto script_opt = new Option('s', "script", "Simulation Script",  Option::RequiredArguments);
-auto events_opt = new Option('e', "events", "Event Count",        Option::RequiredArguments);
-auto vis_opt    = new Option('v', "vis",    "Visualization",      Option::NoArguments);
+auto help_opt   = new Option('h', "help",   "Muon Simulation", Option::NoArguments);
+auto gen_opt    = new Option('g', "gen",    "Generator",       Option::RequiredArguments);
+auto script_opt = new Option('s', "script", "Custom Script",   Option::RequiredArguments);
+auto events_opt = new Option('e', "events", "Event Count",     Option::RequiredArguments);
+auto vis_opt    = new Option('v', "vis",    "Visualization",   Option::NoArguments);
+auto quiet_opt  = new Option('q', "quiet",  "Quiet Mode",      Option::NoArguments);
 
 auto thread_opt = new Option('j', "threads",
   "Multi-Threading Mode: Specify Optional number of threads (default: 2)",
@@ -29,7 +30,7 @@ auto thread_opt = new Option('j', "threads",
 
 int main(int argc, char* argv[]) {
   MATHUSLA::MU::CommandLineParser::parse(argv, {
-    help_opt, gen_opt, script_opt, events_opt, vis_opt, thread_opt});
+    help_opt, gen_opt, script_opt, events_opt, vis_opt, quiet_opt, thread_opt});
 
   G4UIExecutive* ui = nullptr;
   if (argc == 1 || vis_opt->count) {
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
       auto opt = std::string(thread_opt->argument);
       if (opt == "on") {
         thread_opt->count = 2;
-      } else if (opt == "off") {
+      } else if (opt == "off" || opt == "0") {
         thread_opt->count = 1;
       } else {
         thread_opt->count = std::stoi(opt);
@@ -90,10 +91,15 @@ int main(int argc, char* argv[]) {
 
   auto UImanager = G4UImanager::GetUIpointer();
 
+  UImanager->ApplyCommand("/run/initialize");
   UImanager->ApplyCommand("/control/macroPath scripts/");
   UImanager->ApplyCommand("/control/saveHistory scripts/G4History");
-  UImanager->ApplyCommand("/run/initialize");
-  UImanager->ApplyCommand("/control/execute verbosity.mac");
+
+  if (quiet_opt->count) {
+    UImanager->ApplyCommand("/control/execute quiet.mac");
+  } else {
+    UImanager->ApplyCommand("/control/execute verbose.mac");
+  }
 
   if (vis_opt->count) {
     UImanager->ApplyCommand("/control/execute vis.mac");
