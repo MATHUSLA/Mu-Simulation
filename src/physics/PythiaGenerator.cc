@@ -26,7 +26,7 @@ Pythia8::Particle* PythiaFilter::find(Pythia8::Event& event) {
 
 PythiaGenerator::PythiaGenerator(Pythia8::Pythia* pythia,
                                  const PythiaFilter& filter)
-    : _hepmcevt(nullptr), _pythia(pythia), _filter(filter), _hepmc_converter() {
+    : _pythia(pythia), _filter(filter) {
   if (!_pythia) {
     G4cout << "PythiaGenerator:\n  Pythia Generator not specified!\n";
     G4RunManager::GetRunManager()->AbortRun();
@@ -35,20 +35,13 @@ PythiaGenerator::PythiaGenerator(Pythia8::Pythia* pythia,
 
 void PythiaGenerator::GeneratePrimaries(G4Event* event) {
   Pythia8::Particle* particle = nullptr;
-  G4ThreeVector position;
 
   uint_fast64_t counter = 0;
   while (true) {
     ++counter;
     if (!_pythia->next()) continue;
     particle = _filter.find(_pythia->process);
-    if (particle) {
-      position = G4ThreeVector(
-        particle->zProd(), particle->yProd(), -particle->xProd() + 100*m);
-
-      if (world_solid->Inside(position*mm) != kInside) continue;
-      else break;
-    }
+    if (particle) break;
   }
 
   G4cout << "\n\nPythiaGenerator:\n"
@@ -58,7 +51,7 @@ void PythiaGenerator::GeneratePrimaries(G4Event* event) {
          << particle->eta()   << " "
          << particle->phi()   << "\n\n\n";
 
-  auto vertex = new G4PrimaryVertex(position, particle->tProd()*mm/c_light);
+  auto vertex = DefaultVertex();
 
   vertex->SetPrimary(new G4PrimaryParticle(
     particle->id(), particle->pz(), particle->py(), -particle->px()));
