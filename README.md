@@ -31,3 +31,5 @@ Available Generators:
 ```
 basic | range | pythia
 ```
+
+They are specified in `action/ActionInitialization.cc`
