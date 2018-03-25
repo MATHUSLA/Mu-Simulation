@@ -1,0 +1,18 @@
+# File menu :
+/gui/addMenu file File
+/gui/addButton file Quit exit
+
+# Run menu :
+/gui/addMenu run Run
+/gui/addButton run "1 event" "/run/beamOn 1"
+/gui/addButton run "10 events" "/run/beamOn 10"
+/gui/addButton run "100 events" "/run/beamOn 100"
+/gui/addButton run "1000 events" "/run/beamOn 1000"
+/gui/addButton run "10000 events" "/run/beamOn 10000"
+/gui/addButton run "100000 events" "/run/beamOn 100000"
+
+# Viewer menu :
+/gui/addMenu viewer Viewer
+/gui/addButton viewer "Side View" "/control/execute settings/side_view"
+/gui/addButton viewer "Front View" "/control/execute settings/front_view"
+/gui/addButton viewer "Collision View" "/control/execute settings/collision_view"

@@ -17,9 +17,9 @@ static const char* TimeFormat = "%H%M%S";
 static const auto TIME = std::time(nullptr);
 
 inline const std::string GetString(const char* format=FullFormat) {
-  std::stringstream ss;
-  ss << std::put_time(std::gmtime(&TIME), format);
-  return ss.str();
+  std::stringstream out;
+  out << std::put_time(std::gmtime(&TIME), format);
+  return out.str();
 }
 
 inline const std::string GetDate() { return GetString(DateFormat); }

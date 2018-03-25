@@ -12,7 +12,6 @@
 #include "action/ActionInitialization.hh"
 #include "detector/Construction.hh"
 #include "physics/Units.hh"
-
 #include "util/CommandLineParser.hh"
 
 using Option = MATHUSLA::MU::CommandLineOption;
@@ -74,6 +73,9 @@ int main(int argc, char* argv[]) {
     G4cout << "Running in Single Threaded Mode.\n";
   #endif
 
+  runManager->SetPrintProgress(1000);
+  runManager->SetRandomNumberStore(false);
+
   MATHUSLA::MU::DefineNewUnits();
 
   auto physicsList = new FTFP_BERT;
@@ -96,15 +98,15 @@ int main(int argc, char* argv[]) {
   UImanager->ApplyCommand("/control/saveHistory scripts/G4History");
 
   if (quiet_opt->count) {
-    UImanager->ApplyCommand("/control/execute quiet.mac");
+    UImanager->ApplyCommand("/control/execute settings/quiet");
   } else {
-    UImanager->ApplyCommand("/control/execute verbose.mac");
+    UImanager->ApplyCommand("/control/execute settings/verbose");
   }
 
   if (vis_opt->count) {
-    UImanager->ApplyCommand("/control/execute vis.mac");
+    UImanager->ApplyCommand("/control/execute settings/init_vis");
     if (ui->IsGUI())
-      UImanager->ApplyCommand("/control/execute gui.mac");
+      UImanager->ApplyCommand("/control/execute settings/init_gui");
   }
 
   if (script_opt->argument) {

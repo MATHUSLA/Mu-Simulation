@@ -3,7 +3,7 @@ _simulation of muons through earth material_
 
 ## Build & Run
 
-This repository comes with a simple build script called `install` that will allow you to customize the build process and execution of the muon simulation.
+The simulation comes with a simple build script called `install` that will allow you to customize the build process and execution of the muon simulation.
 
 Here is a list of useful commands:
 
@@ -24,12 +24,14 @@ The simulation executable also comes with several configuration parameters:
 | Visualization  | `-v` | `--vis` |
 | Quiet Mode  | `-q` | `--quiet` |
 | Custom Script  | `-s <file>`  | `--script=<file>`  |
-| More Options | `-h` | `--help` |
+| Help | `-h` | `--help` |
 
-Available Generators:
+### Generators
 
-```
-basic | range | pythia
-```
+There are two general purpose generators built in, `basic` and `range`. The `basic` generator produces a particle with constant `pT`, `eta`, and `phi` while the `range` generator produces particle within a specified range of values for each of the three variables. Any variable can also be fixed to a constant value. 
 
-They are specified in `action/ActionInitialization.cc`
+The generator defaults are specified in `src/action/GeneratorAction.cc` but they can be overwritten by a custom generation script.
+
+### Custom scripts
+
+A custom _Geant4_ script can be specified at run time. The script can contain generator specific commands and settings as well as _Pythia8_ settings in the form of `readString`.

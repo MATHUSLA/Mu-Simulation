@@ -24,6 +24,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Pythia8 DEFAULT_MSG PYTHIA8_LIBRARY)
 
 mark_as_advanced(PYTHIA8_FOUND
-                 PYTHIA8_LIBRARY
-                 PYTHIA8_HEPMC_LIBRARY
-                 PYTHIA8_HAPDF_LIBRARY)
+    PYTHIA8_LIBRARY PYTHIA8_HEPMC_LIBRARY PYTHIA8_HAPDF_LIBRARY)

@@ -17,6 +17,7 @@ add_executable(simulation
 
     src/action/ActionInitialization.cc
     src/action/EventAction.cc
+    src/action/GeneratorAction.cc
     src/action/RunAction.cc
     src/action/StackingAction.cc
     src/action/SteppingAction.cc
@@ -38,7 +39,7 @@ add_executable(simulation
 
     src/tracking/PrototypeHit.cc
 
-    src/ui/Messenger.cc
+    src/ui/Command.cc
     src/ui/VIS.cc
 
     src/util/CommandLineParser.cc

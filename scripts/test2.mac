@@ -1,0 +1,18 @@
+/gen/select pythia
+
+/gen/pythia/readString Print:quiet = on
+/gen/pythia/readString Next:numberCount = 10000
+/gen/pythia/readString Stat:showErrors = off
+/gen/pythia/readString Beams:eCM = 13000
+/gen/pythia/readString WeakSingleBoson:ffbar2W = on
+/gen/pythia/readString 24:onMode = off
+/gen/pythia/readString 24:onIfAny = 13
+
+/gen/pythia/id -13
+/gen/pythia/pT_min 10 GeV/c
+/gen/pythia/eta_min -2
+/gen/pythia/eta_max 2
+/gen/pythia/phi_min -40 deg
+/gen/pythia/phi_max 40 deg
+
+/run/beamOn 1

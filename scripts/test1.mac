@@ -1,0 +1,11 @@
+/gen/select range
+
+/gen/range/pT 70 GeV/c
+/gen/range/eta_min -0.4
+/gen/range/eta_max 0.4
+/gen/range/phi_min -100 mrad
+/gen/range/phi_max 100 mrad
+
+/run/beamOn 10
+/run/beamOn 10
+/run/beamOn 10

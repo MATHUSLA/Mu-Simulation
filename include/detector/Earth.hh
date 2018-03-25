@@ -26,7 +26,7 @@ constexpr G4double LayerWidthX    = 20000*cm;
 constexpr G4double LayerWidthY    = 20000*cm;
 constexpr G4double SandstoneDepth =  4530*cm;
 constexpr G4double MarlDepth      =  1825*cm;
-constexpr G4double MixDepth       =  3645*cm - 20*m;
+constexpr G4double MixDepth       =  3645*cm - 10*m;
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
