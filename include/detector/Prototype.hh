@@ -191,6 +191,8 @@ public:
 
   static G4int EncodeDetector(const G4String& name);
   static const G4String DecodeDetector(G4int id);
+  // static G4int EncodeTDC(const G4String name);
+  // static const G4String DecodeTDC(G4int code);
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
 private:

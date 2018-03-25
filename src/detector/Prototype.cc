@@ -209,6 +209,16 @@ const G4String Prototype::DecodeDetector(G4int id) {
   return _decoding[id];
 }
 
+/*
+G4int Prototype::EncodeTDC(const G4String& name) {
+  return 0;
+}
+
+const G4String Prototype::DecodeTDC(G4int code) {
+  return "";
+}
+*/
+
 G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   constexpr G4double total_height = 6649*mm;
 

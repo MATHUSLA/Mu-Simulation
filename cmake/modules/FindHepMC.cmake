@@ -21,5 +21,4 @@ find_library(HEPMC_LIBRARY NAMES HepMC ${HEPMC_LIBRARY_HINTS})
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(HepMC DEFAULT_MSG HEPMC_LIBRARY)
 
-mark_as_advanced(HEPMC_FOUND
-                 HEPMC_LIBRARY)
+mark_as_advanced(HEPMC_FOUND HEPMC_LIBRARY)

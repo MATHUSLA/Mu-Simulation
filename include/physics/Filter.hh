@@ -29,27 +29,27 @@ public:
   enum class Ordering { Greater, GreaterEqual, Equal, LesserEqual, Lesser };
   enum class RangeOrdering { Inside, Outside };
 
-  static AdvancedFilter id(G4int id);
+  static AdvancedFilter id(const G4int id);
   static AdvancedFilter id(std::initializer_list<G4int> ids);
 
-  static AdvancedFilter pT(G4double pT,
+  static AdvancedFilter pT(const G4double pT,
                            Ordering ord=Ordering::GreaterEqual);
 
-  static AdvancedFilter pT(G4double pT_min, G4double pT_max,
+  static AdvancedFilter pT(const G4double pT_min, const G4double pT_max,
                            RangeOrdering ord=RangeOrdering::Inside);
 
-  static AdvancedFilter eta(G4double eta,
+  static AdvancedFilter eta(const G4double eta,
                             Ordering ord=Ordering::LesserEqual);
 
-  static AdvancedFilter eta(G4double eta_min, G4double eta_max,
+  static AdvancedFilter eta(const G4double eta_min, const G4double eta_max,
                             RangeOrdering ord=RangeOrdering::Inside);
 
-  static AdvancedFilter phi(G4double phi);
+  static AdvancedFilter phi(const G4double phi);
 
-  static AdvancedFilter phi(G4double phi_min, G4double phi_max,
+  static AdvancedFilter phi(const G4double phi_min, const G4double phi_max,
                             RangeOrdering ord=RangeOrdering::Inside);
 
-  static AdvancedFilter E(G4double energy);
+  static AdvancedFilter E(const G4double energy);
 
   inline AdvancedFilter operator&&(const AdvancedFilter& rhs) {
 

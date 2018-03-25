@@ -156,7 +156,7 @@ size_t CommandLineParser::parse(char* argv[],
   size_t operand_count = 1;
   size_t expecting = Empty;
 
-  CommandLineOption* current;
+  CommandLineOption* current = nullptr;
   auto error = new CommandLineOption();
 
   for (size_t i = 1; argv[i]; ++i) {
