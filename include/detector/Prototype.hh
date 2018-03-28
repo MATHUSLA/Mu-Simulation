@@ -127,6 +127,7 @@ public:
     static G4Material* Casing;
     static G4Material* Pad;
     static G4Material* Strip;
+    static G4Material* Gas;
     static void Define();
   private:
     Material();
@@ -140,28 +141,29 @@ public:
   inline Pad              GetPad(int id) const { return _pads[id - 1]; }
   inline std::vector<Pad> GetPadList()   const { return _pads;         }
 
-  G4bool ProcessHits(G4Step* step);
-
   void Register(G4VSensitiveDetector* detector);
 
-  constexpr static G4double Width  = 1257*mm;
-  constexpr static G4double Height = 2854*mm;
-  constexpr static G4double Depth  =   60*mm;  // what is true value?
-  constexpr static G4double Angle  =   12*deg; // what is true value?
+  constexpr static G4double Width     = 1257*mm;
+  constexpr static G4double Height    = 2854*mm;
+  constexpr static G4double Depth     =   60*mm;   // what is true value?
+  constexpr static G4double Thickness =   10*mm;   // what is true value?
+  constexpr static G4double Angle     =   12*deg;  // what is true value?
 
-  constexpr static G4double PadWidth    = 618*mm;
-  constexpr static G4double PadHeight   = 556*mm;
-  constexpr static G4double PadDepth    =  55*mm;  // what is true value?
-  constexpr static G4double PadStartX   = 318*mm;
-  constexpr static G4double PadStartY   = 312*mm;
-  constexpr static G4double PadSpacingX = 620*mm;
-  constexpr static G4double PadSpacingY = 557*mm;
+  constexpr static G4double PadWidth     = 618*mm;
+  constexpr static G4double PadHeight    = 556*mm;
+  constexpr static G4double PadDepth     =  55*mm;  // what is true value?
+  constexpr static G4double PadThickness =  10*mm;  // what is true value?
+  constexpr static G4double PadStartX    = 318*mm;
+  constexpr static G4double PadStartY    = 312*mm;
+  constexpr static G4double PadSpacingX  = 620*mm;
+  constexpr static G4double PadSpacingY  = 557*mm;
 
-  constexpr static G4double StripWidth  =  618*mm;
-  constexpr static G4double StripHeight = 67.5*mm;
-  constexpr static G4double StripDepth  =   50*mm;  // what is true value?
-  constexpr static G4double StripTopGap =    1*mm;
-  constexpr static G4double StripYGap   =    2*mm;
+  constexpr static G4double StripWidth     =  618*mm;
+  constexpr static G4double StripHeight    = 67.5*mm;
+  constexpr static G4double StripDepth     =   50*mm;  // what is true value?
+  constexpr static G4double StripThickness =    2*mm;  // what is true value?
+  constexpr static G4double StripTopGap    =    1*mm;
+  constexpr static G4double StripYGap      =    2*mm;
 
   constexpr static G4double MinDeposit =  0*keV;
   constexpr static G4double MaxDeposit = 10*MeV;

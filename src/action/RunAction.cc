@@ -23,11 +23,13 @@ G4Run* RunAction::GenerateRun() {
 }
 
 void RunAction::BeginOfRunAction(const G4Run* run) {
-  auto dir = "data/" + Time::GetDate();
+  G4String dir = "data";
+  IO::create_directory(dir);
+  dir += "/" + Time::GetDate();
   IO::create_directory(dir);
   dir += "/" + Time::GetTime();
-  _dir = dir;
   IO::create_directory(dir);
+  _dir = dir;
   _file = "run" + std::to_string(run->GetRunID());
   Analysis::OpenFile(dir, _file + ".root");
 }

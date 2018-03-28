@@ -20,6 +20,9 @@ public:
     static G4Element* C;
     static G4Element* N;
     static G4Element* O;
+    static G4Element* F;
+    static G4Element* S;
+    static G4Element* Ar;
     static G4Material* Air;
     static void Define();
    private:
@@ -70,6 +73,16 @@ public:
                                       =Material::Air,
                                     const G4VisAttributes& attr
                                       =G4VisAttributes());
+
+  static G4LogicalVolume* OpenBoxVolume(const G4String& name,
+                                        const G4double width,
+                                        const G4double height,
+                                        const G4double depth,
+                                        const G4double thickness,
+                                        G4Material* material
+                                          =Material::Air,
+                                        const G4VisAttributes& attr
+                                          =G4VisAttributes());
 
   static G4VPhysicalVolume* PlaceVolume(const G4String& name,
                                         G4LogicalVolume* current,
