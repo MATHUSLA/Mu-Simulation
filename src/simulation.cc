@@ -64,9 +64,9 @@ int main(int argc, char* argv[]) {
     runManager->SetNumberOfThreads(thread_opt->count);
 
     if (thread_opt->count > 1) {
-      G4cout << "Running " << thread_opt->count << " Threads\n.";
+      G4cout << "Running " << thread_opt->count << " Threads.\n";
     } else {
-      G4cout << "Running 1 Thread\n.";
+      G4cout << "Running 1 Thread.\n";
     }
   #else
     auto runManager = new G4RunManager;

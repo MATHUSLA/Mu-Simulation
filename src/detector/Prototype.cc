@@ -107,7 +107,7 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   const auto sensitive_id = EncodeDetector(name);
 
-  Scintillator::PMTPoint pmt_point;
+  Scintillator::PMTPoint pmt_point = {0, 0, 0};
   if (sensitive_id < 100) {
     const auto sci = _sci_map[name];
 
@@ -121,7 +121,6 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
     const auto t3 = volume3->GetObjectTranslation();
     const auto t4 = volume4->GetObjectTranslation();
 
-    const auto r1 = volume1->GetObjectRotationValue();
     const auto r2 = volume2->GetObjectRotationValue();
     const auto r3 = volume3->GetObjectRotationValue();
     const auto r4 = volume4->GetObjectRotationValue();

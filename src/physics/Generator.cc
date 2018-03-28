@@ -190,17 +190,17 @@ void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
 const std::string RangeGenerator::InfoString() const {
   std::stringstream out;
   out << "Generator Info:\n  "
-      << "Name: "        << _name                           << "\n  "
-      << "Description: " << _description                    << "\n  "
-      << "pT: "          << G4BestUnit(_pT, "Momentum")     << "\n    "
-      << "pT min: "      << G4BestUnit(_pT_min, "Momentum") << "\n    "
-      << "pT max: "      << G4BestUnit(_pT_max, "Momentum") << "\n  "
-      << "eta: "         << _eta                            << "\n    "
-      << "eta min: "     << _eta_min                        << "\n    "
-      << "eta max: "     << _eta_max                        << "\n  "
-      << "phi: "         << G4BestUnit(_phi, "Angle")       << "\n    "
-      << "phi min: "     << G4BestUnit(_phi_min, "Angle")   << "\n    "
-      << "phi max: "     << G4BestUnit(_phi_max, "Angle")   << "\n";
+      << "Name: "        << _name                                             << "\n  "
+      << "Description: " << _description                                      << "\n  "
+      << "avg pT: "      << G4BestUnit(0.5 * (_pT_min + _pT_max), "Momentum") << "\n    "
+      << "pT min: "      << G4BestUnit(_pT_min, "Momentum")                   << "\n    "
+      << "pT max: "      << G4BestUnit(_pT_max, "Momentum")                   << "\n  "
+      << "avg eta: "     << 0.5 * (_eta_min + _eta_max)                       << "\n    "
+      << "eta min: "     << _eta_min                                          << "\n    "
+      << "eta max: "     << _eta_max                                          << "\n  "
+      << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
+      << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
+      << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n";
   return out.str();
 }
 

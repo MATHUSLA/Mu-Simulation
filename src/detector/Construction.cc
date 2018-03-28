@@ -1,6 +1,7 @@
 #include "detector/Construction.hh"
 
 #include "Geant4/G4Box.hh"
+#include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4GeometryManager.hh"
 #include "Geant4/G4GeometryTolerance.hh"
 #include "Geant4/G4LogicalVolumeStore.hh"
@@ -9,6 +10,7 @@
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4SolidStore.hh"
 #include "Geant4/G4PVPlacement.hh"
+#include "Geant4/G4NistManager.hh"
 
 #include "detector/Earth.hh"
 #include "detector/Prototype.hh"
@@ -19,19 +21,24 @@ G4Element*  Construction::Material::H   = nullptr;
 G4Element*  Construction::Material::C   = nullptr;
 G4Element*  Construction::Material::N   = nullptr;
 G4Element*  Construction::Material::O   = nullptr;
+G4Element*  Construction::Material::F   = nullptr;
+G4Element*  Construction::Material::S   = nullptr;
+G4Element*  Construction::Material::Ar  = nullptr;
 G4Material* Construction::Material::Air = nullptr;
 
 G4VPhysicalVolume* Construction::WorldVolume = nullptr;
 
 void Construction::Material::Define() {
-  Material::H = new G4Element("Hydrogen", "H", 1.,  1.01*g/mole);
-  Material::C = new G4Element("Carbon",   "C", 6., 12.01*g/mole);
-  Material::N = new G4Element("Nitrogen", "N", 7., 14.01*g/mole);
-  Material::O = new G4Element("Oxygen",   "O", 8., 16.00*g/mole);
+  G4NistManager* manager = G4NistManager::Instance();
 
-  Material::Air = new G4Material("Air", 1.290*mg/cm3, 2);
-  Material::Air->AddElement(Material::N, 0.7);
-  Material::Air->AddElement(Material::O, 0.3);
+  Material::H = manager->FindOrBuildElement("H");
+  Material::C = manager->FindOrBuildElement("C");
+  Material::N = manager->FindOrBuildElement("N");
+  Material::O = manager->FindOrBuildElement("O");
+  Material::F = manager->FindOrBuildElement("F");
+  Material::S = manager->FindOrBuildElement("S");
+  Material::Ar = manager->FindOrBuildElement("Ar");
+  Material::Air = manager->FindOrBuildMaterial("G4_AIR");
 
   Earth::Material::Define();
   Prototype::Material::Define();
@@ -124,6 +131,24 @@ G4LogicalVolume* Construction::BoxVolume(const G4String& name,
   return Volume(
     new G4Box(name, 0.5 * width, 0.5 * height, 0.5 * depth),
     material, attr);
+}
+
+G4LogicalVolume* Construction::OpenBoxVolume(const G4String& name,
+                                             const G4double width,
+                                             const G4double height,
+                                             const G4double depth,
+                                             const G4double thickness,
+                                             G4Material* material,
+                                             const G4VisAttributes& attr) {
+  auto outer = new G4Box(name,
+    0.5 * width,
+    0.5 * height,
+    0.5 * depth);
+  auto inner = new G4Box(name,
+    0.5 * width  - thickness,
+    0.5 * height - thickness,
+    0.5 * depth  - thickness);
+  return Volume(new G4SubtractionSolid(name, outer, inner), material, attr);
 }
 
 G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
