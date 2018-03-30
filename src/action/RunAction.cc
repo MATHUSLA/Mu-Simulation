@@ -5,7 +5,7 @@
 #include "Geant4/G4Run.hh"
 
 #include "action/GeneratorAction.hh"
-#include "analysis/Analysis.hh"
+#include "analysis/AnalysisManager.hh"
 #include "util/FileIO.hh"
 #include "util/Time.hh"
 
@@ -31,14 +31,14 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
   IO::create_directory(dir);
   _dir = dir;
   _file = "run" + std::to_string(run->GetRunID());
-  Analysis::OpenFile(dir, _file + ".root");
+  AnalysisManager::OpenFile(dir, _file + ".root");
 }
 
 void RunAction::EndOfRunAction(const G4Run* run) {
   if (!run->GetNumberOfEvent()) return;
 
-  Analysis::Write();
-  Analysis::CloseFile();
+  AnalysisManager::Write();
+  AnalysisManager::CloseFile();
 
   const std::string run_file = _dir + '/' + _file;
 

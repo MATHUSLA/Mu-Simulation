@@ -1,10 +1,6 @@
 #include "action/EventAction.hh"
 
 #include "Geant4/G4Event.hh"
-#include "Geant4/G4SystemOfUnits.hh"
-
-#include "analysis/Analysis.hh"
-#include "tracking/PrototypeHit.hh"
 
 namespace MATHUSLA { namespace MU {
 

@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <string>
 
 namespace MATHUSLA { namespace MU {
 
