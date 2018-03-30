@@ -10,9 +10,9 @@
 #include "Geant4/G4RunManager.hh"
 #include "Geant4/G4ios.hh"
 
-#include "analysis/Analysis.hh"
+#include "analysis/AnalysisManager.hh"
 #include "physics/Units.hh"
-#include "ui/VIS.hh"
+#include "util/Time.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -27,9 +27,10 @@ Prototype::Prototype()
     : G4VSensitiveDetector("MATHUSLA/MU/Prototype"), _hit_collection(nullptr) {
   collectionName.insert("Prototype_HC");
 
-  Analysis::CreateNTuple("Prototype", {
+  AnalysisManager::CreateNTuple("prototype", {
     "Event", "Deposit", "Time", "Detector",
-    "PDG", "TrackID", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT"
+    "PDG", "TrackID", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
+    "TimestampDate", "TimestampTime"
   });
 
   for (auto envelope : _envelopes) {
@@ -132,7 +133,7 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
-  Analysis::FillNTuple("Prototype", {
+  AnalysisManager::FillNTuple("prototype", {
     static_cast<G4double>(eventID),
     deposit/MeV,
     global_time/ns,
@@ -146,7 +147,9 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
     momentum.x()/MeVperC,
     momentum.y()/MeVperC,
     momentum.z()/MeVperC,
-    pmt_point.r/cm});
+    pmt_point.r/cm,
+    std::stod(Time::GetDate()),
+    std::stod(Time::GetTime())});
 
   return true;
 }

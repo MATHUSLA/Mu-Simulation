@@ -23,7 +23,7 @@ add_executable(simulation
     src/action/SteppingAction.cc
     src/action/TrackingAction.cc
 
-    src/analysis/Analysis.cc
+    src/analysis/AnalysisManager.cc
 
     src/detector/Construction.cc
     src/detector/Earth.cc

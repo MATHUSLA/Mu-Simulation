@@ -33,7 +33,6 @@ if [[ "$CONFIG_CMAKE" -eq 1 && "$CLEAN_BUILD" -eq 1 ]]; then
     rm simulation;
 fi
 
-mkdir -p data
 mkdir -p build
 cd build
 
