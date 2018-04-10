@@ -5,9 +5,8 @@ project(MATHUSLA_MU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-find_package(Geant4  REQUIRED ui_all vis_all)
+find_package(Geant4  REQUIRED gdml ui_all vis_all)
 find_package(ROOT    REQUIRED)
-find_package(HepMC   REQUIRED)
 find_package(Pythia8 REQUIRED)
 
 include(${Geant4_USE_FILE})
@@ -19,9 +18,6 @@ add_executable(simulation
     src/action/EventAction.cc
     src/action/GeneratorAction.cc
     src/action/RunAction.cc
-    src/action/StackingAction.cc
-    src/action/SteppingAction.cc
-    src/action/TrackingAction.cc
 
     src/analysis/AnalysisManager.cc
 
@@ -33,14 +29,10 @@ add_executable(simulation
     src/detector/Scintillator.cc
 
     src/physics/Field.cc
-    src/physics/Filter.cc
     src/physics/Generator.cc
     src/physics/PythiaGenerator.cc
 
     src/tracking/PrototypeHit.cc
-
-    src/ui/Command.cc
-    src/ui/VIS.cc
 
     src/util/CommandLineParser.cc
 )
@@ -48,7 +40,6 @@ add_executable(simulation
 target_link_libraries(simulation
     ${Geant4_LIBRARIES}
     ${ROOT_LIBRARIES}
-    ${HEPMC_LIBRARY}
     ${PYTHIA8_LIBRARY})
 
 target_include_directories(simulation PUBLIC

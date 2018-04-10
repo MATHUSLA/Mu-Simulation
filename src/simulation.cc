@@ -14,7 +14,7 @@
 #include "physics/Units.hh"
 #include "util/CommandLineParser.hh"
 
-using Option = MATHUSLA::MU::CommandLineOption;
+using Option = MATHUSLA::CommandLineOption;
 
 auto help_opt   = new Option('h', "help",   "Muon Simulation", Option::NoArguments);
 auto gen_opt    = new Option('g', "gen",    "Generator",       Option::RequiredArguments);
@@ -28,7 +28,7 @@ auto thread_opt = new Option('j', "threads",
   Option::OptionalArguments);
 
 int main(int argc, char* argv[]) {
-  MATHUSLA::MU::CommandLineParser::parse(argv, {
+  MATHUSLA::CommandLineParser::parse(argv, {
     help_opt, gen_opt, script_opt, events_opt, vis_opt, quiet_opt, thread_opt});
 
   G4UIExecutive* ui = nullptr;
@@ -80,7 +80,6 @@ int main(int argc, char* argv[]) {
 
   auto physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics);
-
   runManager->SetUserInitialization(physicsList);
   runManager->SetUserInitialization(new MATHUSLA::MU::Construction);
 

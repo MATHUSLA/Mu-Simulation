@@ -18,7 +18,7 @@
 #define EX_USAGE EXIT_FAILURE
 #endif
 
-namespace MATHUSLA { namespace MU {
+namespace MATHUSLA {
 
 CommandLineOption::CommandLineOption() : CommandLineOption(0) {}
 
@@ -256,4 +256,4 @@ size_t CommandLineParser::parse(char* argv[],
   return operand_count;
 }
 
-} } /* namespace MATHUSLA::MU */
+} /* namespace MATHUSLA */

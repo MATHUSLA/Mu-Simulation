@@ -2,6 +2,7 @@
 #define UTIL_FILEIO_HH
 #pragma once
 
+#include <cstdio>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -9,7 +10,7 @@
 #include <windows.h>
 #endif
 
-namespace MATHUSLA { namespace MU {
+namespace MATHUSLA {
 
 namespace IO {
 
@@ -21,8 +22,21 @@ inline int create_directory(const std::string& dir) {
   #endif
 }
 
+inline bool file_exists(const std::string& path) {
+  struct stat info;
+  return !stat(path.c_str(), &info);
+}
+
+inline bool remove_file(const std::string& path) {
+  return !remove(path.c_str());
+}
+
+inline bool rename_file(const std::string& path, const std::string& new_path) {
+  return !rename(path.c_str(), new_path.c_str());
+}
+
 } /* namespace IO */
 
-} } /* namespace MATHUSLA::MU */
+} /* namespace MATHUSLA */
 
 #endif /* UTIL_FILEIO_HH */

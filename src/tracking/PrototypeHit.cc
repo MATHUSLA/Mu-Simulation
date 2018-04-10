@@ -21,32 +21,27 @@ PrototypeHit::PrototypeHit(const G4String& particle,
       _momentum(momentum) {}
 
 void PrototypeHit::Draw() {
-  auto point = VIS::Circle(_position.vect(), 4, G4Color::White());
-  VIS::Draw(point);
+  VIS::Draw(VIS::Circle(_position.vect(), 4, G4Color::White()));
 }
 
 void PrototypeHit::Print() {
-  Print(G4cout);
-}
-
-void PrototypeHit::Print(std::ostream& os) {
-  os << " "            << _particle
-     << " | "          << _trackID
-     << " | "          << _parentID
-     << " | "          << _chamberID
-     << " | Deposit: " << std::setw(9) << G4BestUnit(_deposit, "Energy")
-     << " | ["
-       << std::setw(9) << G4BestUnit(_position.t(), "Time") << " "
-       << std::setw(9) << G4BestUnit(_position.x(), "Length")
-       << std::setw(9) << G4BestUnit(_position.y(), "Length")
-       << std::setw(9) << G4BestUnit(_position.z(), "Length")
-     << "] | ["
-       << std::setw(9) << G4BestUnit(_momentum.e(),  "Energy")
-       << std::setw(9) << G4BestUnit(_momentum.px(), "Momentum")
-       << std::setw(9) << G4BestUnit(_momentum.py(), "Momentum")
-       << std::setw(9) << G4BestUnit(_momentum.pz(), "Momentum")
-     << " ]"
-     << "\n";
+  G4cout << " "            << _particle
+         << " | "          << _trackID
+         << " | "          << _parentID
+         << " | "          << _chamberID
+         << " | Deposit: " << std::setw(9) << G4BestUnit(_deposit, "Energy")
+         << " | ["
+           << std::setw(9) << G4BestUnit(_position.t(), "Time") << " "
+           << std::setw(9) << G4BestUnit(_position.x(), "Length")
+           << std::setw(9) << G4BestUnit(_position.y(), "Length")
+           << std::setw(9) << G4BestUnit(_position.z(), "Length")
+         << "] | ["
+           << std::setw(9) << G4BestUnit(_momentum.e(),  "Energy")
+           << std::setw(9) << G4BestUnit(_momentum.px(), "Momentum")
+           << std::setw(9) << G4BestUnit(_momentum.py(), "Momentum")
+           << std::setw(9) << G4BestUnit(_momentum.pz(), "Momentum")
+         << " ]"
+         << "\n";
 }
 
 } } /* namespace MATHUSLA::MU */

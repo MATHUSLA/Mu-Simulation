@@ -12,20 +12,37 @@ namespace MATHUSLA { namespace MU {
 
 namespace VIS {
 
-bool Draw(const G4VMarker& marker);
+inline bool Draw(const G4VMarker& marker) {
+  auto pVVisManager = G4VVisManager::GetConcreteInstance();
+  if (pVVisManager) {
+    pVVisManager->Draw(marker);
+    return true;
+  }
+  return false;
+}
 
-G4Circle Circle(const G4ThreeVector& point,
+inline G4Circle Circle(const G4ThreeVector& point,
                 const G4double size,
                 const G4VMarker::FillStyle fill=G4VMarker::FillStyle::filled,
-                const G4VisAttributes& attr=G4VisAttributes());
+                const G4VisAttributes& attr=G4VisAttributes()) {
+  auto out = G4Circle(point);
+  out.SetScreenSize(size);
+  out.SetFillStyle(fill);
+  out.SetVisAttributes(attr);
+  return out;
+}
 
-G4Circle Circle(const G4ThreeVector& point,
-                const G4double size,
-                const G4VisAttributes& attr);
+inline G4Circle Circle(const G4ThreeVector& point,
+                       const G4double size,
+                       const G4VisAttributes& attr) {
+  return Circle(point, size, G4VMarker::FillStyle::filled, attr);
+}
 
-G4Circle Circle(const G4ThreeVector& point,
-                const G4double size,
-                const G4Color& color);
+inline G4Circle Circle(const G4ThreeVector& point,
+                       const G4double size,
+                       const G4Color& color) {
+  return Circle(point, size, G4VisAttributes(color));
+}
 
 }
 

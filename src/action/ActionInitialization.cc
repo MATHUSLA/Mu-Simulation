@@ -2,9 +2,6 @@
 
 #include "action/RunAction.hh"
 #include "action/EventAction.hh"
-#include "action/SteppingAction.hh"
-#include "action/TrackingAction.hh"
-#include "action/StackingAction.hh"
 #include "action/GeneratorAction.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -19,9 +16,6 @@ void ActionInitialization::BuildForMaster() const {
 void ActionInitialization::Build() const {
   SetUserAction(new RunAction);
   SetUserAction(new EventAction(100));
-  SetUserAction(new SteppingAction);
-  SetUserAction(new TrackingAction);
-  SetUserAction(new StackingAction);
   SetUserAction(new GeneratorAction(_generator));
 }
 
