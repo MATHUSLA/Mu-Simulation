@@ -24,6 +24,7 @@ public:
     static G4Element* S;
     static G4Element* Ar;
     static G4Material* Air;
+    static G4Material* Aluminum;
     static void Define();
    private:
     Material();
@@ -39,13 +40,13 @@ public:
   static const G4VisAttributes SensitiveAttributes();
   static const G4VisAttributes CasingAttributes();
 
-  static G4Trap* Trap(const G4String& name,
+  static G4Trap* Trap(const std::string& name,
                       const G4double height,
                       const G4double minwidth,
                       const G4double maxwidth,
                       const G4double depth);
 
-  static G4LogicalVolume* Volume(const G4String& name,
+  static G4LogicalVolume* Volume(const std::string& name,
                                  G4VSolid* solid,
                                  G4Material* material
                                    =Material::Air,
@@ -58,14 +59,14 @@ public:
                                  const G4VisAttributes& attr
                                    =G4VisAttributes());
 
-  static G4LogicalVolume* Volume(const G4String& name,
+  static G4LogicalVolume* Volume(const std::string& name,
                                  G4VSolid* solid,
                                  const G4VisAttributes& attr);
 
   static G4LogicalVolume* Volume(G4VSolid* solid,
                                  const G4VisAttributes& attr);
 
-  static G4LogicalVolume* BoxVolume(const G4String& name,
+  static G4LogicalVolume* BoxVolume(const std::string& name,
                                     const G4double width,
                                     const G4double height,
                                     const G4double depth,
@@ -74,7 +75,7 @@ public:
                                     const G4VisAttributes& attr
                                       =G4VisAttributes());
 
-  static G4LogicalVolume* OpenBoxVolume(const G4String& name,
+  static G4LogicalVolume* OpenBoxVolume(const std::string& name,
                                         const G4double width,
                                         const G4double height,
                                         const G4double depth,
@@ -84,7 +85,7 @@ public:
                                         const G4VisAttributes& attr
                                           =G4VisAttributes());
 
-  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+  static G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                         G4LogicalVolume* current,
                                         G4LogicalVolume* parent,
                                         const G4Transform3D& transform
@@ -95,7 +96,7 @@ public:
                                         const G4Transform3D& transform
                                             =G4Transform3D());
 
-  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+  static G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                         G4VSolid* solid,
                                         G4Material* material,
                                         G4LogicalVolume* parent,
@@ -108,7 +109,7 @@ public:
                                         const G4Transform3D& transform
                                             =G4Transform3D());
 
-  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+  static G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                         G4LogicalVolume* current,
                                         const G4VisAttributes& attr,
                                         G4LogicalVolume* parent,
@@ -121,7 +122,7 @@ public:
                                         const G4Transform3D& transform
                                             =G4Transform3D());
 
-  static G4VPhysicalVolume* PlaceVolume(const G4String& name,
+  static G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                         G4VSolid* solid,
                                         G4Material* material,
                                         const G4VisAttributes& attr,
@@ -159,6 +160,14 @@ public:
                               const G4double axisy,
                               const G4double axisz,
                               const G4double angle);
+
+  static void Export(const G4LogicalVolume* volume,
+                     const std::string& file,
+                     const std::string& schema="");
+
+  static void Export(const G4VPhysicalVolume* volume,
+                     const std::string& file,
+                     const std::string& schema="");
 };
 
 } } /* namespace MATHUSLA::MU */

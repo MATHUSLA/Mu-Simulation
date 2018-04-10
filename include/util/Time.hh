@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 
-namespace MATHUSLA { namespace MU {
+namespace MATHUSLA {
 
 namespace Time {
 
@@ -28,6 +28,6 @@ inline const std::string GetTime() { return GetString(TimeFormat); }
 
 } /* namespace Time */
 
-} } /* namespace MATHUSLA::MU */
+} /* namespace MATHUSLA */
 
 #endif /* UTIL_TIME_HH */

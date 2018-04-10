@@ -11,35 +11,29 @@
 #include "Geant4/G4SolidStore.hh"
 #include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4NistManager.hh"
+#include "Geant4/G4GDMLParser.hh"
 
 #include "detector/Earth.hh"
 #include "detector/Prototype.hh"
+#include "util/FileIO.hh"
 
 namespace MATHUSLA { namespace MU {
 
-G4Element*  Construction::Material::H   = nullptr;
-G4Element*  Construction::Material::C   = nullptr;
-G4Element*  Construction::Material::N   = nullptr;
-G4Element*  Construction::Material::O   = nullptr;
-G4Element*  Construction::Material::F   = nullptr;
-G4Element*  Construction::Material::S   = nullptr;
-G4Element*  Construction::Material::Ar  = nullptr;
-G4Material* Construction::Material::Air = nullptr;
+static const auto _nist = G4NistManager::Instance();
+
+auto Construction::Material::H = _nist->FindOrBuildElement("H");
+auto Construction::Material::C = _nist->FindOrBuildElement("C");
+auto Construction::Material::N = _nist->FindOrBuildElement("N");
+auto Construction::Material::O = _nist->FindOrBuildElement("O");
+auto Construction::Material::F = _nist->FindOrBuildElement("F");
+auto Construction::Material::S = _nist->FindOrBuildElement("S");
+auto Construction::Material::Ar = _nist->FindOrBuildElement("Ar");
+auto Construction::Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
+auto Construction::Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
 
 G4VPhysicalVolume* Construction::WorldVolume = nullptr;
 
 void Construction::Material::Define() {
-  G4NistManager* manager = G4NistManager::Instance();
-
-  Material::H = manager->FindOrBuildElement("H");
-  Material::C = manager->FindOrBuildElement("C");
-  Material::N = manager->FindOrBuildElement("N");
-  Material::O = manager->FindOrBuildElement("O");
-  Material::F = manager->FindOrBuildElement("F");
-  Material::S = manager->FindOrBuildElement("S");
-  Material::Ar = manager->FindOrBuildElement("Ar");
-  Material::Air = manager->FindOrBuildMaterial("G4_AIR");
-
   Earth::Material::Define();
   Prototype::Material::Define();
 
@@ -62,8 +56,8 @@ G4VPhysicalVolume* Construction::Construct() {
 
   auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength);
 
-  Earth::Construct(worldLV);
-  Prototype::Construct(worldLV);
+  Export(Earth::Construct(worldLV), "earth.gdml");
+  Export(Prototype::Construct(worldLV), "prototype.gdml");
 
   WorldVolume = PlaceVolume(worldLV, nullptr);
   return WorldVolume;
@@ -85,7 +79,7 @@ const G4VisAttributes Construction::CasingAttributes() {
   return attr;
 }
 
-G4Trap* Construction::Trap(const G4String& name,
+G4Trap* Construction::Trap(const std::string& name,
                            const G4double height,
                            const G4double minwidth,
                            const G4double maxwidth,
@@ -96,7 +90,7 @@ G4Trap* Construction::Trap(const G4String& name,
     0.5 * depth, 0.5 * maxwidth, 0.5 * maxwidth, 0);
 }
 
-G4LogicalVolume* Construction::Volume(const G4String& name,
+G4LogicalVolume* Construction::Volume(const std::string& name,
                                       G4VSolid* solid,
                                       G4Material* material,
                                       const G4VisAttributes& attr) {
@@ -111,7 +105,7 @@ G4LogicalVolume* Construction::Volume(G4VSolid* solid,
   return Volume(solid->GetName(), solid, material, attr);
 }
 
-G4LogicalVolume* Construction::Volume(const G4String& name,
+G4LogicalVolume* Construction::Volume(const std::string& name,
                                       G4VSolid* solid,
                                       const G4VisAttributes& attr) {
   return Volume(name, solid, Material::Air, attr);
@@ -122,7 +116,7 @@ G4LogicalVolume* Construction::Volume(G4VSolid* solid,
   return Volume(solid, Material::Air, attr);
 }
 
-G4LogicalVolume* Construction::BoxVolume(const G4String& name,
+G4LogicalVolume* Construction::BoxVolume(const std::string& name,
                                          const G4double width,
                                          const G4double height,
                                          const G4double depth,
@@ -133,7 +127,7 @@ G4LogicalVolume* Construction::BoxVolume(const G4String& name,
     material, attr);
 }
 
-G4LogicalVolume* Construction::OpenBoxVolume(const G4String& name,
+G4LogicalVolume* Construction::OpenBoxVolume(const std::string& name,
                                              const G4double width,
                                              const G4double height,
                                              const G4double depth,
@@ -151,7 +145,7 @@ G4LogicalVolume* Construction::OpenBoxVolume(const G4String& name,
   return Volume(new G4SubtractionSolid(name, outer, inner), material, attr);
 }
 
-G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+G4VPhysicalVolume* Construction::PlaceVolume(const std::string& name,
                                              G4LogicalVolume* current,
                                              G4LogicalVolume* parent,
                                              const G4Transform3D& transform) {
@@ -164,7 +158,7 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4LogicalVolume* current,
   return PlaceVolume(current->GetName(), current, parent, transform);
 }
 
-G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+G4VPhysicalVolume* Construction::PlaceVolume(const std::string& name,
                                              G4VSolid* solid,
                                              G4Material* material,
                                              G4LogicalVolume* parent,
@@ -180,7 +174,7 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4VSolid* solid,
 }
 
 
-G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+G4VPhysicalVolume* Construction::PlaceVolume(const std::string& name,
                                              G4LogicalVolume* current,
                                              const G4VisAttributes& attr,
                                              G4LogicalVolume* parent,
@@ -197,7 +191,7 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4LogicalVolume* current,
   return PlaceVolume(current, parent, transform);
 }
 
-G4VPhysicalVolume* Construction::PlaceVolume(const G4String& name,
+G4VPhysicalVolume* Construction::PlaceVolume(const std::string& name,
                                              G4VSolid* solid,
                                              G4Material* material,
                                              const G4VisAttributes& attr,
@@ -252,6 +246,32 @@ G4Transform3D Construction::Rotate(const G4double axisx,
                                    const G4double axisz,
                                    const G4double angle) {
   return Transform(0, 0, 0, axisx, axisy, axisz, angle);
+}
+
+void Construction::Export(const G4LogicalVolume* volume,
+                          const std::string& file,
+                          const std::string& schema) {
+  IO::create_directory("export");
+  auto path = "export/" + file;
+  if (IO::file_exists(path))
+    IO::remove_file(path);
+
+  static G4ThreadLocal G4GDMLParser _parser;
+  _parser.Write(path, volume, false,
+                schema != "" ? schema : G4GDML_DEFAULT_SCHEMALOCATION);
+}
+
+void Construction::Export(const G4VPhysicalVolume* volume,
+                          const std::string& file,
+                          const std::string& schema) {
+  IO::create_directory("export");
+  auto path = "export/" + file;
+  if (IO::file_exists(path))
+    IO::remove_file(path);
+
+  static G4ThreadLocal G4GDMLParser _parser;
+  _parser.Write(path, volume, false,
+                schema != "" ? schema : G4GDML_DEFAULT_SCHEMALOCATION);
 }
 
 } } /* namespace MATHUSLA::MU */

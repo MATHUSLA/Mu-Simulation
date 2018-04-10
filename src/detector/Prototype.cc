@@ -1,6 +1,7 @@
 #include "detector/Prototype.hh"
 
 #include <algorithm>
+#include <fstream>
 #include <unordered_map>
 #include <vector>
 
@@ -9,6 +10,7 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4RunManager.hh"
 #include "Geant4/G4ios.hh"
+#include "Geant4/G4AffineTransform.hh"
 
 #include "analysis/AnalysisManager.hh"
 #include "physics/Units.hh"
@@ -16,28 +18,33 @@
 
 namespace MATHUSLA { namespace MU {
 
+//__Envelopes and RPCs__________________________________________________________________________
+/*! \brief Static Vectors that hold the Envelopes and RPCs for the Prototype Detector
+*/
 auto Prototype::_envelopes = EnvelopeList();
 auto Prototype::_rpcs = RPCList();
+//----------------------------------------------------------------------------------------------
 
-static std::unordered_map<std::string, Scintillator*> _sci_map;
-static std::unordered_map<std::string, G4int>         _encoding;
-static std::unordered_map<G4int, std::string>         _decoding;
+//__Encoding and Decoding Maps*_________________________________________________________________
+/*! \brief File-Local maps for the encoding and decoding of the scintillators and rpcs
+*/
+static G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
+static G4ThreadLocal std::unordered_map<std::string, G4int>         _encoding;
+static G4ThreadLocal std::unordered_map<G4int, std::string>         _decoding;
+//----------------------------------------------------------------------------------------------
 
+//__Prototype Constructor_______________________________________________________________________
+/*! \brief Creates Detector and Assigns sensitive volumes
+*/
 Prototype::Prototype()
     : G4VSensitiveDetector("MATHUSLA/MU/Prototype"), _hit_collection(nullptr) {
   collectionName.insert("Prototype_HC");
 
-  AnalysisManager::CreateNTuple("prototype", {
-    "Event", "Deposit", "Time", "Detector",
-    "PDG", "TrackID", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-    "TimestampDate", "TimestampTime"
-  });
-
   for (auto envelope : _envelopes) {
     for (auto sci : envelope->GetScintillatorList()) {
       sci->Register(this);
-      auto name = sci->GetFullName();
-      auto id = _decoding.size();
+      const auto name = sci->GetFullName();
+      const auto id = _decoding.size();
       _sci_map.insert({name, sci});
       _encoding.insert({name, id});
       _decoding.insert({id, name});
@@ -48,34 +55,46 @@ Prototype::Prototype()
     rpc->Register(this);
     for (auto pad : rpc->GetPadList()) {
       for (auto strip : pad.strips) {
-        auto name = strip->GetName();
+        const auto name = strip->GetName();
         auto copy = name;
         copy.erase(std::remove(copy.begin(), copy.end(), '_'), copy.end());
-        auto id = std::stoi(copy);
+        const auto id = std::stoi(copy);
         _encoding.insert({name, id});
         _decoding.insert({id, name});
       }
     }
   }
 }
+//----------------------------------------------------------------------------------------------
 
+//__Prototype Material Define___________________________________________________________________
+/*! \brief Defines Materials in Scintillator and RPC Subclasses
+*/
 void Prototype::Material::Define() {
   Scintillator::Material::Define();
   RPC::Material::Define();
 }
+//----------------------------------------------------------------------------------------------
 
+//__Initalize Event__________________________________________________________________________
+/*! \brief Initialzes Prototype Hit Collection
+*/
 void Prototype::Initialize(G4HCofThisEvent* eventHC) {
   _hit_collection = new PrototypeHC(GetName(), collectionName[0]);
   eventHC->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
     _hit_collection);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Hit Processing______________________________________________________________________________
+/*! \brief Collects Data from Hit and Stores in ROOT Ntuple and Geant4 Hit Collection
+*/
 G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
-  auto deposit = step->GetTotalEnergyDeposit();
+  const auto deposit = step->GetTotalEnergyDeposit();
 
-  auto min_deposit = Scintillator::MinDeposit < RPC::MinDeposit ?
-                     Scintillator::MinDeposit : RPC::MinDeposit;
+  const auto min_deposit = Scintillator::MinDeposit < RPC::MinDeposit ?
+                           Scintillator::MinDeposit : RPC::MinDeposit;
 
   if (deposit == 0 || deposit < min_deposit)
     return false;
@@ -101,15 +120,10 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
       G4LorentzVector(global_time, position),
       G4LorentzVector(total_energy, momentum)));
 
-  G4int eventID = 0;
-  auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
-  if (event)
-    eventID = event->GetEventID();
-
-  const auto sensitive_id = EncodeDetector(name);
+  const auto detector_id = EncodeDetector(name);
 
   Scintillator::PMTPoint pmt_point = {0, 0, 0};
-  if (sensitive_id < 100) {
+  if (detector_id < 100) {
     const auto sci = _sci_map[name];
 
     const auto volume1 = history->GetVolume(history->GetDepth() - 1);
@@ -133,11 +147,11 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
-  AnalysisManager::FillNTuple("prototype", {
-    static_cast<G4double>(eventID),
+  const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  AnalysisManager::FillNTuple("event" + std::to_string(eventID), {
     deposit/MeV,
     global_time/ns,
-    static_cast<G4double>(sensitive_id),
+    static_cast<G4double>(detector_id),
     static_cast<G4double>(particle->GetPDGEncoding()),
     static_cast<G4double>(trackID),
     position.x()/cm,
@@ -153,14 +167,16 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   return true;
 }
+//----------------------------------------------------------------------------------------------
 
+//__Post-Event Processing_______________________________________________________________________
+/*! \brief Print data from Hit Collection
+*/
 void Prototype::EndOfEvent(G4HCofThisEvent*) {
-  G4int eventID = 0;
-  auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
-  if (event)
-    eventID = event->GetEventID();
-  auto hitCount = _hit_collection->entries();
+  if (verboseLevel < 2) return;
 
+  const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  const auto hitCount = _hit_collection->entries();
   if (!hitCount) return;
 
   const auto boxside = std::string(25 + std::to_string(eventID).length()
@@ -171,18 +187,16 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
                  + " | Hit Count: " + std::to_string(hitCount)
                  + " |\n" + boxside + '\n';
 
-  if (verboseLevel > 2) G4cout << "\n\n" << box;
+  G4cout << "\n\n" << box;
 
   G4int trackID = -1;
   G4String chamberID = "";
   for (G4int i = 0; i < hitCount; ++i) {
-    auto hit = dynamic_cast<PrototypeHit*>(_hit_collection->GetHit(i));
-
-    auto new_chamberID = hit->GetChamberID();
-    auto new_trackID   = hit->GetTrackID();
-
-    G4bool hit_type     =     chamberID[0] == 'A' ||     chamberID[0] == 'B';
-    G4bool new_hit_type = new_chamberID[0] == 'A' || new_chamberID[0] == 'B';
+    const auto hit = dynamic_cast<PrototypeHit*>(_hit_collection->GetHit(i));
+    const auto new_chamberID = hit->GetChamberID();
+    const auto new_trackID   = hit->GetTrackID();
+    const bool hit_type      =     chamberID[0] == 'A' ||     chamberID[0] == 'B';
+    const bool new_hit_type  = new_chamberID[0] == 'A' || new_chamberID[0] == 'B';
 
     if (i != 0 && (hit_type != new_hit_type || trackID != new_trackID)) {
       const auto barlength = 162
@@ -198,29 +212,46 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
     chamberID = new_chamberID;
     trackID = new_trackID;
 
-    if (verboseLevel > 2) hit->Print();
+    hit->Print();
   }
-  if (verboseLevel > 2) G4cout << '\n';
+  G4cout << '\n';
 }
+//----------------------------------------------------------------------------------------------
 
+//__Detector Encoding___________________________________________________________________________
+/*! \brief Returns encoding generated at construction
+*/
 G4int Prototype::EncodeDetector(const G4String& name) {
   return _encoding[name];
 }
+//----------------------------------------------------------------------------------------------
 
+//__Detector Decoding___________________________________________________________________________
+/*! \brief Returns decoding generated at construction
+*/
 const G4String Prototype::DecodeDetector(G4int id) {
   return _decoding[id];
 }
+//----------------------------------------------------------------------------------------------
 
-/*
-G4int Prototype::EncodeTDC(const G4String& name) {
-  return 0;
-}
-
-const G4String Prototype::DecodeTDC(G4int code) {
-  return "";
-}
+//__Analysis Generation_________________________________________________________________________
+/*! \brief Builds ROOT NTuple for use in post-processing analysis
 */
+bool Prototype::GenerateAnalysis(const G4int event_count) {
+  auto pass = true;
+  for (G4int i = 0; i < event_count; ++i) {
+    pass = pass && AnalysisManager::CreateNTuple("event"+ std::to_string(i), {
+      "Deposit", "Time", "Detector",
+      "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
+      "TimestampDate", "TimestampTime"});
+  }
+  return pass;
+}
+//----------------------------------------------------------------------------------------------
 
+//__Prototype Generator Construction____________________________________________________________
+/*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
+*/
 G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   constexpr G4double total_height = 6649*mm;
 
@@ -236,7 +267,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
 
   auto A10 = new Scintillator("A10", 34.2735559430568*cm, 32.52*cm, 35.78*cm);
   auto A11 = new Scintillator("A11", 39.2697011242604*cm, 35.78*cm, 39.52*cm);
-  auto A12 = new Scintillator("A12",            55.68*cm, 39.52*cm, 43.90*cm);
+  auto A12 = new Scintillator("A12", 55.6800000000000*cm, 39.52*cm, 43.90*cm);
   auto B6  = new Scintillator("B6",  46.9637647033140*cm, 26.31*cm, 30.23*cm);
   auto B7  = new Scintillator("B7",  55.5571344149842*cm, 30.23*cm, 34.79*cm);
   auto B8  = new Scintillator("B8",  66.8484225245044*cm, 34.79*cm, 40.37*cm);
@@ -258,21 +289,19 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto C10 = new Scintillator("C10", 52.2596785953898*cm, 53.55*cm, 57.80*cm);
   auto C11 = new Scintillator("C11", 69.2465722114821*cm, 57.80*cm, 63.53*cm);
 
-  constexpr G4double sci_gap = 5*cm;
+  auto A1_L = new Envelope("A1_L", Bottom, Center, {C3, C4, C5, C6, C7});
+  auto A2_H = new Envelope("A2_H", Bottom, Center, {C3, C4, C5, C6, C7});
+  auto A3_L = new Envelope("A3_L", Bottom, Center, {B7, B8, B9, B10, B11});
+  auto A4_H = new Envelope("A4_H", Top, Center, {B8, B9, B10, B11, B12});
+  auto A5_L = new Envelope("A5_L", Top, Center, {C8, C9, C10, C11});
+  auto A6_H = new Envelope("A6_H", Top, Center, {C8, C9, C10, C11});
 
-  auto A1_L = new Envelope("A1_L", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
-  auto A2_H = new Envelope("A2_H", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
-  auto A3_L = new Envelope("A3_L", sci_gap, Bottom, Center, {B7, B8, B9, B10, B11});
-  auto A4_H = new Envelope("A4_H", sci_gap, Top,    Center, {B8, B9, B10, B11, B12});
-  auto A5_L = new Envelope("A5_L", sci_gap, Top,    Center, {C8, C9, C10, C11});
-  auto A6_H = new Envelope("A6_H", sci_gap, Top,    Center, {C8, C9, C10, C11});
-
-  auto B1_L = new Envelope("B1_L", sci_gap, Bottom, Right,  {C3, C4, B6, B7, C7});
-  auto B2_H = new Envelope("B2_H", sci_gap, Bottom, Center, {C3, C4, C5, C6, C7});
-  auto B3_L = new Envelope("B3_L", sci_gap, Bottom, Right,  {B7, B8, B9, C9, C9});
-  auto B4_H = new Envelope("B4_H", sci_gap, Top,    Left,   {A10, A11, A11, B9, B12_1, B11});
-  auto B5_L = new Envelope("B5_L", sci_gap, Top,    Left,   {A10, A12, C7, C8, C9});
-  auto B6_H = new Envelope("B6_H", sci_gap, Top,    Left,   {B11, B11, C9, B11, B11});
+  auto B1_L = new Envelope("B1_L", Bottom, Right, {C3, C4, B6, B7, C7});
+  auto B2_H = new Envelope("B2_H", Bottom, Right, {C3, C4, C5, C6, C7});
+  auto B3_L = new Envelope("B3_L", Bottom, Right, {B7, B8, B9, C9, C9});
+  auto B4_H = new Envelope("B4_H", Top, Left, {A10, A11, A11, B9, B12_1, B11});
+  auto B5_L = new Envelope("B5_L", Top, Left, {A10, A12, C7, C8, C9});
+  auto B6_H = new Envelope("B6_H", Top, Left, {B11, B11, C9, B11, B11});
 
   _envelopes = EnvelopeList({
     A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
@@ -289,16 +318,13 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   G4double shift_A = 0;
   bool flip_A = 0, stack_A = 0;
   for (auto aenv : {A6_H, A5_L, A4_H, A3_L, A2_H, A1_L}) {
-    auto env_width = flip_A ? aenv->GetBottomWidth() : aenv->GetTopWidth();
+    const auto env_width = flip_A ? aenv->GetBottomWidth() : aenv->GetTopWidth();
     shift_A += 0.5 * env_width;
-    Construction::PlaceVolume(
-      aenv->GetVolume(),
-      layerA,
-      Construction::Transform(
-        0.5 * width_A - shift_A,
-        (stack_A ? 0.5 : -0.5) * envelope_spacing,
-        0.5 * (aenv->GetHeight() - height_A),
-        0, 1, 0, flip_A ? 0*deg : 180*deg));
+    aenv->Place(layerA, Construction::Transform(
+      0.5 * width_A - shift_A,
+      (stack_A ? 0.5 : -0.5) * envelope_spacing,
+      0.5 * (aenv->GetHeight() - height_A),
+      0, 1, 0, flip_A ? 0*deg : 180*deg));
     shift_A += 0.5 * env_width;
     flip_A = !flip_A;
     stack_A = !stack_A;
@@ -314,17 +340,16 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   constexpr G4double rpc_large_spacing    = 1738*mm;
 
   for (short layer_i = 0; layer_i < 6; ++layer_i) {
-    auto layer_mod2 = layer_i % 2;
+    const auto layer_mod2 = layer_i % 2;
     auto layer = Construction::BoxVolume(
       "RPCLayer" + std::to_string(1 + layer_i),
       2 * RPC::Width, RPC::Height, RPC::Depth);
     for (short rpc_i = 1; rpc_i <= 2; ++rpc_i) {
       auto rpc = new RPC(2 * layer_i + rpc_i);
-      Construction::PlaceVolume(rpc->GetVolume(), layer,
-        G4Translate3D(
-          (layer_mod2 ? -1 : 1) * (rpc_i % 2 ? 0.5 : -0.5) * RPC::Width,
-          0,
-          (rpc_i % 2 ? -0.5 : 0.5) * rpc_sublayer_spacing));
+      rpc->Place(layer, G4Translate3D(
+        (layer_mod2 ? -1 : 1) * (rpc_i % 2 ? 0.5 : -0.5) * RPC::Width,
+        0,
+        (rpc_i % 2 ? -0.5 : 0.5) * rpc_sublayer_spacing));
       _rpcs.push_back(rpc);
     }
     Construction::PlaceVolume(layer, Detector,
@@ -345,16 +370,13 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   G4double shift_B = 0;
   bool flip_B = 1, stack_B = 1;
   for (auto benv : {B1_L, B2_H, B3_L}) {
-    auto env_width = flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
+    const auto env_width = flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
     shift_B += 0.5 * env_width;
-    Construction::PlaceVolume(
-      benv->GetVolume(),
-      layerB,
-      Construction::Transform(
-        0.5 * (benv->GetHeight() - height_B),
-        (stack_B ? 0.5 : -0.5) * envelope_spacing,
-        0.5 * width_B - shift_B,
-        0, 1, 0, flip_B ? 90*deg : -90*deg));
+    benv->Place(layerB, Construction::Transform(
+      0.5 * (benv->GetHeight() - height_B),
+      (stack_B ? 0.5 : -0.5) * envelope_spacing,
+      0.5 * width_B - shift_B,
+      0, 1, 0, flip_B ? 90*deg : -90*deg));
     shift_B += 0.5 * env_width;
     flip_B = !flip_B;
     stack_B = !stack_B;
@@ -363,16 +385,13 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   shift_B += 0.5 * (B3_L->GetTopWidth() - B3_L->GetBottomWidth());
 
   for (auto benv : {B4_H, B5_L, B6_H}) {
-    auto env_width = !flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
+    const auto env_width = !flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
     shift_B += 0.5 * env_width;
-    Construction::PlaceVolume(
-      benv->GetVolume(),
-      layerB,
-      Construction::Transform(
-        0.5 * (2 * B4_H->GetHeight() - benv->GetHeight() - height_B),
-        (stack_B ? 0.5 : -0.5) * envelope_spacing,
-        0.5 * width_B - shift_B,
-        0, 1, 0, flip_B ? 90*deg : -90*deg));
+    benv->Place(layerB, Construction::Transform(
+      0.5 * (2 * B4_H->GetHeight() - benv->GetHeight() - height_B),
+      (stack_B ? 0.5 : -0.5) * envelope_spacing,
+      0.5 * width_B - shift_B,
+      0, 1, 0, flip_B ? 90*deg : -90*deg));
     shift_B += 0.5 * env_width;
     flip_B = !flip_B;
     stack_B = !stack_B;
@@ -384,5 +403,6 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   return Construction::PlaceVolume(Detector, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));
 }
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */

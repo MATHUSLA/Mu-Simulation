@@ -5,7 +5,7 @@
 #include <initializer_list>
 #include <vector>
 
-namespace MATHUSLA { namespace MU {
+namespace MATHUSLA {
 
 // TODO: needs work, unstable
 struct CommandLineOption {
@@ -66,6 +66,6 @@ size_t parse(char* argv[], std::initializer_list<CommandLineOption*> options);
 
 } /* namespace CommandLineParser */
 
-} } /* namespace MATHUSLA::MU */
+} /* namespace MATHUSLA */
 
 #endif /* UTIL_COMMANDLINEPARSER_HH */

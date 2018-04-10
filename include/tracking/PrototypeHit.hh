@@ -6,10 +6,8 @@
 
 #include "Geant4/G4Allocator.hh"
 #include "Geant4/G4THitsCollection.hh"
-#include "Geant4/G4ThreeVector.hh"
 #include "Geant4/G4LorentzVector.hh"
 #include "Geant4/G4VHit.hh"
-#include "Geant4/tls.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -30,7 +28,6 @@ public:
 
   void Draw();
   void Print();
-  void Print(std::ostream& os);
 
   inline const G4String& GetParticleName() const { return _particle;  }
   inline G4int           GetTrackID()      const { return _trackID;   }

@@ -10,31 +10,25 @@
 
 #include "detector/Construction.hh"
 
-#include "physics/Units.hh"
-
 namespace MATHUSLA { namespace MU {
 
 Scintillator::Scintillator(const G4String& name,
                            const G4double height,
                            const G4double minwidth,
-                           const G4double maxwidth,
-                           const G4double depth,
-                           const G4double thickness,
-                           const G4double spacing)
-    : _name(name), _height(height), _minwidth(minwidth), _maxwidth(maxwidth),
-      _depth(depth), _thickness(thickness), _spacing(spacing), _solid(nullptr),
-      _volume(nullptr), _sensitive(nullptr), _casing(nullptr), _pmt(nullptr) {
+                           const G4double maxwidth)
+    : name(name), height(height), minwidth(minwidth), maxwidth(maxwidth),
+      lvolume(nullptr), pvolume(nullptr), sensitive(nullptr) {
 
-  _solid = Construction::Trap(name, height, minwidth, maxwidth, depth);
+  auto solid = Construction::Trap(name, height, minwidth, maxwidth, Depth);
 
-  const G4double dims[4] = {height   - thickness, minwidth - thickness,
-                            maxwidth - thickness, depth    - thickness};
+  const G4double dims[4] = {height   - Thickness, minwidth - Thickness,
+                            maxwidth - Thickness, Depth    - Thickness};
 
-  auto casing = new G4SubtractionSolid(name + "_C", _solid,
+  auto casing = new G4SubtractionSolid(name + "_C", solid,
     Construction::Trap("", dims[0], dims[1], dims[2], dims[3]));
 
-  auto sensitive = Construction::Trap(name,
-    dims[0] - spacing, dims[1] - spacing, dims[2] - spacing, dims[3] - spacing);
+  auto sensitive_trap = Construction::Trap(name,
+    dims[0] - Spacing, dims[1] - Spacing, dims[2] - Spacing, dims[3] - Spacing);
 
   auto pmt = new G4Tubs(
     name + "_PMT", 0, PMTRadius, 0.5 * PMTLength, 0, 360.0*deg);
@@ -44,15 +38,15 @@ Scintillator::Scintillator(const G4String& name,
     0, 1, 0, 45*deg);
 
   auto full = new G4UnionSolid(name,
-    new G4UnionSolid("", casing, sensitive), pmt, pmtTransform);
+    new G4UnionSolid("", casing, sensitive_trap), pmt, pmtTransform);
 
-  _volume = Construction::Volume(full, G4VisAttributes(false));
+  lvolume = Construction::Volume(full, G4VisAttributes(false));
 
   auto casingLV = Construction::Volume(casing,
     Material::Casing,
     Construction::CasingAttributes());
 
-  auto sensitiveLV = Construction::Volume(sensitive,
+  auto sensitiveLV = Construction::Volume(sensitive_trap,
     Material::Scintillator,
     Construction::SensitiveAttributes());
 
@@ -60,9 +54,9 @@ Scintillator::Scintillator(const G4String& name,
   pmtAttr.SetForceSolid(true);
   auto pmtLV = Construction::Volume(pmt, Material::PMT, pmtAttr);
 
-  _casing    = Construction::PlaceVolume(casingLV, _volume);
-  _sensitive = Construction::PlaceVolume(sensitiveLV, _volume);
-  _pmt       = Construction::PlaceVolume(pmtLV, _volume, pmtTransform);
+  Construction::PlaceVolume(casingLV, lvolume);
+  sensitive = Construction::PlaceVolume(sensitiveLV, lvolume);
+  Construction::PlaceVolume(pmtLV, lvolume, pmtTransform);
 }
 
 G4Material* Scintillator::Material::PMT          = nullptr;
@@ -71,7 +65,7 @@ G4Material* Scintillator::Material::Scintillator = nullptr;
 
 void Scintillator::Material::Define() {
   Material::PMT = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
-  Material::Casing = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+  Material::Casing = Construction::Material::Aluminum;
 
   Material::Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2);
   Material::Scintillator->AddElement(Construction::Material::C, 9);
@@ -87,7 +81,7 @@ void Scintillator::Material::Define() {
 }
 
 const G4String Scintillator::GetFullName() const {
-  return _sensitive ? _sensitive->GetName() : "";
+  return sensitive ? sensitive->GetName() : name;
 }
 
 Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
@@ -95,15 +89,15 @@ Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
                                                  const G4ThreeVector translation,
                                                  const G4RotationMatrix rotation) {
 
-  auto delta = rotation*(translation - position);
+  const auto delta = rotation*(translation - position);
 
-  auto x = -delta.x();
-  auto y = -delta.z();
+  const auto x = -delta.x();
+  const auto y = -delta.z();
   // Trapezoid coordinates
 
-  auto up_distance = 0.5 * sci->_height - y;
-  auto side_distance = 0.5 * sci->_maxwidth - x;
-  auto center_half_width = 0.25 * (sci->_maxwidth + sci->_minwidth);
+  const auto up_distance = 0.5 * sci->height - y;
+  const auto side_distance = 0.5 * sci->maxwidth - x;
+  const auto center_half_width = 0.25 * (sci->maxwidth + sci->minwidth);
 
   return {
     up_distance,
@@ -113,12 +107,11 @@ Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
 }
 
 void Scintillator::Register(G4VSensitiveDetector* detector) {
-  _sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);
+  sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);
 }
 
 Scintillator* Scintillator::Clone(const Scintillator* other) {
-  return new Scintillator(other->_name, other->_height, other->_minwidth,
-    other->_maxwidth, other->_depth, other->_thickness, other->_spacing);
+  return new Scintillator(other->name, other->height, other->minwidth, other->maxwidth);
 }
 
 } } /* namespace MATHUSLA::MU */

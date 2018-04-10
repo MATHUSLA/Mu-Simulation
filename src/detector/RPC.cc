@@ -6,13 +6,11 @@ RPC::Pad::Pad(int id) : volume(nullptr), strips(), id(id) {}
 
 G4Material* RPC::Material::Casing = nullptr;
 G4Material* RPC::Material::Pad    = nullptr;
-G4Material* RPC::Material::Strip  = nullptr;
 G4Material* RPC::Material::Gas    = nullptr;
 
 void RPC::Material::Define() {
-  Material::Casing = Construction::Material::Air;
+  Material::Casing = Construction::Material::Aluminum;
   Material::Pad    = Construction::Material::Air;
-  Material::Strip  = Construction::Material::Air;
 
   auto C2H2F4 = new G4Material("C2H2F4", 4.1684*g/L, 3);
   C2H2F4->AddElement(Construction::Material::C, 2);
@@ -78,12 +76,15 @@ RPC::RPC(int id)
   }
 }
 
+G4VPhysicalVolume* RPC::Place(G4LogicalVolume* parent, const G4Transform3D& transform) {
+  _placement = Construction::PlaceVolume(_volume, parent, transform);
+  return _placement;
+}
+
 void RPC::Register(G4VSensitiveDetector* detector) {
-  for (const auto& pad : _pads) {
-    for (const auto& strip : pad.strips) {
+  for (const auto& pad : _pads)
+    for (const auto& strip : pad.strips)
       strip->GetLogicalVolume()->SetSensitiveDetector(detector);
-    }
-  }
 }
 
 } } /* namespace MATHUSLA::MU */

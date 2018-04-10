@@ -31,5 +31,6 @@ G4History*
 /build
 /cmake-build*
 /data
+/export
 
 simulation

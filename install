@@ -1,5 +1,5 @@
 #!/bin/bash
-# MATHUSLA (MU) Detector Simulation : Build Script
+# MATHUSLA MU Detector Simulation : Build Script
 
 CONFIG_CMAKE=0
 CLEAN_BUILD=0
@@ -26,7 +26,6 @@ while [[ $# -gt 0 ]]; do
             shift;;
     esac
 done
-
 
 if [[ "$CONFIG_CMAKE" -eq 1 && "$CLEAN_BUILD" -eq 1 ]]; then
     rm -rf build;

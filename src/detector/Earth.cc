@@ -46,22 +46,29 @@ void Material::Define() {
 }
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
+  auto earth = Construction::BoxVolume("Earth",
+    LayerWidthX, LayerWidthY, TotalDepth);
+
   Construction::PlaceVolume(Construction::BoxVolume("Sandstone",
-    LayerWidthX, LayerWidthY, SandstoneDepth,
-    Material::SiO2),
-    world,
-    G4Translate3D(0, 0, 0.5 * SandstoneDepth));
- Construction::PlaceVolume(Construction::BoxVolume("Marl",
-    LayerWidthX, LayerWidthY, MarlDepth,
-    Material::Marl),
-    world,
-    G4Translate3D(0, 0, SandstoneDepth + 0.5 * MarlDepth));
- Construction::PlaceVolume(Construction::BoxVolume("Mix",
-    LayerWidthX, LayerWidthY, MixDepth,
-    Material::Mix),
-    world,
-    G4Translate3D(0, 0, SandstoneDepth + MarlDepth + 0.5 * MixDepth));
-  return nullptr;
+    LayerWidthX, LayerWidthY, SandstoneDepth, Material::SiO2),
+    earth,
+    G4Translate3D(0, 0,
+      0.5 * (SandstoneDepth - TotalDepth)));
+
+  Construction::PlaceVolume(Construction::BoxVolume("Marl",
+    LayerWidthX, LayerWidthY, MarlDepth, Material::Marl),
+    earth,
+    G4Translate3D(0, 0,
+      SandstoneDepth + 0.5 * (MarlDepth - TotalDepth)));
+
+  Construction::PlaceVolume(Construction::BoxVolume("Mix",
+    LayerWidthX, LayerWidthY, MixDepth, Material::Mix),
+    earth,
+    G4Translate3D(0, 0,
+      SandstoneDepth + MarlDepth + 0.5 * (MixDepth - TotalDepth)));
+
+  return Construction::PlaceVolume(earth, world,
+    G4Translate3D(0, 0, 0.5 * TotalDepth));
 }
 
 } /* namespace Earth */

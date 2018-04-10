@@ -15,17 +15,17 @@ GeneratorAction::GeneratorAction(const G4String& generator)
 
   _gen_map.insert({"basic",
     new Generator("basic", "Default Generator.",
-      13, 58*GeVperC, 0, 0*deg
+      13, 60*GeVperC, 0, 0*deg
     )});
 
   _gen_map.insert({"range",
     new RangeGenerator("range", "Default Range Generator.",
-      13, 58*GeVperC, 0.5, 10*deg
+      13, 60*GeVperC, 0.1, 5*deg
     )});
 
   _gen_map.insert({"pythia",
     new PythiaGenerator(
-      -13, 58*GeVperC, 0.5, 10*deg, {
+      -13, 60*GeVperC, 0.5, 10*deg, {
       "Print:quiet = on",
       "Next:numberCount = 10000",
       "Stat:showErrors = off",

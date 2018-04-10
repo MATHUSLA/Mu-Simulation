@@ -9,8 +9,6 @@ namespace MATHUSLA { namespace MU {
 
 class RunAction : public G4UserRunAction {
 public:
-  RunAction();
-  G4Run* GenerateRun();
   void BeginOfRunAction(const G4Run* run);
   void EndOfRunAction(const G4Run* run);
 };
