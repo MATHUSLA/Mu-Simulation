@@ -22,7 +22,7 @@ inline int create_directory(const std::string& dir) {
   #endif
 }
 
-inline bool file_exists(const std::string& path) {
+inline bool path_exists(const std::string& path) {
   struct stat info;
   return !stat(path.c_str(), &info);
 }

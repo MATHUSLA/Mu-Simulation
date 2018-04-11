@@ -60,6 +60,8 @@ G4VPhysicalVolume* Construction::Construct() {
   Export(Prototype::Construct(worldLV), "prototype.gdml");
 
   WorldVolume = PlaceVolume(worldLV, nullptr);
+  Export(WorldVolume, "world.gdml");
+
   return WorldVolume;
 }
 
@@ -253,11 +255,11 @@ void Construction::Export(const G4LogicalVolume* volume,
                           const std::string& schema) {
   IO::create_directory("export");
   auto path = "export/" + file;
-  if (IO::file_exists(path))
+  if (IO::path_exists(path))
     IO::remove_file(path);
 
   static G4ThreadLocal G4GDMLParser _parser;
-  _parser.Write(path, volume, false,
+  _parser.Write(path, volume, true,
                 schema != "" ? schema : G4GDML_DEFAULT_SCHEMALOCATION);
 }
 
@@ -266,11 +268,11 @@ void Construction::Export(const G4VPhysicalVolume* volume,
                           const std::string& schema) {
   IO::create_directory("export");
   auto path = "export/" + file;
-  if (IO::file_exists(path))
+  if (IO::path_exists(path))
     IO::remove_file(path);
 
   static G4ThreadLocal G4GDMLParser _parser;
-  _parser.Write(path, volume, false,
+  _parser.Write(path, volume, true,
                 schema != "" ? schema : G4GDML_DEFAULT_SCHEMALOCATION);
 }
 

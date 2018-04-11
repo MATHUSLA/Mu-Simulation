@@ -16,12 +16,12 @@
 
 using Option = MATHUSLA::CommandLineOption;
 
-auto help_opt   = new Option('h', "help",   "Muon Simulation", Option::NoArguments);
-auto gen_opt    = new Option('g', "gen",    "Generator",       Option::RequiredArguments);
-auto script_opt = new Option('s', "script", "Custom Script",   Option::RequiredArguments);
-auto events_opt = new Option('e', "events", "Event Count",     Option::RequiredArguments);
-auto vis_opt    = new Option('v', "vis",    "Visualization",   Option::NoArguments);
-auto quiet_opt  = new Option('q', "quiet",  "Quiet Mode",      Option::NoArguments);
+auto help_opt   = new Option('h', "help",   "MATHUSLA Muon Simulation", Option::NoArguments);
+auto gen_opt    = new Option('g', "gen",    "Generator",                Option::RequiredArguments);
+auto script_opt = new Option('s', "script", "Custom Script",            Option::RequiredArguments);
+auto events_opt = new Option('e', "events", "Event Count",              Option::RequiredArguments);
+auto vis_opt    = new Option('v', "vis",    "Visualization",            Option::NoArguments);
+auto quiet_opt  = new Option('q', "quiet",  "Quiet Mode",               Option::NoArguments);
 
 auto thread_opt = new Option('j', "threads",
   "Multi-Threading Mode: Specify Optional number of threads (default: 2)",
