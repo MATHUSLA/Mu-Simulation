@@ -6,7 +6,7 @@
 
 namespace MATHUSLA { namespace MU {
 
-ActionInitialization::ActionInitialization(const G4String& generator)
+ActionInitialization::ActionInitialization(const std::string& generator)
     : G4VUserActionInitialization(), _generator(generator) {}
 
 void ActionInitialization::BuildForMaster() const {

@@ -1,5 +1,5 @@
-#ifndef UTIL_TIME_HH
-#define UTIL_TIME_HH
+#ifndef MU__UTIL_TIME_HH
+#define MU__UTIL_TIME_HH
 #pragma once
 
 #include <ctime>
@@ -30,4 +30,4 @@ inline const std::string GetTime() { return GetString(TimeFormat); }
 
 } /* namespace MATHUSLA */
 
-#endif /* UTIL_TIME_HH */
+#endif /* MU__UTIL_TIME_HH */

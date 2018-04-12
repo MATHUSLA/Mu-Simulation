@@ -28,9 +28,11 @@ auto Prototype::_rpcs = RPCList();
 //__Encoding and Decoding Maps*_________________________________________________________________
 /*! \brief File-Local maps for the encoding and decoding of the scintillators and rpcs
 */
+namespace {
 static G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
-static G4ThreadLocal std::unordered_map<std::string, G4int>         _encoding;
-static G4ThreadLocal std::unordered_map<G4int, std::string>         _decoding;
+static G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
+static G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
+} /* annonymous namespace */
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -99,16 +101,16 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   if (deposit == 0 || deposit < min_deposit)
     return false;
 
-  const auto track        =      step->GetTrack();
-  const auto trackID      =     track->GetTrackID();
-  const auto particle     =     track->GetParticleDefinition();
-  const auto history      =     track->GetTouchable()->GetHistory();
-  const auto name         =     history->GetTopVolume()->GetName();
-  const auto post_step    =      step->GetPostStepPoint();
-  const auto global_time  = post_step->GetGlobalTime();
-  const auto position     = post_step->GetPosition();
-  const auto total_energy = post_step->GetTotalEnergy();
-  const auto momentum     = post_step->GetMomentum();
+  const auto track       = step->GetTrack();
+  const auto trackID     = track->GetTrackID();
+  const auto particle    = track->GetParticleDefinition();
+  const auto history     = track->GetTouchable()->GetHistory();
+  const auto name        = history->GetTopVolume()->GetName();
+  const auto post_step   = step->GetPostStepPoint();
+  const auto global_time = post_step->GetGlobalTime();
+  const auto position    = post_step->GetPosition();
+  const auto energy      = post_step->GetTotalEnergy();
+  const auto momentum    = post_step->GetMomentum();
 
   _hit_collection->insert(
     new PrototypeHit(
@@ -118,7 +120,7 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
       name,
       deposit,
       G4LorentzVector(global_time, position),
-      G4LorentzVector(total_energy, momentum)));
+      G4LorentzVector(energy, momentum)));
 
   const auto detector_id = EncodeDetector(name);
 
@@ -151,13 +153,13 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   AnalysisManager::FillNTuple("event" + std::to_string(eventID), {
     deposit/MeV,
     global_time/ns,
-    static_cast<G4double>(detector_id),
-    static_cast<G4double>(particle->GetPDGEncoding()),
-    static_cast<G4double>(trackID),
+    static_cast<double>(detector_id),
+    static_cast<double>(particle->GetPDGEncoding()),
+    static_cast<double>(trackID),
     position.x()/cm,
     position.y()/cm,
     position.z()/cm,
-    total_energy/MeV,
+    energy/MeV,
     momentum.x()/MeVperC,
     momentum.y()/MeVperC,
     momentum.z()/MeVperC,
@@ -187,11 +189,11 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
                  + " | Hit Count: " + std::to_string(hitCount)
                  + " |\n" + boxside + '\n';
 
-  G4cout << "\n\n" << box;
+  std::cout << "\n\n" << box;
 
-  G4int trackID = -1;
-  G4String chamberID = "";
-  for (G4int i = 0; i < hitCount; ++i) {
+  auto trackID = -1;
+  std::string chamberID = "";
+  for (auto i = 0; i < hitCount; ++i) {
     const auto hit = dynamic_cast<PrototypeHit*>(_hit_collection->GetHit(i));
     const auto new_chamberID = hit->GetChamberID();
     const auto new_trackID   = hit->GetTrackID();
@@ -206,7 +208,7 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
         + new_chamberID.length();
       const auto bar = std::string(barlength, '-') + '\n';
 
-      if (verboseLevel > 2) G4cout << bar;
+      if (verboseLevel > 2) std::cout << bar;
     }
 
     chamberID = new_chamberID;
@@ -214,14 +216,14 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
 
     hit->Print();
   }
-  G4cout << '\n';
+  std::cout << '\n';
 }
 //----------------------------------------------------------------------------------------------
 
 //__Detector Encoding___________________________________________________________________________
 /*! \brief Returns encoding generated at construction
 */
-G4int Prototype::EncodeDetector(const G4String& name) {
+int Prototype::EncodeDetector(const std::string& name) {
   return _encoding[name];
 }
 //----------------------------------------------------------------------------------------------
@@ -229,7 +231,7 @@ G4int Prototype::EncodeDetector(const G4String& name) {
 //__Detector Decoding___________________________________________________________________________
 /*! \brief Returns decoding generated at construction
 */
-const G4String Prototype::DecodeDetector(G4int id) {
+const std::string Prototype::DecodeDetector(int id) {
   return _decoding[id];
 }
 //----------------------------------------------------------------------------------------------
@@ -237,9 +239,9 @@ const G4String Prototype::DecodeDetector(G4int id) {
 //__Analysis Generation_________________________________________________________________________
 /*! \brief Builds ROOT NTuple for use in post-processing analysis
 */
-bool Prototype::GenerateAnalysis(const G4int event_count) {
+bool Prototype::GenerateAnalysis(const int event_count) {
   auto pass = true;
-  for (G4int i = 0; i < event_count; ++i) {
+  for (auto i = 0; i < event_count; ++i) {
     pass = pass && AnalysisManager::CreateNTuple("event"+ std::to_string(i), {
       "Deposit", "Time", "Detector",
       "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
@@ -253,9 +255,9 @@ bool Prototype::GenerateAnalysis(const G4int event_count) {
 /*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
 */
 G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
-  constexpr G4double total_height = 6649*mm;
+  constexpr double total_height = 6649*mm;
 
-  constexpr G4double total_outer_box_height = total_height + 170*mm;
+  constexpr double total_outer_box_height = total_height + 170*mm;
   auto Detector = Construction::BoxVolume(
     "Prototype", 2800*mm, 2800*mm, total_outer_box_height);
 
@@ -306,16 +308,16 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   _envelopes = EnvelopeList({
     A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
 
-  constexpr G4double envelope_spacing = 24*cm;
-  constexpr G4double outer_layer_spacing = total_height - 50*cm;
+  constexpr double envelope_spacing = 24*cm;
+  constexpr double outer_layer_spacing = total_height - 50*cm;
 
 
-  constexpr G4double height_A = 255*cm,
+  constexpr double height_A = 255*cm,
                       width_A = 254*cm,
                       depth_A =  40*cm;
   auto layerA = Construction::BoxVolume("A-Layer", width_A, depth_A, height_A);
 
-  G4double shift_A = 0;
+  double shift_A = 0;
   bool flip_A = 0, stack_A = 0;
   for (auto aenv : {A6_H, A5_L, A4_H, A3_L, A2_H, A1_L}) {
     const auto env_width = flip_A ? aenv->GetBottomWidth() : aenv->GetTopWidth();
@@ -334,10 +336,10 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
     Construction::Transform(0, 0, -0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
 
-  constexpr G4double rpc_top_gap          =  900*mm;
-  constexpr G4double rpc_sublayer_spacing =   97*mm;
-  constexpr G4double rpc_small_spacing    =  344*mm;
-  constexpr G4double rpc_large_spacing    = 1738*mm;
+  constexpr double rpc_top_gap          =  900*mm;
+  constexpr double rpc_sublayer_spacing =   97*mm;
+  constexpr double rpc_small_spacing    =  344*mm;
+  constexpr double rpc_large_spacing    = 1738*mm;
 
   for (short layer_i = 0; layer_i < 6; ++layer_i) {
     const auto layer_mod2 = layer_i % 2;
@@ -362,12 +364,12 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   }
 
 
-  constexpr G4double height_B = 254*cm,
+  constexpr double height_B = 254*cm,
                       width_B = 236*cm,
                       depth_B =  40*cm;
   auto layerB = Construction::BoxVolume("B-Layer", height_B, depth_B, width_B);
 
-  G4double shift_B = 0;
+  double shift_B = 0;
   bool flip_B = 1, stack_B = 1;
   for (auto benv : {B1_L, B2_H, B3_L}) {
     const auto env_width = flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();

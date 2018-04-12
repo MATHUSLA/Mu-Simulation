@@ -1,5 +1,5 @@
-#ifndef UI_COMMAND_HH
-#define UI_COMMAND_HH
+#ifndef MU__UI_COMMAND_HH
+#define MU__UI_COMMAND_HH
 #pragma once
 
 #include "Geant4/G4UIcommand.hh"
@@ -27,4 +27,4 @@ using G4CMD_3VectorUnit = G4UIcmdWith3VectorAndUnit;
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* UI_COMMAND_HH */
+#endif /* MU__UI_COMMAND_HH */

@@ -13,15 +13,15 @@
 namespace MATHUSLA { namespace MU {
 
 Scintillator::Scintillator(const G4String& name,
-                           const G4double height,
-                           const G4double minwidth,
-                           const G4double maxwidth)
+                           const double height,
+                           const double minwidth,
+                           const double maxwidth)
     : name(name), height(height), minwidth(minwidth), maxwidth(maxwidth),
       lvolume(nullptr), pvolume(nullptr), sensitive(nullptr) {
 
   auto solid = Construction::Trap(name, height, minwidth, maxwidth, Depth);
 
-  const G4double dims[4] = {height   - Thickness, minwidth - Thickness,
+  const double dims[4] = {height   - Thickness, minwidth - Thickness,
                             maxwidth - Thickness, Depth    - Thickness};
 
   auto casing = new G4SubtractionSolid(name + "_C", solid,
@@ -71,9 +71,9 @@ void Scintillator::Material::Define() {
   Material::Scintillator->AddElement(Construction::Material::C, 9);
   Material::Scintillator->AddElement(Construction::Material::H, 10);
 
-  constexpr G4int nSci = 1;
-  G4double eSci[nSci] = { 3.10*eV };
-  G4double rSci[nSci] = { 1.58    };
+  constexpr int_fast32_t nSci = 1;
+  double eSci[nSci] = { 3.10*eV };
+  double rSci[nSci] = { 1.58    };
 
   auto sciProp = new G4MaterialPropertiesTable();
   sciProp->AddProperty("RINDEX", eSci, rSci, nSci);

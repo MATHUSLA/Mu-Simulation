@@ -13,10 +13,10 @@ const G4String Generator::MessengerDirectory = "/gen/";
 
 Generator::Generator(const G4String& name,
                      const G4String& description,
-                     const G4int id,
-                     const G4double pT,
-                     const G4double eta,
-                     const G4double phi)
+                     const int id,
+                     const double pT,
+                     const double eta,
+                     const double phi)
     : G4UImessenger(MessengerDirectory + name + '/', description),
       _name(name), _description(description),
       _id(id), _pT(pT), _eta(eta), _phi(phi) {
@@ -76,36 +76,36 @@ G4PrimaryVertex* Generator::DefaultVertex() {
   return new G4PrimaryVertex(0, 0, 100*m, 0);
 }
 
-G4PrimaryParticle* Generator::CreateParticle(const G4int id,
+G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const G4ThreeVector& momentum) {
   return new G4PrimaryParticle(id, momentum.x(), momentum.y(), momentum.z());
 }
 
-G4PrimaryParticle* Generator::CreateParticle(const G4int id,
-                                             const G4double pT,
-                                             const G4double eta,
-                                             const G4double phi) {
+G4PrimaryParticle* Generator::CreateParticle(const int id,
+                                             const double pT,
+                                             const double eta,
+                                             const double phi) {
   return new G4PrimaryParticle(
     id, pT*std::sinh(eta), pT*std::sin(phi), -pT*std::cos(phi));
 }
 
 RangeGenerator::RangeGenerator(const G4String& name,
                                const G4String& description,
-                               const G4int id,
-                               const G4double pT,
-                               const G4double eta,
-                               const G4double phi)
+                               const int id,
+                               const double pT,
+                               const double eta,
+                               const double phi)
     : RangeGenerator(name, description, id, pT, pT, -eta, eta, -phi, phi) {}
 
 RangeGenerator::RangeGenerator(const G4String& name,
                                const G4String& description,
-                               const G4int id,
-                               const G4double pT_min,
-                               const G4double pT_max,
-                               const G4double eta_min,
-                               const G4double eta_max,
-                               const G4double phi_min,
-                               const G4double phi_max)
+                               const int id,
+                               const double pT_min,
+                               const double pT_max,
+                               const double eta_min,
+                               const double eta_max,
+                               const double phi_min,
+                               const double phi_max)
     : Generator(name, description, id, pT_min, 0, 0),
       _pT_min(pT_min), _pT_max(pT_max), _eta_min(eta_min), _eta_max(eta_max),
       _phi_min(phi_min), _phi_max(phi_max) {

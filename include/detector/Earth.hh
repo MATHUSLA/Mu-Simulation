@@ -1,5 +1,5 @@
-#ifndef DETECTOR_EARTH_HH
-#define DETECTOR_EARTH_HH
+#ifndef MU__DETECTOR_EARTH_HH
+#define MU__DETECTOR_EARTH_HH
 #pragma once
 
 #include "Geant4/G4Material.hh"
@@ -22,12 +22,12 @@ struct Material {
   Material();
 };
 
-constexpr G4double LayerWidthX    = 20000*cm;
-constexpr G4double LayerWidthY    = 20000*cm;
-constexpr G4double SandstoneDepth =  4530*cm;
-constexpr G4double MarlDepth      =  1825*cm;
-constexpr G4double MixDepth       =  3645*cm - 10*m;
-constexpr G4double TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
+constexpr double LayerWidthX    = 20000*cm;
+constexpr double LayerWidthY    = 20000*cm;
+constexpr double SandstoneDepth =  4530*cm;
+constexpr double MarlDepth      =  1825*cm;
+constexpr double MixDepth       =  3645*cm - 10*m;
+constexpr double TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
@@ -35,4 +35,4 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* DETECTOR_EARTH_HH */
+#endif /* MU__DETECTOR_EARTH_HH */

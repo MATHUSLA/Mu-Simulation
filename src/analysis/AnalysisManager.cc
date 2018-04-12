@@ -4,7 +4,9 @@
 
 namespace MATHUSLA { namespace MU {
 
-static G4ThreadLocal std::unordered_map<std::string, G4int> _ntuple = {};
+namespace {
+static G4ThreadLocal std::unordered_map<std::string, int> _ntuple = {};
+} /* annonymous namespace */
 
 void AnalysisManager::Setup() {
   _ntuple.clear();
@@ -40,7 +42,7 @@ bool AnalysisManager::CreateNTuple(const std::string& name,
 }
 
 bool AnalysisManager::FillNTuple(const std::string& name,
-                                 const std::initializer_list<const G4double> values) {
+                                 const std::initializer_list<double> values) {
   if (values.size() <= 0)
     return false;
 

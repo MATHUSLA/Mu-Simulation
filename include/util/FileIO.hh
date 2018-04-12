@@ -1,5 +1,5 @@
-#ifndef UTIL_FILEIO_HH
-#define UTIL_FILEIO_HH
+#ifndef MU__UTIL_FILEIO_HH
+#define MU__UTIL_FILEIO_HH
 #pragma once
 
 #include <cstdio>
@@ -39,4 +39,4 @@ inline bool rename_file(const std::string& path, const std::string& new_path) {
 
 } /* namespace MATHUSLA */
 
-#endif /* UTIL_FILEIO_HH */
+#endif /* MU__UTIL_FILEIO_HH */

@@ -1,5 +1,5 @@
-#ifndef DETECTOR_CONSTRUCTION_HH
-#define DETECTOR_CONSTRUCTION_HH
+#ifndef MU__DETECTOR_CONSTRUCTION_HH
+#define MU__DETECTOR_CONSTRUCTION_HH
 #pragma once
 
 #include "Geant4/G4VUserDetectorConstruction.hh"
@@ -30,7 +30,7 @@ public:
     Material();
   };
 
-  constexpr static G4double WorldLength = 240*m;
+  constexpr static double WorldLength = 240*m;
 
   static G4VPhysicalVolume* WorldVolume;
 
@@ -41,10 +41,10 @@ public:
   static const G4VisAttributes CasingAttributes();
 
   static G4Trap* Trap(const std::string& name,
-                      const G4double height,
-                      const G4double minwidth,
-                      const G4double maxwidth,
-                      const G4double depth);
+                      const double height,
+                      const double minwidth,
+                      const double maxwidth,
+                      const double depth);
 
   static G4LogicalVolume* Volume(const std::string& name,
                                  G4VSolid* solid,
@@ -67,19 +67,19 @@ public:
                                  const G4VisAttributes& attr);
 
   static G4LogicalVolume* BoxVolume(const std::string& name,
-                                    const G4double width,
-                                    const G4double height,
-                                    const G4double depth,
+                                    const double width,
+                                    const double height,
+                                    const double depth,
                                     G4Material* material
                                       =Material::Air,
                                     const G4VisAttributes& attr
                                       =G4VisAttributes());
 
   static G4LogicalVolume* OpenBoxVolume(const std::string& name,
-                                        const G4double width,
-                                        const G4double height,
-                                        const G4double depth,
-                                        const G4double thickness,
+                                        const double width,
+                                        const double height,
+                                        const double depth,
+                                        const double thickness,
                                         G4Material* material
                                           =Material::Air,
                                         const G4VisAttributes& attr
@@ -137,29 +137,29 @@ public:
                                         const G4Transform3D& transform
                                             =G4Transform3D());
 
-  static G4RotationMatrix Matrix(const G4double th1,
-                                 const G4double phi1,
-                                 const G4double th2,
-                                 const G4double phi2,
-                                 const G4double th3,
-                                 const G4double phi3);
+  static G4RotationMatrix Matrix(const double th1,
+                                 const double phi1,
+                                 const double th2,
+                                 const double phi2,
+                                 const double th3,
+                                 const double phi3);
 
   static G4Transform3D Transform(const G4ThreeVector& translate,
                                  const G4ThreeVector& axis,
-                                 const G4double angle);
+                                 const double angle);
 
-  static G4Transform3D Transform(const G4double x,
-                                 const G4double y,
-                                 const G4double z,
-                                 const G4double axisx,
-                                 const G4double axisy,
-                                 const G4double axisz,
-                                 const G4double angle);
+  static G4Transform3D Transform(const double x,
+                                 const double y,
+                                 const double z,
+                                 const double axisx,
+                                 const double axisy,
+                                 const double axisz,
+                                 const double angle);
 
-  static G4Transform3D Rotate(const G4double axisx,
-                              const G4double axisy,
-                              const G4double axisz,
-                              const G4double angle);
+  static G4Transform3D Rotate(const double axisx,
+                              const double axisy,
+                              const double axisz,
+                              const double angle);
 
   static void Export(const G4LogicalVolume* volume,
                      const std::string& file,
@@ -172,4 +172,4 @@ public:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* DETECTOR_CONSTRUCTION_HH */
+#endif /* MU__DETECTOR_CONSTRUCTION_HH */

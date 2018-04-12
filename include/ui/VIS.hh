@@ -1,5 +1,5 @@
-#ifndef UI_VIS_HH
-#define UI_VIS_HH
+#ifndef MU__UI_VIS_HH
+#define MU__UI_VIS_HH
 #pragma once
 
 #include "Geant4/G4VMarker.hh"
@@ -22,9 +22,9 @@ inline bool Draw(const G4VMarker& marker) {
 }
 
 inline G4Circle Circle(const G4ThreeVector& point,
-                const G4double size,
-                const G4VMarker::FillStyle fill=G4VMarker::FillStyle::filled,
-                const G4VisAttributes& attr=G4VisAttributes()) {
+                       const double size,
+                       const G4VMarker::FillStyle fill=G4VMarker::FillStyle::filled,
+                       const G4VisAttributes& attr=G4VisAttributes()) {
   auto out = G4Circle(point);
   out.SetScreenSize(size);
   out.SetFillStyle(fill);
@@ -33,19 +33,19 @@ inline G4Circle Circle(const G4ThreeVector& point,
 }
 
 inline G4Circle Circle(const G4ThreeVector& point,
-                       const G4double size,
+                       const double size,
                        const G4VisAttributes& attr) {
   return Circle(point, size, G4VMarker::FillStyle::filled, attr);
 }
 
 inline G4Circle Circle(const G4ThreeVector& point,
-                       const G4double size,
+                       const double size,
                        const G4Color& color) {
   return Circle(point, size, G4VisAttributes(color));
 }
 
-}
+} /* namespace VIS */
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* UI_VIS_HH */
+#endif /* MU__UI_VIS_HH */

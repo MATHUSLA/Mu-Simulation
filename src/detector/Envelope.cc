@@ -19,9 +19,9 @@ Envelope::Envelope(const G4String& name,
     _height += s->height;
 
   const auto align = static_cast<signed char>(alignment);
-  std::vector<G4double> transform{};
-  G4double align_shift = 0, stack_shift = 0;
-  G4double last_maxwidth = _scintillators[0]->minwidth;
+  std::vector<double> transform{};
+  double align_shift = 0, stack_shift = 0;
+  double last_maxwidth = _scintillators[0]->minwidth;
   bool layer = layer_type == LayerType::BottomFirst;
 
   _bottom_width = last_maxwidth;

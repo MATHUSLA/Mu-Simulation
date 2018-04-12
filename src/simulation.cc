@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
   }
 
   if (script_opt->argument && events_opt->argument) {
-    G4cout << "[FATAL ERROR] Incompatible Arguments: "
-           << "a script OR an event count can be provided, but not both.\n";
+    std::cout << "[FATAL ERROR] Incompatible Arguments: "
+              << "a script OR an event count can be provided, but not both.\n";
     exit(EXIT_FAILURE);
   }
 
@@ -64,13 +64,13 @@ int main(int argc, char* argv[]) {
     runManager->SetNumberOfThreads(thread_opt->count);
 
     if (thread_opt->count > 1) {
-      G4cout << "Running " << thread_opt->count << " Threads.\n";
+      std::cout << "Running " << thread_opt->count << " Threads.\n";
     } else {
-      G4cout << "Running 1 Thread.\n";
+      std::cout << "Running 1 Thread.\n";
     }
   #else
     auto runManager = new G4RunManager;
-    G4cout << "Running in Single Threaded Mode.\n";
+    std::cout << "Running in Single Threaded Mode.\n";
   #endif
 
   runManager->SetPrintProgress(1000);

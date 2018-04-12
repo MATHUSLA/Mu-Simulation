@@ -6,29 +6,29 @@
 
 namespace MATHUSLA { namespace MU {
 
-PythiaGenerator::PythiaGenerator(const G4int id,
-                                 const G4double pT,
-                                 const G4double eta,
-                                 const G4double phi,
+PythiaGenerator::PythiaGenerator(const int id,
+                                 const double pT,
+                                 const double eta,
+                                 const double phi,
                                  Pythia8::Pythia* pythia)
     : PythiaGenerator(id, pT, pT, -eta, eta, -phi, phi, pythia) {}
 
-PythiaGenerator::PythiaGenerator(const G4int id,
-                                 const G4double pT,
-                                 const G4double eta,
-                                 const G4double phi,
+PythiaGenerator::PythiaGenerator(const int id,
+                                 const double pT,
+                                 const double eta,
+                                 const double phi,
                                  std::initializer_list<std::string> settings)
     : PythiaGenerator(id, pT, eta, phi) {
   SetPythia(settings);
 }
 
-PythiaGenerator::PythiaGenerator(const G4int id,
-                                 const G4double pT_min,
-                                 const G4double pT_max,
-                                 const G4double eta_min,
-                                 const G4double eta_max,
-                                 const G4double phi_min,
-                                 const G4double phi_max,
+PythiaGenerator::PythiaGenerator(const int id,
+                                 const double pT_min,
+                                 const double pT_max,
+                                 const double eta_min,
+                                 const double eta_max,
+                                 const double phi_min,
+                                 const double phi_max,
                                  Pythia8::Pythia* pythia)
     : RangeGenerator("pythia", "Pythia8 Generator.", id,
                      pT_min, pT_max, eta_min, eta_max, phi_min, phi_max) {
@@ -44,13 +44,13 @@ PythiaGenerator::PythiaGenerator(const G4int id,
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
-PythiaGenerator::PythiaGenerator(const G4int id,
-                                 const G4double pT_min,
-                                 const G4double pT_max,
-                                 const G4double eta_min,
-                                 const G4double eta_max,
-                                 const G4double phi_min,
-                                 const G4double phi_max,
+PythiaGenerator::PythiaGenerator(const int id,
+                                 const double pT_min,
+                                 const double pT_max,
+                                 const double eta_min,
+                                 const double eta_max,
+                                 const double phi_min,
+                                 const double phi_max,
                                  std::initializer_list<std::string> settings)
     : PythiaGenerator(id, pT_min, pT_max, eta_min, eta_max, phi_min, phi_max) {
   SetPythia(settings);
@@ -85,7 +85,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
     // delete _pythia;
     _pythia = _set_pythia(_settings);
   } else if (!_pythia) {
-    G4cout << "\n[ERROR] No Pythia Configuration Specified.\n";
+    std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
 
   Pythia8::Particle* particle = nullptr;
@@ -98,12 +98,12 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
     if (particle) break;
   }
 
-  G4cout << "\n\nPythiaGenerator:\n"
-         << "  Attempt " << counter << " | Filtered Particle: "
-         << particle->id()  << " "
-         << particle->pT()  << " "
-         << particle->eta() << " "
-         << particle->phi() << "\n\n\n";
+  std::cout << "\n\nPythiaGenerator:\n"
+            << "  Attempt " << counter << " | Filtered Particle: "
+            << particle->id()  << " "
+            << particle->pT()  << " "
+            << particle->eta() << " "
+            << particle->phi() << "\n\n\n";
 
   auto vertex = DefaultVertex();
 

@@ -43,9 +43,9 @@ void RunAction::EndOfRunAction(const G4Run* run) {
 
   _info.close();
 
-  G4cout << "\nEnd of Run\n"
-         << "Data File: " << _path << ".root\n"
-         << "Info File: " << _path << ".info\n\n";
+  std::cout << "\nEnd of Run\n"
+            << "Data File: " << _path << ".root\n"
+            << "Info File: " << _path << ".info\n\n";
 }
 
 } } /* namespace MATHUSLA::MU */
