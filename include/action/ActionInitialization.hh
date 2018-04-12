@@ -1,5 +1,5 @@
-#ifndef ACTION_ACTIONINITIALIZATION_HH
-#define ACTION_ACTIONINITIALIZATION_HH
+#ifndef MU__ACTION_ACTIONINITIALIZATION_HH
+#define MU__ACTION_ACTIONINITIALIZATION_HH
 #pragma once
 
 #include "Geant4/globals.hh"
@@ -9,14 +9,14 @@ namespace MATHUSLA { namespace MU {
 
 class ActionInitialization : public G4VUserActionInitialization {
 public:
-  ActionInitialization(const G4String& generator="");
+  ActionInitialization(const std::string& generator="");
 
   void BuildForMaster() const;
   void Build() const;
 private:
-  G4String _generator;
+  std::string _generator;
 };
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* ACTION_ACTIONINITIALIZATION_HH */
+#endif /* MU__ACTION_ACTIONINITIALIZATION_HH */

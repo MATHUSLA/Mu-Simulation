@@ -1,5 +1,5 @@
-#ifndef SCRIPTS_ANALYSIS_HELPER_HH
-#define SCRIPTS_ANALYSIS_HELPER_HH
+#ifndef MU__SCRIPTS_ANALYSIS_HELPER_HH
+#define MU__SCRIPTS_ANALYSIS_HELPER_HH
 #pragma once
 
 #include <string>
@@ -72,4 +72,4 @@ void collect_paths(TSystemDirectory* dir, std::vector<std::string>& paths, const
 
 } /* namespace helper */
 
-#endif /* SCRIPTS_ANALYSIS_HELPER_HH */
+#endif /* MU__SCRIPTS_ANALYSIS_HELPER_HH */

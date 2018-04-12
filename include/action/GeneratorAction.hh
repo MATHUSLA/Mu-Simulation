@@ -1,5 +1,5 @@
-#ifndef ACTION_GENERATORACTION_HH
-#define ACTION_GENERATORACTION_HH
+#ifndef MU__ACTION_GENERATORACTION_HH
+#define MU__ACTION_GENERATORACTION_HH
 #pragma once
 
 #include <unordered_map>
@@ -33,4 +33,4 @@ private:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* ACTION_GENERATORACTION_HH */
+#endif /* MU__ACTION_GENERATORACTION_HH */

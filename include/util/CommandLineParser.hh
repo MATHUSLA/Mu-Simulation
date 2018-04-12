@@ -1,5 +1,5 @@
-#ifndef UTIL_COMMANDLINEPARSER_HH
-#define UTIL_COMMANDLINEPARSER_HH
+#ifndef MU__UTIL_COMMANDLINEPARSER_HH
+#define MU__UTIL_COMMANDLINEPARSER_HH
 #pragma once
 
 #include <initializer_list>
@@ -68,4 +68,4 @@ size_t parse(char* argv[], std::initializer_list<CommandLineOption*> options);
 
 } /* namespace MATHUSLA */
 
-#endif /* UTIL_COMMANDLINEPARSER_HH */
+#endif /* MU__UTIL_COMMANDLINEPARSER_HH */

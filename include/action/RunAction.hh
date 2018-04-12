@@ -1,5 +1,5 @@
-#ifndef ACTION_RUNACTION_HH
-#define ACTION_RUNACTION_HH
+#ifndef MU__ACTION_RUNACTION_HH
+#define MU__ACTION_RUNACTION_HH
 #pragma once
 
 #include "Geant4/G4UserRunAction.hh"
@@ -15,4 +15,4 @@ public:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* ACTION_RUNACTION_HH */
+#endif /* MU__ACTION_RUNACTION_HH */

@@ -36,8 +36,7 @@ G4VPhysicalVolume* Construction::WorldVolume = nullptr;
 void Construction::Material::Define() {
   Earth::Material::Define();
   Prototype::Material::Define();
-
-  G4cout << *G4Material::GetMaterialTable() << '\n';
+  std::cout << *G4Material::GetMaterialTable() << '\n';
 }
 
 G4VPhysicalVolume* Construction::Construct() {
@@ -50,9 +49,9 @@ G4VPhysicalVolume* Construction::Construct() {
 
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(WorldLength);
 
-  G4cout << "Computed tolerance = "
-         << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance()/m
-         << " m\n";
+  std::cout << "Computed tolerance = "
+            << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance()/m
+            << " m\n";
 
   auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength);
 
@@ -82,10 +81,10 @@ const G4VisAttributes Construction::CasingAttributes() {
 }
 
 G4Trap* Construction::Trap(const std::string& name,
-                           const G4double height,
-                           const G4double minwidth,
-                           const G4double maxwidth,
-                           const G4double depth) {
+                           const double height,
+                           const double minwidth,
+                           const double maxwidth,
+                           const double depth) {
   return new G4Trap(name,
     0.5 * height, 0, 0,
     0.5 * depth, 0.5 * minwidth, 0.5 * minwidth, 0,
@@ -119,9 +118,9 @@ G4LogicalVolume* Construction::Volume(G4VSolid* solid,
 }
 
 G4LogicalVolume* Construction::BoxVolume(const std::string& name,
-                                         const G4double width,
-                                         const G4double height,
-                                         const G4double depth,
+                                         const double width,
+                                         const double height,
+                                         const double depth,
                                          G4Material* material,
                                          const G4VisAttributes& attr) {
   return Volume(
@@ -130,10 +129,10 @@ G4LogicalVolume* Construction::BoxVolume(const std::string& name,
 }
 
 G4LogicalVolume* Construction::OpenBoxVolume(const std::string& name,
-                                             const G4double width,
-                                             const G4double height,
-                                             const G4double depth,
-                                             const G4double thickness,
+                                             const double width,
+                                             const double height,
+                                             const double depth,
+                                             const double thickness,
                                              G4Material* material,
                                              const G4VisAttributes& attr) {
   auto outer = new G4Box(name,
@@ -210,12 +209,12 @@ G4VPhysicalVolume* Construction::PlaceVolume(G4VSolid* solid,
   return PlaceVolume(Volume(solid, material, attr), parent, transform);
 }
 
-G4RotationMatrix Construction::Matrix(const G4double th1, const G4double phi1,
-                                      const G4double th2, const G4double phi2,
-                                      const G4double th3, const G4double phi3) {
-  const G4double sinth1 = std::sin(th1);
-  const G4double sinth2 = std::sin(th2);
-  const G4double sinth3 = std::sin(th3);
+G4RotationMatrix Construction::Matrix(const double th1, const double phi1,
+                                      const double th2, const double phi2,
+                                      const double th3, const double phi3) {
+  const double sinth1 = std::sin(th1);
+  const double sinth2 = std::sin(th2);
+  const double sinth3 = std::sin(th3);
   auto matrix = G4RotationMatrix();
   matrix.rotateAxes(
     G4ThreeVector(sinth1*std::cos(phi1), sinth1*std::sin(phi1), std::cos(th1)),
@@ -228,25 +227,25 @@ G4RotationMatrix Construction::Matrix(const G4double th1, const G4double phi1,
 
 G4Transform3D Construction::Transform(const G4ThreeVector& translate,
                                       const G4ThreeVector& axis,
-                                      const G4double angle) {
+                                      const double angle) {
   return G4Transform3D(G4RotationMatrix(axis, angle), translate);
 }
 
-G4Transform3D Construction::Transform(const G4double x,
-                                      const G4double y,
-                                      const G4double z,
-                                      const G4double axisx,
-                                      const G4double axisy,
-                                      const G4double axisz,
-                                      const G4double angle) {
+G4Transform3D Construction::Transform(const double x,
+                                      const double y,
+                                      const double z,
+                                      const double axisx,
+                                      const double axisy,
+                                      const double axisz,
+                                      const double angle) {
   return Transform(
     G4ThreeVector(x, y, z), G4ThreeVector(axisx, axisy, axisz), angle);
 }
 
-G4Transform3D Construction::Rotate(const G4double axisx,
-                                   const G4double axisy,
-                                   const G4double axisz,
-                                   const G4double angle) {
+G4Transform3D Construction::Rotate(const double axisx,
+                                   const double axisy,
+                                   const double axisz,
+                                   const double angle) {
   return Transform(0, 0, 0, axisx, axisy, axisz, angle);
 }
 

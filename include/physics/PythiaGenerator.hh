@@ -1,5 +1,5 @@
-#ifndef PHYSICS_PYTHIA8GENERATOR_HH
-#define PHYSICS_PYTHIA8GENERATOR_HH
+#ifndef MU__PHYSICS_PYTHIAGENERATOR_HH
+#define MU__PHYSICS_PYTHIAGENERATOR_HH
 #pragma once
 
 #include <initializer_list>
@@ -16,34 +16,34 @@ namespace MATHUSLA { namespace MU {
 
 class PythiaGenerator : public RangeGenerator {
 public:
-  PythiaGenerator(const G4int id,
-                  const G4double pT,
-                  const G4double eta,
-                  const G4double phi,
+  PythiaGenerator(const int id,
+                  const double pT,
+                  const double eta,
+                  const double phi,
                   Pythia8::Pythia* pythia=nullptr);
 
-  PythiaGenerator(const G4int id,
-                  const G4double pT,
-                  const G4double eta,
-                  const G4double phi,
+  PythiaGenerator(const int id,
+                  const double pT,
+                  const double eta,
+                  const double phi,
                   std::initializer_list<std::string> settings);
 
-  PythiaGenerator(const G4int id,
-                  const G4double pT_min,
-                  const G4double pT_max,
-                  const G4double eta_min,
-                  const G4double eta_max,
-                  const G4double phi_min,
-                  const G4double phi_max,
+  PythiaGenerator(const int id,
+                  const double pT_min,
+                  const double pT_max,
+                  const double eta_min,
+                  const double eta_max,
+                  const double phi_min,
+                  const double phi_max,
                   Pythia8::Pythia* pythia=nullptr);
 
-  PythiaGenerator(const G4int id,
-                  const G4double pT_min,
-                  const G4double pT_max,
-                  const G4double eta_min,
-                  const G4double eta_max,
-                  const G4double phi_min,
-                  const G4double phi_max,
+  PythiaGenerator(const int id,
+                  const double pT_min,
+                  const double pT_max,
+                  const double eta_min,
+                  const double eta_max,
+                  const double phi_min,
+                  const double phi_max,
                   std::initializer_list<std::string> settings);
 
   void GeneratePrimaryVertex(G4Event* event);
@@ -61,4 +61,4 @@ private:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PHYSICS_PYTHIA8GENERATOR_HH */
+#endif /* MU__PHYSICS_PYTHIAGENERATOR_HH */

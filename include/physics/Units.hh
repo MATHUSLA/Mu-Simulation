@@ -1,5 +1,5 @@
-#ifndef PHYSICS_UNITS_HH
-#define PHYSICS_UNITS_HH
+#ifndef MU__PHYSICS_UNITS_HH
+#define MU__PHYSICS_UNITS_HH
 #pragma once
 
 #include "Geant4/G4UnitsTable.hh"
@@ -22,4 +22,4 @@ inline void DefineNewUnits() {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PHYSICS_UNITS_HH */
+#endif /* MU__PHYSICS_UNITS_HH */

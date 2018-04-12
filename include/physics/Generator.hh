@@ -1,5 +1,5 @@
-#ifndef PHYSICS_GENERATOR_HH
-#define PHYSICS_GENERATOR_HH
+#ifndef MU__PHYSICS_GENERATOR_HH
+#define MU__PHYSICS_GENERATOR_HH
 #pragma once
 
 #include "Geant4/G4Event.hh"
@@ -14,10 +14,10 @@ class Generator : public G4UImessenger {
 public:
   Generator(const G4String& name,
             const G4String& description,
-            const G4int id,
-            const G4double pT,
-            const G4double eta,
-            const G4double phi);
+            const int id,
+            const double pT,
+            const double eta,
+            const double phi);
 
   virtual ~Generator() = default;
 
@@ -25,21 +25,21 @@ public:
   virtual void SetNewValue(G4UIcommand* command, G4String value);
 
   inline const G4String& GetName() const { return _name; }
-  inline G4int           id()      const { return _id;   }
-  inline G4double        pT()      const { return _pT;   }
-  inline G4double        eta()     const { return _eta;  }
-  inline G4double        phi()     const { return _phi;  }
+  inline int             id()      const { return _id;   }
+  inline double          pT()      const { return _pT;   }
+  inline double          eta()     const { return _eta;  }
+  inline double          phi()     const { return _phi;  }
 
   virtual const std::string InfoString() const;
 
   static G4PrimaryVertex* DefaultVertex();
-  static G4PrimaryParticle* CreateParticle(const G4int id,
+  static G4PrimaryParticle* CreateParticle(const int id,
                                            const G4ThreeVector& momentum);
 
-  static G4PrimaryParticle* CreateParticle(const G4int id,
-                                           const G4double pT,
-                                           const G4double eta,
-                                           const G4double phi);
+  static G4PrimaryParticle* CreateParticle(const int id,
+                                           const double pT,
+                                           const double eta,
+                                           const double phi);
 
   static const G4String MessengerDirectory;
 
@@ -47,10 +47,10 @@ protected:
   G4String _name;
   G4String _description;
 
-  G4int    _id;
-  G4double _pT;
-  G4double _eta;
-  G4double _phi;
+  int    _id;
+  double _pT;
+  double _eta;
+  double _phi;
 
   G4CMD_Integer*    _ui_id;
   G4CMD_DoubleUnit* _ui_pT;
@@ -62,42 +62,42 @@ class RangeGenerator : public Generator {
 public:
   RangeGenerator(const G4String& name,
                  const G4String& description,
-                 const G4int id,
-                 const G4double pT,
-                 const G4double eta,
-                 const G4double phi);
+                 const int id,
+                 const double pT,
+                 const double eta,
+                 const double phi);
 
   RangeGenerator(const G4String& name,
                  const G4String& description,
-                 const G4int id,
-                 const G4double pT_min,
-                 const G4double pT_max,
-                 const G4double eta_min,
-                 const G4double eta_max,
-                 const G4double phi_min,
-                 const G4double phi_max);
+                 const int id,
+                 const double pT_min,
+                 const double pT_max,
+                 const double eta_min,
+                 const double eta_max,
+                 const double phi_min,
+                 const double phi_max);
 
   virtual ~RangeGenerator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
   virtual void SetNewValue(G4UIcommand* command, G4String value);
 
-  inline G4double pT_min()  const { return _pT_min;  }
-  inline G4double pT_max()  const { return _pT_max;  }
-  inline G4double eta_min() const { return _eta_min; }
-  inline G4double eta_max() const { return _eta_max; }
-  inline G4double phi_min() const { return _phi_min; }
-  inline G4double phi_max() const { return _phi_max; }
+  inline double pT_min()  const { return _pT_min;  }
+  inline double pT_max()  const { return _pT_max;  }
+  inline double eta_min() const { return _eta_min; }
+  inline double eta_max() const { return _eta_max; }
+  inline double phi_min() const { return _phi_min; }
+  inline double phi_max() const { return _phi_max; }
 
   virtual const std::string InfoString() const;
 
 protected:
-  G4double _pT_min;
-  G4double _pT_max;
-  G4double _eta_min;
-  G4double _eta_max;
-  G4double _phi_min;
-  G4double _phi_max;
+  double _pT_min;
+  double _pT_max;
+  double _eta_min;
+  double _eta_max;
+  double _phi_min;
+  double _phi_max;
 
   G4CMD_DoubleUnit* _ui_pT_min;
   G4CMD_DoubleUnit* _ui_pT_max;
@@ -109,4 +109,4 @@ protected:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* PHYSICS_GENERATOR_HH */
+#endif /* MU__PHYSICS_GENERATOR_HH */

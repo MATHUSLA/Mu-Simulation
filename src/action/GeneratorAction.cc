@@ -62,16 +62,16 @@ void GeneratorAction::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _select) {
     SetGenerator(value);
   } else if (command == _list) {
-    G4cout << "Generators: \n";
+    std::cout << "Generators: \n";
     for (const auto& element : _gen_map) {
       const auto& gen = element.second;
-      G4cout << element.first << ": \n  "
-             << "pT "  << G4BestUnit(gen->pT(), "Momentum") << "  "
-             << "eta " << gen->eta()                        << "  "
-             << "phi " << G4BestUnit(gen->phi(), "Angle")   << "\n\n";
+      std::cout << element.first << ": \n  "
+                << "pT "  << G4BestUnit(gen->pT(), "Momentum") << "  "
+                << "eta " << gen->eta()                        << "  "
+                << "phi " << G4BestUnit(gen->phi(), "Angle")   << "\n\n";
     }
   } else if (command == _current) {
-    G4cout << "Current Generator: \n  " << _gen->GetName() << "\n\n";
+    std::cout << "Current Generator: \n  " << _gen->GetName() << "\n\n";
   }
 }
 

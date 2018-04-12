@@ -1,8 +1,6 @@
-#ifndef TRACKING_PROTOTYPEHIT_HH
-#define TRACKING_PROTOTYPEHIT_HH
+#ifndef MU__TRACKING_PROTOTYPEHIT_HH
+#define MU__TRACKING_PROTOTYPEHIT_HH
 #pragma once
-
-#include <iostream>
 
 #include "Geant4/G4Allocator.hh"
 #include "Geant4/G4THitsCollection.hh"
@@ -13,11 +11,11 @@ namespace MATHUSLA { namespace MU {
 
 class PrototypeHit : public G4VHit {
 public:
-  PrototypeHit(const G4String& particle,
-               const G4int track,
-               const G4int parent,
-               const G4String& chamber,
-               const G4double deposit,
+  PrototypeHit(const std::string& particle,
+               const int track,
+               const int parent,
+               const std::string& chamber,
+               const double deposit,
                const G4LorentzVector position,
                const G4LorentzVector momentum);
 
@@ -29,20 +27,20 @@ public:
   void Draw();
   void Print();
 
-  inline const G4String& GetParticleName() const { return _particle;  }
-  inline G4int           GetTrackID()      const { return _trackID;   }
-  inline G4int           GetParentID()     const { return _parentID;  }
-  inline const G4String& GetChamberID()    const { return _chamberID; }
-  inline G4double        GetDeposit()      const { return _deposit;   }
-  inline G4LorentzVector GetPosition()     const { return _position;  }
-  inline G4LorentzVector GetMomentum()     const { return _momentum;  }
+  inline const std::string& GetParticleName() const { return _particle;  }
+  inline int                GetTrackID()      const { return _trackID;   }
+  inline int                GetParentID()     const { return _parentID;  }
+  inline const std::string& GetChamberID()    const { return _chamberID; }
+  inline double             GetDeposit()      const { return _deposit;   }
+  inline G4LorentzVector    GetPosition()     const { return _position;  }
+  inline G4LorentzVector    GetMomentum()     const { return _momentum;  }
 
 private:
-  G4String        _particle;
-  G4int           _trackID;
-  G4int           _parentID;
-  G4String        _chamberID;
-  G4double        _deposit;
+  std::string     _particle;
+  int             _trackID;
+  int             _parentID;
+  std::string     _chamberID;
+  double          _deposit;
   G4LorentzVector _position;
   G4LorentzVector _momentum;
 };
@@ -67,4 +65,4 @@ inline void PrototypeHit::operator delete(void* hit) {
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* TRACKING_PROTOTYPEHIT_HH */
+#endif /* MU__TRACKING_PROTOTYPEHIT_HH */
