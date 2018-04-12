@@ -6,7 +6,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
 find_package(Geant4  REQUIRED gdml ui_all vis_all)
-find_package(ROOT    REQUIRED)
 find_package(Pythia8 REQUIRED)
 
 include(${Geant4_USE_FILE})
@@ -39,7 +38,6 @@ add_executable(simulation
 
 target_link_libraries(simulation
     ${Geant4_LIBRARIES}
-    ${ROOT_LIBRARIES}
     ${PYTHIA8_LIBRARY})
 
 target_include_directories(simulation PUBLIC
