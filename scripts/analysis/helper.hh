@@ -15,43 +15,27 @@ static const std::string detector_decode(int id) {
   if (id < 0) return "";
 
   static const std::string detector[] = {
-    "A11_C3", "A12_C4", "A13_C5",  "A14_C6",  "A15_C7",
-    "A21_C3", "A22_C4", "A23_C5",  "A24_C6",  "A25_C7",
-    "A31_B7", "A32_B8", "A33_B9",  "A34_B10", "A35_B11",
-    "A41_B8", "A42_B9", "A43_B10", "A44_B11", "A45_B12",
-    "A51_C8", "A52_C9", "A53_C10", "A54_C11",
-    "A61_C8", "A62_C9", "A63_C10", "A64_C11",
+    "A11_C7",  "A12_C6",  "A13_C5",  "A14_C4",  "A15_C3",
+    "A21_C3",  "A22_C4",  "A23_C5",  "A24_C6",  "A25_C7",
+    "A31_B11", "A32_B10", "A33_B9",  "A34_B8",  "A35_B7",
+    "A41_B8",  "A42_B9",  "A43_B10", "A44_B11", "A45_B12",
+    "A51_C11", "A52_C10", "A53_C9",  "A54_C8",
+    "A61_C8",  "A62_C9",  "A63_C10", "A64_C11",
 
-    "B11_C3",  "B12_C4",  "B13_B6",  "B14_B7",  "B15_C7",
-    "B21_C3",  "B22_C4",  "B23_C5",  "B24_C6",  "B25_C7",
-    "B31_B7",  "B32_B8",  "B33_B9",  "B34_C9",  "B35_C9",
-    "B41_A10", "B42_A11", "B43_A11", "B44_B9",  "B45_B12_1", "B46_B11",
-    "B51_A10", "B52_A12", "B53_C7",  "B54_C8",  "B55_C9",
-    "B61_B11", "B62_B11", "B63_C9",  "B64_B11", "B65_B11"
+    "B11_C7",  "B12_B7",    "B13_B6", "B14_C4",  "B15_C3",
+    "B21_C3",  "B22_C4",    "B23_C5", "B24_C6",  "B25_C7",
+    "B31_C9",  "B32_C9",    "B33_B9", "B34_B8",  "B35_B7",
+    "B41_B11", "B42_B12_1", "B43_B9", "B44_A11", "B45_A11", "B46_A10",
+    "B51_A10", "B52_A12",   "B53_C7", "B54_C8",  "B55_C9",
+    "B61_B11", "B62_B11",   "B63_C9", "B64_B11", "B65_B11"
   };
 
   if (id < arraysize(detector)) {
     return detector[id];
   } else {
-    auto temp = std::to_string(id);
-    std::reverse(temp.begin(), temp.end());
-    std::string out = "";
-    out += temp[0];
-    out += '_';
-    out += temp[1];
-    if (temp[1] == '0') {
-      out += temp[2];
-      out += '_';
-      out += temp[3];
-      if (temp.size() == 5)
-        out += temp[4];
-    } else {
-      out += '_';
-      out += temp[2];
-      if (temp.size() == 4)
-        out += temp[3];
-    }
-    std::reverse(out.begin(), out.end());
+    auto out = std::to_string(id);
+    if (out.size() < 5)
+      out = "0" + out;
     return out;
   }
 }

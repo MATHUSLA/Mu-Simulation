@@ -65,10 +65,12 @@ class Envelope {
 public:
   enum class LayerType { TopFirst, BottomFirst };
   enum class Alignment : signed char { Left = -1, Center = 0, Right = 1 };
+  enum class Rotation { NoFlip, Flip };
 
   Envelope(const G4String& name,
            const LayerType layer_type,
            const Alignment alignment,
+           const Rotation rotation,
            std::initializer_list<Scintillator*> scintillators);
 
   inline const G4String&    GetName()             const { return _name;          }
