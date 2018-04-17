@@ -47,6 +47,7 @@ Prototype::Prototype()
       sci->Register(this);
       const auto name = sci->GetFullName();
       const auto id = _decoding.size();
+      std::cout << name << " " << id << "\n";
       _sci_map.insert({name, sci});
       _encoding.insert({name, id});
       _decoding.insert({id, name});
@@ -58,9 +59,7 @@ Prototype::Prototype()
     for (auto pad : rpc->GetPadList()) {
       for (auto strip : pad.strips) {
         const auto name = strip->GetName();
-        auto copy = name;
-        copy.erase(std::remove(copy.begin(), copy.end(), '_'), copy.end());
-        const auto id = std::stoi(copy);
+        const auto id = std::stoi(name);
         _encoding.insert({name, id});
         _decoding.insert({id, name});
       }
@@ -266,11 +265,13 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   constexpr auto Left   = Envelope::Alignment::Left;
   constexpr auto Center = Envelope::Alignment::Center;
   constexpr auto Right  = Envelope::Alignment::Right;
+  constexpr auto Flip   = Envelope::Rotation::Flip;
+  constexpr auto NoFlip = Envelope::Rotation::NoFlip;
 
   auto A10 = new Scintillator("A10", 34.2735559430568*cm, 32.52*cm, 35.78*cm);
   auto A11 = new Scintillator("A11", 39.2697011242604*cm, 35.78*cm, 39.52*cm);
   auto A12 = new Scintillator("A12", 55.6800000000000*cm, 39.52*cm, 43.90*cm);
-  auto B6  = new Scintillator("B6",  46.9637647033140*cm, 26.31*cm, 30.23*cm);
+  // UNUSED: auto B6  = new Scintillator("B6",  46.9637647033140*cm, 26.31*cm, 30.23*cm);
   auto B7  = new Scintillator("B7",  55.5571344149842*cm, 30.23*cm, 34.79*cm);
   auto B8  = new Scintillator("B8",  66.8484225245044*cm, 34.79*cm, 40.37*cm);
   auto B9  = new Scintillator("B9",  37.8707804735234*cm, 40.37*cm, 43.51*cm);
@@ -291,19 +292,19 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   auto C10 = new Scintillator("C10", 52.2596785953898*cm, 53.55*cm, 57.80*cm);
   auto C11 = new Scintillator("C11", 69.2465722114821*cm, 57.80*cm, 63.53*cm);
 
-  auto A1_L = new Envelope("A1_L", Bottom, Center, {C3, C4, C5, C6, C7});
-  auto A2_H = new Envelope("A2_H", Bottom, Center, {C3, C4, C5, C6, C7});
-  auto A3_L = new Envelope("A3_L", Bottom, Center, {B7, B8, B9, B10, B11});
-  auto A4_H = new Envelope("A4_H", Top, Center, {B8, B9, B10, B11, B12});
-  auto A5_L = new Envelope("A5_L", Top, Center, {C8, C9, C10, C11});
-  auto A6_H = new Envelope("A6_H", Top, Center, {C8, C9, C10, C11});
+  auto A1_L = new Envelope("A1_L", Bottom, Center, Flip,   {C3, C4, C5, C6, C7});
+  auto A2_H = new Envelope("A2_H", Bottom, Center, NoFlip, {C3, C4, C5, C6, C7});
+  auto A3_L = new Envelope("A3_L", Bottom, Center, Flip,   {B7, B8, B9, B10, B11});
+  auto A4_H = new Envelope("A4_H", Top, Center, NoFlip, {B8, B9, B10, B11, B12});
+  auto A5_L = new Envelope("A5_L", Top, Center, Flip,   {C8, C9, C10, C11});
+  auto A6_H = new Envelope("A6_H", Top, Center, NoFlip, {C8, C9, C10, C11});
 
-  auto B1_L = new Envelope("B1_L", Bottom, Right, {C3, C4, B6, B7, C7});
-  auto B2_H = new Envelope("B2_H", Bottom, Right, {C3, C4, C5, C6, C7});
-  auto B3_L = new Envelope("B3_L", Bottom, Right, {B7, B8, B9, C9, C9});
-  auto B4_H = new Envelope("B4_H", Top, Left, {A10, A11, A11, B9, B12_1, B11});
-  auto B5_L = new Envelope("B5_L", Top, Left, {A10, A12, C7, C8, C9});
-  auto B6_H = new Envelope("B6_H", Top, Left, {B11, B11, C9, B11, B11});
+  auto B1_L = new Envelope("B1_L", Bottom, Right, Flip,   {C3, C4, C5, B7, C7});
+  auto B2_H = new Envelope("B2_H", Bottom, Right, NoFlip, {C3, C4, C5, C6, C7});
+  auto B3_L = new Envelope("B3_L", Bottom, Right, Flip,   {B7, B8, B9, C9, B9});
+  auto B4_H = new Envelope("B4_H", Top, Left, NoFlip, {A10, A11, A11, B9, B12_1, B11});
+  auto B5_L = new Envelope("B5_L", Top, Left, Flip,   {A10, A12, C7, C8, C9});
+  auto B6_H = new Envelope("B6_H", Top, Left, NoFlip, {B11, B11, C9, B11, B11});
 
   _envelopes = EnvelopeList({
     A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});

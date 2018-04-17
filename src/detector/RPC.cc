@@ -44,6 +44,8 @@ RPC::RPC(int id)
     Width, Height, Depth, Thickness,
     Material::Casing);
 
+  const auto id_name = (id < 10 ? std::string("0") : "") + std::to_string(id);
+
   for (int pad_index = 0; pad_index < 10; ++pad_index) {
     Pad pad(1 + pad_index);
 
@@ -52,12 +54,14 @@ RPC::RPC(int id)
       PadWidth, PadHeight, PadDepth, PadThickness,
       Material::Pad, Construction::CasingAttributes());
 
+    const auto pad_name = id_name
+                        + (pad_index <  9 ? std::string("0") : "")
+                        + std::to_string(1 + pad_index);
+
     auto strip_stack = 0.5 * StripHeight;
     for (int strip_index = 1; strip_index <= 8; ++strip_index) {
       auto strip = Construction::BoxVolume(
-        G4String() + std::to_string(id)
-             + '_' + std::to_string(1 + pad_index)
-             + '_' + std::to_string(strip_index),
+        pad_name + std::to_string(strip_index),
         StripWidth, StripHeight, StripDepth,
         Material::Gas,
         Construction::SensitiveAttributes());
