@@ -8,17 +8,24 @@
 
 namespace MATHUSLA { namespace MU {
 
-const auto GeVperC = GeV;
-const auto MeVperC = MeV;
-const auto keVperC = keV;
-const auto  eVperC =  eV;
+constexpr auto GeVperC = GeV;
+constexpr auto MeVperC = MeV;
+constexpr auto keVperC = keV;
+constexpr auto  eVperC =  eV;
 
-inline void DefineNewUnits() {
+namespace Units {
+constexpr auto Length   = cm;
+constexpr auto Time     = nm;
+constexpr auto Energy   = MeV;
+constexpr auto Momentum = MeVperC;
+
+inline void Define() {
   new G4UnitDefinition("GeV/c", "GeV/c", "Momentum", GeVperC);
   new G4UnitDefinition("MeV/c", "MeV/c", "Momentum", MeVperC);
   new G4UnitDefinition("keV/c", "keV/c", "Momentum", keVperC);
   new G4UnitDefinition( "eV/c",  "eV/c", "Momentum",  eVperC);
 }
+} /* namespace Units */
 
 } } /* namespace MATHUSLA::MU */
 
