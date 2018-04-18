@@ -47,7 +47,6 @@ Prototype::Prototype()
       sci->Register(this);
       const auto name = sci->GetFullName();
       const auto id = _decoding.size();
-      std::cout << name << " " << id << "\n";
       _sci_map.insert({name, sci});
       _encoding.insert({name, id});
       _decoding.insert({id, name});
