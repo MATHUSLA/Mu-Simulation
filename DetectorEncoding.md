@@ -6,9 +6,9 @@ The RPCs and Scintillators use different encoding schemes to represent subdetect
 
 The RPCs are ordered by the following five digit code:
 ```
-    Example: 05086 ->   05   08    6             | RPC   (2 digit): 01-12
-                        --   --    -             | Pad   (2 digit): 01-10
-                       [RPC][Pad][Strip]         | Strip (1 digit):  1-8    
+Example: 05086 ->   05   08    6             | RPC   (2 digit): 01-12
+                    --   --    -             | Pad   (2 digit): 01-10
+                   [RPC][Pad][Strip]         | Strip (1 digit):  1-8    
 ```
 
 ---

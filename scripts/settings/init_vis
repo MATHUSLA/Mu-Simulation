@@ -14,11 +14,11 @@
 
 /vis/scene/add/axes 0 0 0 50 cm
 
-/vis/filtering/trajectories/create/particleFilter
-/vis/filtering/trajectories/particleFilter-0/add mu+
-/vis/filtering/trajectories/particleFilter-0/add mu-
-/vis/filtering/trajectories/particleFilter-0/verbose false
-/vis/filtering/trajectories/particleFilter-0/active true
+# /vis/filtering/trajectories/create/particleFilter
+# /vis/filtering/trajectories/particleFilter-0/add mu+
+# /vis/filtering/trajectories/particleFilter-0/add mu-
+# /vis/filtering/trajectories/particleFilter-0/verbose false
+# /vis/filtering/trajectories/particleFilter-0/active true
 
 /vis/scene/add/trajectories smooth
 /vis/modeling/trajectories/create/drawByCharge
