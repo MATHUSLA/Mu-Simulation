@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
   runManager->SetPrintProgress(1000);
   runManager->SetRandomNumberStore(false);
 
-  MATHUSLA::MU::DefineNewUnits();
+  MATHUSLA::MU::Units::Define();
 
   auto physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics);

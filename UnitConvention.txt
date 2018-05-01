@@ -1,4 +1,0 @@
-Length:   cm
-Time:     nm
-Energy:   MeV
-Momentum: MeV/c

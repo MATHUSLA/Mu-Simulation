@@ -37,8 +37,9 @@ void RunAction::EndOfRunAction(const G4Run* run) {
 
   _info << "MATHUSLA -- Muon Simulation\n"
         << Time::GetString("%c %Z") << "\n\n"
-        << "Run " << run->GetRunID() << "\n"
-        << "Data: " << _path << ".root\n\n"
+        << "Run "     << run->GetRunID() << "\n"
+        << "Events: " << run->GetNumberOfEventToBeProcessed() << "\n"
+        << "Data: "   << _path << ".root\n\n"
         << GeneratorAction::GetGenerator()->InfoString();
 
   _info.close();

@@ -3,7 +3,7 @@ _simulation of muons through earth material_
 
 ## Build & Run
 
-The simulation comes with a simple build script called `install` that will allow you to customize the build process and execution of the muon simulation.
+The simulation comes with a simple build script called `install` which allows for simple build customization and execution of the muon simulation.
 
 Here is a list of useful commands:
 
