@@ -3,7 +3,7 @@
 | Dimension | Unit  |
 |:---------:|:-----:|
 |  Length   | cm    |
-|  Time     | nm    |
+|  Time     | ns    |
 |  Energy   | MeV   |
 |  Momentum | MeV/c |
 
