@@ -342,16 +342,17 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
   constexpr double rpc_large_spacing    = 1738*mm;
 
   for (short layer_i = 0; layer_i < 6; ++layer_i) {
-    const auto layer_mod2 = layer_i % 2;
+    const auto&& layer_mod2 = layer_i % 2;
     auto layer = Construction::BoxVolume(
       "RPCLayer" + std::to_string(1 + layer_i),
       2 * RPC::Width, RPC::Height, RPC::Depth);
     for (short rpc_i = 1; rpc_i <= 2; ++rpc_i) {
       auto rpc = new RPC(2 * layer_i + rpc_i);
+      const auto&& rpc_shift_direction = (rpc_i % 2) ? 0.5 : -0.5;
       rpc->Place(layer, G4Translate3D(
-        (layer_mod2 ? -1 : 1) * (rpc_i % 2 ? 0.5 : -0.5) * RPC::Width,
+        (layer_mod2 ? -1 : 1) * rpc_shift_direction * RPC::Width,
         0,
-        (rpc_i % 2 ? -0.5 : 0.5) * rpc_sublayer_spacing));
+        rpc_shift_direction * rpc_sublayer_spacing));
       _rpcs.push_back(rpc);
     }
     Construction::PlaceVolume(layer, Detector,
