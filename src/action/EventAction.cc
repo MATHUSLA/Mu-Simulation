@@ -2,6 +2,8 @@
 
 #include "Geant4/G4Event.hh"
 
+#include <unordered_set>
+
 namespace MATHUSLA { namespace MU {
 
 EventAction::EventAction(int print_modulo)
@@ -13,6 +15,19 @@ void EventAction::BeginOfEventAction(const G4Event* event) {
     std::cout << "\n\n [ Beginning of Event " << eventID << " ]\n\n";
 }
 
-void EventAction::EndOfEventAction(const G4Event*) {}
+void EventAction::EndOfEventAction(const G4Event* event) {
+  /* TODO: find a place to put this
+  const auto& trajectories = *event->GetTrajectoryContainer()->GetVector();
+  std::unordered_set<std::string> particles;
+  std::cout << "Iteraction Products: \n";
+  for (const auto& trajectory : trajectories) {
+    const auto& name = trajectory->GetParticleName();
+    if (particles.count(name)) continue;
+    std::cout << "  " << name << "\n";
+    particles.insert(name);
+  }
+  std::cout << "\n";
+  */
+}
 
 } } /* namespace MATHUSLA::MU */
