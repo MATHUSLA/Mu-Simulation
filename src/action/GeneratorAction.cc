@@ -8,12 +8,22 @@
 namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Space-Separated Generator List______________________________________________________________
 G4ThreadLocal std::string _generators;
-Generator* _gen;
+//----------------------------------------------------------------------------------------------
+
+//__Generator Map_______________________________________________________________________________
 G4ThreadLocal std::unordered_map<std::string, Generator*> _gen_map;
 //----------------------------------------------------------------------------------------------
+
+//__Current Generator___________________________________________________________________________
+Generator* _gen;
+//----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+//__Generator Action Constructor________________________________________________________________
 GeneratorAction::GeneratorAction(const std::string& generator)
     : G4VUserPrimaryGeneratorAction(),
       G4UImessenger(Generator::MessengerDirectory, "Particle Generators.") {
@@ -58,11 +68,13 @@ GeneratorAction::GeneratorAction(const std::string& generator)
 }
 //----------------------------------------------------------------------------------------------
 
+//__Create Initial Vertex_______________________________________________________________________
 void GeneratorAction::GeneratePrimaries(G4Event* event) {
   _gen->GeneratePrimaryVertex(event);
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generator Action Messenger Set Value________________________________________________________
 void GeneratorAction::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _select) {
     SetGenerator(value);
@@ -81,14 +93,16 @@ void GeneratorAction::SetNewValue(G4UIcommand* command, G4String value) {
 }
 //----------------------------------------------------------------------------------------------
 
-void GeneratorAction::SetGenerator(const std::string& generator) {
-  const auto& search = _gen_map.find(generator);
-  _gen = (search != _gen_map.end()) ? search->second : _gen_map["basic"];
+//__Get the Current Generator___________________________________________________________________
+const Generator* GeneratorAction::GetGenerator() {
+  return _gen;
 }
 //----------------------------------------------------------------------------------------------
 
-const Generator* GeneratorAction::GetGenerator() {
-  return _gen;
+//__Set the Current Generator___________________________________________________________________
+void GeneratorAction::SetGenerator(const std::string& generator) {
+  const auto& search = _gen_map.find(generator);
+  _gen = (search != _gen_map.end()) ? search->second : _gen_map["basic"];
 }
 //----------------------------------------------------------------------------------------------
 

@@ -14,6 +14,7 @@ namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
+//__Scintillator Constructor____________________________________________________________________
 Scintillator::Scintillator(const std::string& name,
                            const double height,
                            const double minwidth,
@@ -62,11 +63,13 @@ Scintillator::Scintillator(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Scintillator Material_______________________________________________________________________
 G4Material* Scintillator::Material::PMT          = nullptr;
 G4Material* Scintillator::Material::Casing       = nullptr;
 G4Material* Scintillator::Material::Scintillator = nullptr;
 //----------------------------------------------------------------------------------------------
 
+//__Define Scintillator Material________________________________________________________________
 void Scintillator::Material::Define() {
   Material::PMT = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
   Material::Casing = Construction::Material::Aluminum;
@@ -85,11 +88,13 @@ void Scintillator::Material::Define() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Scintillator Full Name______________________________________________________________________
 const std::string Scintillator::GetFullName() const {
   return sensitive ? sensitive->GetName() : name;
 }
 //----------------------------------------------------------------------------------------------
 
+//__Calculate Distance to PMT___________________________________________________________________
 Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
                                                  const Scintillator* sci,
                                                  const G4ThreeVector translation,
@@ -111,11 +116,13 @@ Scintillator::PMTPoint Scintillator::PMTDistance(const G4ThreeVector position,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Register Scintillator with Detector_________________________________________________________
 void Scintillator::Register(G4VSensitiveDetector* detector) {
   sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);
 }
 //----------------------------------------------------------------------------------------------
 
+//__Clone Scintillator__________________________________________________________________________
 Scintillator* Scintillator::Clone(const Scintillator* other) {
   return new Scintillator(other->name, other->height, other->minwidth, other->maxwidth);
 }

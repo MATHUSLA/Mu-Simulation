@@ -16,12 +16,22 @@ namespace MATHUSLA { namespace MU {
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Envelopes and RPCs for Prototype____________________________________________________________
 EnvelopeList _envelopes;
 RPCList _rpcs;
+//----------------------------------------------------------------------------------------------
+
+//__Prototype Hit Collection____________________________________________________________________
 G4ThreadLocal Tracking::HitCollection* _hit_collection;
+//----------------------------------------------------------------------------------------------
+
+//__Encoding/Decoding Maps______________________________________________________________________
 G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
 G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
 G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
+//----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Prototype Constructor_______________________________________________________________________
@@ -64,7 +74,7 @@ void Detector::Material::Define() {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Initalize Event__________________________________________________________________________
+//__Initalize Event_____________________________________________________________________________
 /*! \brief Initialzes Prototype Hit Collection
 */
 void Detector::Initialize(G4HCofThisEvent* eventHC) {
@@ -238,7 +248,7 @@ bool Detector::GenerateAnalysis(const int event_count) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Prototype Generator Construction____________________________________________________________
+//__Build Detector______________________________________________________________________________
 /*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
 */
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {

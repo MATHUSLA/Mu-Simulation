@@ -6,6 +6,7 @@ namespace MATHUSLA { namespace MU {
 
 namespace Earth { //////////////////////////////////////////////////////////////////////////////
 
+//__Earth Materials_____________________________________________________________________________
 G4Material* Material::CaCO3     = nullptr;
 G4Material* Material::Kaolinite = nullptr;
 G4Material* Material::SiO2      = nullptr;
@@ -13,6 +14,7 @@ G4Material* Material::Marl      = nullptr;
 G4Material* Material::Mix       = nullptr;
 //----------------------------------------------------------------------------------------------
 
+//__Define Earth Materials______________________________________________________________________
 void Material::Define() {
   auto Al = new G4Element("Aluminum", "Al", 13.,  26.981*g/mole);
   auto Si = new G4Element("Silicon",  "Si", 14., 28.0855*g/mole);
@@ -43,6 +45,7 @@ void Material::Define() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Construct Earth_____________________________________________________________________________
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   Material::Define();
 

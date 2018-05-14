@@ -10,11 +10,17 @@
 
 namespace MATHUSLA { namespace MU {
 
-namespace {
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+//__Output File Path____________________________________________________________________________
 G4ThreadLocal std::string _path;
 //----------------------------------------------------------------------------------------------
-} /* anonymous namespace */
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+/*
+TODO: Save Event Count for User to Access
+ */
+
+//__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
   _path = "data";
   util::io::create_directory(_path);
@@ -25,13 +31,16 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
   _path += "/run" + std::to_string(run->GetRunID());
 
   Analysis::Setup();
-  Prototype::Detector::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
   Analysis::Open(_path + ".root");
+  Prototype::Detector::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
+  // TODO: Flat::Detector::GenerateAnalysis() or alternative
 }
 //----------------------------------------------------------------------------------------------
 
+//__Post-Run Processing_________________________________________________________________________
 void RunAction::EndOfRunAction(const G4Run* run) {
-  if (!run->GetNumberOfEvent()) return;
+  const auto event_count = run->GetNumberOfEventToBeProcessed();
+  if (!event_count) return;
 
   Analysis::Save();
 
@@ -40,9 +49,9 @@ void RunAction::EndOfRunAction(const G4Run* run) {
   _info << "MATHUSLA -- Muon Simulation\n"
         << util::time::GetString("%c %Z") << "\n\n"
         << "Run "     << run->GetRunID() << "\n"
-        << "Events: " << run->GetNumberOfEventToBeProcessed() << "\n"
+        << "Events: " << event_count << "\n"
         << "Data: "   << _path << ".root\n\n"
-        << GeneratorAction::GetGenerator()->InfoString();
+        << *GeneratorAction::GetGenerator();
 
   _info.close();
 

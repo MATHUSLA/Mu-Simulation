@@ -23,6 +23,7 @@ namespace MATHUSLA { namespace MU {
 
 namespace Vis { ////////////////////////////////////////////////////////////////////////////////
 
+//__Draw G4Marker_______________________________________________________________________________
 inline bool Draw(const G4VMarker& marker) {
   auto pVVisManager = G4VVisManager::GetConcreteInstance();
   if (pVVisManager) {
@@ -33,6 +34,7 @@ inline bool Draw(const G4VMarker& marker) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Circle Constructor__________________________________________________________________________
 inline G4Circle Circle(const G4ThreeVector& point,
                        const double size,
                        const G4VMarker::FillStyle fill=G4VMarker::FillStyle::filled,
@@ -45,6 +47,7 @@ inline G4Circle Circle(const G4ThreeVector& point,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Circle Constructor__________________________________________________________________________
 inline G4Circle Circle(const G4ThreeVector& point,
                        const double size,
                        const G4VisAttributes& attr) {
@@ -52,6 +55,7 @@ inline G4Circle Circle(const G4ThreeVector& point,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Circle Constructor__________________________________________________________________________
 inline G4Circle Circle(const G4ThreeVector& point,
                        const double size,
                        const G4Color& color) {
@@ -62,7 +66,7 @@ inline G4Circle Circle(const G4ThreeVector& point,
 } /* namespace Vis */ //////////////////////////////////////////////////////////////////////////
 
 namespace Command { ////////////////////////////////////////////////////////////////////////////
-
+//__Geant4 UI Messenger Command Option Shortcut Definitions_____________________________________
 using NoArg              = G4UIcmdWithoutParameter;
 using BoolArg            = G4UIcmdWithABool;
 using IntegerArg         = G4UIcmdWithAnInteger;
@@ -72,7 +76,6 @@ using ThreeVectorArg     = G4UIcmdWith3Vector;
 using DoubleUnitArg      = G4UIcmdWithADoubleAndUnit;
 using ThreeVectorUnitArg = G4UIcmdWith3VectorAndUnit;
 //----------------------------------------------------------------------------------------------
-
 } /* namespace Command */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

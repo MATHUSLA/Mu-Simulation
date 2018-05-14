@@ -7,6 +7,7 @@ namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
+//__Envelope Constructor________________________________________________________________________
 Envelope::Envelope(const std::string& name,
                    const LayerType layer_type,
                    const Alignment alignment,
@@ -77,6 +78,7 @@ Envelope::Envelope(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Place Envelope in Layer_____________________________________________________________________
 G4VPhysicalVolume* Envelope::Place(G4LogicalVolume* parent, const G4Transform3D& transform) {
   _placement = Construction::PlaceVolume(_volume, parent, transform);
   return _placement;

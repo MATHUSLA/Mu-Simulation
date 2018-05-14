@@ -22,13 +22,20 @@
 namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__NIST Material Manager_______________________________________________________________________
 const auto _nist = G4NistManager::Instance();
+//----------------------------------------------------------------------------------------------
+
+//__Detector Name for Builder___________________________________________________________________
 std::string _detector;
 //----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 namespace Construction { ///////////////////////////////////////////////////////////////////////
 
+//__Construction Materials______________________________________________________________________
 auto Material::H = _nist->FindOrBuildElement("H");
 auto Material::C = _nist->FindOrBuildElement("C");
 auto Material::N = _nist->FindOrBuildElement("N");
@@ -40,11 +47,13 @@ auto Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
 auto Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
 //----------------------------------------------------------------------------------------------
 
+//__Builder Constructor_________________________________________________________________________
 Builder::Builder(const std::string& detector) : G4VUserDetectorConstruction() {
   _detector = detector;
 }
 //----------------------------------------------------------------------------------------------
 
+//__Build World and Detector Geometry___________________________________________________________
 G4VPhysicalVolume* Builder::Construct() {
   constexpr static auto WorldLength = 240*m;
 
@@ -78,6 +87,7 @@ G4VPhysicalVolume* Builder::Construct() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Build Detector______________________________________________________________________________
 void Builder::ConstructSDandField() {
   if (_detector == "Prototype") {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
@@ -89,6 +99,7 @@ void Builder::ConstructSDandField() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes() {
   auto attr = G4VisAttributes(G4Colour(0., 1., 0., 1.0));
   attr.SetForceSolid(true);
@@ -96,6 +107,7 @@ const G4VisAttributes SensitiveAttributes() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Casing Material Attribute Definition________________________________________________________
 const G4VisAttributes CasingAttributes() {
   auto attr = G4VisAttributes(G4Colour(0., 0., 1., 0.2));
   attr.SetForceSolid(true);
@@ -103,6 +115,7 @@ const G4VisAttributes CasingAttributes() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Trapezoid Builder___________________________________________________________________________
 G4Trap* Trap(const std::string& name,
              const double height,
              const double minwidth,
@@ -115,6 +128,7 @@ G4Trap* Trap(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Volume Builder______________________________________________________________________________
 G4LogicalVolume* Volume(const std::string& name,
                         G4VSolid* solid,
                         G4Material* material,
@@ -125,6 +139,7 @@ G4LogicalVolume* Volume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Volume Builder______________________________________________________________________________
 G4LogicalVolume* Volume(G4VSolid* solid,
                         G4Material* material,
                         const G4VisAttributes& attr) {
@@ -132,6 +147,7 @@ G4LogicalVolume* Volume(G4VSolid* solid,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Volume Builder______________________________________________________________________________
 G4LogicalVolume* Volume(const std::string& name,
                         G4VSolid* solid,
                         const G4VisAttributes& attr) {
@@ -139,12 +155,14 @@ G4LogicalVolume* Volume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Volume Builder______________________________________________________________________________
 G4LogicalVolume* Volume(G4VSolid* solid,
                         const G4VisAttributes& attr) {
   return Volume(solid, Material::Air, attr);
 }
 //----------------------------------------------------------------------------------------------
 
+//__Box Volume Builder__________________________________________________________________________
 G4LogicalVolume* BoxVolume(const std::string& name,
                            const double width,
                            const double height,
@@ -157,6 +175,7 @@ G4LogicalVolume* BoxVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Open Box Volume Builder_____________________________________________________________________
 G4LogicalVolume* OpenBoxVolume(const std::string& name,
                                const double width,
                                const double height,
@@ -176,6 +195,7 @@ G4LogicalVolume* OpenBoxVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                G4LogicalVolume* current,
                                G4LogicalVolume* parent,
@@ -184,6 +204,7 @@ G4VPhysicalVolume* PlaceVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(G4LogicalVolume* current,
                                G4LogicalVolume* parent,
                                const G4Transform3D& transform) {
@@ -191,6 +212,7 @@ G4VPhysicalVolume* PlaceVolume(G4LogicalVolume* current,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                G4VSolid* solid,
                                G4Material* material,
@@ -200,6 +222,7 @@ G4VPhysicalVolume* PlaceVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
                                G4Material* material,
                                G4LogicalVolume* parent,
@@ -208,6 +231,7 @@ G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                G4LogicalVolume* current,
                                const G4VisAttributes& attr,
@@ -218,6 +242,7 @@ G4VPhysicalVolume* PlaceVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(G4LogicalVolume* current,
                                const G4VisAttributes& attr,
                                G4LogicalVolume* parent,
@@ -227,6 +252,7 @@ G4VPhysicalVolume* PlaceVolume(G4LogicalVolume* current,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(const std::string& name,
                                G4VSolid* solid,
                                G4Material* material,
@@ -237,6 +263,7 @@ G4VPhysicalVolume* PlaceVolume(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Physical Volume Placer______________________________________________________________________
 G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
                                G4Material* material,
                                const G4VisAttributes& attr,
@@ -246,6 +273,7 @@ G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Matrix Transformation Generator_____________________________________________________________
 G4RotationMatrix Matrix(const double th1,
                         const double phi1,
                         const double th2,
@@ -266,6 +294,7 @@ G4RotationMatrix Matrix(const double th1,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Rotation/Translation Transformation Generator_______________________________________________
 G4Transform3D Transform(const G4ThreeVector& translate,
                         const G4ThreeVector& axis,
                         const double angle) {
@@ -273,6 +302,7 @@ G4Transform3D Transform(const G4ThreeVector& translate,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Rotation/Translation Transformation Generator_______________________________________________
 G4Transform3D Transform(const double x,
                         const double y,
                         const double z,
@@ -285,6 +315,7 @@ G4Transform3D Transform(const double x,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Rotation Transformation Generator___________________________________________________________
 G4Transform3D Rotate(const double axisx,
                      const double axisy,
                      const double axisz,
@@ -293,6 +324,7 @@ G4Transform3D Rotate(const double axisx,
 }
 //----------------------------------------------------------------------------------------------
 
+//__GDML File Export____________________________________________________________________________
 void Export(const G4LogicalVolume* volume,
             const std::string& file,
             const std::string& schema) {
@@ -307,6 +339,7 @@ void Export(const G4LogicalVolume* volume,
 }
 //----------------------------------------------------------------------------------------------
 
+//__GDML File Export____________________________________________________________________________
 void Export(const G4VPhysicalVolume* volume,
             const std::string& file,
             const std::string& schema) {

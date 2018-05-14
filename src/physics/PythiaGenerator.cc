@@ -6,6 +6,7 @@
 
 namespace MATHUSLA { namespace MU {
 
+//__Pythia Generator Constructor________________________________________________________________
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT,
                                  const double eta,
@@ -14,6 +15,7 @@ PythiaGenerator::PythiaGenerator(const int id,
     : PythiaGenerator(id, pT, pT, -eta, eta, -phi, phi, pythia) {}
 //----------------------------------------------------------------------------------------------
 
+//__Pythia Generator Constructor________________________________________________________________
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT,
                                  const double eta,
@@ -24,6 +26,7 @@ PythiaGenerator::PythiaGenerator(const int id,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Pythia Generator Constructor________________________________________________________________
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT_min,
                                  const double pT_max,
@@ -47,6 +50,7 @@ PythiaGenerator::PythiaGenerator(const int id,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Pythia Generator Constructor________________________________________________________________
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT_min,
                                  const double pT_max,
@@ -62,6 +66,7 @@ PythiaGenerator::PythiaGenerator(const int id,
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+//__Reconstruct Pythia Object from Old Object___________________________________________________
 Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
   if (!pythia) {
     return new Pythia8::Pythia();
@@ -73,7 +78,8 @@ Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
 }
 //----------------------------------------------------------------------------------------------
 
-Pythia8::Pythia* _set_pythia(std::vector<std::string>& settings) {
+//__Create Pythia from Settings_________________________________________________________________
+Pythia8::Pythia* _create_pythia(std::vector<std::string>& settings) {
   auto pythia = new Pythia8::Pythia();
   for (const auto& setting : settings) {
     pythia->readString(setting);
@@ -86,10 +92,11 @@ Pythia8::Pythia* _set_pythia(std::vector<std::string>& settings) {
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+//__Generate Initial Particles__________________________________________________________________
 void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   if (!_settings.empty()) {
     // delete _pythia;
-    _pythia = _set_pythia(_settings);
+    _pythia = _create_pythia(_settings);
   } else if (!_pythia) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
@@ -121,6 +128,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Messenger Set Value_________________________________________________________________________
 void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _read_string) {
     _settings.push_back(value);
@@ -165,6 +173,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Set Pythia Object from Copy_________________________________________________________________
 void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   if (!pythia) return;
   _settings.clear();
@@ -174,13 +183,15 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(std::vector<std::string> settings) {
   _settings = std::move(settings);
   // delete _pythia;
-  _pythia = _set_pythia(_settings);
+  _pythia = _create_pythia(_settings);
 }
 //----------------------------------------------------------------------------------------------
 
+//__Find Particle in Event______________________________________________________________________
 Pythia8::Particle* PythiaGenerator::FindParticle(Pythia8::Event& event) const {
   for (int i = 0; i < event.size(); ++i) {
     const auto& particle = event[i];

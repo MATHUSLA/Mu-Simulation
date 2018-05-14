@@ -27,7 +27,6 @@ class EventAction : public G4UserEventAction {
 public:
   EventAction(const int print_modulo);
   void BeginOfEventAction(const G4Event* event);
-  void EndOfEventAction(const G4Event* event);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,9 +45,9 @@ public:
 
   void GeneratePrimaries(G4Event* event);
   void SetNewValue(G4UIcommand* command, G4String value);
-  void SetGenerator(const std::string& generator);
 
   static const Generator* GetGenerator();
+  static void SetGenerator(const std::string& generator);
 
 private:
   Command::NoArg*     _list;

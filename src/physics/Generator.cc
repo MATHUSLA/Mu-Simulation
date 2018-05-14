@@ -9,9 +9,11 @@
 
 namespace MATHUSLA { namespace MU {
 
+//__Generator Messenger Directory Path__________________________________________________________
 const std::string Generator::MessengerDirectory = "/gen/";
 //----------------------------------------------------------------------------------------------
 
+//__Generator Constructor_______________________________________________________________________
 Generator::Generator(const std::string& name,
                      const std::string& description,
                      const int id,
@@ -45,6 +47,7 @@ Generator::Generator(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generate Initial Particles__________________________________________________________________
 void Generator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
@@ -52,6 +55,7 @@ void Generator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generator Messenger Set Value_______________________________________________________________
 void Generator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
@@ -65,6 +69,7 @@ void Generator::SetNewValue(G4UIcommand* command, G4String value) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generator Information String________________________________________________________________
 const std::string Generator::InfoString() const {
   std::stringstream out;
   out << "Generator Info:\n  "
@@ -77,17 +82,20 @@ const std::string Generator::InfoString() const {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Default Vertex Object_______________________________________________________________________
 G4PrimaryVertex* Generator::DefaultVertex() {
   return new G4PrimaryVertex(0, 0, 100*m, 0);
 }
 //----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const G4ThreeVector& momentum) {
   return new G4PrimaryParticle(id, momentum.x(), momentum.y(), momentum.z());
 }
 //----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const double pT,
                                              const double eta,
@@ -97,6 +105,7 @@ G4PrimaryParticle* Generator::CreateParticle(const int id,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Range Generator Constructor_________________________________________________________________
 RangeGenerator::RangeGenerator(const std::string& name,
                                const std::string& description,
                                const int id,
@@ -106,6 +115,7 @@ RangeGenerator::RangeGenerator(const std::string& name,
     : RangeGenerator(name, description, id, pT, pT, -eta, eta, -phi, phi) {}
 //----------------------------------------------------------------------------------------------
 
+//__Range Generator Constructor_________________________________________________________________
 RangeGenerator::RangeGenerator(const std::string& name,
                                const std::string& description,
                                const int id,
@@ -155,6 +165,7 @@ RangeGenerator::RangeGenerator(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
   _pT  = G4RandFlat::shoot(_pT_min, _pT_max);
@@ -165,6 +176,7 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Range Generator Messenger Set Value_________________________________________________________
 void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
@@ -199,6 +211,7 @@ void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Range Generator Information String__________________________________________________________
 const std::string RangeGenerator::InfoString() const {
   std::stringstream out;
   out << "Generator Info:\n  "

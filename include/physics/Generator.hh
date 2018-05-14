@@ -58,6 +58,8 @@ protected:
   Command::DoubleUnitArg* _ui_phi;
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 class RangeGenerator : public Generator {
 public:
   RangeGenerator(const std::string& name,
@@ -106,6 +108,14 @@ protected:
   Command::DoubleUnitArg* _ui_phi_min;
   Command::DoubleUnitArg* _ui_phi_max;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+//__Output Operator Overload for Generators_____________________________________________________
+inline std::ostream& operator<<(std::ostream& os, const Generator& generator) {
+  return os << generator.InfoString();
+}
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */
 
