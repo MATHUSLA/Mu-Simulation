@@ -9,12 +9,10 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 G4ThreadLocal std::string _generators;
+Generator* _gen;
 G4ThreadLocal std::unordered_map<std::string, Generator*> _gen_map;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
-
-Generator* GeneratorAction::_gen = nullptr;
-//----------------------------------------------------------------------------------------------
 
 GeneratorAction::GeneratorAction(const std::string& generator)
     : G4VUserPrimaryGeneratorAction(),

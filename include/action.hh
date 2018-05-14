@@ -19,8 +19,6 @@ public:
   ActionInitialization(const std::string& generator="");
   void BuildForMaster() const;
   void Build() const;
-private:
-  std::string _generator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +54,6 @@ private:
   Command::NoArg*     _list;
   Command::NoArg*     _current;
   Command::StringArg* _select;
-  static Generator*   _gen;
 };
 
 } } /* namespace MATHUSLA::MU */

@@ -15,10 +15,6 @@ namespace MATHUSLA { namespace MU {
 
 namespace Construction { ///////////////////////////////////////////////////////////////////////
 
-constexpr auto WorldLength = 240*m;
-
-const G4VPhysicalVolume* WorldVolume();
-
 namespace Material { ///////////////////////////////////////////////////////////////////////////
 extern G4Element* H;
 extern G4Element* C;

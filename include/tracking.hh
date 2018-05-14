@@ -13,7 +13,7 @@ namespace Tracking { ///////////////////////////////////////////////////////////
 
 class Hit;
 
-using HitsCollection = G4THitsCollection<Hit>;
+using HitCollection = G4THitsCollection<Hit>;
 
 extern G4ThreadLocal G4Allocator<Hit>* HitAllocator;
 
@@ -30,13 +30,13 @@ public:
   void Draw();
   void Print();
 
-  const std::string& GetParticleName() const { return _particle;  }
-  int                GetTrackID()      const { return _trackID;   }
-  int                GetParentID()     const { return _parentID;  }
-  const std::string& GetChamberID()    const { return _chamberID; }
-  double             GetDeposit()      const { return _deposit;   }
-  G4LorentzVector    GetPosition()     const { return _position;  }
-  G4LorentzVector    GetMomentum()     const { return _momentum;  }
+  const std::string&     GetParticleName() const { return _particle;  }
+  int                    GetTrackID()      const { return _trackID;   }
+  int                    GetParentID()     const { return _parentID;  }
+  const std::string&     GetChamberID()    const { return _chamberID; }
+  double                 GetDeposit()      const { return _deposit;   }
+  const G4LorentzVector& GetPosition()     const { return _position;  }
+  const G4LorentzVector& GetMomentum()     const { return _momentum;  }
 
   bool operator==(const Hit& rhs) const {
     return this == &rhs;

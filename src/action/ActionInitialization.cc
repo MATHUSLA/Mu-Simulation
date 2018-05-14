@@ -2,8 +2,14 @@
 
 namespace MATHUSLA { namespace MU {
 
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+std::string _generator;
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
 ActionInitialization::ActionInitialization(const std::string& generator)
-    : G4VUserActionInitialization(), _generator(generator) {}
+    : G4VUserActionInitialization() {
+  _generator = generator;
+}
 //----------------------------------------------------------------------------------------------
 
 void ActionInitialization::BuildForMaster() const {

@@ -16,9 +16,9 @@ namespace MATHUSLA { namespace MU {
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
-G4ThreadLocal Tracking::HitsCollection* _hit_collection;
-G4ThreadLocal EnvelopeList _envelopes;
-G4ThreadLocal RPCList _rpcs;
+EnvelopeList _envelopes;
+RPCList _rpcs;
+G4ThreadLocal Tracking::HitCollection* _hit_collection;
 G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
 G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
 G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
@@ -68,7 +68,7 @@ void Detector::Material::Define() {
 /*! \brief Initialzes Prototype Hit Collection
 */
 void Detector::Initialize(G4HCofThisEvent* eventHC) {
-  _hit_collection = new Tracking::HitsCollection(GetName(), collectionName[0]);
+  _hit_collection = new Tracking::HitCollection(GetName(), collectionName[0]);
   eventHC->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
     _hit_collection);

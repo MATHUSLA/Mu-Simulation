@@ -23,17 +23,11 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 const auto _nist = G4NistManager::Instance();
-G4ThreadLocal G4VPhysicalVolume* _world;
-G4ThreadLocal std::string _detector;
+std::string _detector;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 namespace Construction { ///////////////////////////////////////////////////////////////////////
-
-const G4VPhysicalVolume* WorldVolume() {
-  return _world;
-}
-//----------------------------------------------------------------------------------------------
 
 auto Material::H = _nist->FindOrBuildElement("H");
 auto Material::C = _nist->FindOrBuildElement("C");
@@ -52,6 +46,8 @@ Builder::Builder(const std::string& detector) : G4VUserDetectorConstruction() {
 //----------------------------------------------------------------------------------------------
 
 G4VPhysicalVolume* Builder::Construct() {
+  constexpr static auto WorldLength = 240*m;
+
   G4GeometryManager::GetInstance()->OpenGeometry();
   G4PhysicalVolumeStore::GetInstance()->Clean();
   G4LogicalVolumeStore::GetInstance()->Clean();
@@ -72,13 +68,13 @@ G4VPhysicalVolume* Builder::Construct() {
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
   }
 
+  auto world = PlaceVolume(worldLV, nullptr);
+  Export(world, "world.gdml");
+
   std::cout << "Materials: "
             << *G4Material::GetMaterialTable() << '\n';
 
-  _world = PlaceVolume(worldLV, nullptr);
-  Export(_world, "world.gdml");
-
-  return _world;
+  return world;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -87,6 +83,8 @@ void Builder::ConstructSDandField() {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   } else if (_detector == "Flat") {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Flat::Detector);
+  } else {
+    G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
 }
 //----------------------------------------------------------------------------------------------
