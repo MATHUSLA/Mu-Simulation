@@ -13,7 +13,7 @@ constexpr auto MeVperC = MeV;
 constexpr auto keVperC = keV;
 constexpr auto  eVperC =  eV;
 
-namespace Units {
+namespace Units { //////////////////////////////////////////////////////////////////////////////
 constexpr auto Length   = cm;
 constexpr auto Time     = ns;
 constexpr auto Energy   = MeV;
@@ -25,7 +25,7 @@ inline void Define() {
   new G4UnitDefinition("keV/c", "keV/c", "Momentum", keVperC);
   new G4UnitDefinition( "eV/c",  "eV/c", "Momentum",  eVperC);
 }
-} /* namespace Units */
+} /* namespace Units */ ////////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 

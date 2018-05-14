@@ -1,5 +1,5 @@
-#ifndef MU__UTIL_TIME_HH
-#define MU__UTIL_TIME_HH
+#ifndef UTIL__TIME_HH
+#define UTIL__TIME_HH
 #pragma once
 
 #include <ctime>
@@ -9,25 +9,29 @@
 
 namespace MATHUSLA {
 
-namespace Time {
+namespace util { ///////////////////////////////////////////////////////////////////////////////
 
-static const char* FullFormat = "%Y%m%d_%H%M%S";
-static const char* DateFormat = "%Y%m%d";
-static const char* TimeFormat = "%H%M%S";
+namespace time { ///////////////////////////////////////////////////////////////////////////////
 
-static const auto TIME = std::time(nullptr);
+static const auto FullFormat = "%Y%m%d_%H%M%S";
+static const auto DateFormat = "%Y%m%d";
+static const auto TimeFormat = "%H%M%S";
+
+static const auto CURRENT_TIME = std::time(nullptr);
 
 inline const std::string GetString(const char* format=FullFormat) {
   std::stringstream out;
-  out << std::put_time(std::gmtime(&TIME), format);
+  out << std::put_time(std::gmtime(&CURRENT_TIME), format);
   return out.str();
 }
 
 inline const std::string GetDate() { return GetString(DateFormat); }
 inline const std::string GetTime() { return GetString(TimeFormat); }
 
-} /* namespace Time */
+} /* namespace time */ /////////////////////////////////////////////////////////////////////////
+
+} /* namespace util */ /////////////////////////////////////////////////////////////////////////
 
 } /* namespace MATHUSLA */
 
-#endif /* MU__UTIL_TIME_HH */
+#endif /* UTIL__TIME_HH */

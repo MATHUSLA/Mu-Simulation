@@ -1,94 +1,96 @@
-#ifdef G4MULTITHREADED
 #include "Geant4/G4MTRunManager.hh"
-#endif
-
-#include "Geant4/G4RunManager.hh"
 #include "Geant4/FTFP_BERT.hh"
 #include "Geant4/G4StepLimiterPhysics.hh"
 #include "Geant4/G4UIExecutive.hh"
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4VisExecutive.hh"
 
-#include "action/ActionInitialization.hh"
+#include "action.hh"
 #include "detector/Construction.hh"
 #include "physics/Units.hh"
-#include "util/CommandLineParser.hh"
 
-using Option = MATHUSLA::CommandLineOption;
+#include "util/command_line_parser.hh"
+#include "util/error.hh"
 
-auto help_opt   = new Option('h', "help",   "MATHUSLA Muon Simulation", Option::NoArguments);
-auto gen_opt    = new Option('g', "gen",    "Generator",                Option::RequiredArguments);
-auto script_opt = new Option('s', "script", "Custom Script",            Option::RequiredArguments);
-auto events_opt = new Option('e', "events", "Event Count",              Option::RequiredArguments);
-auto vis_opt    = new Option('v', "vis",    "Visualization",            Option::NoArguments);
-auto quiet_opt  = new Option('q', "quiet",  "Quiet Mode",               Option::NoArguments);
-
-auto thread_opt = new Option('j', "threads",
-  "Multi-Threading Mode: Specify Optional number of threads (default: 2)",
-  Option::OptionalArguments);
-
+//__Main Function: Simulation___________________________________________________________________
 int main(int argc, char* argv[]) {
-  MATHUSLA::CommandLineParser::parse(argv, {
-    help_opt, gen_opt, script_opt, events_opt, vis_opt, quiet_opt, thread_opt});
+  using namespace MATHUSLA;
+  using namespace MATHUSLA::MU;
+
+  using util::cli::option;
+
+  option help_opt   ('h', "help",   "MATHUSLA Muon Simulation", option::no_arguments);
+  option gen_opt    ('g', "gen",    "Generator",                option::required_arguments);
+  option script_opt ('s', "script", "Custom Script",            option::required_arguments);
+  option events_opt ('e', "events", "Event Count",              option::required_arguments);
+  option vis_opt    ('v', "vis",    "Visualization",            option::no_arguments);
+  option quiet_opt  ('q', "quiet",  "Quiet Mode",               option::no_arguments);
+  option thread_opt ('j', "threads",
+    "Multi-Threading Mode: Specify Optional number of threads (default: 2)",
+    option::optional_arguments);
+
+  util::cli::parse(argv,
+    {&help_opt, &gen_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
 
   G4UIExecutive* ui = nullptr;
-  if (argc == 1 || vis_opt->count) {
+  if (argc == 1 || vis_opt.count) {
     ui = new G4UIExecutive(argc, argv);
-    vis_opt->count = 1;
+    vis_opt.count = 1;
   }
 
-  if (script_opt->argument && events_opt->argument) {
-    std::cout << "[FATAL ERROR] Incompatible Arguments: "
-              << "a script OR an event count can be provided, but not both.\n";
-    exit(EXIT_FAILURE);
-  }
+  util::error::exit_when(script_opt.argument && events_opt.argument,
+    "[FATAL ERROR] Incompatible Arguments: ",
+    "A script OR an event count can be provided, but not both.\n");
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  G4Random::setTheSeed(time(0));
+  G4Random::setTheSeed(time(nullptr));
 
   #ifdef G4MULTITHREADED
-    if (thread_opt->argument) {
-      auto opt = std::string(thread_opt->argument);
+    if (thread_opt.argument) {
+      auto opt = std::string(thread_opt.argument);
       if (opt == "on") {
-        thread_opt->count = 2;
+        thread_opt.count = 2;
       } else if (opt == "off" || opt == "0") {
-        thread_opt->count = 1;
+        thread_opt.count = 1;
       } else {
-        thread_opt->count = std::stoi(opt);
+        try {
+          thread_opt.count = std::stoi(opt);
+        } catch(...) {
+          thread_opt.count = 2;
+        }
       }
-    } else if (!thread_opt->count) {
-      thread_opt->count = 2;
+    } else if (!thread_opt.count) {
+      thread_opt.count = 2;
     }
 
-    auto runManager = new G4MTRunManager;
-    runManager->SetNumberOfThreads(thread_opt->count);
+    auto run = new G4MTRunManager;
+    run->SetNumberOfThreads(thread_opt.count);
 
-    if (thread_opt->count > 1) {
-      std::cout << "Running " << thread_opt->count << " Threads.\n";
+    if (thread_opt.count > 1) {
+      std::cout << "Running " << thread_opt.count << " Threads.\n";
     } else {
       std::cout << "Running 1 Thread.\n";
     }
   #else
-    auto runManager = new G4RunManager;
+    auto run = new G4RunManager;
     std::cout << "Running in Single Threaded Mode.\n";
   #endif
 
-  runManager->SetPrintProgress(1000);
-  runManager->SetRandomNumberStore(false);
+  run->SetPrintProgress(1000);
+  run->SetRandomNumberStore(false);
 
-  MATHUSLA::MU::Units::Define();
+  Units::Define();
 
-  auto physicsList = new FTFP_BERT;
-  physicsList->RegisterPhysics(new G4StepLimiterPhysics);
-  runManager->SetUserInitialization(physicsList);
-  runManager->SetUserInitialization(new MATHUSLA::MU::Construction);
+  auto physics = new FTFP_BERT;
+  physics->RegisterPhysics(new G4StepLimiterPhysics);
+  run->SetUserInitialization(physics);
+  run->SetUserInitialization(new Construction::Builder("Prototype"));
 
-  auto generator = !gen_opt->argument ? "basic" : gen_opt->argument;
-  runManager->SetUserInitialization(
-    new MATHUSLA::MU::ActionInitialization(generator));
+  auto generator = gen_opt.argument ? gen_opt.argument : "basic";
+  run->SetUserInitialization(new ActionInitialization(generator));
 
-  auto visManager = new G4VisExecutive("Quiet");
-  visManager->Initialize();
+  auto vis = new G4VisExecutive("Quiet");
+  vis->Initialize();
 
   auto UImanager = G4UImanager::GetUIpointer();
 
@@ -96,22 +98,22 @@ int main(int argc, char* argv[]) {
   UImanager->ApplyCommand("/control/macroPath scripts/");
   UImanager->ApplyCommand("/control/saveHistory scripts/G4History");
 
-  if (quiet_opt->count) {
+  if (quiet_opt.count) {
     UImanager->ApplyCommand("/control/execute settings/quiet");
   } else {
     UImanager->ApplyCommand("/control/execute settings/verbose");
   }
 
-  if (vis_opt->count) {
+  if (vis_opt.count) {
     UImanager->ApplyCommand("/control/execute settings/init_vis");
     if (ui->IsGUI())
       UImanager->ApplyCommand("/control/execute settings/init_gui");
   }
 
-  if (script_opt->argument) {
-    UImanager->ApplyCommand("/control/execute " + G4String(script_opt->argument));
-  } else if (events_opt->argument) {
-    UImanager->ApplyCommand("/run/beamOn " + G4String(events_opt->argument));
+  if (script_opt.argument) {
+    UImanager->ApplyCommand("/control/execute " + std::string(script_opt.argument));
+  } else if (events_opt.argument) {
+    UImanager->ApplyCommand("/run/beamOn " + std::string(events_opt.argument));
   }
 
   if (ui) {
@@ -119,7 +121,8 @@ int main(int argc, char* argv[]) {
     delete ui;
   }
 
-  delete visManager;
-  delete runManager;
+  delete vis;
+  delete run;
   return 0;
 }
+//----------------------------------------------------------------------------------------------

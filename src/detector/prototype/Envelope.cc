@@ -5,7 +5,9 @@
 
 namespace MATHUSLA { namespace MU {
 
-Envelope::Envelope(const G4String& name,
+namespace Prototype { //////////////////////////////////////////////////////////////////////////
+
+Envelope::Envelope(const std::string& name,
                    const LayerType layer_type,
                    const Alignment alignment,
                    const Rotation rotation,
@@ -52,12 +54,10 @@ Envelope::Envelope(const G4String& name,
 
   for (size_t i = 0; i < size; ++i) {
     auto s = _scintillators[i];
-    const G4String copyname = s->GetFullName();
-    const G4String fullname = G4String() + name[0] + name[1]
-                            + (rotation == Rotation::NoFlip
-                                ? std::to_string(1 + i)
-                                : std::to_string(size - i))
-                            + '_' + s->name;
+    const auto copyname = s->GetFullName();
+    const auto fullname = std::string() + name[0] + name[1]
+                        + std::to_string(rotation == Rotation::NoFlip ? (1 + i) : (size - i))
+                        + '_' + s->name;
 
     if (copyname != fullname && copyname != s->name) {
       _scintillators[i] = Scintillator::Clone(s);
@@ -74,12 +74,15 @@ Envelope::Envelope(const G4String& name,
   if (rotation == Rotation::Flip) {
     std::reverse(_scintillators.begin(), _scintillators.end());
   }
-
 }
+//----------------------------------------------------------------------------------------------
 
 G4VPhysicalVolume* Envelope::Place(G4LogicalVolume* parent, const G4Transform3D& transform) {
   _placement = Construction::PlaceVolume(_volume, parent, transform);
   return _placement;
 }
+//----------------------------------------------------------------------------------------------
+
+} /* namespace Prototype */ ////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

@@ -2,7 +2,6 @@
 #define MU__PHYSICS_PYTHIAGENERATOR_HH
 #pragma once
 
-#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -10,7 +9,7 @@
 #include "Pythia8/Event.h"
 
 #include "physics/Generator.hh"
-#include "ui/Command.hh"
+#include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -26,7 +25,7 @@ public:
                   const double pT,
                   const double eta,
                   const double phi,
-                  std::initializer_list<std::string> settings);
+                  std::vector<std::string> settings);
 
   PythiaGenerator(const int id,
                   const double pT_min,
@@ -44,19 +43,19 @@ public:
                   const double eta_max,
                   const double phi_min,
                   const double phi_max,
-                  std::initializer_list<std::string> settings);
+                  std::vector<std::string> settings);
 
   void GeneratePrimaryVertex(G4Event* event);
   void SetNewValue(G4UIcommand* command, G4String value);
   void SetPythia(Pythia8::Pythia* pythia);
-  void SetPythia(std::initializer_list<std::string> settings);
+  void SetPythia(std::vector<std::string> settings);
   Pythia8::Particle* FindParticle(Pythia8::Event& event) const;
 
 private:
   Pythia8::Pythia* _pythia;
   std::vector<std::string> _settings;
-  G4CMD_String* _read_string;
-  G4CMD_String* _read_file;
+  Command::StringArg* _read_string;
+  Command::StringArg* _read_file;
 };
 
 } } /* namespace MATHUSLA::MU */

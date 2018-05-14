@@ -18,22 +18,25 @@ add_executable(simulation
     src/action/GeneratorAction.cc
     src/action/RunAction.cc
 
-    src/analysis/AnalysisManager.cc
+    src/analysis.cc
 
     src/detector/Construction.cc
     src/detector/Earth.cc
-    src/detector/Envelope.cc
-    src/detector/Prototype.cc
-    src/detector/RPC.cc
-    src/detector/Scintillator.cc
 
-    src/physics/Field.cc
+    src/detector/flat/Flat.cc
+    src/detector/flat/Scintillator.cc
+
+    src/detector/prototype/Envelope.cc
+    src/detector/prototype/Prototype.cc
+    src/detector/prototype/RPC.cc
+    src/detector/prototype/Scintillator.cc
+
     src/physics/Generator.cc
     src/physics/PythiaGenerator.cc
 
-    src/tracking/PrototypeHit.cc
+    src/tracking.cc
 
-    src/util/CommandLineParser.cc
+    src/util/command_line_parser.cc
 )
 
 target_link_libraries(simulation

@@ -12,15 +12,17 @@ PythiaGenerator::PythiaGenerator(const int id,
                                  const double phi,
                                  Pythia8::Pythia* pythia)
     : PythiaGenerator(id, pT, pT, -eta, eta, -phi, phi, pythia) {}
+//----------------------------------------------------------------------------------------------
 
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT,
                                  const double eta,
                                  const double phi,
-                                 std::initializer_list<std::string> settings)
+                                 std::vector<std::string> settings)
     : PythiaGenerator(id, pT, eta, phi) {
-  SetPythia(settings);
+  SetPythia(std::move(settings));
 }
+//----------------------------------------------------------------------------------------------
 
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT_min,
@@ -35,14 +37,15 @@ PythiaGenerator::PythiaGenerator(const int id,
 
   SetPythia(pythia);
 
-  _read_string = CreateCommand<G4CMD_String>("readString", "Read Pythia String.");
+  _read_string = CreateCommand<Command::StringArg>("readString", "Read Pythia String.");
   _read_string->SetParameterName("string", false);
   _read_string->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _read_file = CreateCommand<G4CMD_String>("readFile", "Read Pythia File.");
+  _read_file = CreateCommand<Command::StringArg>("readFile", "Read Pythia File.");
   _read_file->SetParameterName("file", false);
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
+//----------------------------------------------------------------------------------------------
 
 PythiaGenerator::PythiaGenerator(const int id,
                                  const double pT_min,
@@ -51,14 +54,15 @@ PythiaGenerator::PythiaGenerator(const int id,
                                  const double eta_max,
                                  const double phi_min,
                                  const double phi_max,
-                                 std::initializer_list<std::string> settings)
+                                 std::vector<std::string> settings)
     : PythiaGenerator(id, pT_min, pT_max, eta_min, eta_max, phi_min, phi_max) {
-  SetPythia(settings);
+  SetPythia(std::move(settings));
 }
+//----------------------------------------------------------------------------------------------
 
-namespace {
+namespace { ////////////////////////////////////////////////////////////////////////////////////
 
-static Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
+Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
   if (!pythia) {
     return new Pythia8::Pythia();
   } else {
@@ -67,8 +71,9 @@ static Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
     return out;
   }
 }
+//----------------------------------------------------------------------------------------------
 
-static Pythia8::Pythia* _set_pythia(std::vector<std::string>& settings) {
+Pythia8::Pythia* _set_pythia(std::vector<std::string>& settings) {
   auto pythia = new Pythia8::Pythia();
   for (const auto& setting : settings) {
     pythia->readString(setting);
@@ -77,8 +82,9 @@ static Pythia8::Pythia* _set_pythia(std::vector<std::string>& settings) {
   settings.clear();
   return pythia;
 }
+//----------------------------------------------------------------------------------------------
 
-} /* anonymous namespace */
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   if (!_settings.empty()) {
@@ -113,6 +119,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
 
   event->AddPrimaryVertex(vertex);
 }
+//----------------------------------------------------------------------------------------------
 
 void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _read_string) {
@@ -156,6 +163,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
     _phi_max = _ui_phi_max->GetNewDoubleValue(value);
   }
 }
+//----------------------------------------------------------------------------------------------
 
 void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   if (!pythia) return;
@@ -164,12 +172,14 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   _pythia = _reconstruct_pythia(pythia);
   _pythia->init();
 }
+//----------------------------------------------------------------------------------------------
 
-void PythiaGenerator::SetPythia(std::initializer_list<std::string> settings) {
-  _settings = settings;
+void PythiaGenerator::SetPythia(std::vector<std::string> settings) {
+  _settings = std::move(settings);
   // delete _pythia;
   _pythia = _set_pythia(_settings);
 }
+//----------------------------------------------------------------------------------------------
 
 Pythia8::Particle* PythiaGenerator::FindParticle(Pythia8::Event& event) const {
   for (int i = 0; i < event.size(); ++i) {
@@ -186,5 +196,6 @@ Pythia8::Particle* PythiaGenerator::FindParticle(Pythia8::Event& event) const {
   }
   return nullptr;
 }
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */

@@ -9,7 +9,7 @@
 
 namespace MATHUSLA { namespace MU {
 
-namespace Earth {
+namespace Earth { //////////////////////////////////////////////////////////////////////////////
 
 struct Material {
   static G4Material* CaCO3;
@@ -22,16 +22,16 @@ struct Material {
   Material();
 };
 
-constexpr double LayerWidthX    = 20000*cm;
-constexpr double LayerWidthY    = 20000*cm;
-constexpr double SandstoneDepth =  4530*cm;
-constexpr double MarlDepth      =  1825*cm;
-constexpr double MixDepth       =  3645*cm - 10*m;
-constexpr double TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
+constexpr auto LayerWidthX    = 20000*cm;
+constexpr auto LayerWidthY    = 20000*cm;
+constexpr auto SandstoneDepth =  4530*cm;
+constexpr auto MarlDepth      =  1825*cm;
+constexpr auto MixDepth       =  3645*cm - 10*m;
+constexpr auto TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
 
 G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
-} /* namespace Earth */
+} /* namespace Earth */ ////////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 

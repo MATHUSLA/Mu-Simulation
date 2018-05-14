@@ -8,13 +8,15 @@
 #include "Geant4/G4VSensitiveDetector.hh"
 
 #include "detector/Construction.hh"
-#include "tracking/PrototypeHit.hh"
+#include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
 
+namespace Prototype { //////////////////////////////////////////////////////////////////////////
+
 class Scintillator {
 public:
-  Scintillator(const G4String& name,
+  Scintillator(const std::string& name,
                const double height,
                const double minwidth,
                const double maxwidth);
@@ -28,7 +30,7 @@ public:
     Material();
   };
 
-  G4String           name;
+  std::string        name;
   double             height;
   double             minwidth;
   double             maxwidth;
@@ -36,7 +38,7 @@ public:
   G4VPhysicalVolume* pvolume;
   G4VPhysicalVolume* sensitive;
 
-  const G4String GetFullName() const;
+  const std::string GetFullName() const;
 
   void Register(G4VSensitiveDetector* detector);
 
@@ -49,14 +51,14 @@ public:
 
   static Scintillator* Clone(const Scintillator* other);
 
-  constexpr static double Depth     =  2.0*cm;
-  constexpr static double Thickness =  0.1*cm;
-  constexpr static double Spacing   =  0.1*cm;
-  constexpr static double PMTRadius =  2.1*cm;
-  constexpr static double PMTLength = 19.3*cm;
+  constexpr static auto Depth     =  2.0*cm;
+  constexpr static auto Thickness =  0.1*cm;
+  constexpr static auto Spacing   =  0.1*cm;
+  constexpr static auto PMTRadius =  2.1*cm;
+  constexpr static auto PMTLength = 19.3*cm;
 
-  constexpr static double MinDeposit =  0*keV;
-  constexpr static double MaxDeposit = 10*MeV;
+  constexpr static auto MinDeposit =  0*keV;
+  constexpr static auto MaxDeposit = 10*MeV;
 };
 
 using ScintillatorList = std::vector<Scintillator*>;
@@ -67,26 +69,26 @@ public:
   enum class Alignment : signed char { Left = -1, Center = 0, Right = 1 };
   enum class Rotation { NoFlip, Flip };
 
-  Envelope(const G4String& name,
+  Envelope(const std::string& name,
            const LayerType layer_type,
            const Alignment alignment,
            const Rotation rotation,
            std::initializer_list<Scintillator*> scintillators);
 
-  inline const G4String&    GetName()             const { return _name;          }
-  inline double             GetHeight()           const { return _height;        }
-  inline double             GetTopWidth()         const { return _top_width;     }
-  inline double             GetBottomWidth()      const { return _bottom_width;  }
-  inline G4LogicalVolume*   GetVolume()           const { return _volume;        }
-  inline G4VPhysicalVolume* GetPlacement()        const { return _placement;     }
-  inline ScintillatorList   GetScintillatorList() const { return _scintillators; }
+  const std::string& GetName()             const { return _name;          }
+  double             GetHeight()           const { return _height;        }
+  double             GetTopWidth()         const { return _top_width;     }
+  double             GetBottomWidth()      const { return _bottom_width;  }
+  G4LogicalVolume*   GetVolume()           const { return _volume;        }
+  G4VPhysicalVolume* GetPlacement()        const { return _placement;     }
+  ScintillatorList   GetScintillatorList() const { return _scintillators; }
 
   G4VPhysicalVolume* Place(G4LogicalVolume* parent, const G4Transform3D& transform);
 
-  constexpr static double LayerSpacing = 5*cm;
+  constexpr static auto LayerSpacing = 5*cm;
 
 private:
-  G4String           _name;
+  std::string        _name;
   double             _height;
   double             _top_width;
   double             _bottom_width;
@@ -117,54 +119,54 @@ public:
 
   RPC(int id);
 
-  inline int                GetID()        const { return _id;        }
-  inline const G4String&    GetName()      const { return _name;      }
-  inline G4LogicalVolume*   GetVolume()    const { return _volume;    }
-  inline G4VPhysicalVolume* GetPlacement() const { return _placement; }
-  inline std::vector<Pad>   GetPadList()   const { return _pads;      }
+  int                GetID()        const { return _id;        }
+  const std::string& GetName()      const { return _name;      }
+  G4LogicalVolume*   GetVolume()    const { return _volume;    }
+  G4VPhysicalVolume* GetPlacement() const { return _placement; }
+  std::vector<Pad>   GetPadList()   const { return _pads;      }
 
   G4VPhysicalVolume* Place(G4LogicalVolume* parent, const G4Transform3D& transform);
 
   void Register(G4VSensitiveDetector* detector);
 
-  constexpr static double Width     = 1257*mm;
-  constexpr static double Height    = 2854*mm;
-  constexpr static double Depth     =   60*mm;   // what is true value?
-  constexpr static double Thickness =   10*mm;   // what is true value?
-  constexpr static double Angle     =   12*deg;  // what is true value?
+  constexpr static auto Width     = 1257*mm;
+  constexpr static auto Height    = 2854*mm;
+  constexpr static auto Depth     =   60*mm;   // what is true value?
+  constexpr static auto Thickness =   10*mm;   // what is true value?
+  constexpr static auto Angle     =   12*deg;  // what is true value?
 
-  constexpr static double PadWidth     = 618*mm;
-  constexpr static double PadHeight    = 556*mm;
-  constexpr static double PadDepth     =  55*mm;  // what is true value?
-  constexpr static double PadThickness =  10*mm;  // what is true value?
-  constexpr static double PadStartX    = 318*mm;
-  constexpr static double PadStartY    = 312*mm;
-  constexpr static double PadSpacingX  = 620*mm;
-  constexpr static double PadSpacingY  = 557*mm;
+  constexpr static auto PadWidth     = 618*mm;
+  constexpr static auto PadHeight    = 556*mm;
+  constexpr static auto PadDepth     =  55*mm;  // what is true value?
+  constexpr static auto PadThickness =  10*mm;  // what is true value?
+  constexpr static auto PadStartX    = 318*mm;
+  constexpr static auto PadStartY    = 312*mm;
+  constexpr static auto PadSpacingX  = 620*mm;
+  constexpr static auto PadSpacingY  = 557*mm;
 
-  constexpr static double StripWidth     =  618*mm;
-  constexpr static double StripHeight    = 67.5*mm;
-  constexpr static double StripDepth     =   50*mm;  // what is true value?
-  constexpr static double StripThickness =    2*mm;  // what is true value?
-  constexpr static double StripTopGap    =    1*mm;
-  constexpr static double StripYGap      =    2*mm;
+  constexpr static auto StripWidth     =  618*mm;
+  constexpr static auto StripHeight    = 67.5*mm;
+  constexpr static auto StripDepth     =   50*mm;  // what is true value?
+  constexpr static auto StripThickness =    2*mm;  // what is true value?
+  constexpr static auto StripTopGap    =    1*mm;
+  constexpr static auto StripYGap      =    2*mm;
 
-  constexpr static double MinDeposit =  0*keV;
-  constexpr static double MaxDeposit = 10*MeV;
+  constexpr static auto MinDeposit =  0*keV;
+  constexpr static auto MaxDeposit = 10*MeV;
 
 private:
   G4LogicalVolume* _volume;
   std::vector<Pad> _pads;
   int _id;
-  G4String _name;
+  std::string _name;
   G4VPhysicalVolume* _placement;
 };
 
 using RPCList = std::vector<RPC*>;
 
-class Prototype : public G4VSensitiveDetector {
+class Detector : public G4VSensitiveDetector {
 public:
-  Prototype();
+  Detector();
 
   struct Material {
     static void Define();
@@ -180,12 +182,9 @@ public:
   static int EncodeDetector(const std::string& name);
   static const std::string DecodeDetector(int id);
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
-
-private:
-  PrototypeHC* _hit_collection;
-  static EnvelopeList _envelopes;
-  static RPCList _rpcs;
 };
+
+} /* namespace Prototype */ ////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 

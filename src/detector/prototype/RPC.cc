@@ -2,11 +2,15 @@
 
 namespace MATHUSLA { namespace MU {
 
+namespace Prototype { //////////////////////////////////////////////////////////////////////////
+
 RPC::Pad::Pad(int id) : volume(nullptr), strips(), id(id) {}
+//----------------------------------------------------------------------------------------------
 
 G4Material* RPC::Material::Casing = nullptr;
 G4Material* RPC::Material::Pad    = nullptr;
 G4Material* RPC::Material::Gas    = nullptr;
+//----------------------------------------------------------------------------------------------
 
 void RPC::Material::Define() {
   Material::Casing = Construction::Material::Aluminum;
@@ -36,6 +40,7 @@ void RPC::Material::Define() {
   Material::Gas->AddMaterial(C2H2F4, 0.93);
   Material::Gas->AddMaterial(argon,  0.07);
 }
+//----------------------------------------------------------------------------------------------
 
 RPC::RPC(int id)
     : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_string(id)) {
@@ -79,16 +84,21 @@ RPC::RPC(int id)
     _pads.push_back(pad);
   }
 }
+//----------------------------------------------------------------------------------------------
 
 G4VPhysicalVolume* RPC::Place(G4LogicalVolume* parent, const G4Transform3D& transform) {
   _placement = Construction::PlaceVolume(_volume, parent, transform);
   return _placement;
 }
+//----------------------------------------------------------------------------------------------
 
 void RPC::Register(G4VSensitiveDetector* detector) {
   for (const auto& pad : _pads)
     for (const auto& strip : pad.strips)
       strip->GetLogicalVolume()->SetSensitiveDetector(detector);
 }
+//----------------------------------------------------------------------------------------------
+
+} /* namespace Prototype */ ////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

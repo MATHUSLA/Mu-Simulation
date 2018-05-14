@@ -1,45 +1,33 @@
 #include "detector/Prototype.hh"
 
-#include <algorithm>
-#include <fstream>
 #include <unordered_map>
-#include <vector>
 
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4SDManager.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4RunManager.hh"
-#include "Geant4/G4ios.hh"
-#include "Geant4/G4AffineTransform.hh"
 
-#include "analysis/AnalysisManager.hh"
+#include "analysis.hh"
 #include "physics/Units.hh"
-#include "util/Time.hh"
+#include "util/time.hh"
 
 namespace MATHUSLA { namespace MU {
 
-//__Envelopes and RPCs__________________________________________________________________________
-/*! \brief Static Vectors that hold the Envelopes and RPCs for the Prototype Detector
-*/
-auto Prototype::_envelopes = EnvelopeList();
-auto Prototype::_rpcs = RPCList();
-//----------------------------------------------------------------------------------------------
+namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
-//__Encoding and Decoding Maps*_________________________________________________________________
-/*! \brief File-Local maps for the encoding and decoding of the scintillators and rpcs
-*/
-namespace {
-static G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
-static G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
-static G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
-} /* annonymous namespace */
-//----------------------------------------------------------------------------------------------
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+G4ThreadLocal Tracking::HitsCollection* _hit_collection;
+G4ThreadLocal EnvelopeList _envelopes;
+G4ThreadLocal RPCList _rpcs;
+G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
+G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
+G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Prototype Constructor_______________________________________________________________________
 /*! \brief Creates Detector and Assigns sensitive volumes
 */
-Prototype::Prototype()
-    : G4VSensitiveDetector("MATHUSLA/MU/Prototype"), _hit_collection(nullptr) {
+Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
   collectionName.insert("Prototype_HC");
 
   for (auto envelope : _envelopes) {
@@ -55,9 +43,9 @@ Prototype::Prototype()
 
   for (auto rpc : _rpcs) {
     rpc->Register(this);
-    for (auto pad : rpc->GetPadList()) {
-      for (auto strip : pad.strips) {
-        const auto name = strip->GetName();
+    for (const auto& pad : rpc->GetPadList()) {
+      for (const auto& strip : pad.strips) {
+        const auto& name = strip->GetName();
         const auto id = std::stoi(name);
         _encoding.insert({name, id});
         _decoding.insert({id, name});
@@ -70,7 +58,7 @@ Prototype::Prototype()
 //__Prototype Material Define___________________________________________________________________
 /*! \brief Defines Materials in Scintillator and RPC Subclasses
 */
-void Prototype::Material::Define() {
+void Detector::Material::Define() {
   Scintillator::Material::Define();
   RPC::Material::Define();
 }
@@ -79,8 +67,8 @@ void Prototype::Material::Define() {
 //__Initalize Event__________________________________________________________________________
 /*! \brief Initialzes Prototype Hit Collection
 */
-void Prototype::Initialize(G4HCofThisEvent* eventHC) {
-  _hit_collection = new PrototypeHC(GetName(), collectionName[0]);
+void Detector::Initialize(G4HCofThisEvent* eventHC) {
+  _hit_collection = new Tracking::HitsCollection(GetName(), collectionName[0]);
   eventHC->AddHitsCollection(
     G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
     _hit_collection);
@@ -90,13 +78,13 @@ void Prototype::Initialize(G4HCofThisEvent* eventHC) {
 //__Hit Processing______________________________________________________________________________
 /*! \brief Collects Data from Hit and Stores in ROOT Ntuple and Geant4 Hit Collection
 */
-G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
+G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto deposit = step->GetTotalEnergyDeposit();
 
   const auto min_deposit = Scintillator::MinDeposit < RPC::MinDeposit ?
                            Scintillator::MinDeposit : RPC::MinDeposit;
 
-  if (deposit == 0 || deposit < min_deposit)
+  if (!deposit || deposit < min_deposit)
     return false;
 
   const auto track       = step->GetTrack();
@@ -111,7 +99,7 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto momentum    = post_step->GetMomentum();
 
   _hit_collection->insert(
-    new PrototypeHit(
+    new Tracking::Hit(
       particle->GetParticleName(),
       trackID,
       track->GetParentID(),
@@ -126,29 +114,30 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
   if (detector_id < 100) {
     const auto sci = _sci_map[name];
 
-    const auto volume1 = history->GetVolume(history->GetDepth() - 1);
-    const auto volume2 = history->GetVolume(history->GetDepth() - 2);
-    const auto volume3 = history->GetVolume(history->GetDepth() - 3);
-    const auto volume4 = history->GetVolume(history->GetDepth() - 4);
+    const auto& volume1 = history->GetVolume(history->GetDepth() - 1);
+    const auto& volume2 = history->GetVolume(history->GetDepth() - 2);
+    const auto& volume3 = history->GetVolume(history->GetDepth() - 3);
+    const auto& volume4 = history->GetVolume(history->GetDepth() - 4);
 
-    const auto t1 = volume1->GetObjectTranslation();
-    const auto t2 = volume2->GetObjectTranslation();
-    const auto t3 = volume3->GetObjectTranslation();
-    const auto t4 = volume4->GetObjectTranslation();
+    const auto& t1 = volume1->GetObjectTranslation();
+    const auto& t2 = volume2->GetObjectTranslation();
+    const auto& t3 = volume3->GetObjectTranslation();
+    const auto& t4 = volume4->GetObjectTranslation();
 
-    const auto r2 = volume2->GetObjectRotationValue();
-    const auto r3 = volume3->GetObjectRotationValue();
-    const auto r4 = volume4->GetObjectRotationValue();
+    const auto& r2 = volume2->GetObjectRotationValue();
+    const auto& r3 = volume3->GetObjectRotationValue();
+    const auto& r4 = volume4->GetObjectRotationValue();
 
-    const auto translation = r4 * (r3 * (r2 * (t1) + t2) + t3) + t4;
-    const auto rotation = (r4*r3*r2).inverse();
+    const auto& translation = r4 * (r3 * (r2 * (t1) + t2) + t3) + t4;
+    const auto& rotation = (r4*r3*r2).inverse();
 
     if (sci)
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
   const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-  AnalysisManager::FillNTuple("event" + std::to_string(eventID), {
+
+  Analysis::FillNTuple("event" + std::to_string(eventID), {
     deposit/MeV,
     global_time/ns,
     static_cast<double>(detector_id),
@@ -162,8 +151,8 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
     momentum.y()/MeVperC,
     momentum.z()/MeVperC,
     pmt_point.r/cm,
-    std::stod(Time::GetDate()),
-    std::stod(Time::GetTime())});
+    std::stod(util::time::GetDate()),
+    std::stod(util::time::GetTime())});
 
   return true;
 }
@@ -172,7 +161,7 @@ G4bool Prototype::ProcessHits(G4Step* step, G4TouchableHistory*) {
 //__Post-Event Processing_______________________________________________________________________
 /*! \brief Print data from Hit Collection
 */
-void Prototype::EndOfEvent(G4HCofThisEvent*) {
+void Detector::EndOfEvent(G4HCofThisEvent*) {
   if (verboseLevel < 2) return;
 
   const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
@@ -183,16 +172,16 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
                                       + std::to_string(hitCount).length(), '-');
 
   const auto box = boxside
-                 + "\n| Event: "    + std::to_string(eventID)
-                 + " | Hit Count: " + std::to_string(hitCount)
-                 + " |\n" + boxside + '\n';
+                 + "\n| Event: "     + std::to_string(eventID)
+                 +  " | Hit Count: " + std::to_string(hitCount)
+                 +  " |\n" + boxside + '\n';
 
   std::cout << "\n\n" << box;
 
   auto trackID = -1;
-  std::string chamberID = "";
+  std::string chamberID;
   for (auto i = 0; i < hitCount; ++i) {
-    const auto hit = dynamic_cast<PrototypeHit*>(_hit_collection->GetHit(i));
+    const auto hit = dynamic_cast<Tracking::Hit*>(_hit_collection->GetHit(i));
     const auto new_chamberID = hit->GetChamberID();
     const auto new_trackID   = hit->GetTrackID();
     const bool hit_type      =     chamberID[0] == 'A' ||     chamberID[0] == 'B';
@@ -221,7 +210,7 @@ void Prototype::EndOfEvent(G4HCofThisEvent*) {
 //__Detector Encoding___________________________________________________________________________
 /*! \brief Returns encoding generated at construction
 */
-int Prototype::EncodeDetector(const std::string& name) {
+int Detector::EncodeDetector(const std::string& name) {
   return _encoding[name];
 }
 //----------------------------------------------------------------------------------------------
@@ -229,7 +218,7 @@ int Prototype::EncodeDetector(const std::string& name) {
 //__Detector Decoding___________________________________________________________________________
 /*! \brief Returns decoding generated at construction
 */
-const std::string Prototype::DecodeDetector(int id) {
+const std::string Detector::DecodeDetector(int id) {
   return _decoding[id];
 }
 //----------------------------------------------------------------------------------------------
@@ -237,10 +226,10 @@ const std::string Prototype::DecodeDetector(int id) {
 //__Analysis Generation_________________________________________________________________________
 /*! \brief Builds ROOT NTuple for use in post-processing analysis
 */
-bool Prototype::GenerateAnalysis(const int event_count) {
-  auto pass = true;
+bool Detector::GenerateAnalysis(const int event_count) {
+  bool pass = true;
   for (auto i = 0; i < event_count; ++i) {
-    pass = pass && AnalysisManager::CreateNTuple("event"+ std::to_string(i), {
+    pass = pass && Analysis::CreateNTuple("event"+ std::to_string(i), {
       "Deposit", "Time", "Detector",
       "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
       "TimestampDate", "TimestampTime"});
@@ -252,11 +241,13 @@ bool Prototype::GenerateAnalysis(const int event_count) {
 //__Prototype Generator Construction____________________________________________________________
 /*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
 */
-G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
+G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
+  Material::Define();
+
   constexpr double total_height = 6649*mm;
 
   constexpr double total_outer_box_height = total_height + 170*mm;
-  auto Detector = Construction::BoxVolume(
+  auto DetectorVolume = Construction::BoxVolume(
     "Prototype", 2800*mm, 2800*mm, total_outer_box_height);
 
   constexpr auto Top    = Envelope::LayerType::TopFirst;
@@ -313,8 +304,8 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
 
 
   constexpr double height_A = 255*cm,
-                      width_A = 254*cm,
-                      depth_A =  40*cm;
+                    width_A = 254*cm,
+                    depth_A =  40*cm;
   auto layerA = Construction::BoxVolume("A-Layer", width_A, depth_A, height_A);
 
   double shift_A = 0;
@@ -332,7 +323,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
     stack_A = !stack_A;
   }
 
-  Construction::PlaceVolume(layerA, Detector,
+  Construction::PlaceVolume(layerA, DetectorVolume,
     Construction::Transform(0, 0, -0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
 
@@ -355,7 +346,7 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
         rpc_shift_direction * rpc_sublayer_spacing));
       _rpcs.push_back(rpc);
     }
-    Construction::PlaceVolume(layer, Detector,
+    Construction::PlaceVolume(layer, DetectorVolume,
       Construction::Transform(
         0, 0,
         rpc_top_gap - 0.5 * outer_layer_spacing
@@ -366,8 +357,8 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
 
 
   constexpr double height_B = 254*cm,
-                      width_B = 236*cm,
-                      depth_B =  40*cm;
+                    width_B = 236*cm,
+                    depth_B =  40*cm;
   auto layerB = Construction::BoxVolume("B-Layer", height_B, depth_B, width_B);
 
   double shift_B = 0;
@@ -400,12 +391,14 @@ G4VPhysicalVolume* Prototype::Construct(G4LogicalVolume* world) {
     stack_B = !stack_B;
   }
 
-  Construction::PlaceVolume(layerB, Detector,
+  Construction::PlaceVolume(layerB, DetectorVolume,
     Construction::Transform(0, 0, 0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
-  return Construction::PlaceVolume(Detector, world,
+  return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
+
+} /* namespace Prototype */ ////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
