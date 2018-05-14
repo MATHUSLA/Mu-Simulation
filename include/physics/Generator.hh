@@ -6,14 +6,14 @@
 #include "Geant4/G4PrimaryVertex.hh"
 #include "Geant4/G4PrimaryParticle.hh"
 
-#include "ui/Command.hh"
+#include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
 
 class Generator : public G4UImessenger {
 public:
-  Generator(const G4String& name,
-            const G4String& description,
+  Generator(const std::string& name,
+            const std::string& description,
             const int id,
             const double pT,
             const double eta,
@@ -24,11 +24,11 @@ public:
   virtual void GeneratePrimaryVertex(G4Event* event);
   virtual void SetNewValue(G4UIcommand* command, G4String value);
 
-  inline const G4String& GetName() const { return _name; }
-  inline int             id()      const { return _id;   }
-  inline double          pT()      const { return _pT;   }
-  inline double          eta()     const { return _eta;  }
-  inline double          phi()     const { return _phi;  }
+  const std::string& GetName() const { return _name; }
+  int                id()      const { return _id;   }
+  double             pT()      const { return _pT;   }
+  double             eta()     const { return _eta;  }
+  double             phi()     const { return _phi;  }
 
   virtual const std::string InfoString() const;
 
@@ -41,34 +41,36 @@ public:
                                            const double eta,
                                            const double phi);
 
-  static const G4String MessengerDirectory;
+  static const std::string MessengerDirectory;
 
 protected:
-  G4String _name;
-  G4String _description;
+  std::string _name;
+  std::string _description;
 
   int    _id;
   double _pT;
   double _eta;
   double _phi;
 
-  G4CMD_Integer*    _ui_id;
-  G4CMD_DoubleUnit* _ui_pT;
-  G4CMD_Double*     _ui_eta;
-  G4CMD_DoubleUnit* _ui_phi;
+  Command::IntegerArg*    _ui_id;
+  Command::DoubleUnitArg* _ui_pT;
+  Command::DoubleArg*     _ui_eta;
+  Command::DoubleUnitArg* _ui_phi;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class RangeGenerator : public Generator {
 public:
-  RangeGenerator(const G4String& name,
-                 const G4String& description,
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
                  const int id,
                  const double pT,
                  const double eta,
                  const double phi);
 
-  RangeGenerator(const G4String& name,
-                 const G4String& description,
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
                  const int id,
                  const double pT_min,
                  const double pT_max,
@@ -82,12 +84,12 @@ public:
   virtual void GeneratePrimaryVertex(G4Event* event);
   virtual void SetNewValue(G4UIcommand* command, G4String value);
 
-  inline double pT_min()  const { return _pT_min;  }
-  inline double pT_max()  const { return _pT_max;  }
-  inline double eta_min() const { return _eta_min; }
-  inline double eta_max() const { return _eta_max; }
-  inline double phi_min() const { return _phi_min; }
-  inline double phi_max() const { return _phi_max; }
+  double pT_min()  const { return _pT_min;  }
+  double pT_max()  const { return _pT_max;  }
+  double eta_min() const { return _eta_min; }
+  double eta_max() const { return _eta_max; }
+  double phi_min() const { return _phi_min; }
+  double phi_max() const { return _phi_max; }
 
   virtual const std::string InfoString() const;
 
@@ -99,13 +101,21 @@ protected:
   double _phi_min;
   double _phi_max;
 
-  G4CMD_DoubleUnit* _ui_pT_min;
-  G4CMD_DoubleUnit* _ui_pT_max;
-  G4CMD_Double*     _ui_eta_min;
-  G4CMD_Double*     _ui_eta_max;
-  G4CMD_DoubleUnit* _ui_phi_min;
-  G4CMD_DoubleUnit* _ui_phi_max;
+  Command::DoubleUnitArg* _ui_pT_min;
+  Command::DoubleUnitArg* _ui_pT_max;
+  Command::DoubleArg*     _ui_eta_min;
+  Command::DoubleArg*     _ui_eta_max;
+  Command::DoubleUnitArg* _ui_phi_min;
+  Command::DoubleUnitArg* _ui_phi_max;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+//__Output Operator Overload for Generators_____________________________________________________
+inline std::ostream& operator<<(std::ostream& os, const Generator& generator) {
+  return os << generator.InfoString();
+}
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */
 

@@ -9,7 +9,7 @@
 namespace helper {
 
 template<class T, unsigned N>
-inline unsigned arraysize(const T (&v)[N]) { return N; }
+unsigned arraysize(const T (&v)[N]) { return N; }
 
 static const std::string detector_decode(int id) {
   if (id < 0) return "";
@@ -34,9 +34,8 @@ static const std::string detector_decode(int id) {
     return detector[id];
   } else {
     auto out = std::to_string(id);
-    if (out.size() < 5)
-      out = "0" + out;
-    return out;
+    if (out.size() < 5) return "0" + out;
+    else return out;
   }
 }
 

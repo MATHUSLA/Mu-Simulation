@@ -1,46 +1,57 @@
-#include "action/RunAction.hh"
+#include "action.hh"
 
 #include <fstream>
 
-#include "Geant4/G4Run.hh"
-
-#include "action/GeneratorAction.hh"
-#include "analysis/AnalysisManager.hh"
+#include "analysis.hh"
 #include "detector/Prototype.hh"
-#include "util/FileIO.hh"
-#include "util/Time.hh"
+
+#include "util/io.hh"
+#include "util/time.hh"
 
 namespace MATHUSLA { namespace MU {
 
-static G4ThreadLocal std::string _path = "";
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+//__Output File Path____________________________________________________________________________
+G4ThreadLocal std::string _path;
+//----------------------------------------------------------------------------------------------
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+/*
+TODO: Save Event Count for User to Access
+ */
+
+//__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
   _path = "data";
-  IO::create_directory(_path);
-  _path += '/' + Time::GetDate();
-  IO::create_directory(_path);
-  _path += '/' + Time::GetTime();
-  IO::create_directory(_path);
+  util::io::create_directory(_path);
+  _path += '/' + util::time::GetDate();
+  util::io::create_directory(_path);
+  _path += '/' + util::time::GetTime();
+  util::io::create_directory(_path);
   _path += "/run" + std::to_string(run->GetRunID());
 
-  AnalysisManager::Setup();
-  Prototype::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
-  AnalysisManager::Open(_path + ".root");
+  Analysis::Setup();
+  Analysis::Open(_path + ".root");
+  Prototype::Detector::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
+  // TODO: Flat::Detector::GenerateAnalysis() or alternative
 }
+//----------------------------------------------------------------------------------------------
 
+//__Post-Run Processing_________________________________________________________________________
 void RunAction::EndOfRunAction(const G4Run* run) {
-  if (!run->GetNumberOfEvent()) return;
+  const auto event_count = run->GetNumberOfEventToBeProcessed();
+  if (!event_count) return;
 
-  AnalysisManager::Save();
+  Analysis::Save();
 
   std::ofstream _info(_path + ".info");
 
   _info << "MATHUSLA -- Muon Simulation\n"
-        << Time::GetString("%c %Z") << "\n\n"
+        << util::time::GetString("%c %Z") << "\n\n"
         << "Run "     << run->GetRunID() << "\n"
-        << "Events: " << run->GetNumberOfEventToBeProcessed() << "\n"
+        << "Events: " << event_count << "\n"
         << "Data: "   << _path << ".root\n\n"
-        << GeneratorAction::GetGenerator()->InfoString();
+        << *GeneratorAction::GetGenerator();
 
   _info.close();
 
@@ -48,5 +59,6 @@ void RunAction::EndOfRunAction(const G4Run* run) {
             << "Data File: " << _path << ".root\n"
             << "Info File: " << _path << ".info\n\n";
 }
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */

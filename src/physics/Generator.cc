@@ -9,10 +9,13 @@
 
 namespace MATHUSLA { namespace MU {
 
-const G4String Generator::MessengerDirectory = "/gen/";
+//__Generator Messenger Directory Path__________________________________________________________
+const std::string Generator::MessengerDirectory = "/gen/";
+//----------------------------------------------------------------------------------------------
 
-Generator::Generator(const G4String& name,
-                     const G4String& description,
+//__Generator Constructor_______________________________________________________________________
+Generator::Generator(const std::string& name,
+                     const std::string& description,
                      const int id,
                      const double pT,
                      const double eta,
@@ -21,34 +24,38 @@ Generator::Generator(const G4String& name,
       _name(name), _description(description),
       _id(id), _pT(pT), _eta(eta), _phi(phi) {
 
-  _ui_id = CreateCommand<G4CMD_Integer>("id", "Set Particle Id.");
+  _ui_id = CreateCommand<Command::IntegerArg>("id", "Set Particle Id.");
   _ui_id->SetParameterName("id", false);
   _ui_id->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_pT = CreateCommand<G4CMD_DoubleUnit>("pT", "Set Transverse Momentum.");
+  _ui_pT = CreateCommand<Command::DoubleUnitArg>("pT", "Set Transverse Momentum.");
   _ui_pT->SetParameterName("pT", false, false);
   _ui_pT->SetRange("pT > 0");
   _ui_pT->SetDefaultUnit("GeV/c");
   _ui_pT->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta = CreateCommand<G4CMD_Double>("eta", "Set Pseudorapidity.");
+  _ui_eta = CreateCommand<Command::DoubleArg>("eta", "Set Pseudorapidity.");
   _ui_eta->SetParameterName("eta", false);
   _ui_eta->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi = CreateCommand<G4CMD_DoubleUnit>("phi", "Set Semi-Opening Angle.");
+  _ui_phi = CreateCommand<Command::DoubleUnitArg>("phi", "Set Semi-Opening Angle.");
   _ui_phi->SetParameterName("phi", false, false);
   _ui_phi->SetDefaultUnit("deg");
   _ui_phi->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generate Initial Particles__________________________________________________________________
 void Generator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
   event->AddPrimaryVertex(vertex);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generator Messenger Set Value_______________________________________________________________
 void Generator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
@@ -60,7 +67,9 @@ void Generator::SetNewValue(G4UIcommand* command, G4String value) {
     _phi = _ui_phi->GetNewDoubleValue(value);
   }
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generator Information String________________________________________________________________
 const std::string Generator::InfoString() const {
   std::stringstream out;
   out << "Generator Info:\n  "
@@ -71,16 +80,22 @@ const std::string Generator::InfoString() const {
       << "phi: "         << G4BestUnit(_phi, "Angle")   << "\n";
   return out.str();
 }
+//----------------------------------------------------------------------------------------------
 
+//__Default Vertex Object_______________________________________________________________________
 G4PrimaryVertex* Generator::DefaultVertex() {
   return new G4PrimaryVertex(0, 0, 100*m, 0);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const G4ThreeVector& momentum) {
   return new G4PrimaryParticle(id, momentum.x(), momentum.y(), momentum.z());
 }
+//----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const double pT,
                                              const double eta,
@@ -88,17 +103,21 @@ G4PrimaryParticle* Generator::CreateParticle(const int id,
   return new G4PrimaryParticle(
     id, pT*std::sinh(eta), pT*std::sin(phi), -pT*std::cos(phi));
 }
+//----------------------------------------------------------------------------------------------
 
-RangeGenerator::RangeGenerator(const G4String& name,
-                               const G4String& description,
+//__Range Generator Constructor_________________________________________________________________
+RangeGenerator::RangeGenerator(const std::string& name,
+                               const std::string& description,
                                const int id,
                                const double pT,
                                const double eta,
                                const double phi)
     : RangeGenerator(name, description, id, pT, pT, -eta, eta, -phi, phi) {}
+//----------------------------------------------------------------------------------------------
 
-RangeGenerator::RangeGenerator(const G4String& name,
-                               const G4String& description,
+//__Range Generator Constructor_________________________________________________________________
+RangeGenerator::RangeGenerator(const std::string& name,
+                               const std::string& description,
                                const int id,
                                const double pT_min,
                                const double pT_max,
@@ -110,41 +129,43 @@ RangeGenerator::RangeGenerator(const G4String& name,
       _pT_min(pT_min), _pT_max(pT_max), _eta_min(eta_min), _eta_max(eta_max),
       _phi_min(phi_min), _phi_max(phi_max) {
 
-  _ui_pT_min = CreateCommand<G4CMD_DoubleUnit>("pT_min", "Set Minimum Transverse Momentum.");
+  _ui_pT_min = CreateCommand<Command::DoubleUnitArg>("pT_min", "Set Minimum Transverse Momentum.");
   _ui_pT_min->SetParameterName("pT_min", false, false);
   _ui_pT_min->SetRange("pT_min > 0");
   _ui_pT_min->SetDefaultUnit("GeV/c");
   _ui_pT_min->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_pT_max = CreateCommand<G4CMD_DoubleUnit>("pT_max", "Set Maximum Transverse Momentum.");
+  _ui_pT_max = CreateCommand<Command::DoubleUnitArg>("pT_max", "Set Maximum Transverse Momentum.");
   _ui_pT_max->SetParameterName("pT_max", false, false);
   _ui_pT_max->SetRange("pT_max > 0");
   _ui_pT_max->SetDefaultUnit("GeV/c");
   _ui_pT_max->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta_min = CreateCommand<G4CMD_Double>("eta_min", "Set Minimum Pseudorapidity.");
+  _ui_eta_min = CreateCommand<Command::DoubleArg>("eta_min", "Set Minimum Pseudorapidity.");
   _ui_eta_min->SetParameterName("eta_min", false);
   _ui_eta_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta_max = CreateCommand<G4CMD_Double>("eta_max", "Set Maximum Pseudorapidity.");
+  _ui_eta_max = CreateCommand<Command::DoubleArg>("eta_max", "Set Maximum Pseudorapidity.");
   _ui_eta_max->SetParameterName("eta_max", false);
   _ui_eta_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi_min = CreateCommand<G4CMD_DoubleUnit>("phi_min", "Set Minimum Semi-Opening Angle.");
+  _ui_phi_min = CreateCommand<Command::DoubleUnitArg>("phi_min", "Set Minimum Semi-Opening Angle.");
   _ui_phi_min->SetParameterName("phi_min", false, false);
   _ui_phi_min->SetDefaultUnit("deg");
   _ui_phi_min->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi_max = CreateCommand<G4CMD_DoubleUnit>("phi_max", "Set Maximum Semi-Opening Angle.");
+  _ui_phi_max = CreateCommand<Command::DoubleUnitArg>("phi_max", "Set Maximum Semi-Opening Angle.");
   _ui_phi_max->SetParameterName("phi_max", false, false);
   _ui_phi_max->SetDefaultUnit("deg");
   _ui_phi_max->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
   _pT  = G4RandFlat::shoot(_pT_min, _pT_max);
@@ -153,7 +174,9 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
   event->AddPrimaryVertex(vertex);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Range Generator Messenger Set Value_________________________________________________________
 void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
@@ -186,7 +209,9 @@ void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
     _phi_max = _ui_phi_max->GetNewDoubleValue(value);
   }
 }
+//----------------------------------------------------------------------------------------------
 
+//__Range Generator Information String__________________________________________________________
 const std::string RangeGenerator::InfoString() const {
   std::stringstream out;
   out << "Generator Info:\n  "
@@ -203,5 +228,6 @@ const std::string RangeGenerator::InfoString() const {
       << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n";
   return out.str();
 }
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */

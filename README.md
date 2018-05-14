@@ -35,3 +35,7 @@ The generator defaults are specified in `src/action/GeneratorAction.cc` but they
 ### Custom scripts
 
 A custom _Geant4_ script can be specified at run time. The script can contain generator specific commands and settings as well as _Pythia8_ settings in the form of `readString`.
+
+### Custom Detector
+
+_coming soon..._
