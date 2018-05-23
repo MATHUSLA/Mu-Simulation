@@ -59,6 +59,9 @@ public:
 
   static const std::string MessengerDirectory;
 
+  static const std::string& GetDetector();
+  static void SetDetector(const std::string& detector);
+
 private:
   Command::NoArg*     _list;
   Command::NoArg*     _current;

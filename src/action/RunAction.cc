@@ -20,6 +20,7 @@
 #include <fstream>
 
 #include "analysis.hh"
+#include "geometry/Construction.hh"
 
 #include "util/io.hh"
 #include "util/time.hh"
@@ -66,9 +67,10 @@ void RunAction::EndOfRunAction(const G4Run* run) {
 
   _info << "MATHUSLA -- Muon Simulation\n"
         << util::time::GetString("%c %Z") << "\n\n"
-        << "Run "     << run->GetRunID() << "\n"
-        << "Events: " << event_count << "\n"
-        << "Data: "   << _path << ".root\n\n"
+        << Construction::Builder::GetDetector() << " Detector\n\n"
+        << "Run "      << run->GetRunID() << "\n"
+        << "Events: "  << event_count << "\n"
+        << "Data: "    << _path << ".root\n\n"
         << *GeneratorAction::GetGenerator();
 
   _info.close();

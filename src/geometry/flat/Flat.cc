@@ -55,8 +55,8 @@ void Detector::Initialize(G4HCofThisEvent* event) {
 
 //__Hit Processing______________________________________________________________________________
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
-  // TODO: implement
-  return false;
+  _hit_collection->insert(new Tracking::Hit(step));
+  return true;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -76,11 +76,15 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   auto DetectorVolume = Construction::BoxVolume(
     "Flat", 2800*mm, 2800*mm, total_outer_box_height);
 
-  auto S1 = new Scintillator("S1", 3000*mm, 25*mm, 35*mm, 15*mm);
+  const auto S1 = new Scintillator("S1", 2500*mm, 25*mm, 35*mm, 15*mm);
 
-  auto L1 = new Layer("L1", 100, *S1);
+  auto L1 = new Layer("L1", 90, *S1);
+  auto L2 = new Layer("L2", 90, *S1);
+  auto L3 = new Layer("L3", 90, *S1);
 
-  L1->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 0, 1, 0, 0, 90*deg));
+  L1->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 0*m, 1, 0, 0, 90*deg));
+  L2->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 1*m, 1, 0, 0, 90*deg));
+  L3->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 2*m, 1, 0, 0, 90*deg));
 
   return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));

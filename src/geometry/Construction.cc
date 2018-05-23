@@ -134,11 +134,7 @@ void Builder::ConstructSDandField() {
 //__Builder Messenger Set New Value_____________________________________________________________
 void Builder::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _select && value != _detector.c_str()) {
-    _detector = value;
-    Command::Execute("/run/reinitializeGeometry",
-                     "/run/geometryModified",
-                     "/run/initialize",
-                     "/vis/viewer/clearTransients");
+    SetDetector(value);
   } else if (command == _list) {
     std::cout << "Detectors: " << _detectors << "\n";
   } else if (command == _current) {
@@ -146,6 +142,23 @@ void Builder::SetNewValue(G4UIcommand* command, G4String value) {
   }
 }
 //----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Name___________________________________________________________________
+const std::string& Builder::GetDetector() {
+  return _detector;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Current Detector________________________________________________________________________
+void Builder::SetDetector(const std::string& detector) {
+  _detector = detector;
+  Command::Execute("/run/reinitializeGeometry",
+                   "/run/geometryModified",
+                   "/run/initialize",
+                   "/vis/viewer/clearTransients");
+}
+//----------------------------------------------------------------------------------------------
+
 
 //__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes() {

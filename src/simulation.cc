@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
     auto run = new G4MTRunManager;
     run->SetNumberOfThreads(thread_opt.count);
     std::cout << "Running " << thread_opt.count
-              << (thread_opt.count > 1 ? "Threads" : "Thread") << "\n";
+              << (thread_opt.count > 1 ? " Threads" : " Thread") << "\n";
 
   #else
     auto run = new G4RunManager;
