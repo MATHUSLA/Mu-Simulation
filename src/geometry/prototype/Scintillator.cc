@@ -1,4 +1,4 @@
-/* src/detector/prototype/Scintillator.cc
+/* src/geometry/prototype/Scintillator.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 #include <cmath>
 
@@ -25,7 +25,7 @@
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4NistManager.hh"
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
 

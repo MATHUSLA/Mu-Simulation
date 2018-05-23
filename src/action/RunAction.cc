@@ -20,7 +20,7 @@
 #include <fstream>
 
 #include "analysis.hh"
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 #include "util/io.hh"
 #include "util/time.hh"

@@ -1,4 +1,4 @@
-/* src/detector/prototype/RPC.cc
+/* src/geometry/prototype/RPC.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 namespace MATHUSLA { namespace MU {
 

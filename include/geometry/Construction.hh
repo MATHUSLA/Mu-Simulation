@@ -1,4 +1,4 @@
-/* include/detector/Construction.hh
+/* include/geometry/Construction.hh
  *
  * Copyright 2018 Brandon Gomes
  *

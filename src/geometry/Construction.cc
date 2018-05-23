@@ -1,4 +1,4 @@
-/* src/detector/Construction.cc
+/* src/geometry/Construction.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 #include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4GeometryManager.hh"
@@ -29,9 +29,9 @@
 #include "Geant4/G4NistManager.hh"
 #include "Geant4/G4GDMLParser.hh"
 
-#include "detector/Earth.hh"
-#include "detector/Prototype.hh"
-#include "detector/Flat.hh"
+#include "geometry/Earth.hh"
+#include "geometry/Prototype.hh"
+#include "geometry/Flat.hh"
 
 #include "util/io.hh"
 

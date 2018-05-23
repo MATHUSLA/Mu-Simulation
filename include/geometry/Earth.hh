@@ -1,4 +1,4 @@
-/* include/detector/Earth.hh
+/* include/geometry/Earth.hh
  *
  * Copyright 2018 Brandon Gomes
  *

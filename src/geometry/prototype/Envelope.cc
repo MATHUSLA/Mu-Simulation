@@ -1,4 +1,4 @@
-/* src/detector/prototype/Envelope.cc
+/* src/geometry/prototype/Envelope.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 #include "Geant4/G4UnionSolid.hh"
 #include "Geant4/G4Box.hh"

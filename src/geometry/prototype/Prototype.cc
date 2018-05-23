@@ -1,4 +1,4 @@
-/* src/detector/prototype/Prototype.cc
+/* src/geometry/prototype/Prototype.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 #include <unordered_map>
 

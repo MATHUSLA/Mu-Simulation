@@ -23,7 +23,7 @@
 #include "Geant4/G4VisExecutive.hh"
 
 #include "action.hh"
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 #include "physics/Units.hh"
 
 #include "util/command_line_parser.hh"

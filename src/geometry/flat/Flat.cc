@@ -1,4 +1,4 @@
-/* src/detector/flat/Flat.cc
+/* src/geometry/flat/Flat.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Flat.hh"
+#include "geometry/Flat.hh"
 
 #include "Geant4/G4SDManager.hh"
 

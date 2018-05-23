@@ -1,4 +1,4 @@
-/* include/detector/Prototype.hh
+/* include/geometry/Prototype.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -24,7 +24,7 @@
 
 #include "Geant4/G4VSensitiveDetector.hh"
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
 
