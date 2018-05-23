@@ -8,7 +8,6 @@
 #include "Geant4/G4VSensitiveDetector.hh"
 
 #include "detector/Construction.hh"
-#include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -89,7 +88,8 @@ public:
   G4VPhysicalVolume* GetPlacement()        const { return _placement;     }
   ScintillatorList   GetScintillatorList() const { return _scintillators; }
 
-  G4VPhysicalVolume* Place(G4LogicalVolume* parent, const G4Transform3D& transform);
+  G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
+                             const G4Transform3D& transform=G4Transform3D());
 
   constexpr static auto LayerSpacing = 5*cm;
 
@@ -137,7 +137,8 @@ public:
   G4VPhysicalVolume* GetPlacement() const { return _placement; }
   std::vector<Pad>   GetPadList()   const { return _pads;      }
 
-  G4VPhysicalVolume* Place(G4LogicalVolume* parent, const G4Transform3D& transform);
+  G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
+                             const G4Transform3D& transform=G4Transform3D());
 
   void Register(G4VSensitiveDetector* detector);
 
@@ -185,12 +186,6 @@ using RPCList = std::vector<RPC*>;
 class Detector : public G4VSensitiveDetector {
 public:
   Detector();
-
-  struct Material {
-    static void Define();
-  private:
-    Material();
-  };
 
   void Initialize(G4HCofThisEvent* eventHC);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);

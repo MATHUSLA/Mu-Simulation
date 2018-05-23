@@ -10,16 +10,29 @@
 #include "Geant4/G4UIcommand.hh"
 #include "Geant4/G4UIdirectory.hh"
 #include "Geant4/G4UIcmdWithoutParameter.hh"
+#include "Geant4/G4UIcmdWithAString.hh"
 #include "Geant4/G4UIcmdWithABool.hh"
 #include "Geant4/G4UIcmdWithAnInteger.hh"
 #include "Geant4/G4UIcmdWithADouble.hh"
-#include "Geant4/G4UIcmdWithAString.hh"
 #include "Geant4/G4UIcmdWith3Vector.hh"
 #include "Geant4/G4UIcmdWithADoubleAndUnit.hh"
 #include "Geant4/G4UIcmdWith3VectorAndUnit.hh"
 #include "Geant4/G4UImessenger.hh"
 
 namespace MATHUSLA { namespace MU {
+
+namespace Command { ////////////////////////////////////////////////////////////////////////////
+//__Geant4 UI Messenger Command Option Shortcut Definitions_____________________________________
+using NoArg              = G4UIcmdWithoutParameter;
+using StringArg          = G4UIcmdWithAString;
+using BoolArg            = G4UIcmdWithABool;
+using IntegerArg         = G4UIcmdWithAnInteger;
+using DoubleArg          = G4UIcmdWithADouble;
+using ThreeVectorArg     = G4UIcmdWith3Vector;
+using DoubleUnitArg      = G4UIcmdWithADoubleAndUnit;
+using ThreeVectorUnitArg = G4UIcmdWith3VectorAndUnit;
+//----------------------------------------------------------------------------------------------
+} /* namespace Command */ //////////////////////////////////////////////////////////////////////
 
 namespace Vis { ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,19 +77,6 @@ inline G4Circle Circle(const G4ThreeVector& point,
 //----------------------------------------------------------------------------------------------
 
 } /* namespace Vis */ //////////////////////////////////////////////////////////////////////////
-
-namespace Command { ////////////////////////////////////////////////////////////////////////////
-//__Geant4 UI Messenger Command Option Shortcut Definitions_____________________________________
-using NoArg              = G4UIcmdWithoutParameter;
-using BoolArg            = G4UIcmdWithABool;
-using IntegerArg         = G4UIcmdWithAnInteger;
-using DoubleArg          = G4UIcmdWithADouble;
-using StringArg          = G4UIcmdWithAString;
-using ThreeVectorArg     = G4UIcmdWith3Vector;
-using DoubleUnitArg      = G4UIcmdWithADoubleAndUnit;
-using ThreeVectorUnitArg = G4UIcmdWith3VectorAndUnit;
-//----------------------------------------------------------------------------------------------
-} /* namespace Command */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 
