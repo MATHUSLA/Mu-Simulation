@@ -9,8 +9,7 @@ RPC::Pad::Pad(int id) : volume(nullptr), strips(), id(id) {}
 //----------------------------------------------------------------------------------------------
 
 //__RPC Constructor_____________________________________________________________________________
-RPC::RPC(int id)
-    : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_string(id)) {
+RPC::RPC(int id) : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_string(id)) {
   _volume = Construction::OpenBoxVolume(
     _name,
     Width, Height, Depth, Thickness,
@@ -91,9 +90,9 @@ void RPC::Material::Define() {
 //----------------------------------------------------------------------------------------------
 
 //__Place RPC in RPC Layer______________________________________________________________________
-G4VPhysicalVolume* RPC::Place(G4LogicalVolume* parent, const G4Transform3D& transform) {
-  _placement = Construction::PlaceVolume(_volume, parent, transform);
-  return _placement;
+G4VPhysicalVolume* RPC::PlaceIn(G4LogicalVolume* parent,
+                                const G4Transform3D& transform) {
+  return (_placement = Construction::PlaceVolume(_volume, parent, transform));
 }
 //----------------------------------------------------------------------------------------------
 

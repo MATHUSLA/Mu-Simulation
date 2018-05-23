@@ -9,6 +9,7 @@
 
 #include "analysis.hh"
 #include "physics/Units.hh"
+#include "tracking.hh"
 #include "util/time.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -62,15 +63,6 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
       }
     }
   }
-}
-//----------------------------------------------------------------------------------------------
-
-//__Prototype Material Define___________________________________________________________________
-/*! \brief Defines Materials in Scintillator and RPC Subclasses
-*/
-void Detector::Material::Define() {
-  Scintillator::Material::Define();
-  RPC::Material::Define();
 }
 //----------------------------------------------------------------------------------------------
 
@@ -252,7 +244,8 @@ bool Detector::GenerateAnalysis(const int event_count) {
 /*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
 */
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
-  Material::Define();
+  Scintillator::Material::Define();
+  RPC::Material::Define();
 
   constexpr double total_height = 6649*mm;
 
@@ -323,7 +316,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   for (auto aenv : {A6_H, A5_L, A4_H, A3_L, A2_H, A1_L}) {
     const auto env_width = flip_A ? aenv->GetBottomWidth() : aenv->GetTopWidth();
     shift_A += 0.5 * env_width;
-    aenv->Place(layerA, Construction::Transform(
+    aenv->PlaceIn(layerA, Construction::Transform(
       0.5 * width_A - shift_A,
       (stack_A ? 0.5 : -0.5) * envelope_spacing,
       0.5 * (aenv->GetHeight() - height_A),
@@ -350,7 +343,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     for (short rpc_i = 1; rpc_i <= 2; ++rpc_i) {
       auto rpc = new RPC(2 * layer_i + rpc_i);
       const auto&& rpc_shift_direction = (rpc_i % 2) ? 0.5 : -0.5;
-      rpc->Place(layer, G4Translate3D(
+      rpc->PlaceIn(layer, G4Translate3D(
         (layer_mod2 ? -1 : 1) * rpc_shift_direction * RPC::Width,
         0,
         rpc_shift_direction * rpc_sublayer_spacing));
@@ -376,7 +369,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   for (auto benv : {B1_L, B2_H, B3_L}) {
     const auto env_width = flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
     shift_B += 0.5 * env_width;
-    benv->Place(layerB, Construction::Transform(
+    benv->PlaceIn(layerB, Construction::Transform(
       0.5 * (benv->GetHeight() - height_B),
       (stack_B ? 0.5 : -0.5) * envelope_spacing,
       0.5 * width_B - shift_B,
@@ -391,7 +384,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   for (auto benv : {B4_H, B5_L, B6_H}) {
     const auto env_width = !flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
     shift_B += 0.5 * env_width;
-    benv->Place(layerB, Construction::Transform(
+    benv->PlaceIn(layerB, Construction::Transform(
       0.5 * (2 * B4_H->GetHeight() - benv->GetHeight() - height_B),
       (stack_B ? 0.5 : -0.5) * envelope_spacing,
       0.5 * width_B - shift_B,

@@ -9,10 +9,6 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
-//__Space-Separated Generator List______________________________________________________________
-G4ThreadLocal std::string _generators;
-//----------------------------------------------------------------------------------------------
-
 //__Generator Map_______________________________________________________________________________
 G4ThreadLocal std::unordered_map<std::string, Generator*> _gen_map;
 //----------------------------------------------------------------------------------------------
@@ -47,9 +43,10 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onIfAny = 13"
       });
 
-  _generators.clear();
+  std::string generators;
   for (const auto& element : _gen_map) {
-    _generators += element.first + " ";
+    generators.append(element.first);
+    generators.push_back(' ');
   }
 
   SetGenerator(generator);
@@ -57,7 +54,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
   _select = CreateCommand<Command::StringArg>("select", "Select Generator.");
   _select->SetParameterName("generator", false);
   _select->SetDefaultValue("basic");
-  _select->SetCandidates(_generators.c_str());
+  _select->SetCandidates(generators.c_str());
   _select->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   _list = CreateCommand<Command::NoArg>("list", "List Avaliable Generators.");

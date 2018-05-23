@@ -25,7 +25,7 @@ Scintillator::Scintillator(const std::string& name,
   auto solid = Construction::Trap(name, height, minwidth, maxwidth, Depth);
 
   const double dims[4] = {height   - Thickness, minwidth - Thickness,
-                            maxwidth - Thickness, Depth    - Thickness};
+                          maxwidth - Thickness, Depth    - Thickness};
 
   auto casing = new G4SubtractionSolid(name + "_C", solid,
     Construction::Trap("", dims[0], dims[1], dims[2], dims[3]));
@@ -40,10 +40,10 @@ Scintillator::Scintillator(const std::string& name,
     0.5 * maxwidth + 0.25 * PMTLength, 0, 0.5 * height + 0.25 * PMTLength,
     0, 1, 0, 45*deg);
 
-  auto full = new G4UnionSolid(name,
-    new G4UnionSolid("", casing, sensitive_trap), pmt, pmtTransform);
-
-  lvolume = Construction::Volume(full, G4VisAttributes(false));
+  lvolume = Construction::Volume(
+    new G4UnionSolid(name,
+    new G4UnionSolid("", casing, sensitive_trap), pmt, pmtTransform),
+    Construction::BorderAttributes());
 
   auto casingLV = Construction::Volume(casing,
     Material::Casing,

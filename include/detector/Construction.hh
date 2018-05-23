@@ -7,9 +7,12 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4Transform3D.hh"
+#include "Geant4/G4Box.hh"
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4SystemOfUnits.hh"
+
+#include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -29,11 +32,20 @@ extern G4Material* Aluminum;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Builder : public G4VUserDetectorConstruction {
+class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:
   Builder(const std::string& detector);
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
+
+  void SetNewValue(G4UIcommand* command, G4String value);
+
+  static const std::string MessengerDirectory;
+
+private:
+  Command::NoArg*     _list;
+  Command::NoArg*     _current;
+  Command::StringArg* _select;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +56,17 @@ const G4VisAttributes SensitiveAttributes();
 
 //__Casing Material Attribute Definition________________________________________________________
 const G4VisAttributes CasingAttributes();
+//----------------------------------------------------------------------------------------------
+
+//__Border Attribute Definition_________________________________________________________________
+const G4VisAttributes BorderAttributes();
+//----------------------------------------------------------------------------------------------
+
+//__Box Builder_________________________________________________________________________________
+G4Box* Box(const std::string& name,
+           const double width,
+           const double height,
+           const double depth);
 //----------------------------------------------------------------------------------------------
 
 //__Trapezoid Builder___________________________________________________________________________
@@ -157,13 +180,11 @@ G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
                                const G4Transform3D& transform=G4Transform3D());
 //----------------------------------------------------------------------------------------------
 
-//__Matrix Transformation Generator_____________________________________________________________
-G4RotationMatrix Matrix(const double th1,
-                        const double phi1,
-                        const double th2,
-                        const double phi2,
-                        const double th3,
-                        const double phi3);
+//__Translation Transformation Generator_______________________________________________________
+G4Transform3D Transform(const double x,
+                        const double y,
+                        const double z);
+//----------------------------------------------------------------------------------------------
 
 //__Rotation/Translation Transformation Generator_______________________________________________
 G4Transform3D Transform(const G4ThreeVector& translate,
@@ -186,6 +207,15 @@ G4Transform3D Rotate(const double axisx,
                      const double axisy,
                      const double axisz,
                      const double angle);
+//----------------------------------------------------------------------------------------------
+
+//__Matrix Transformation Generator_____________________________________________________________
+G4RotationMatrix Matrix(const double th1,
+                        const double phi1,
+                        const double th2,
+                        const double phi2,
+                        const double th3,
+                        const double phi3);
 //----------------------------------------------------------------------------------------------
 
 //__GDML File Export____________________________________________________________________________

@@ -1,6 +1,5 @@
 #include "detector/Construction.hh"
 
-#include "Geant4/G4Box.hh"
 #include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4GeometryManager.hh"
 #include "Geant4/G4GeometryTolerance.hh"
@@ -47,9 +46,30 @@ auto Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
 auto Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
 //----------------------------------------------------------------------------------------------
 
+//__Detector Messenger Directory Path___________________________________________________________
+const std::string Builder::MessengerDirectory = "/det/";
+//----------------------------------------------------------------------------------------------
+
 //__Builder Constructor_________________________________________________________________________
-Builder::Builder(const std::string& detector) : G4VUserDetectorConstruction() {
+Builder::Builder(const std::string& detector)
+    : G4VUserDetectorConstruction(), G4UImessenger(MessengerDirectory, "Particle Detectors.") {
   _detector = detector;
+
+  // fix this
+  std::string detectors;
+  detectors = "Prototype Flat";
+
+  _select = CreateCommand<Command::StringArg>("select", "Select Detector.");
+  _select->SetParameterName("generator", false);
+  _select->SetDefaultValue("Prototype");
+  _select->SetCandidates(detectors.c_str());
+  _select->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _list = CreateCommand<Command::NoArg>("list", "List Avaliable Detector.");
+  _list->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _current = CreateCommand<Command::NoArg>("current", "Current Detector.");
+  _current->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -74,6 +94,7 @@ G4VPhysicalVolume* Builder::Construct() {
   if (_detector == "Prototype") {
     Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
   } else if (_detector == "Flat") {
+    // Flat::Detector::Construct(worldLV);
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
   }
 
@@ -99,6 +120,18 @@ void Builder::ConstructSDandField() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Builder Messenger Set New Value_____________________________________________________________
+void Builder::SetNewValue(G4UIcommand* command, G4String value) {
+  if (command == _select) {
+    std::cout << "Received " << value << ". Does nothing...\n";
+  } else if (command == _list) {
+    std::cout << "Detectors: \n";
+  } else if (command == _current) {
+    std::cout << "Current Detector: \n  " << _detector << "\n\n";
+  }
+}
+//----------------------------------------------------------------------------------------------
+
 //__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes() {
   auto attr = G4VisAttributes(G4Colour(0., 1., 0., 1.0));
@@ -112,6 +145,21 @@ const G4VisAttributes CasingAttributes() {
   auto attr = G4VisAttributes(G4Colour(0., 0., 1., 0.2));
   attr.SetForceSolid(true);
   return attr;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Border Attribute Definition_________________________________________________________________
+const G4VisAttributes BorderAttributes() {
+  return G4VisAttributes(false);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Box Builder_________________________________________________________________________________
+G4Box* Box(const std::string& name,
+           const double width,
+           const double height,
+           const double depth) {
+  return new G4Box(name, 0.5 * width, 0.5 * height, 0.5 * depth);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -170,7 +218,7 @@ G4LogicalVolume* BoxVolume(const std::string& name,
                            G4Material* material,
                            const G4VisAttributes& attr) {
   return Volume(
-    new G4Box(name, 0.5 * width, 0.5 * height, 0.5 * depth),
+    Box(name, width, height, depth),
     material, attr);
 }
 //----------------------------------------------------------------------------------------------
@@ -183,14 +231,14 @@ G4LogicalVolume* OpenBoxVolume(const std::string& name,
                                const double thickness,
                                G4Material* material,
                                const G4VisAttributes& attr) {
-  auto outer = new G4Box(name,
-    0.5 * width,
-    0.5 * height,
-    0.5 * depth);
-  auto inner = new G4Box(name,
-    0.5 * width  - thickness,
-    0.5 * height - thickness,
-    0.5 * depth  - thickness);
+  auto outer = Box(name,
+    width,
+    height,
+    depth);
+  auto inner = Box(name,
+    width  - 2 * thickness,
+    height - 2 * thickness,
+    depth  - 2 * thickness);
   return Volume(new G4SubtractionSolid(name, outer, inner), material, attr);
 }
 //----------------------------------------------------------------------------------------------
@@ -273,24 +321,11 @@ G4VPhysicalVolume* PlaceVolume(G4VSolid* solid,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Matrix Transformation Generator_____________________________________________________________
-G4RotationMatrix Matrix(const double th1,
-                        const double phi1,
-                        const double th2,
-                        const double phi2,
-                        const double th3,
-                        const double phi3) {
-  const double sinth1 = std::sin(th1);
-  const double sinth2 = std::sin(th2);
-  const double sinth3 = std::sin(th3);
-  auto matrix = G4RotationMatrix();
-  matrix.rotateAxes(
-    G4ThreeVector(sinth1*std::cos(phi1), sinth1*std::sin(phi1), std::cos(th1)),
-    G4ThreeVector(sinth2*std::cos(phi2), sinth2*std::sin(phi2), std::cos(th2)),
-    G4ThreeVector(sinth3*std::cos(phi3), sinth3*std::sin(phi3), std::cos(th3)));
-
-  if (matrix != G4RotationMatrix()) matrix.invert();
-  return matrix;
+//__Translation Transformation Generator_______________________________________________________
+G4Transform3D Transform(const double x,
+                        const double y,
+                        const double z) {
+  return G4Transform3D(G4RotationMatrix(), G4ThreeVector(x, y, z));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -321,6 +356,27 @@ G4Transform3D Rotate(const double axisx,
                      const double axisz,
                      const double angle) {
   return Transform(0, 0, 0, axisx, axisy, axisz, angle);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Matrix Transformation Generator_____________________________________________________________
+G4RotationMatrix Matrix(const double th1,
+                        const double phi1,
+                        const double th2,
+                        const double phi2,
+                        const double th3,
+                        const double phi3) {
+  const double sinth1 = std::sin(th1);
+  const double sinth2 = std::sin(th2);
+  const double sinth3 = std::sin(th3);
+  auto matrix = G4RotationMatrix();
+  matrix.rotateAxes(
+    G4ThreeVector(sinth1*std::cos(phi1), sinth1*std::sin(phi1), std::cos(th1)),
+    G4ThreeVector(sinth2*std::cos(phi2), sinth2*std::sin(phi2), std::cos(th2)),
+    G4ThreeVector(sinth3*std::cos(phi3), sinth3*std::sin(phi3), std::cos(th3)));
+
+  if (matrix != G4RotationMatrix()) matrix.invert();
+  return matrix;
 }
 //----------------------------------------------------------------------------------------------
 

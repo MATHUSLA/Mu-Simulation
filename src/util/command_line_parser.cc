@@ -69,7 +69,7 @@ option* _find_long_option(const std::string& arg, option_list options) {
   for (const auto& option : options) {
     if (!option->long_name.empty()) {
       size_t full = option->long_name.length();
-      if ((length <= full) && option->long_name == arg) {
+      if ((length <= full) && !arg.compare(0, length, option->long_name)) {
         if (length == full)
           return option;
         found = index;

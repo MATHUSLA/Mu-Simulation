@@ -24,6 +24,7 @@ add_executable(simulation
     src/detector/Earth.cc
 
     src/detector/flat/Flat.cc
+    src/detector/flat/Layer.cc
     src/detector/flat/Scintillator.cc
 
     src/detector/prototype/Envelope.cc

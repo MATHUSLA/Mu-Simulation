@@ -21,6 +21,7 @@ int main(int argc, char* argv[]) {
 
   option help_opt   ('h', "help",   "MATHUSLA Muon Simulation", option::no_arguments);
   option gen_opt    ('g', "gen",    "Generator",                option::required_arguments);
+  option det_opt    ('d', "det",    "Detector",                 option::required_arguments);
   option script_opt ('s', "script", "Custom Script",            option::required_arguments);
   option events_opt ('e', "events", "Event Count",              option::required_arguments);
   option vis_opt    ('v', "vis",    "Visualization",            option::no_arguments);
@@ -30,7 +31,7 @@ int main(int argc, char* argv[]) {
     option::optional_arguments);
 
   util::cli::parse(argv,
-    {&help_opt, &gen_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
+    {&help_opt, &gen_opt, &det_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
 
   G4UIExecutive* ui = nullptr;
   if (argc == 1 || vis_opt.count) {
@@ -84,7 +85,9 @@ int main(int argc, char* argv[]) {
   auto physics = new FTFP_BERT;
   physics->RegisterPhysics(new G4StepLimiterPhysics);
   run->SetUserInitialization(physics);
-  run->SetUserInitialization(new Construction::Builder("Prototype"));
+
+  auto detector = det_opt.argument ? det_opt.argument : "Prototype";
+  run->SetUserInitialization(new Construction::Builder(detector));
 
   auto generator = gen_opt.argument ? gen_opt.argument : "basic";
   run->SetUserInitialization(new ActionInitialization(generator));
@@ -97,12 +100,8 @@ int main(int argc, char* argv[]) {
   UImanager->ApplyCommand("/run/initialize");
   UImanager->ApplyCommand("/control/macroPath scripts/");
   UImanager->ApplyCommand("/control/saveHistory scripts/G4History");
-
-  if (quiet_opt.count) {
-    UImanager->ApplyCommand("/control/execute settings/quiet");
-  } else {
-    UImanager->ApplyCommand("/control/execute settings/verbose");
-  }
+  UImanager->ApplyCommand(quiet_opt.count ? "/control/execute settings/quiet"
+                                          : "/control/execute settings/verbose");
 
   if (vis_opt.count) {
     UImanager->ApplyCommand("/control/execute settings/init_vis");
