@@ -83,6 +83,17 @@ bool FillNTuple(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__NTuple Collection Initializer_______________________________________________________________
+bool GenerateNTupleCollection(const size_t count,
+                              const std::string& prefix,
+                              const std::initializer_list<const std::string> columns) {
+  bool pass = true;
+  for (size_t i = 0; i < count; ++i)
+    pass = pass && Analysis::CreateNTuple(prefix + std::to_string(i), columns);
+  return pass;
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Analysis */ /////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

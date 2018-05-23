@@ -20,7 +20,6 @@
 #include <unordered_map>
 
 #include "Geant4/G4HCofThisEvent.hh"
-#include "Geant4/G4SDManager.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4RunManager.hh"
 
@@ -196,21 +195,6 @@ int Detector::EncodeDetector(const std::string& name) {
 */
 const std::string Detector::DecodeDetector(int id) {
   return _decoding[id];
-}
-//----------------------------------------------------------------------------------------------
-
-//__Analysis Generation_________________________________________________________________________
-/*! \brief Builds ROOT NTuple for use in post-processing analysis
-*/
-bool Detector::GenerateAnalysis(const int event_count) {
-  bool pass = true;
-  for (auto i = 0; i < event_count; ++i) {
-    pass = pass && Analysis::CreateNTuple("event" + std::to_string(i), {
-      "Deposit", "Time", "Detector",
-      "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-      "TimestampDate", "TimestampTime"});
-  }
-  return pass;
 }
 //----------------------------------------------------------------------------------------------
 

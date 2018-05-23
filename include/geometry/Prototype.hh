@@ -208,9 +208,9 @@ public:
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 
-  static bool GenerateAnalysis(const int event_count);
   static int EncodeDetector(const std::string& name);
   static const std::string DecodeDetector(int id);
+
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 };
 

@@ -20,7 +20,6 @@
 #include <fstream>
 
 #include "analysis.hh"
-#include "geometry/Prototype.hh"
 
 #include "util/io.hh"
 #include "util/time.hh"
@@ -49,8 +48,10 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
 
   Analysis::Setup();
   Analysis::Open(_path + ".root");
-  Prototype::Detector::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
-  // TODO: Flat::Detector::GenerateAnalysis() or alternative
+  Analysis::GenerateNTupleCollection(run->GetNumberOfEventToBeProcessed(), "event", {
+    "Deposit", "Time", "Detector",
+    "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
+    "TimestampDate", "TimestampTime" });
 }
 //----------------------------------------------------------------------------------------------
 
