@@ -82,7 +82,7 @@ class Detector : public G4VSensitiveDetector {
 public:
   Detector();
 
-  void Initialize(G4HCofThisEvent* eventHC);
+  void Initialize(G4HCofThisEvent* event);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 

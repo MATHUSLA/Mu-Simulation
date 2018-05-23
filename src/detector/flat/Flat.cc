@@ -31,23 +31,22 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Flat") {
 //----------------------------------------------------------------------------------------------
 
 //__Initalize Event_____________________________________________________________________________
-void Detector::Initialize(G4HCofThisEvent* eventHC) {
-  _hit_collection = new Tracking::HitCollection(GetName(), collectionName[0]);
-  eventHC->AddHitsCollection(
-    G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
-    _hit_collection);
+void Detector::Initialize(G4HCofThisEvent* event) {
+  _hit_collection = Tracking::GenerateHitCollection(this, event);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Hit Processing______________________________________________________________________________
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
+  // TODO: implement
   return false;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Post-Event Processing_______________________________________________________________________
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-
+  if (verboseLevel >= 2 && _hit_collection)
+    std::cout << *_hit_collection;
 }
 //----------------------------------------------------------------------------------------------
 
