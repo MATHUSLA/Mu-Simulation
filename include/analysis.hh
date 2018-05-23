@@ -47,6 +47,12 @@ bool FillNTuple(const std::string& name,
                 const std::initializer_list<double> values);
 //----------------------------------------------------------------------------------------------
 
+//__NTuple Collection Initializer_______________________________________________________________
+bool GenerateNTupleCollection(const size_t count,
+                              const std::string& prefix,
+                              const std::initializer_list<const std::string> columns);
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Analysis */ /////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

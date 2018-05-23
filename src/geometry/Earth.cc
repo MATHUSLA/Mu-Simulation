@@ -1,4 +1,4 @@
-/* src/detector/Earth.cc
+/* src/geometry/Earth.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-#include "detector/Earth.hh"
+#include "geometry/Earth.hh"
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
 

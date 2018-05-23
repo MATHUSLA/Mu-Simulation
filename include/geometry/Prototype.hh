@@ -1,4 +1,4 @@
-/* include/detector/Prototype.hh
+/* include/geometry/Prototype.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -24,7 +24,7 @@
 
 #include "Geant4/G4VSensitiveDetector.hh"
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -122,12 +122,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-//__Envelope Vector_____________________________________________________________________________
-using EnvelopeList = std::vector<Envelope*>;
-//----------------------------------------------------------------------------------------------
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 class RPC {
 public:
   struct Pad {
@@ -154,10 +148,10 @@ public:
   G4VPhysicalVolume* GetPlacement() const { return _placement; }
   std::vector<Pad>   GetPadList()   const { return _pads;      }
 
+  void Register(G4VSensitiveDetector* detector);
+
   G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
                              const G4Transform3D& transform=G4Transform3D());
-
-  void Register(G4VSensitiveDetector* detector);
 
   constexpr static auto Width     = 1257*mm;
   constexpr static auto Height    = 2854*mm;
@@ -194,12 +188,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-//__RPC Vector__________________________________________________________________________________
-using RPCList = std::vector<RPC*>;
-//----------------------------------------------------------------------------------------------
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 class Detector : public G4VSensitiveDetector {
 public:
   Detector();
@@ -208,9 +196,9 @@ public:
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 
-  static bool GenerateAnalysis(const int event_count);
   static int EncodeDetector(const std::string& name);
   static const std::string DecodeDetector(int id);
+
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 };
 

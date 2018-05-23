@@ -1,4 +1,4 @@
-/* src/detector/Construction.cc
+/* src/geometry/Construction.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 
 #include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4GeometryManager.hh"
@@ -29,9 +29,9 @@
 #include "Geant4/G4NistManager.hh"
 #include "Geant4/G4GDMLParser.hh"
 
-#include "detector/Earth.hh"
-#include "detector/Prototype.hh"
-#include "detector/Flat.hh"
+#include "geometry/Earth.hh"
+#include "geometry/Prototype.hh"
+#include "geometry/Flat.hh"
 
 #include "util/io.hh"
 
@@ -45,6 +45,7 @@ const auto _nist = G4NistManager::Instance();
 
 //__Detector Name for Builder___________________________________________________________________
 std::string _detector;
+const std::string& _detectors = "Prototype Flat";
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -72,14 +73,10 @@ Builder::Builder(const std::string& detector)
     : G4VUserDetectorConstruction(), G4UImessenger(MessengerDirectory, "Particle Detectors.") {
   _detector = detector;
 
-  // fix this
-  std::string detectors;
-  detectors = "Prototype Flat";
-
   _select = CreateCommand<Command::StringArg>("select", "Select Detector.");
-  _select->SetParameterName("generator", false);
+  _select->SetParameterName("detector", false);
   _select->SetDefaultValue("Prototype");
-  _select->SetCandidates(detectors.c_str());
+  _select->SetCandidates(_detectors.c_str());
   _select->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   _list = CreateCommand<Command::NoArg>("list", "List Avaliable Detector.");
@@ -108,11 +105,10 @@ G4VPhysicalVolume* Builder::Construct() {
 
   Export(Earth::Construct(worldLV), "earth.gdml");
 
-  if (_detector == "Prototype") {
-    Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
-  } else if (_detector == "Flat") {
-    // Flat::Detector::Construct(worldLV);
+  if (_detector == "Flat") {
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
+  } else {
+    Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
   }
 
   auto world = PlaceVolume(worldLV, nullptr);
@@ -127,9 +123,7 @@ G4VPhysicalVolume* Builder::Construct() {
 
 //__Build Detector______________________________________________________________________________
 void Builder::ConstructSDandField() {
-  if (_detector == "Prototype") {
-    G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
-  } else if (_detector == "Flat") {
+  if (_detector == "Flat") {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Flat::Detector);
   } else {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
@@ -139,15 +133,33 @@ void Builder::ConstructSDandField() {
 
 //__Builder Messenger Set New Value_____________________________________________________________
 void Builder::SetNewValue(G4UIcommand* command, G4String value) {
-  if (command == _select) {
-    std::cout << "Received " << value << ". Does nothing...\n";
+  if (command == _select && value != _detector.c_str()) {
+    SetDetector(value);
   } else if (command == _list) {
-    std::cout << "Detectors: \n";
+    std::cout << "Detectors: " << _detectors << "\n";
   } else if (command == _current) {
-    std::cout << "Current Detector: \n  " << _detector << "\n\n";
+    std::cout << "Current Detector: " << _detector << "\n";
   }
 }
 //----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Name___________________________________________________________________
+const std::string& Builder::GetDetector() {
+  return _detector;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Current Detector________________________________________________________________________
+void Builder::SetDetector(const std::string& detector) {
+  _detector = detector;
+  Command::Execute("/run/reinitializeGeometry",
+                   "/run/geometryModified",
+                   "/run/initialize",
+                   "/vis/viewer/clearTransients");
+}
+//----------------------------------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 //__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes() {
@@ -394,6 +406,23 @@ G4RotationMatrix Matrix(const double th1,
 
   if (matrix != G4RotationMatrix()) matrix.invert();
   return matrix;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Matrix Transformation Generator_____________________________________________________________
+G4RotationMatrix Matrix(const double mxx,
+                        const double mxy,
+                        const double mxz,
+                        const double myx,
+                        const double myy,
+                        const double myz,
+                        const double mzx,
+                        const double mzy,
+                        const double mzz) {
+  return G4RotationMatrix(
+    G4ThreeVector(mxx, myx, mzx),
+    G4ThreeVector(mxy, myy, mzy),
+    G4ThreeVector(mxz, myz, mzz));
 }
 //----------------------------------------------------------------------------------------------
 

@@ -35,10 +35,12 @@
 #include "Geant4/G4UIcmdWithADoubleAndUnit.hh"
 #include "Geant4/G4UIcmdWith3VectorAndUnit.hh"
 #include "Geant4/G4UImessenger.hh"
+#include "Geant4/G4UImanager.hh"
 
 namespace MATHUSLA { namespace MU {
 
 namespace Command { ////////////////////////////////////////////////////////////////////////////
+
 //__Geant4 UI Messenger Command Option Shortcut Definitions_____________________________________
 using NoArg              = G4UIcmdWithoutParameter;
 using StringArg          = G4UIcmdWithAString;
@@ -49,6 +51,32 @@ using ThreeVectorArg     = G4UIcmdWith3Vector;
 using DoubleUnitArg      = G4UIcmdWithADoubleAndUnit;
 using ThreeVectorUnitArg = G4UIcmdWith3VectorAndUnit;
 //----------------------------------------------------------------------------------------------
+
+namespace detail { /////////////////////////////////////////////////////////////////////////////
+//__Execute Geant4 Command Helper_______________________________________________________________
+inline void Execute(G4UImanager* manager,
+                    const std::string& command) {
+  manager->ApplyCommand(command.c_str());
+}
+template<class ...String>
+inline void Execute(G4UImanager* manager,
+                    const std::string& command,
+                    const String&... commands) {
+  Execute(manager, command);
+  Execute(manager, commands...);
+}
+//----------------------------------------------------------------------------------------------
+} /* namespace detail */ ///////////////////////////////////////////////////////////////////////
+
+//__Execute Geant4 Command______________________________________________________________________
+template<class ...String>
+inline void Execute(const std::string& command,
+                    const String&... commands) {
+  auto manager = G4UImanager::GetUIpointer();
+  detail::Execute(manager, command, commands...);
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Command */ //////////////////////////////////////////////////////////////////////
 
 namespace Vis { ////////////////////////////////////////////////////////////////////////////////

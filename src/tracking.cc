@@ -71,8 +71,8 @@ void Hit::Draw() {
 
 //__Print Hit Data______________________________________________________________________________
 void Hit::Print(std::ostream& os) const {
-  static constexpr auto WIDTH = 10;
-  static constexpr auto DECIMAL_PLACES = 4;
+  constexpr static auto WIDTH = 10;
+  constexpr static auto DECIMAL_PLACES = 4;
   os.precision(DECIMAL_PLACES);
   os << " "            << _particle
      << " | "          << _trackID

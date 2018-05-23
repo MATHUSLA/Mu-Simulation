@@ -19,12 +19,12 @@
 #include "Geant4/FTFP_BERT.hh"
 #include "Geant4/G4StepLimiterPhysics.hh"
 #include "Geant4/G4UIExecutive.hh"
-#include "Geant4/G4UImanager.hh"
 #include "Geant4/G4VisExecutive.hh"
 
 #include "action.hh"
-#include "detector/Construction.hh"
+#include "geometry/Construction.hh"
 #include "physics/Units.hh"
+#include "ui.hh"
 
 #include "util/command_line_parser.hh"
 #include "util/error.hh"
@@ -83,12 +83,9 @@ int main(int argc, char* argv[]) {
 
     auto run = new G4MTRunManager;
     run->SetNumberOfThreads(thread_opt.count);
+    std::cout << "Running " << thread_opt.count
+              << (thread_opt.count > 1 ? " Threads" : " Thread") << "\n";
 
-    if (thread_opt.count > 1) {
-      std::cout << "Running " << thread_opt.count << " Threads.\n";
-    } else {
-      std::cout << "Running 1 Thread.\n";
-    }
   #else
     auto run = new G4RunManager;
     std::cout << "Running in Single Threaded Mode.\n";
@@ -112,24 +109,23 @@ int main(int argc, char* argv[]) {
   auto vis = new G4VisExecutive("Quiet");
   vis->Initialize();
 
-  auto UImanager = G4UImanager::GetUIpointer();
+  Command::Execute("/run/initialize",
+                   "/control/macroPath scripts/",
+                   "/control/saveHistory scripts/G4History");
 
-  UImanager->ApplyCommand("/run/initialize");
-  UImanager->ApplyCommand("/control/macroPath scripts/");
-  UImanager->ApplyCommand("/control/saveHistory scripts/G4History");
-  UImanager->ApplyCommand(quiet_opt.count ? "/control/execute settings/quiet"
-                                          : "/control/execute settings/verbose");
+  Command::Execute(quiet_opt.count ? "/control/execute settings/quiet"
+                                   : "/control/execute settings/verbose");
 
   if (vis_opt.count) {
-    UImanager->ApplyCommand("/control/execute settings/init_vis");
+     Command::Execute("/control/execute settings/init_vis");
     if (ui->IsGUI())
-      UImanager->ApplyCommand("/control/execute settings/init_gui");
+       Command::Execute("/control/execute settings/init_gui");
   }
 
   if (script_opt.argument) {
-    UImanager->ApplyCommand("/control/execute " + std::string(script_opt.argument));
+     Command::Execute("/control/execute " + std::string(script_opt.argument));
   } else if (events_opt.argument) {
-    UImanager->ApplyCommand("/run/beamOn " + std::string(events_opt.argument));
+     Command::Execute("/run/beamOn " + std::string(events_opt.argument));
   }
 
   if (ui) {

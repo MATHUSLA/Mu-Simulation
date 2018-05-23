@@ -1,4 +1,4 @@
-/* src/detector/flat/Scintillator.cc
+/* src/geometry/flat/Scintillator.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Flat.hh"
+#include "geometry/Flat.hh"
 
 #include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4UnionSolid.hh"

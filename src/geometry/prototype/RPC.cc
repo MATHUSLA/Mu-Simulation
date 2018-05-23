@@ -1,4 +1,4 @@
-/* src/detector/prototype/RPC.cc
+/* src/geometry/prototype/RPC.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -85,8 +85,7 @@ void RPC::Material::Define() {
   C2H2F4->AddElement(Construction::Material::H, 2);
   C2H2F4->AddElement(Construction::Material::F, 4);
 
-  /*
-  In case it becomes necessary:
+  /* NOTE: In case it becomes necessary:
 
   auto iso_C4H10 = new G4Material("iso-C4H10", 0*g/L, 2);
   iso_C4H10->AddElement(Construction::Material::C, 4);
@@ -106,18 +105,18 @@ void RPC::Material::Define() {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Place RPC in RPC Layer______________________________________________________________________
-G4VPhysicalVolume* RPC::PlaceIn(G4LogicalVolume* parent,
-                                const G4Transform3D& transform) {
-  return (_placement = Construction::PlaceVolume(_volume, parent, transform));
-}
-//----------------------------------------------------------------------------------------------
-
 //__Register RPC with Detector__________________________________________________________________
 void RPC::Register(G4VSensitiveDetector* detector) {
   for (const auto& pad : _pads)
     for (const auto& strip : pad.strips)
       strip->GetLogicalVolume()->SetSensitiveDetector(detector);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Place RPC in RPC Layer______________________________________________________________________
+G4VPhysicalVolume* RPC::PlaceIn(G4LogicalVolume* parent,
+                                const G4Transform3D& transform) {
+  return (_placement = Construction::PlaceVolume(_volume, parent, transform));
 }
 //----------------------------------------------------------------------------------------------
 

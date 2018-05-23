@@ -1,4 +1,4 @@
-/* src/detector/prototype/Prototype.cc
+/* src/geometry/prototype/Prototype.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-#include "detector/Prototype.hh"
+#include "geometry/Prototype.hh"
 
 #include <unordered_map>
 
 #include "Geant4/G4HCofThisEvent.hh"
-#include "Geant4/G4SDManager.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4RunManager.hh"
 
@@ -36,8 +35,8 @@ namespace Prototype { //////////////////////////////////////////////////////////
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Envelopes and RPCs for Prototype____________________________________________________________
-EnvelopeList _envelopes;
-RPCList _rpcs;
+std::vector<Envelope*> _envelopes;
+std::vector<RPC*> _rpcs;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Hit Collection____________________________________________________________________
@@ -199,21 +198,6 @@ const std::string Detector::DecodeDetector(int id) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Analysis Generation_________________________________________________________________________
-/*! \brief Builds ROOT NTuple for use in post-processing analysis
-*/
-bool Detector::GenerateAnalysis(const int event_count) {
-  bool pass = true;
-  for (auto i = 0; i < event_count; ++i) {
-    pass = pass && Analysis::CreateNTuple("event" + std::to_string(i), {
-      "Deposit", "Time", "Detector",
-      "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-      "TimestampDate", "TimestampTime"});
-  }
-  return pass;
-}
-//----------------------------------------------------------------------------------------------
-
 //__Build Detector______________________________________________________________________________
 /*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
 */
@@ -273,8 +257,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   auto B5_L = new Envelope("B5_L", Top, Left, Flip,   {A10, A12, C7, C8, C9});
   auto B6_H = new Envelope("B6_H", Top, Left, NoFlip, {B11, B11, C9, B11, B11});
 
-  _envelopes = EnvelopeList({
-    A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
+  _envelopes = {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H};
 
   constexpr double envelope_spacing = 24*cm;
   constexpr double outer_layer_spacing = total_height - 50*cm;

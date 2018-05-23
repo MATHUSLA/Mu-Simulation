@@ -36,17 +36,17 @@ add_executable(simulation
 
     src/analysis.cc
 
-    src/detector/Construction.cc
-    src/detector/Earth.cc
+    src/geometry/Construction.cc
+    src/geometry/Earth.cc
 
-    src/detector/flat/Flat.cc
-    src/detector/flat/Layer.cc
-    src/detector/flat/Scintillator.cc
+    src/geometry/flat/Flat.cc
+    src/geometry/flat/Layer.cc
+    src/geometry/flat/Scintillator.cc
 
-    src/detector/prototype/Envelope.cc
-    src/detector/prototype/Prototype.cc
-    src/detector/prototype/RPC.cc
-    src/detector/prototype/Scintillator.cc
+    src/geometry/prototype/Envelope.cc
+    src/geometry/prototype/Prototype.cc
+    src/geometry/prototype/RPC.cc
+    src/geometry/prototype/Scintillator.cc
 
     src/physics/Generator.cc
     src/physics/PythiaGenerator.cc

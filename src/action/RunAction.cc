@@ -20,7 +20,7 @@
 #include <fstream>
 
 #include "analysis.hh"
-#include "detector/Prototype.hh"
+#include "geometry/Construction.hh"
 
 #include "util/io.hh"
 #include "util/time.hh"
@@ -49,8 +49,10 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
 
   Analysis::Setup();
   Analysis::Open(_path + ".root");
-  Prototype::Detector::GenerateAnalysis(run->GetNumberOfEventToBeProcessed());
-  // TODO: Flat::Detector::GenerateAnalysis() or alternative
+  Analysis::GenerateNTupleCollection(run->GetNumberOfEventToBeProcessed(), "event", {
+    "Deposit", "Time", "Detector",
+    "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
+    "TimestampDate", "TimestampTime" });
 }
 //----------------------------------------------------------------------------------------------
 
@@ -65,9 +67,10 @@ void RunAction::EndOfRunAction(const G4Run* run) {
 
   _info << "MATHUSLA -- Muon Simulation\n"
         << util::time::GetString("%c %Z") << "\n\n"
-        << "Run "     << run->GetRunID() << "\n"
-        << "Events: " << event_count << "\n"
-        << "Data: "   << _path << ".root\n\n"
+        << Construction::Builder::GetDetector() << " Detector\n\n"
+        << "Run "      << run->GetRunID() << "\n"
+        << "Events: "  << event_count << "\n"
+        << "Data: "    << _path << ".root\n\n"
         << *GeneratorAction::GetGenerator();
 
   _info.close();
