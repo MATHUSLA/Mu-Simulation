@@ -2,10 +2,15 @@
 #define MU__TRACKING_HH
 #pragma once
 
+#include <ostream>
+
 #include "Geant4/G4Allocator.hh"
 #include "Geant4/G4THitsCollection.hh"
 #include "Geant4/G4LorentzVector.hh"
 #include "Geant4/G4VHit.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/G4HCofThisEvent.hh"
+#include "Geant4/G4VSensitiveDetector.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -35,7 +40,10 @@ public:
       const G4LorentzVector position,
       const G4LorentzVector momentum);
 
+  Hit(const G4Step* step);
+
   void Draw();
+  void Print(std::ostream& os=std::cout) const;
   void Print();
 
   const std::string&     GetParticleName() const { return _particle;  }
@@ -68,6 +76,23 @@ private:
   G4LorentzVector _position;
   G4LorentzVector _momentum;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+//__Stream Hit__________________________________________________________________________________
+std::ostream& operator<<(std::ostream& os,
+                         const Hit& hit);
+//----------------------------------------------------------------------------------------------
+
+//__Stream Hit Collection_______________________________________________________________________
+std::ostream& operator<<(std::ostream& os,
+                         const HitCollection& hits);
+//----------------------------------------------------------------------------------------------
+
+//__Add Hit Collection to Detector______________________________________________________________
+HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
+                                     G4HCofThisEvent* event);
+//----------------------------------------------------------------------------------------------
 
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////
 

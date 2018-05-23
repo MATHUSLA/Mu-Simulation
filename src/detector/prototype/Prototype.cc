@@ -69,11 +69,8 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
 //__Initalize Event_____________________________________________________________________________
 /*! \brief Initialzes Prototype Hit Collection
 */
-void Detector::Initialize(G4HCofThisEvent* eventHC) {
-  _hit_collection = new Tracking::HitCollection(GetName(), collectionName[0]);
-  eventHC->AddHitsCollection(
-    G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]),
-    _hit_collection);
+void Detector::Initialize(G4HCofThisEvent* event) {
+  _hit_collection = Tracking::GenerateHitCollection(this, event);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -164,48 +161,8 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 /*! \brief Print data from Hit Collection
 */
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-  if (verboseLevel < 2) return;
-
-  const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-  const auto hitCount = _hit_collection->entries();
-  if (!hitCount) return;
-
-  const auto boxside = std::string(25 + std::to_string(eventID).length()
-                                      + std::to_string(hitCount).length(), '-');
-
-  const auto box = boxside
-                 + "\n| Event: "     + std::to_string(eventID)
-                 +  " | Hit Count: " + std::to_string(hitCount)
-                 +  " |\n" + boxside + '\n';
-
-  std::cout << "\n\n" << box;
-
-  auto trackID = -1;
-  std::string chamberID;
-  for (auto i = 0; i < hitCount; ++i) {
-    const auto hit = dynamic_cast<Tracking::Hit*>(_hit_collection->GetHit(i));
-    const auto new_chamberID = hit->GetChamberID();
-    const auto new_trackID   = hit->GetTrackID();
-    const bool hit_type      =     chamberID[0] == 'A' ||     chamberID[0] == 'B';
-    const bool new_hit_type  = new_chamberID[0] == 'A' || new_chamberID[0] == 'B';
-
-    if (i != 0 && (hit_type != new_hit_type || trackID != new_trackID)) {
-      const auto barlength = 162
-        + hit->GetParticleName().length()
-        + std::to_string(new_trackID).length()
-        + std::to_string(hit->GetParentID()).length()
-        + new_chamberID.length();
-      const auto bar = std::string(barlength, '-') + '\n';
-
-      if (verboseLevel > 2) std::cout << bar;
-    }
-
-    chamberID = new_chamberID;
-    trackID = new_trackID;
-
-    hit->Print();
-  }
-  std::cout << '\n';
+  if (verboseLevel >= 2 && _hit_collection)
+    std::cout << *_hit_collection;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -231,7 +188,7 @@ const std::string Detector::DecodeDetector(int id) {
 bool Detector::GenerateAnalysis(const int event_count) {
   bool pass = true;
   for (auto i = 0; i < event_count; ++i) {
-    pass = pass && Analysis::CreateNTuple("event"+ std::to_string(i), {
+    pass = pass && Analysis::CreateNTuple("event" + std::to_string(i), {
       "Deposit", "Time", "Detector",
       "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
       "TimestampDate", "TimestampTime"});
