@@ -31,7 +31,6 @@ Layer::Layer(const std::string& name,
              const Scintillator& scintillator)
     : _scintillator(&scintillator), _volume(nullptr), _placement(nullptr), _name(name), _count(count) {
 
-  auto scintillator_solid = scintillator.lvolume->GetSolid();
   const auto&& shift = scintillator.base_width + ScintillatorSpacing;
 
   const auto&& full_width = (count - 1) * shift + scintillator.GetFullWidth();
