@@ -105,10 +105,10 @@ G4VPhysicalVolume* Builder::Construct() {
 
   Export(Earth::Construct(worldLV), "earth.gdml");
 
-  if (_detector == "Prototype") {
-    Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
-  } else if (_detector == "Flat") {
+  if (_detector == "Flat") {
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
+  } else {
+    Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
   }
 
   auto world = PlaceVolume(worldLV, nullptr);
@@ -159,6 +159,7 @@ void Builder::SetDetector(const std::string& detector) {
 }
 //----------------------------------------------------------------------------------------------
 
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 //__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes() {
@@ -405,6 +406,23 @@ G4RotationMatrix Matrix(const double th1,
 
   if (matrix != G4RotationMatrix()) matrix.invert();
   return matrix;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Matrix Transformation Generator_____________________________________________________________
+G4RotationMatrix Matrix(const double mxx,
+                        const double mxy,
+                        const double mxz,
+                        const double myx,
+                        const double myy,
+                        const double myz,
+                        const double mzx,
+                        const double mzy,
+                        const double mzz) {
+  return G4RotationMatrix(
+    G4ThreeVector(mxx, myx, mzx),
+    G4ThreeVector(mxy, myy, mzy),
+    G4ThreeVector(mxz, myz, mzz));
 }
 //----------------------------------------------------------------------------------------------
 

@@ -17,10 +17,6 @@
 
 #include "geometry/Flat.hh"
 
-#include "Geant4/G4Box.hh"
-#include "Geant4/G4UnionSolid.hh"
-#include "Geant4/G4VSolid.hh"
-
 namespace MATHUSLA { namespace MU {
 
 namespace Flat { ///////////////////////////////////////////////////////////////////////////////
@@ -32,17 +28,13 @@ Layer::Layer(const std::string& name,
     : _scintillator(&scintillator), _volume(nullptr), _placement(nullptr), _name(name), _count(count) {
 
   const auto&& shift = scintillator.base_width + ScintillatorSpacing;
-
   const auto&& full_width = (count - 1) * shift + scintillator.GetFullWidth();
-  _volume = Construction::BoxVolume(name,
-    full_width,
-    scintillator.height,
-    scintillator.length);
 
-  const auto& name_prefix = name + scintillator.name;
+  _volume = Construction::BoxVolume(_name, full_width, scintillator.height, scintillator.length);
+
+  const auto& name_prefix = _name + scintillator.name;
   for (size_t i = 0; i < count; ++i) {
     auto clone = Scintillator::Clone(scintillator, name_prefix + std::to_string(i));
-
     clone->pvolume = Construction::PlaceVolume(clone->lvolume, _volume,
       Construction::Transform(i * shift + 0.5 * (scintillator.GetFullWidth() - full_width), 0, 0));
   }

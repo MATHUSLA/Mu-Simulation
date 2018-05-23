@@ -35,8 +35,8 @@ namespace Prototype { //////////////////////////////////////////////////////////
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Envelopes and RPCs for Prototype____________________________________________________________
-EnvelopeList _envelopes;
-RPCList _rpcs;
+std::vector<Envelope*> _envelopes;
+std::vector<RPC*> _rpcs;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Hit Collection____________________________________________________________________
@@ -257,8 +257,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   auto B5_L = new Envelope("B5_L", Top, Left, Flip,   {A10, A12, C7, C8, C9});
   auto B6_H = new Envelope("B6_H", Top, Left, NoFlip, {B11, B11, C9, B11, B11});
 
-  _envelopes = EnvelopeList({
-    A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H});
+  _envelopes = {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H};
 
   constexpr double envelope_spacing = 24*cm;
   constexpr double outer_layer_spacing = total_height - 50*cm;

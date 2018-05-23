@@ -122,12 +122,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-//__Envelope Vector_____________________________________________________________________________
-using EnvelopeList = std::vector<Envelope*>;
-//----------------------------------------------------------------------------------------------
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 class RPC {
 public:
   struct Pad {
@@ -154,10 +148,10 @@ public:
   G4VPhysicalVolume* GetPlacement() const { return _placement; }
   std::vector<Pad>   GetPadList()   const { return _pads;      }
 
+  void Register(G4VSensitiveDetector* detector);
+
   G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
                              const G4Transform3D& transform=G4Transform3D());
-
-  void Register(G4VSensitiveDetector* detector);
 
   constexpr static auto Width     = 1257*mm;
   constexpr static auto Height    = 2854*mm;
@@ -191,12 +185,6 @@ private:
   std::string _name;
   G4VPhysicalVolume* _placement;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-//__RPC Vector__________________________________________________________________________________
-using RPCList = std::vector<RPC*>;
-//----------------------------------------------------------------------------------------------
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

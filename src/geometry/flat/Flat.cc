@@ -17,8 +17,6 @@
 
 #include "geometry/Flat.hh"
 
-#include "Geant4/G4SDManager.hh"
-
 #include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -85,6 +83,8 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   L1->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 0*m, 1, 0, 0, 90*deg));
   L2->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 1*m, 1, 0, 0, 90*deg));
   L3->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 2*m, 1, 0, 0, 90*deg));
+
+  _layers = {L1, L2, L3};
 
   return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));

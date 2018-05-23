@@ -238,6 +238,18 @@ G4RotationMatrix Matrix(const double th1,
                         const double phi3);
 //----------------------------------------------------------------------------------------------
 
+//__Matrix Transformation Generator_____________________________________________________________
+G4RotationMatrix Matrix(const double mxx,
+                        const double mxy,
+                        const double mxz,
+                        const double myx,
+                        const double myy,
+                        const double myz,
+                        const double mzx,
+                        const double mzy,
+                        const double mzz);
+//----------------------------------------------------------------------------------------------
+
 //__GDML File Export____________________________________________________________________________
 void Export(const G4LogicalVolume* volume,
             const std::string& file,
