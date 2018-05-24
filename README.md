@@ -1,4 +1,7 @@
 # MATHUSLA Mu-Simulation
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/71dc15058b39409ea724775ec2b9816d)](https://app.codacy.com/app/MATHUSLA/Mu-Simulation?utm_source=github.com&utm_medium=referral&utm_content=MATHUSLA/Mu-Simulation&utm_campaign=badger)
+
 _simulation of muons through earth material_
 
 ## Build & Run
