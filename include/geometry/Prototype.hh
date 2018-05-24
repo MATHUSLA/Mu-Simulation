@@ -19,7 +19,6 @@
 #define MU__DETECTOR_PROTOTYPE_HH
 #pragma once
 
-#include <initializer_list>
 #include <vector>
 
 #include "Geant4/G4VSensitiveDetector.hh"

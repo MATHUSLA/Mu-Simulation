@@ -109,9 +109,9 @@ void Scintillator::Material::Define() {
 //----------------------------------------------------------------------------------------------
 
 //__Scintillator Clone__________________________________________________________________________
-Scintillator* Scintillator::Clone(const Scintillator& other,
+Scintillator* Scintillator::Clone(const Scintillator* other,
                                   const std::string& new_name) {
-  return new Scintillator(new_name, other.length, other.height, other.base_width, other.overlap);
+  return new Scintillator(new_name, other->length, other->height, other->base_width, other->overlap);
 }
 //----------------------------------------------------------------------------------------------
 

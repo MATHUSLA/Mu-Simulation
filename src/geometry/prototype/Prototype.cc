@@ -56,7 +56,6 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 */
 Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
   collectionName.insert("Prototype_HC");
-
   for (auto envelope : _envelopes) {
     for (auto sci : envelope->GetScintillatorList()) {
       sci->Register(this);
@@ -67,7 +66,6 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
       _decoding.insert({id, name});
     }
   }
-
   for (auto rpc : _rpcs) {
     rpc->Register(this);
     for (const auto& pad : rpc->GetPadList()) {

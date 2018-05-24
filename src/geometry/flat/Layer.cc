@@ -24,29 +24,27 @@ namespace Flat { ///////////////////////////////////////////////////////////////
 //__Layer Constructor___________________________________________________________________________
 Layer::Layer(const std::string& name,
              const size_t count,
-             const Scintillator& scintillator)
-    : _scintillator(&scintillator), _volume(nullptr), _placement(nullptr), _name(name), _count(count) {
+             const Scintillator* scintillator)
+    : _volume(nullptr), _placement(nullptr), _name(name), _count(count) {
 
-  const auto&& shift = scintillator.base_width + ScintillatorSpacing;
-  const auto&& full_width = (count - 1) * shift + scintillator.GetFullWidth();
+  const auto&& shift = scintillator->base_width + ScintillatorSpacing;
+  const auto&& full_width = (count - 1) * shift + scintillator->GetFullWidth();
 
-  _volume = Construction::BoxVolume(_name, full_width, scintillator.height, scintillator.length);
+  _volume = Construction::BoxVolume(_name, full_width, scintillator->height, scintillator->length);
 
-  const auto& name_prefix = _name + scintillator.name;
   for (size_t i = 0; i < count; ++i) {
-    auto clone = Scintillator::Clone(scintillator, name_prefix + std::to_string(i));
+    auto clone = Scintillator::Clone(scintillator, _name + std::to_string(i));
     clone->pvolume = Construction::PlaceVolume(clone->lvolume, _volume,
-      Construction::Transform(i * shift + 0.5 * (scintillator.GetFullWidth() - full_width), 0, 0));
+      Construction::Transform(i * shift + 0.5 * (scintillator->GetFullWidth() - full_width), 0, 0));
+    _scintillators.push_back(clone);
   }
 }
 //----------------------------------------------------------------------------------------------
 
 //__Layer Constructor___________________________________________________________________________
 void Layer::Register(G4VSensitiveDetector* detector) {
-  const auto&& count = _volume->GetNoDaughters();
-  for (size_t i = 0; i < count; ++i) {
-    _volume->GetDaughter(i)->GetLogicalVolume()->SetSensitiveDetector(detector);
-  }
+  for (auto& sci : _scintillators)
+    sci->sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -60,8 +58,7 @@ G4VPhysicalVolume* Layer::PlaceIn(G4LogicalVolume* parent,
 //__Clone Layer_________________________________________________________________________________
 Layer* Layer::Clone(const Layer& other,
                     const std::string& new_name) {
-  // TODO: optimize this
-  return new Layer(new_name, other._count, *other._scintillator);
+  return new Layer(new_name, other._count, other._scintillators.front());
 }
 //----------------------------------------------------------------------------------------------
 

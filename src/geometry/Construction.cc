@@ -45,6 +45,9 @@ const auto _nist = G4NistManager::Instance();
 
 //__Detector Name for Builder___________________________________________________________________
 std::string _detector;
+//----------------------------------------------------------------------------------------------
+
+//__Detector List_______________________________________________________________________________
 const std::string& _detectors = "Prototype Flat";
 //----------------------------------------------------------------------------------------------
 
@@ -112,7 +115,11 @@ G4VPhysicalVolume* Builder::Construct() {
   }
 
   auto world = PlaceVolume(worldLV, nullptr);
-  Export(world, "world.gdml");
+  if (_detector == "Flat") {
+    Export(world, "world.flat.gdml");
+  } else {
+    Export(world, "world.prototype.gdml");
+  }
 
   std::cout << "Materials: "
             << *G4Material::GetMaterialTable() << '\n';
@@ -128,6 +135,7 @@ void Builder::ConstructSDandField() {
   } else {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
+  G4SDManager::GetSDMpointer()->ListTree();
 }
 //----------------------------------------------------------------------------------------------
 
