@@ -38,10 +38,8 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 //__Detector Constructor________________________________________________________________________
 Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Flat") {
   collectionName.insert("Flat_HC");
-
-  for (auto& layer : _layers) {
+  for (auto& layer : _layers)
     layer->Register(this);
-  }
 }
 //----------------------------------------------------------------------------------------------
 
@@ -76,9 +74,9 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   const auto S1 = new Scintillator("S1", 2500*mm, 25*mm, 35*mm, 15*mm);
 
-  auto L1 = new Layer("L1", 90, *S1);
-  auto L2 = new Layer("L2", 90, *S1);
-  auto L3 = new Layer("L3", 90, *S1);
+  auto L1 = new Layer("L1", 90, S1);
+  auto L2 = new Layer("L2", 90, S1);
+  auto L3 = new Layer("L3", 90, S1);
 
   L1->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 0*m, 1, 0, 0, 90*deg));
   L2->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 1*m, 1, 0, 0, 90*deg));

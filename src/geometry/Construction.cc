@@ -112,7 +112,11 @@ G4VPhysicalVolume* Builder::Construct() {
   }
 
   auto world = PlaceVolume(worldLV, nullptr);
-  Export(world, "world.gdml");
+  if (_detector == "Flat") {
+    Export(world, "world.flat.gdml");
+  } else {
+    Export(world, "world.prototype.gdml");
+  }
 
   std::cout << "Materials: "
             << *G4Material::GetMaterialTable() << '\n';
@@ -128,6 +132,7 @@ void Builder::ConstructSDandField() {
   } else {
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
+  G4SDManager::GetSDMpointer()->ListTree();
 }
 //----------------------------------------------------------------------------------------------
 

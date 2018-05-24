@@ -55,11 +55,13 @@ public:
 
   double GetFullWidth() const { return 2 * base_width - overlap; }
 
-  static Scintillator* Clone(const Scintillator& other,
+  static Scintillator* Clone(const Scintillator* other,
                              const std::string& new_name);
 
   constexpr static auto CasingThickness = 0.1*cm;
 };
+
+using ScintillatorList = std::vector<Scintillator*>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,13 +69,13 @@ class Layer {
 public:
   Layer(const std::string& name,
         const size_t count,
-        const Scintillator& scintillator);
+        const Scintillator* scintillator);
 
-  const std::string&  GetName()             const { return _name;          }
-  G4LogicalVolume*    GetVolume()           const { return _volume;        }
-  G4VPhysicalVolume*  GetPlacement()        const { return _placement;     }
-  const Scintillator* GetScintillator()     const { return _scintillator;  }
-  size_t              GetScintillatrCount() const { return _count;         }
+  const std::string&      GetName()              const { return _name;          }
+  G4LogicalVolume*        GetVolume()            const { return _volume;        }
+  G4VPhysicalVolume*      GetPlacement()         const { return _placement;     }
+  size_t                  GetScintillatorCount() const { return _count;         }
+  const ScintillatorList& GetScintillators()     const { return _scintillators; }
 
   void Register(G4VSensitiveDetector* detector);
 
@@ -86,7 +88,7 @@ public:
   constexpr static auto ScintillatorSpacing = 0.3*cm;
 
 private:
-  const Scintillator* _scintillator;
+  std::vector<Scintillator*> _scintillators;
   G4LogicalVolume* _volume;
   G4VPhysicalVolume* _placement;
   std::string _name;
