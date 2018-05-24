@@ -58,7 +58,6 @@ G4VPhysicalVolume* Layer::PlaceIn(G4LogicalVolume* parent,
 //__Clone Layer_________________________________________________________________________________
 Layer* Layer::Clone(const Layer& other,
                     const std::string& new_name) {
-  // TODO: optimize this
   return new Layer(new_name, other._count, other._scintillators.front());
 }
 //----------------------------------------------------------------------------------------------
