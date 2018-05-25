@@ -23,12 +23,12 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Printing Frequency for Event Count__________________________________________________________
-G4ThreadLocal int _print_modulo;
+G4ThreadLocal size_t _print_modulo;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Event Action Constructor____________________________________________________________________
-EventAction::EventAction(int print_modulo) : G4UserEventAction() {
+EventAction::EventAction(const size_t print_modulo) : G4UserEventAction() {
   _print_modulo = print_modulo;
 }
 //----------------------------------------------------------------------------------------------

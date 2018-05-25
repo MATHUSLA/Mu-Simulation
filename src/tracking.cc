@@ -47,19 +47,20 @@ Hit::Hit(const std::string& particle,
 //----------------------------------------------------------------------------------------------
 
 //__Hit Constructor_____________________________________________________________________________
-Hit::Hit(const G4Step* step) {
+Hit::Hit(const G4Step* step, bool post) {
   if (!step) return;
 
-  const auto track     = step->GetTrack();
-  const auto post_step = step->GetPostStepPoint();
+  const auto track = step->GetTrack();
+  const auto step_point = post ? step->GetPostStepPoint()
+                               : step->GetPreStepPoint();
 
   _particle  = track->GetParticleDefinition()->GetParticleName();
   _trackID   = track->GetTrackID();
   _parentID  = track->GetParentID();
   _chamberID = track->GetTouchable()->GetHistory()->GetTopVolume()->GetName();
   _deposit   = step->GetTotalEnergyDeposit();
-  _position  = G4LorentzVector(post_step->GetGlobalTime(), post_step->GetPosition());
-  _momentum  = G4LorentzVector(post_step->GetTotalEnergy(), post_step->GetMomentum());
+  _position  = G4LorentzVector(step_point->GetGlobalTime(), step_point->GetPosition());
+  _momentum  = G4LorentzVector(step_point->GetTotalEnergy(), step_point->GetMomentum());
 }
 //----------------------------------------------------------------------------------------------
 
@@ -126,22 +127,19 @@ std::ostream& operator<<(std::ostream& os,
   os << "\n\n" << box;
 
   auto trackID = -1;
-  std::string chamberID;
   for (auto i = 0; i < count; ++i) {
     const auto hit = dynamic_cast<Tracking::Hit*>(hits.GetHit(i));
-    const auto new_chamberID = hit->GetChamberID();
-    const auto new_trackID   = hit->GetTrackID();
+    const auto new_trackID = hit->GetTrackID();
 
     if (i != 0 && trackID != new_trackID) {
       const auto barlength = 162
         + hit->GetParticleName().length()
         + std::to_string(new_trackID).length()
         + std::to_string(hit->GetParentID()).length()
-        + new_chamberID.length();
+        + hit->GetChamberID().length();
       os << std::string(barlength, '-') << '\n';
     }
 
-    chamberID = new_chamberID;
     trackID = new_trackID;
 
     os << *hit;

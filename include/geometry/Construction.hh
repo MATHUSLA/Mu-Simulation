@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MU__DETECTOR_CONSTRUCTION_HH
-#define MU__DETECTOR_CONSTRUCTION_HH
+#ifndef MU__GEOMETRY_CONSTRUCTION_HH
+#define MU__GEOMETRY_CONSTRUCTION_HH
 #pragma once
 
 #include "Geant4/G4VUserDetectorConstruction.hh"
@@ -59,8 +59,12 @@ public:
 
   static const std::string MessengerDirectory;
 
-  static const std::string& GetDetector();
   static void SetDetector(const std::string& detector);
+
+  static const std::string& GetDetectorName();
+  static bool IsDetectorDataPerEvent();
+  static const std::string& GetDetectorDataPrefix();
+  static const std::vector<std::string>& GetDetectorDataKeys();
 
 private:
   Command::NoArg*     _list;
@@ -266,4 +270,4 @@ void Export(const G4VPhysicalVolume* volume,
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* MU__DETECTOR_CONSTRUCTION_HH */
+#endif /* MU__GEOMETRY_CONSTRUCTION_HH */

@@ -41,7 +41,7 @@ Layer::Layer(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Layer Constructor___________________________________________________________________________
+//__Register Layer with Detector________________________________________________________________
 void Layer::Register(G4VSensitiveDetector* detector) {
   for (auto& sci : _scintillators)
     sci->sensitive->GetLogicalVolume()->SetSensitiveDetector(detector);

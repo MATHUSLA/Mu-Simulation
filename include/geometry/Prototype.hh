@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MU__DETECTOR_PROTOTYPE_HH
-#define MU__DETECTOR_PROTOTYPE_HH
+#ifndef MU__GEOMETRY_PROTOTYPE_HH
+#define MU__GEOMETRY_PROTOTYPE_HH
 #pragma once
 
 #include <vector>
@@ -125,8 +125,10 @@ class RPC {
 public:
   struct Pad {
     Pad(int id);
-    G4VPhysicalVolume* volume;
-    std::vector<G4VPhysicalVolume*> strips;
+    G4LogicalVolume* lvolume;
+    G4VPhysicalVolume* pvolume;
+    std::vector<G4LogicalVolume*> lvolume_strips;
+    std::vector<G4VPhysicalVolume*> pvolume_strips;
     int id;
   };
 
@@ -145,7 +147,7 @@ public:
   const std::string& GetName()      const { return _name;      }
   G4LogicalVolume*   GetVolume()    const { return _volume;    }
   G4VPhysicalVolume* GetPlacement() const { return _placement; }
-  std::vector<Pad>   GetPadList()   const { return _pads;      }
+  std::vector<Pad*>  GetPadList()   const { return _pads;      }
 
   void Register(G4VSensitiveDetector* detector);
 
@@ -179,7 +181,7 @@ public:
 
 private:
   G4LogicalVolume* _volume;
-  std::vector<Pad> _pads;
+  std::vector<Pad*> _pads;
   int _id;
   std::string _name;
   G4VPhysicalVolume* _placement;
@@ -198,6 +200,10 @@ public:
   static int EncodeDetector(const std::string& name);
   static const std::string DecodeDetector(int id);
 
+  static const bool DataPerEvent = true;
+  static const std::string& DataPrefix;
+  static const std::vector<std::string>& DataKeys;
+
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 };
 
@@ -205,4 +211,4 @@ public:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* MU__DETECTOR_PROTOTYPE_HH */
+#endif /* MU__GEOMETRY_PROTOTYPE_HH */

@@ -51,6 +51,14 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+//__Prototype Data Variables____________________________________________________________________
+const std::string& Detector::DataPrefix = "event";
+const std::vector<std::string>& Detector::DataKeys = {
+  "Deposit", "Time", "Detector",
+  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
+  "TimestampDate", "TimestampTime"};
+//----------------------------------------------------------------------------------------------
+
 //__Prototype Constructor_______________________________________________________________________
 /*! \brief Creates Detector and Assigns sensitive volumes
 */
@@ -69,8 +77,8 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
   for (auto rpc : _rpcs) {
     rpc->Register(this);
     for (const auto& pad : rpc->GetPadList()) {
-      for (const auto& strip : pad.strips) {
-        const auto& name = strip->GetName();
+      for (const auto& volume : pad->pvolume_strips) {
+        const auto& name = volume->GetName();
         const auto id = std::stoi(name);
         _encoding.insert({name, id});
         _decoding.insert({id, name});
@@ -150,7 +158,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
 
-  Analysis::FillNTuple("event" + std::to_string(eventID), {
+  Analysis::FillNTuple(DataPrefix, eventID, {
     deposit/MeV,
     global_time/ns,
     static_cast<double>(detector_id),
@@ -202,6 +210,8 @@ const std::string Detector::DecodeDetector(int id) {
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   Scintillator::Material::Define();
   RPC::Material::Define();
+  _envelopes.clear();
+  _rpcs.clear();
 
   constexpr double total_height = 6649*mm;
 

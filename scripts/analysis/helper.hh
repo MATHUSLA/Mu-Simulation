@@ -28,7 +28,7 @@ namespace helper {
 template<class T, unsigned N>
 unsigned arraysize(const T (&v)[N]) { return N; }
 
-static const std::string detector_decode(int id) {
+static const std::string prototype_detector_decode(int id) {
   if (id < 0) return "";
 
   static const std::string detector[] = {

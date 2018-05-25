@@ -19,6 +19,8 @@
 #define MU__ANALYSIS_HH
 #pragma once
 
+#include <vector>
+
 #include "Geant4/g4root.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -39,18 +41,24 @@ bool Save();
 
 //__NTuple Initializer__________________________________________________________________________
 bool CreateNTuple(const std::string& name,
-                  const std::initializer_list<const std::string> columns);
+                  const std::vector<std::string> columns);
 //----------------------------------------------------------------------------------------------
 
 //__Add Data to NTuple__________________________________________________________________________
 bool FillNTuple(const std::string& name,
-                const std::initializer_list<double> values);
+                const std::vector<double> values);
+//----------------------------------------------------------------------------------------------
+
+//__Add Data to NTuple__________________________________________________________________________
+bool FillNTuple(const std::string& prefix,
+                const size_t id,
+                const std::vector<double> values);
 //----------------------------------------------------------------------------------------------
 
 //__NTuple Collection Initializer_______________________________________________________________
 bool GenerateNTupleCollection(const size_t count,
                               const std::string& prefix,
-                              const std::initializer_list<const std::string> columns);
+                              const std::vector<std::string> columns);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace Analysis */ /////////////////////////////////////////////////////////////////////

@@ -52,7 +52,7 @@ bool Save() {
 
 //__Create ROOT NTuple__________________________________________________________________________
 bool CreateNTuple(const std::string& name,
-                  const std::initializer_list<const std::string> columns) {
+                  const std::vector<std::string> columns) {
   const auto manager = G4AnalysisManager::Instance();
   const auto id = manager->CreateNtuple(name, name);
   for (const auto& column : columns)
@@ -64,7 +64,7 @@ bool CreateNTuple(const std::string& name,
 
 //__Fill ROOT NTuple____________________________________________________________________________
 bool FillNTuple(const std::string& name,
-                const std::initializer_list<double> values) {
+                const std::vector<double> values) {
   if (values.size() <= 0)
     return false;
 
@@ -83,10 +83,18 @@ bool FillNTuple(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Add Data to NTuple__________________________________________________________________________
+bool FillNTuple(const std::string& prefix,
+                const size_t id,
+                const std::vector<double> values) {
+  return FillNTuple(prefix + std::to_string(id), values);
+}
+//----------------------------------------------------------------------------------------------
+
 //__NTuple Collection Initializer_______________________________________________________________
 bool GenerateNTupleCollection(const size_t count,
                               const std::string& prefix,
-                              const std::initializer_list<const std::string> columns) {
+                              const std::vector<std::string> columns) {
   bool pass = true;
   for (size_t i = 0; i < count; ++i)
     pass = pass && Analysis::CreateNTuple(prefix + std::to_string(i), columns);

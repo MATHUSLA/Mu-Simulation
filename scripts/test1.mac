@@ -1,23 +1,29 @@
-/gen/select basic
+/det/select Prototype
+/run/beamOn 1
 
-/gen/basic/pT 70 GeV/c
-/gen/basic/eta 0
-/gen/basic/phi 0
-
-/det/select Flat
+/det/select MuonMapper
 /run/beamOn 1
 
 /det/select Prototype
 /run/beamOn 1
 
-/det/select Flat
+/det/select MuonMapper
 /run/beamOn 1
 
 /det/select Prototype
 /run/beamOn 1
 
-/det/select Flat
+/det/select MuonMapper
 /run/beamOn 1
 
 /det/select Prototype
+/run/beamOn 1
+
+/det/select MuonMapper
+/run/beamOn 1
+
+/det/select Prototype
+/run/beamOn 1
+
+/det/select MuonMapper
 /run/beamOn 1
