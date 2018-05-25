@@ -1,41 +1,25 @@
-/* src/geometry/flat/Flat.cc
- *
- * Copyright 2018 Brandon Gomes
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-#include "geometry/Flat.hh"
+#include "geometry/Box.hh"
 
 #include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
 
-namespace Flat { ///////////////////////////////////////////////////////////////////////////////
+namespace Box { ////////////////////////////////////////////////////////////////////////////////
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
-//__Flat Layers_________________________________________________________________________________
-std::vector<Layer*> _layers;
+//__Box Sensitive Material______________________________________________________________________
+std::vector<Scintillator*> _scintillators;
+G4LogicalVolume* _box;
 //----------------------------------------------------------------------------------------------
 
-//__Flat Hit Collection_________________________________________________________________________
+//__Box Hit Collection__________________________________________________________________________
 G4ThreadLocal Tracking::HitCollection* _hit_collection;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-//__Flat Data Variables_________________________________________________________________________
+//__Box Data Variables__________________________________________________________________________
 const std::string& Detector::DataPrefix = "event";
 const std::vector<std::string>& Detector::DataKeys = {
   "Deposit", "Time", "Detector",
@@ -44,10 +28,11 @@ const std::vector<std::string>& Detector::DataKeys = {
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________
-Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Flat") {
-  collectionName.insert("Flat_HC");
-  for (auto& layer : _layers)
-    layer->Register(this);
+Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Box") {
+  collectionName.insert("Box_HC");
+  _box->SetSensitiveDetector(this);
+  for (auto& scintillator : _scintillators)
+    scintillator->Register(this);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -74,30 +59,25 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
 //__Build Detector______________________________________________________________________________
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   Scintillator::Material::Define();
-  _layers.clear();
+  _scintillators.clear();
 
-  constexpr double total_outer_box_height = 6000*mm;
+  constexpr double box_height = 25*m;
+  constexpr double outer_gap = 2*cm;
+  constexpr double inner_gap = 10*cm;
+  auto DetectorVolume = Construction::BoxVolume("Box", 200*m, 200*m, box_height);
 
-  auto DetectorVolume = Construction::BoxVolume(
-    "Flat", 2800*mm, 2800*mm, total_outer_box_height);
+  _box = Construction::OpenBoxVolume("BoxOuterLayer",
+    200*m - outer_gap, 200*m - outer_gap, box_height - outer_gap, inner_gap,
+    Scintillator::Material::Scintillator,
+    Construction::CasingAttributes());
 
-  const auto S1 = new Scintillator("S1", 2500*mm, 25*mm, 35*mm, 15*mm);
-
-  auto L1 = new Layer("L1", 90, S1);
-  auto L2 = new Layer("L2", 90, S1);
-  auto L3 = new Layer("L3", 90, S1);
-
-  L1->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 0*m, 1, 0, 0, 90*deg));
-  L2->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 1*m, 1, 0, 0, 90*deg));
-  L3->PlaceIn(DetectorVolume, Construction::Transform(0, 0, 2*m, 1, 0, 0, 90*deg));
-
-  _layers = {L1, L2, L3};
+  Construction::PlaceVolume(_box, DetectorVolume);
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(0, 0, -0.5*total_outer_box_height));
+    G4Translate3D(100*m, 100*m, -0.5*box_height));
 }
 //----------------------------------------------------------------------------------------------
 
-} /* namespace Flat */ /////////////////////////////////////////////////////////////////////////
+} /* namespace Box */ //////////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

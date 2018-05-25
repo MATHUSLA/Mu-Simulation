@@ -30,12 +30,10 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Output File Path____________________________________________________________________________
 G4ThreadLocal std::string _path;
+G4ThreadLocal uint_fast64_t _event_count;
+G4ThreadLocal uint_fast64_t _run_count;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
-
-/*
-TODO: Save Event Count for User to Access
- */
 
 //__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
@@ -45,32 +43,33 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
   util::io::create_directory(_path);
   _path += '/' + util::time::GetTime();
   util::io::create_directory(_path);
-  _path += "/run" + std::to_string(run->GetRunID());
+  _path += "/run" + std::to_string(_run_count);
+
+  _event_count = run->GetNumberOfEventToBeProcessed();
 
   Analysis::Setup();
   Analysis::Open(_path + ".root");
-  Analysis::GenerateNTupleCollection(run->GetNumberOfEventToBeProcessed(), "event", {
-    "Deposit", "Time", "Detector",
-    "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-    "TimestampDate", "TimestampTime" });
+  Analysis::GenerateNTupleCollection(
+    Construction::Builder::IsDetectorDataPerEvent() ? _event_count : 1,
+    Construction::Builder::GetDetectorDataPrefix(),
+    Construction::Builder::GetDetectorDataKeys());
 }
 //----------------------------------------------------------------------------------------------
 
 //__Post-Run Processing_________________________________________________________________________
-void RunAction::EndOfRunAction(const G4Run* run) {
-  const auto event_count = run->GetNumberOfEventToBeProcessed();
-  if (!event_count) return;
+void RunAction::EndOfRunAction(const G4Run*) {
+  if (!_event_count) return;
 
   Analysis::Save();
 
   std::ofstream _info(_path + ".info");
 
   _info << "MATHUSLA -- Muon Simulation\n"
-        << util::time::GetString("%c %Z") << "\n\n"
-        << Construction::Builder::GetDetector() << " Detector\n\n"
-        << "Run "      << run->GetRunID() << "\n"
-        << "Events: "  << event_count << "\n"
-        << "Data: "    << _path << ".root\n\n"
+        << util::time::GetString("%c %Z") << "\n"
+        << Construction::Builder::GetDetectorName() << " Detector\n"
+        << "Run "      << _run_count++ << "\n"
+        << "Events: "  << _event_count << "\n"
+        << "Data: "    << _path << ".root\n"
         << *GeneratorAction::GetGenerator();
 
   _info.close();
@@ -78,6 +77,18 @@ void RunAction::EndOfRunAction(const G4Run* run) {
   std::cout << "\nEnd of Run\n"
             << "Data File: " << _path << ".root\n"
             << "Info File: " << _path << ".info\n\n";
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current RunID___________________________________________________________________________
+size_t RunAction::RunID() {
+  return _run_count;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current EventCount______________________________________________________________________
+size_t RunAction::EventCount() {
+  return _event_count;
 }
 //----------------------------------------------------------------------------------------------
 

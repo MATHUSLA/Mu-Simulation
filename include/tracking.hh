@@ -57,7 +57,7 @@ public:
       const G4LorentzVector position,
       const G4LorentzVector momentum);
 
-  Hit(const G4Step* step);
+  Hit(const G4Step* step, bool post=true);
 
   void Draw();
   void Print(std::ostream& os=std::cout) const;

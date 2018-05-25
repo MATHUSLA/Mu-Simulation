@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MU__DETECTOR_FLAT_HH
-#define MU__DETECTOR_FLAT_HH
+#ifndef MU__GEOMETRY_FLAT_HH
+#define MU__GEOMETRY_FLAT_HH
 #pragma once
 
 #include "Geant4/G4VSensitiveDetector.hh"
@@ -105,6 +105,10 @@ public:
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 
+  static const bool DataPerEvent = true;
+  static const std::string& DataPrefix;
+  static const std::vector<std::string>& DataKeys;
+
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 };
 
@@ -112,4 +116,4 @@ public:
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* MU__DETECTOR_FLAT_HH */
+#endif /* MU__GEOMETRY_FLAT_HH */

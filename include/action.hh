@@ -42,7 +42,7 @@ public:
 
 class EventAction : public G4UserEventAction {
 public:
-  EventAction(const int print_modulo);
+  EventAction(const size_t print_modulo);
   void BeginOfEventAction(const G4Event* event);
 };
 
@@ -51,7 +51,10 @@ public:
 class RunAction : public G4UserRunAction {
 public:
   void BeginOfRunAction(const G4Run* run);
-  void EndOfRunAction(const G4Run* run);
+  void EndOfRunAction(const G4Run*);
+
+  static size_t RunID();
+  static size_t EventCount();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
     "Multi-Threading Mode: Specify Optional number of threads (default: 2)",
     option::optional_arguments);
 
+  //TODO: pass quiet argument to builder and action initiaization to improve quietness
+
   util::cli::parse(argv,
     {&help_opt, &gen_opt, &det_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
 
@@ -80,12 +82,10 @@ int main(int argc, char* argv[]) {
     } else if (!thread_opt.count) {
       thread_opt.count = 2;
     }
-
     auto run = new G4MTRunManager;
     run->SetNumberOfThreads(thread_opt.count);
     std::cout << "Running " << thread_opt.count
               << (thread_opt.count > 1 ? " Threads" : " Thread") << "\n";
-
   #else
     auto run = new G4RunManager;
     std::cout << "Running in Single Threaded Mode.\n";

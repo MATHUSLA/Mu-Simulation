@@ -22,11 +22,11 @@ namespace MATHUSLA { namespace MU {
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
 //__RPC Pad Constructor_________________________________________________________________________
-RPC::Pad::Pad(int id) : volume(nullptr), strips(), id(id) {}
+RPC::Pad::Pad(int id) : id(id) {}
 //----------------------------------------------------------------------------------------------
 
 //__RPC Constructor_____________________________________________________________________________
-RPC::RPC(int id) : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_string(id)) {
+RPC::RPC(int id) : _pads(), _id(id), _name("RPC" + std::to_string(id)) {
   _volume = Construction::OpenBoxVolume(
     _name,
     Width, Height, Depth, Thickness,
@@ -35,9 +35,9 @@ RPC::RPC(int id) : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_str
   const auto id_name = (id < 10 ? std::string("0") : "") + std::to_string(id);
 
   for (int pad_index = 0; pad_index < 10; ++pad_index) {
-    Pad pad(1 + pad_index);
+    auto pad = new Pad(1 + pad_index);
 
-    auto padLV = Construction::OpenBoxVolume(
+    pad->lvolume = Construction::OpenBoxVolume(
       "PAD" + std::to_string(1 + pad_index),
       PadWidth, PadHeight, PadDepth, PadThickness,
       Material::Pad, Construction::CasingAttributes());
@@ -53,12 +53,13 @@ RPC::RPC(int id) : _volume(nullptr), _pads(), _id(id), _name("RPC" + std::to_str
         StripWidth, StripHeight, StripDepth,
         Material::Gas,
         Construction::SensitiveAttributes());
-      pad.strips.push_back(Construction::PlaceVolume(strip, padLV,
+      pad->lvolume_strips.push_back(strip);
+      pad->pvolume_strips.push_back(Construction::PlaceVolume(strip, pad->lvolume,
         G4Translate3D(0, 0.5 * PadHeight - StripTopGap - strip_stack, 0)));
       strip_stack += StripHeight + StripYGap;
     }
 
-    pad.volume = Construction::PlaceVolume(padLV, _volume,
+    pad->pvolume = Construction::PlaceVolume(pad->lvolume, _volume,
       G4Translate3D(
         0.5 * Width  - PadStartX - PadSpacingX * (pad_index % 2),
         0.5 * Height - PadStartY - PadSpacingY * (pad_index / 2 % 5),
@@ -108,8 +109,8 @@ void RPC::Material::Define() {
 //__Register RPC with Detector__________________________________________________________________
 void RPC::Register(G4VSensitiveDetector* detector) {
   for (const auto& pad : _pads)
-    for (const auto& strip : pad.strips)
-      strip->GetLogicalVolume()->SetSensitiveDetector(detector);
+    for (const auto& volume : pad->lvolume_strips)
+      volume->SetSensitiveDetector(detector);
 }
 //----------------------------------------------------------------------------------------------
 

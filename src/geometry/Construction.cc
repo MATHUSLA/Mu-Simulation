@@ -29,9 +29,11 @@
 #include "Geant4/G4NistManager.hh"
 #include "Geant4/G4GDMLParser.hh"
 
+#include "geometry/Box.hh"
 #include "geometry/Earth.hh"
 #include "geometry/Prototype.hh"
 #include "geometry/Flat.hh"
+#include "geometry/MuonMapper.hh"
 
 #include "util/io.hh"
 
@@ -43,12 +45,15 @@ namespace { ////////////////////////////////////////////////////////////////////
 const auto _nist = G4NistManager::Instance();
 //----------------------------------------------------------------------------------------------
 
-//__Detector Name for Builder___________________________________________________________________
+//__Detector Details for Builder________________________________________________________________
 std::string _detector;
+bool _data_per_event;
+std::string _data_prefix;
+const std::vector<std::string>* _data_keys;
 //----------------------------------------------------------------------------------------------
 
 //__Detector List_______________________________________________________________________________
-const std::string& _detectors = "Prototype Flat";
+const std::string& _detectors = "Prototype Flat Box MuonMapper";
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -92,7 +97,7 @@ Builder::Builder(const std::string& detector)
 
 //__Build World and Detector Geometry___________________________________________________________
 G4VPhysicalVolume* Builder::Construct() {
-  constexpr static auto WorldLength = 240*m;
+  constexpr static auto WorldLength = 800*m;
 
   G4GeometryManager::GetInstance()->OpenGeometry();
   G4PhysicalVolumeStore::GetInstance()->Clean();
@@ -104,12 +109,16 @@ G4VPhysicalVolume* Builder::Construct() {
   std::cout << "Computed tolerance = "
             << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance() / m << " m\n";
 
-  auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength);
+  auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength - 500*m);
 
   Export(Earth::Construct(worldLV), "earth.gdml");
 
   if (_detector == "Flat") {
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
+  } else if (_detector == "Box") {
+    Export(Box::Detector::Construct(worldLV), "box.gdml");
+  } else if (_detector == "MuonMapper") {
+    Export(MuonMapper::Detector::Construct(worldLV), "muon_mapper.gdml");
   } else {
     Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
   }
@@ -117,6 +126,10 @@ G4VPhysicalVolume* Builder::Construct() {
   auto world = PlaceVolume(worldLV, nullptr);
   if (_detector == "Flat") {
     Export(world, "world.flat.gdml");
+  } else if (_detector == "Box") {
+    Export(world, "world.box.gdml");
+  } else if (_detector == "MuonMapper") {
+    Export(world, "world.muon_mapper.gdml");
   } else {
     Export(world, "world.prototype.gdml");
   }
@@ -131,11 +144,26 @@ G4VPhysicalVolume* Builder::Construct() {
 //__Build Detector______________________________________________________________________________
 void Builder::ConstructSDandField() {
   if (_detector == "Flat") {
+    _data_per_event = Flat::Detector::DataPerEvent;
+    _data_prefix = Flat::Detector::DataPrefix;
+    _data_keys = &Flat::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Flat::Detector);
+  } else if (_detector == "Box") {
+    _data_per_event = Box::Detector::DataPerEvent;
+    _data_prefix = Box::Detector::DataPrefix;
+    _data_keys = &Box::Detector::DataKeys;
+    G4SDManager::GetSDMpointer()->AddNewDetector(new Box::Detector);
+  } else if (_detector == "MuonMapper") {
+    _data_per_event = MuonMapper::Detector::DataPerEvent;
+    _data_prefix = MuonMapper::Detector::DataPrefix;
+    _data_keys = &MuonMapper::Detector::DataKeys;
+    G4SDManager::GetSDMpointer()->AddNewDetector(new MuonMapper::Detector);
   } else {
+    _data_per_event = Prototype::Detector::DataPerEvent;
+    _data_prefix = Prototype::Detector::DataPrefix;
+    _data_keys = &Prototype::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
-  G4SDManager::GetSDMpointer()->ListTree();
 }
 //----------------------------------------------------------------------------------------------
 
@@ -151,12 +179,6 @@ void Builder::SetNewValue(G4UIcommand* command, G4String value) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Current Detector Name___________________________________________________________________
-const std::string& Builder::GetDetector() {
-  return _detector;
-}
-//----------------------------------------------------------------------------------------------
-
 //__Set Current Detector________________________________________________________________________
 void Builder::SetDetector(const std::string& detector) {
   _detector = detector;
@@ -164,6 +186,30 @@ void Builder::SetDetector(const std::string& detector) {
                    "/run/geometryModified",
                    "/run/initialize",
                    "/vis/viewer/clearTransients");
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Name___________________________________________________________________
+const std::string& Builder::GetDetectorName() {
+  return _detector;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Data Preference________________________________________________________
+bool Builder::IsDetectorDataPerEvent() {
+  return _data_per_event;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Data Prefix____________________________________________________________
+const std::string& Builder::GetDetectorDataPrefix() {
+  return _data_prefix;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Data Keys______________________________________________________________
+const std::vector<std::string>& Builder::GetDetectorDataKeys() {
+  return *_data_keys;
 }
 //----------------------------------------------------------------------------------------------
 

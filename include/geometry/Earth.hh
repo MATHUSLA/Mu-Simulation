@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MU__DETECTOR_EARTH_HH
-#define MU__DETECTOR_EARTH_HH
+#ifndef MU__GEOMETRY_EARTH_HH
+#define MU__GEOMETRY_EARTH_HH
 #pragma once
 
 #include "Geant4/G4Material.hh"
@@ -42,8 +42,8 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Earth Layer Sizes___________________________________________________________________________
-constexpr auto LayerWidthX    = 20000*cm;
-constexpr auto LayerWidthY    = 20000*cm;
+constexpr auto LayerWidthX    = 70000*cm;
+constexpr auto LayerWidthY    = 70000*cm;
 constexpr auto SandstoneDepth =  4530*cm;
 constexpr auto MarlDepth      =  1825*cm;
 constexpr auto MixDepth       =  3645*cm - 10*m;
@@ -58,4 +58,4 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* MU__DETECTOR_EARTH_HH */
+#endif /* MU__GEOMETRY_EARTH_HH */
