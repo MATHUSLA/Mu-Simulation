@@ -111,7 +111,8 @@ int main(int argc, char* argv[]) {
 
   Command::Execute("/run/initialize",
                    "/control/macroPath scripts/",
-                   "/control/saveHistory scripts/G4History");
+                   "/control/saveHistory scripts/G4History",
+                   "/control/stopSavingHistory");
 
   Command::Execute(quiet_opt.count ? "/control/execute settings/quiet"
                                    : "/control/execute settings/verbose");

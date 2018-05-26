@@ -132,6 +132,18 @@ void Generator::SetNewValue(G4UIcommand* command, G4String value) {
     _p_unit = _ui_p->GetNew3VectorValue(value).unit();
     _using_pt_eta_phi = false;
   }
+
+  if (_using_pt_eta_phi) {
+    const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
+    _ke = std::hypot(conversion.mag(), _mass) - _mass;
+    _p_unit = conversion.unit();
+  } else {
+    const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
+    _pT = conversion.pT;
+    _eta = conversion.eta;
+    _phi = conversion.phi;
+  }
+
 }
 //----------------------------------------------------------------------------------------------
 
@@ -201,7 +213,7 @@ Generator::PseudoLorentzTriplet Generator::Convert(const G4ThreeVector& momentum
   if (magnitude == 0)
     return {};
   const auto eta = std::atanh(momentum.x() / magnitude);
-  return {magnitude / std::cosh(eta), eta, -std::atan2(momentum.y(), momentum.z())};
+  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
 }
 //----------------------------------------------------------------------------------------------
 
