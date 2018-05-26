@@ -49,12 +49,13 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto process = pre_step->GetProcessDefinedStep();
   const auto process_name = process->GetProcessName();
   if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
-
-    return Analysis::FillNTuple(DataPrefix, 0, {
-      (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / cm,
-      track->GetKineticEnergy() / MeV,
+    Analysis::FillNTuple(DataPrefix, 0, {
+      (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
+      track->GetKineticEnergy() / GeV,
       std::stod(util::time::GetDate()),
       std::stod(util::time::GetTime())});
+    track->SetTrackStatus(fStopAndKill);
+    return true;
   }
   return false;
 }
@@ -66,14 +67,18 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {}
 
 //__Build Detector______________________________________________________________________________
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
-  constexpr double box_height = 1*m;
+  constexpr double box_height =   1*m;
+  constexpr double box_width  =  20*m;
+  constexpr double box_length = 400*m;
+  constexpr double x_shift    =   0*m;
+
   _box = Construction::BoxVolume("StopperBox",
-    200*m, 200*m, box_height,
+    box_length, box_width, box_height,
     MuonMapper::Material::Stopper,
     Construction::SensitiveAttributes());
 
   return Construction::PlaceVolume(_box, world,
-    G4Translate3D(100*m, 100*m, -0.5*box_height));
+    G4Translate3D(x_shift + 0.5 * box_length, 0, -0.5*box_height));
 }
 //----------------------------------------------------------------------------------------------
 

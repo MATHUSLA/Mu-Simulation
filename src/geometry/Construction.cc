@@ -97,7 +97,7 @@ Builder::Builder(const std::string& detector)
 
 //__Build World and Detector Geometry___________________________________________________________
 G4VPhysicalVolume* Builder::Construct() {
-  constexpr static auto WorldLength = 800*m;
+  constexpr static auto WorldLength = 1000*m;
 
   G4GeometryManager::GetInstance()->OpenGeometry();
   G4PhysicalVolumeStore::GetInstance()->Clean();
@@ -109,7 +109,7 @@ G4VPhysicalVolume* Builder::Construct() {
   std::cout << "Computed tolerance = "
             << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance() / m << " m\n";
 
-  auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength - 500*m);
+  auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength - 700*m);
 
   Export(Earth::Construct(worldLV), "earth.gdml");
 

@@ -42,11 +42,11 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Earth Layer Sizes___________________________________________________________________________
-constexpr auto LayerWidthX    = 70000*cm;
-constexpr auto LayerWidthY    = 70000*cm;
+constexpr auto LayerWidthX    = 82500*cm;
+constexpr auto LayerWidthY    = 82500*cm;
 constexpr auto SandstoneDepth =  4530*cm;
 constexpr auto MarlDepth      =  1825*cm;
-constexpr auto MixDepth       =  3645*cm - 10*m;
+constexpr auto MixDepth       =  3645*cm;
 constexpr auto TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
 //----------------------------------------------------------------------------------------------
 

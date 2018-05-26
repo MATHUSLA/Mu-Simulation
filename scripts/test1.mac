@@ -1,29 +1,5 @@
-/det/select Prototype
-/run/beamOn 1
-
 /det/select MuonMapper
-/run/beamOn 1
+/gen/select basic
 
-/det/select Prototype
-/run/beamOn 1
-
-/det/select MuonMapper
-/run/beamOn 1
-
-/det/select Prototype
-/run/beamOn 1
-
-/det/select MuonMapper
-/run/beamOn 1
-
-/det/select Prototype
-/run/beamOn 1
-
-/det/select MuonMapper
-/run/beamOn 1
-
-/det/select Prototype
-/run/beamOn 1
-
-/det/select MuonMapper
-/run/beamOn 1
+/gen/basic/ke 100 GeV
+/gen/basic/p_unit 99.403 0 -100
