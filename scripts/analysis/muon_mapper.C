@@ -25,6 +25,8 @@ void muon_mapper(const char* path,
 
   hist->GetXaxis()->SetTitle("Distance [m]");
   hist->GetYaxis()->SetTitle("Kinetic Energy [GeV]");
-  hist->SetMarkerStyle(20);
-  hist->Draw("LEGO2");
+  
+  auto file = new TFile("../muon_map.root","RECREATE");
+  hist->Write();
+  file->Close();
 }
