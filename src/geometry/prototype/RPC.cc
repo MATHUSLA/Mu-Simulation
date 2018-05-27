@@ -32,7 +32,7 @@ RPC::RPC(int id) : _pads(), _id(id), _name("RPC" + std::to_string(id)) {
     Width, Height, Depth, Thickness,
     Material::Casing);
 
-  const auto id_name = (id < 10 ? std::string("0") : "") + std::to_string(id);
+  const auto id_name = std::to_string(id);
 
   for (int pad_index = 0; pad_index < 10; ++pad_index) {
     auto pad = new Pad(1 + pad_index);
@@ -43,7 +43,7 @@ RPC::RPC(int id) : _pads(), _id(id), _name("RPC" + std::to_string(id)) {
       Material::Pad, Construction::CasingAttributes());
 
     const auto pad_name = id_name
-                        + (pad_index <  9 ? std::string("0") : "")
+                        + (pad_index < 9 ? std::string("0") : "")
                         + std::to_string(1 + pad_index);
 
     auto strip_stack = 0.5 * StripHeight;
