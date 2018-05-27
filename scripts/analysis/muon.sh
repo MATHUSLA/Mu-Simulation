@@ -14,4 +14,4 @@ if [ "$(ls -A $DATA_FROM)" ]; then
   rm -rf $DATA_FROM
 fi
 
-root -l "scripts/analysis/muon_mapper.C(\"$DATA_TO\", 193, 141, 334, 100, 0, 100)"
+root -l "scripts/analysis/muon_mapper.C(\"$DATA_TO\", 80, 141, 334, 100, 0, 100)"
