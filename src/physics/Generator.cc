@@ -164,8 +164,8 @@ std::ostream& Generator::Print(std::ostream& os) const {
        << "eta: " << _eta                        << "\n  "
        << "phi: " << G4BestUnit(_phi, "Angle")   << "\n";
   } else {
-    os << "ke: "     << G4BestUnit(_ke, "Energy")       << "\n  "
-       << "p_unit: " << G4BestUnit(_p_unit, "Momentum") << "\n";
+    os << "ke: "     << G4BestUnit(_ke, "Energy") << "\n  "
+       << "p_unit: " << _p_unit                   << "\n";
   }
   return os;
 }

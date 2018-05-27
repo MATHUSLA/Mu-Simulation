@@ -26,7 +26,7 @@ void muon_mapper(const char* path,
   hist->GetXaxis()->SetTitle("Distance [m]");
   hist->GetYaxis()->SetTitle("Kinetic Energy [GeV]");
   
-  auto file = new TFile("../muon_map.root","RECREATE");
+  auto file = new TFile("../muon_map.root", "RECREATE");
   hist->Write();
   file->Close();
 }
