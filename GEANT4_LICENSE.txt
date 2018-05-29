@@ -70,4 +70,4 @@ license is subject to the following conditions:
 8. This license  shall terminate with immediate effect and without notice if
    you  fail  to  comply with any  of  the terms of this license,  or if you
    institute litigation against any Member or Copyright Holder of the Geant4
-Collaboration with regard to this software.
+   Collaboration with regard to this software.

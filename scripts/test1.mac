@@ -1,10 +1,5 @@
+/det/select MuonMapper
 /gen/select basic
 
-/gen/basic/pT 70 GeV/c
-/gen/basic/eta 0
-/gen/basic/phi 0
-
-/run/beamOn 100
-/run/beamOn 100
-/run/beamOn 100
-/run/beamOn 100
+/gen/basic/ke 100 GeV
+/gen/basic/p_unit 99.403 0 -100

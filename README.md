@@ -1,4 +1,7 @@
 # MATHUSLA Mu-Simulation
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/71dc15058b39409ea724775ec2b9816d)](https://app.codacy.com/app/MATHUSLA/Mu-Simulation?utm_source=github.com&utm_medium=referral&utm_content=MATHUSLA/Mu-Simulation&utm_campaign=badger)
+
 _simulation of muons through earth material_
 
 ## Build & Run
@@ -7,7 +10,7 @@ The simulation comes with a simple build script called `install` which allows fo
 
 Here is a list of useful commands:
 
-| Action | Options after `./install` |
+| Action | Options for `./install` |
 |:-:|:-:|
 | Build Only | `(none)`  |
 | Build and Auto Run | `--run`  |
@@ -16,7 +19,7 @@ Here is a list of useful commands:
 
 The simulation executable also comes with several configuration parameters:
 
-| Action | Short Options after `./simulation` | Long Options after `./simulation` |
+| Action | Short Options | Long Options |
 |:-:|:-:|:-:|
 | Event Count | `-e <count>` | `--events=<count>`  |
 | Particle Generator | `-g <generator>` | `--gen=<generator>` |
@@ -32,6 +35,10 @@ There are two general purpose generators built in, `basic` and `range`. The `bas
 
 The generator defaults are specified in `src/action/GeneratorAction.cc` but they can be overwritten by a custom generation script.
 
-### Custom scripts
+### Custom Scripts
 
 A custom _Geant4_ script can be specified at run time. The script can contain generator specific commands and settings as well as _Pythia8_ settings in the form of `readString`.
+
+### Custom Detector
+
+_coming soon..._

@@ -1,104 +1,244 @@
+/* src/physics/Generator.cc
+ *
+ * Copyright 2018 Brandon Gomes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "physics/Generator.hh"
 
 #include <cmath>
 #include <sstream>
 
 #include "Geant4/Randomize.hh"
+#include "Geant4/G4ParticleTable.hh"
 
 #include "physics/Units.hh"
 
 namespace MATHUSLA { namespace MU {
 
-const G4String Generator::MessengerDirectory = "/gen/";
+//__Generator Messenger Directory Path__________________________________________________________
+const std::string Generator::MessengerDirectory = "/gen/";
+//----------------------------------------------------------------------------------------------
 
-Generator::Generator(const G4String& name,
-                     const G4String& description,
-                     const int id,
-                     const double pT,
-                     const double eta,
-                     const double phi)
-    : G4UImessenger(MessengerDirectory + name + '/', description),
-      _name(name), _description(description),
-      _id(id), _pT(pT), _eta(eta), _phi(phi) {
-
-  _ui_id = CreateCommand<G4CMD_Integer>("id", "Set Particle Id.");
+//__Generate UI Commands________________________________________________________________________
+void Generator::GenerateCommands() {
+  _ui_id = CreateCommand<Command::IntegerArg>("id", "Set Particle Id.");
   _ui_id->SetParameterName("id", false);
   _ui_id->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_pT = CreateCommand<G4CMD_DoubleUnit>("pT", "Set Transverse Momentum.");
+  _ui_pT = CreateCommand<Command::DoubleUnitArg>("pT", "Set Transverse Momentum.");
   _ui_pT->SetParameterName("pT", false, false);
   _ui_pT->SetRange("pT > 0");
   _ui_pT->SetDefaultUnit("GeV/c");
   _ui_pT->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta = CreateCommand<G4CMD_Double>("eta", "Set Pseudorapidity.");
+  _ui_eta = CreateCommand<Command::DoubleArg>("eta", "Set Pseudorapidity.");
   _ui_eta->SetParameterName("eta", false);
   _ui_eta->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi = CreateCommand<G4CMD_DoubleUnit>("phi", "Set Semi-Opening Angle.");
+  _ui_phi = CreateCommand<Command::DoubleUnitArg>("phi", "Set Semi-Opening Angle.");
   _ui_phi->SetParameterName("phi", false, false);
   _ui_phi->SetDefaultUnit("deg");
   _ui_phi->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_ke = CreateCommand<Command::DoubleUnitArg>("ke", "Set Kinetic Energy.");
+  _ui_ke->SetParameterName("ke", false, false);
+  _ui_ke->SetRange("ke > 0");
+  _ui_ke->SetDefaultUnit("GeV");
+  _ui_ke->SetUnitCandidates("eV keV MeV GeV");
+  _ui_ke->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_p = CreateCommand<Command::ThreeVectorArg>("p_unit", "Set Momentum Direction.");
+  _ui_p->SetParameterName("px", "py", "pz", false, false);
+  _ui_p->AvailableForStates(G4State_PreInit, G4State_Idle);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generator Constructor_______________________________________________________________________
+Generator::Generator(const std::string& name,
+                     const std::string& description,
+                     const int id,
+                     const double pT,
+                     const double eta,
+                     const double phi)
+    : G4UImessenger(MessengerDirectory + name + '/', description),
+      _name(name), _description(description),
+      _id(id), _pT(pT), _eta(eta), _phi(phi), _mass(GetMass(id)), _using_pt_eta_phi(true) {
+  const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
+  _ke = std::hypot(conversion.mag(), _mass) - _mass;
+  _p_unit = conversion.unit();
+  GenerateCommands();
+}
+//----------------------------------------------------------------------------------------------
+
+Generator::Generator(const std::string& name,
+                     const std::string& description,
+                     const int id,
+                     const double ke,
+                     const G4ThreeVector& p_unit)
+    : G4UImessenger(MessengerDirectory + name + '/', description),
+      _name(name), _description(description),
+      _id(id), _ke(ke), _p_unit(p_unit), _mass(GetMass(id)), _using_pt_eta_phi(false) {
+  const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
+  _pT = conversion.pT;
+  _eta = conversion.eta;
+  _phi = conversion.phi;
+  GenerateCommands();
 }
 
+//__Generate Initial Particles__________________________________________________________________
 void Generator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
-  vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
+  if (_using_pt_eta_phi) {
+    vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
+  } else {
+    vertex->SetPrimary(CreateParticle(_id, GetMomentum(_mass, _ke, _p_unit)));
+  }
   event->AddPrimaryVertex(vertex);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generator Messenger Set Value_______________________________________________________________
 void Generator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
+    _mass = GetMass(_id);
   } else if (command == _ui_pT) {
     _pT = _ui_pT->GetNewDoubleValue(value);
+    _using_pt_eta_phi = true;
   } else if (command == _ui_eta) {
     _eta = _ui_eta->GetNewDoubleValue(value);
+    _using_pt_eta_phi = true;
   } else if (command == _ui_phi) {
     _phi = _ui_phi->GetNewDoubleValue(value);
+    _using_pt_eta_phi = true;
+  } else if (command == _ui_ke) {
+    _ke = _ui_ke->GetNewDoubleValue(value);
+    _using_pt_eta_phi = false;
+  } else if (command == _ui_p) {
+    _p_unit = _ui_p->GetNew3VectorValue(value).unit();
+    _using_pt_eta_phi = false;
   }
-}
 
-const std::string Generator::InfoString() const {
-  std::stringstream out;
-  out << "Generator Info:\n  "
-      << "Name: "        << _name                       << "\n  "
-      << "Description: " << _description                << "\n  "
-      << "pT: "          << G4BestUnit(_pT, "Momentum") << "\n  "
-      << "eta: "         << _eta                        << "\n  "
-      << "phi: "         << G4BestUnit(_phi, "Angle")   << "\n";
-  return out.str();
-}
+  if (_using_pt_eta_phi) {
+    const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
+    _ke = std::hypot(conversion.mag(), _mass) - _mass;
+    _p_unit = conversion.unit();
+  } else {
+    const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
+    _pT = conversion.pT;
+    _eta = conversion.eta;
+    _phi = conversion.phi;
+  }
 
+}
+//----------------------------------------------------------------------------------------------
+
+//__Total Momentum______________________________________________________________________________
+const G4ThreeVector Generator::p() const {
+  return GetMomentum(_mass, _ke, _p_unit);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generator Information String________________________________________________________________
+std::ostream& Generator::Print(std::ostream& os) const {
+  os << "Generator Info:\n  "
+     << "Name: "        << _name                       << "\n  "
+     << "Description: " << _description                << "\n  "
+     << "Particle ID: " << _id                         << "\n  ";
+  if (_using_pt_eta_phi) {
+    os << "pT: "  << G4BestUnit(_pT, "Momentum") << "\n  "
+       << "eta: " << _eta                        << "\n  "
+       << "phi: " << G4BestUnit(_phi, "Angle")   << "\n";
+  } else {
+    os << "ke: "     << G4BestUnit(_ke, "Energy") << "\n  "
+       << "p_unit: " << _p_unit                   << "\n";
+  }
+  return os;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Default Vertex Object_______________________________________________________________________
 G4PrimaryVertex* Generator::DefaultVertex() {
   return new G4PrimaryVertex(0, 0, 100*m, 0);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
-                                             const G4ThreeVector& momentum) {
-  return new G4PrimaryParticle(id, momentum.x(), momentum.y(), momentum.z());
+                                             const G4ThreeVector& p) {
+  return new G4PrimaryParticle(id, p.x(), p.y(), p.z());
 }
+//----------------------------------------------------------------------------------------------
 
+//__Create Particle_____________________________________________________________________________
 G4PrimaryParticle* Generator::CreateParticle(const int id,
                                              const double pT,
                                              const double eta,
                                              const double phi) {
-  return new G4PrimaryParticle(
-    id, pT*std::sinh(eta), pT*std::sin(phi), -pT*std::cos(phi));
+  return CreateParticle(id, Convert(Generator::PseudoLorentzTriplet{pT, eta, phi}));
 }
+//----------------------------------------------------------------------------------------------
 
-RangeGenerator::RangeGenerator(const G4String& name,
-                               const G4String& description,
+//__Get Mass of Particle________________________________________________________________________
+double Generator::GetMass(const int id) {
+  return G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Total Momentum of Particle______________________________________________________________
+G4ThreeVector Generator::GetMomentum(const double mass,
+                                     const double ke,
+                                     const G4ThreeVector& p_unit) {
+  return p_unit.unit() * std::sqrt(ke * (ke + 2 * mass));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert Momentum to PT ETA PHI______________________________________________________________
+Generator::PseudoLorentzTriplet Generator::Convert(const G4ThreeVector& momentum) {
+  const auto magnitude = momentum.mag();
+  if (magnitude == 0)
+    return {};
+  const auto eta = std::atanh(momentum.x() / magnitude);
+  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert PT ETA PHI to Momentum______________________________________________________________
+G4ThreeVector Generator::Convert(const Generator::PseudoLorentzTriplet& triplet) {
+  return G4ThreeVector(
+     triplet.pT * std::sinh(triplet.eta),
+     triplet.pT * std::sin(triplet.phi),
+    -triplet.pT * std::cos(triplet.phi));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Range Generator Constructor_________________________________________________________________
+RangeGenerator::RangeGenerator(const std::string& name,
+                               const std::string& description,
                                const int id,
                                const double pT,
                                const double eta,
                                const double phi)
     : RangeGenerator(name, description, id, pT, pT, -eta, eta, -phi, phi) {}
+//----------------------------------------------------------------------------------------------
 
-RangeGenerator::RangeGenerator(const G4String& name,
-                               const G4String& description,
+//__Range Generator Constructor_________________________________________________________________
+RangeGenerator::RangeGenerator(const std::string& name,
+                               const std::string& description,
                                const int id,
                                const double pT_min,
                                const double pT_max,
@@ -110,41 +250,43 @@ RangeGenerator::RangeGenerator(const G4String& name,
       _pT_min(pT_min), _pT_max(pT_max), _eta_min(eta_min), _eta_max(eta_max),
       _phi_min(phi_min), _phi_max(phi_max) {
 
-  _ui_pT_min = CreateCommand<G4CMD_DoubleUnit>("pT_min", "Set Minimum Transverse Momentum.");
+  _ui_pT_min = CreateCommand<Command::DoubleUnitArg>("pT_min", "Set Minimum Transverse Momentum.");
   _ui_pT_min->SetParameterName("pT_min", false, false);
   _ui_pT_min->SetRange("pT_min > 0");
   _ui_pT_min->SetDefaultUnit("GeV/c");
   _ui_pT_min->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_pT_max = CreateCommand<G4CMD_DoubleUnit>("pT_max", "Set Maximum Transverse Momentum.");
+  _ui_pT_max = CreateCommand<Command::DoubleUnitArg>("pT_max", "Set Maximum Transverse Momentum.");
   _ui_pT_max->SetParameterName("pT_max", false, false);
   _ui_pT_max->SetRange("pT_max > 0");
   _ui_pT_max->SetDefaultUnit("GeV/c");
   _ui_pT_max->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta_min = CreateCommand<G4CMD_Double>("eta_min", "Set Minimum Pseudorapidity.");
+  _ui_eta_min = CreateCommand<Command::DoubleArg>("eta_min", "Set Minimum Pseudorapidity.");
   _ui_eta_min->SetParameterName("eta_min", false);
   _ui_eta_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_eta_max = CreateCommand<G4CMD_Double>("eta_max", "Set Maximum Pseudorapidity.");
+  _ui_eta_max = CreateCommand<Command::DoubleArg>("eta_max", "Set Maximum Pseudorapidity.");
   _ui_eta_max->SetParameterName("eta_max", false);
   _ui_eta_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi_min = CreateCommand<G4CMD_DoubleUnit>("phi_min", "Set Minimum Semi-Opening Angle.");
+  _ui_phi_min = CreateCommand<Command::DoubleUnitArg>("phi_min", "Set Minimum Semi-Opening Angle.");
   _ui_phi_min->SetParameterName("phi_min", false, false);
   _ui_phi_min->SetDefaultUnit("deg");
   _ui_phi_min->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _ui_phi_max = CreateCommand<G4CMD_DoubleUnit>("phi_max", "Set Maximum Semi-Opening Angle.");
+  _ui_phi_max = CreateCommand<Command::DoubleUnitArg>("phi_max", "Set Maximum Semi-Opening Angle.");
   _ui_phi_max->SetParameterName("phi_max", false, false);
   _ui_phi_max->SetDefaultUnit("deg");
   _ui_phi_max->SetUnitCandidates("degree deg radian rad milliradian mrad");
   _ui_phi_max->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
   _pT  = G4RandFlat::shoot(_pT_min, _pT_max);
@@ -153,7 +295,9 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
   event->AddPrimaryVertex(vertex);
 }
+//----------------------------------------------------------------------------------------------
 
+//__Range Generator Messenger Set Value_________________________________________________________
 void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
@@ -186,22 +330,25 @@ void RangeGenerator::SetNewValue(G4UIcommand* command, G4String value) {
     _phi_max = _ui_phi_max->GetNewDoubleValue(value);
   }
 }
+//----------------------------------------------------------------------------------------------
 
-const std::string RangeGenerator::InfoString() const {
-  std::stringstream out;
-  out << "Generator Info:\n  "
-      << "Name: "        << _name                                             << "\n  "
-      << "Description: " << _description                                      << "\n  "
-      << "avg pT: "      << G4BestUnit(0.5 * (_pT_min + _pT_max), "Momentum") << "\n    "
-      << "pT min: "      << G4BestUnit(_pT_min, "Momentum")                   << "\n    "
-      << "pT max: "      << G4BestUnit(_pT_max, "Momentum")                   << "\n  "
-      << "avg eta: "     << 0.5 * (_eta_min + _eta_max)                       << "\n    "
-      << "eta min: "     << _eta_min                                          << "\n    "
-      << "eta max: "     << _eta_max                                          << "\n  "
-      << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
-      << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
-      << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n";
-  return out.str();
+//__Range Generator Information String__________________________________________________________
+std::ostream& RangeGenerator::Print(std::ostream& os) const {
+  os << "Generator Info:\n  "
+     << "Name: "        << _name                                             << "\n  "
+     << "Description: " << _description                                      << "\n  "
+     << "Particle ID: " << _id                                               << "\n  "
+     << "avg pT: "      << G4BestUnit(0.5 * (_pT_min + _pT_max), "Momentum") << "\n    "
+     << "pT min: "      << G4BestUnit(_pT_min, "Momentum")                   << "\n    "
+     << "pT max: "      << G4BestUnit(_pT_max, "Momentum")                   << "\n  "
+     << "avg eta: "     << 0.5 * (_eta_min + _eta_max)                       << "\n    "
+     << "eta min: "     << _eta_min                                          << "\n    "
+     << "eta max: "     << _eta_max                                          << "\n  "
+     << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
+     << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
+     << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n";
+  return os;
 }
+//----------------------------------------------------------------------------------------------
 
 } } /* namespace MATHUSLA::MU */

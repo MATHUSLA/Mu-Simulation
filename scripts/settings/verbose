@@ -39,9 +39,7 @@
 # 1 : warnings
 # 2 : more
 
-/process/had/cascade/verbose 0
-
-/process/verbose 0
+/process/verbose 1
 
 /run/particle/verbose 1
 # 0 : silent

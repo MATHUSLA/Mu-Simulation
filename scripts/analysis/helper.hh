@@ -1,3 +1,20 @@
+/* scripts/analysis/helper.hh
+ *
+ * Copyright 2018 Brandon Gomes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef MU__SCRIPTS_ANALYSIS_HELPER_HH
 #define MU__SCRIPTS_ANALYSIS_HELPER_HH
 #pragma once
@@ -6,12 +23,17 @@
 
 #include "TSystemDirectory.h"
 
-namespace helper {
+namespace MATHUSLA { namespace MU {
 
-template<class T, unsigned N>
-inline unsigned arraysize(const T (&v)[N]) { return N; }
+namespace helper { /////////////////////////////////////////////////////////////////////////////
 
-static const std::string detector_decode(int id) {
+//__Get the Size of an Array____________________________________________________________________
+template<class T, size_t N>
+size_t arraysize(const T (&v)[N]) { return N; }
+//----------------------------------------------------------------------------------------------
+
+//__Decode Prototype Detector___________________________________________________________________
+static const std::string prototype_detector_decode(int id) {
   if (id < 0) return "";
 
   static const std::string detector[] = {
@@ -33,27 +55,43 @@ static const std::string detector_decode(int id) {
   if (id < arraysize(detector)) {
     return detector[id];
   } else {
-    auto out = std::to_string(id);
-    if (out.size() < 5)
-      out = "0" + out;
-    return out;
+    const auto out = std::to_string(id);
+    if (out.size() < 5) return "0" + out;
+    else return out;
   }
 }
+//----------------------------------------------------------------------------------------------
 
-void collect_paths(TSystemDirectory* dir, std::vector<std::string>& paths, const std::string& ext) {
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+//__Recursive TSystemFile Traversal_____________________________________________________________
+void _collect_paths(TSystemDirectory* dir,
+                    std::vector<std::string>& paths,
+                    const std::string& ext) {
   if (!dir || !dir->GetListOfFiles()) return;
-  for (const auto&& obj: *dir->GetListOfFiles()) {
+  for (const auto&& obj : *dir->GetListOfFiles()) {
     const auto file = static_cast<TSystemFile*>(obj);
-    const auto name = std::string(file->GetName());
+    const auto&& name = std::string(file->GetName());
     if (!file->IsDirectory()) {
       if (ext == "" || name.substr(1 + name.find_last_of(".")) == ext)
         paths.push_back(std::string(file->GetTitle()) + "/" + name);
     } else if (!(name == "." || name == "..")) {
-      collect_paths(static_cast<TSystemDirectory*>(file), paths, ext);
+      _collect_paths(static_cast<TSystemDirectory*>(file), paths, ext);
     }
   }
 }
+//----------------------------------------------------------------------------------------------
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-} /* namespace helper */
+//__Search and Collect ROOT File Paths__________________________________________________________
+inline std::vector<std::string> search_directory(const std::string& path) {
+  std::vector<std::string> paths{};
+  _collect_paths(new TSystemDirectory("data", path.c_str()), paths, "root");
+  return paths;
+}
+//----------------------------------------------------------------------------------------------
+
+} /* namespace helper */ ///////////////////////////////////////////////////////////////////////
+
+} } /* namespace MATHUSLA::MU */
 
 #endif /* MU__SCRIPTS_ANALYSIS_HELPER_HH */
