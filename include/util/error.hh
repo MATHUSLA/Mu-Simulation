@@ -29,15 +29,15 @@ namespace error { //////////////////////////////////////////////////////////////
 
 namespace detail { /////////////////////////////////////////////////////////////////////////////
 
-//__Forward Arguments to std::cout______________________________________________________________
+//__Forward Arguments to std::cerr______________________________________________________________
 template<class T>
-void std_cout_forward(T&& arg) {
-  std::cout << std::forward<T>(arg);
+void std_cerr_forward(T&& arg) {
+  std::cerr << std::forward<T>(arg);
 }
 template<class T, class... Args>
-void std_cout_forward(T&& arg, Args&&... args) {
-  std_cout_forward(arg);
-  std_cout_forward(args...);
+void std_cerr_forward(T&& arg, Args&&... args) {
+  std_cerr_forward(arg);
+  std_cerr_forward(args...);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ void std_cout_forward(T&& arg, Args&&... args) {
 template<class... Args>
 void exit_when(bool value, int code, Args&&... msgs) {
   if (value) {
-    detail::std_cout_forward(msgs...);
+    detail::std_cerr_forward(msgs...);
     exit(code);
   }
 }

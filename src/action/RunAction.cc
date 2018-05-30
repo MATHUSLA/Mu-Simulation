@@ -29,15 +29,22 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Output File Path____________________________________________________________________________
+G4ThreadLocal std::string _data_dir;
 G4ThreadLocal std::string _path;
 G4ThreadLocal uint_fast64_t _event_count;
 G4ThreadLocal uint_fast64_t _run_count;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+//__RunAction Constructor_______________________________________________________________________
+RunAction::RunAction(const std::string& data_dir) : G4UserRunAction() {
+  _data_dir = data_dir == "" ? "data" : data_dir;
+}
+//----------------------------------------------------------------------------------------------
+
 //__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
-  _path = "data";
+  _path = _data_dir;
   util::io::create_directory(_path);
   _path += '/' + util::time::GetDate();
   util::io::create_directory(_path);

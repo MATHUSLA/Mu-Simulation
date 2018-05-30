@@ -33,7 +33,8 @@ namespace MATHUSLA { namespace MU {
 
 class ActionInitialization : public G4VUserActionInitialization {
 public:
-  ActionInitialization(const std::string& generator="");
+  ActionInitialization(const std::string& generator="",
+                       const std::string& data_dir="");
   void BuildForMaster() const;
   void Build() const;
 };
@@ -50,6 +51,8 @@ public:
 
 class RunAction : public G4UserRunAction {
 public:
+  RunAction(const std::string& data_dir="");
+
   void BeginOfRunAction(const G4Run* run);
   void EndOfRunAction(const G4Run*);
 
