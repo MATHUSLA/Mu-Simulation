@@ -22,25 +22,28 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Generator Name______________________________________________________________________________
 std::string _generator;
+std::string _data_dir;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Action Initialization Constructor___________________________________________________________
-ActionInitialization::ActionInitialization(const std::string& generator)
+ActionInitialization::ActionInitialization(const std::string& generator,
+                                           const std::string& data_dir)
     : G4VUserActionInitialization() {
   _generator = generator;
+  _data_dir = data_dir;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Build for Thread Master_____________________________________________________________________
 void ActionInitialization::BuildForMaster() const {
-  SetUserAction(new RunAction);
+  SetUserAction(new RunAction(_data_dir));
 }
 //----------------------------------------------------------------------------------------------
 
 //__Build for Threads___________________________________________________________________________
 void ActionInitialization::Build() const {
-  SetUserAction(new RunAction);
+  SetUserAction(new RunAction(_data_dir));
   SetUserAction(new EventAction(100));
   SetUserAction(new GeneratorAction(_generator));
 }

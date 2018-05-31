@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
   option help_opt   ('h', "help",   "MATHUSLA Muon Simulation", option::no_arguments);
   option gen_opt    ('g', "gen",    "Generator",                option::required_arguments);
   option det_opt    ('d', "det",    "Detector",                 option::required_arguments);
+  option data_opt   ('o' ,"out",    "Data Output Directory",    option::required_arguments);
   option script_opt ('s', "script", "Custom Script",            option::required_arguments);
   option events_opt ('e', "events", "Event Count",              option::required_arguments);
   option vis_opt    ('v', "vis",    "Visualization",            option::no_arguments);
@@ -49,8 +50,12 @@ int main(int argc, char* argv[]) {
 
   //TODO: pass quiet argument to builder and action initiaization to improve quietness
 
-  util::cli::parse(argv,
-    {&help_opt, &gen_opt, &det_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
+  const auto script_argc = -1 + util::cli::parse(argv,
+    {&help_opt, &gen_opt, &det_opt, &data_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
+
+  util::error::exit_when(script_argc && !script_opt.argument,
+    "[FATAL ERROR] Illegal Forwarding Arguments:\n"
+    "              Passing arguments to simulation without script is disallowed.\n");
 
   G4UIExecutive* ui = nullptr;
   if (argc == 1 || vis_opt.count) {
@@ -59,8 +64,8 @@ int main(int argc, char* argv[]) {
   }
 
   util::error::exit_when(script_opt.argument && events_opt.argument,
-    "[FATAL ERROR] Incompatible Arguments: ",
-    "A script OR an event count can be provided, but not both.\n");
+    "[FATAL ERROR] Incompatible Arguments:\n",
+    "              A script OR an event count can be provided, but not both.\n");
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   G4Random::setTheSeed(time(nullptr));
@@ -100,33 +105,45 @@ int main(int argc, char* argv[]) {
   physics->RegisterPhysics(new G4StepLimiterPhysics);
   run->SetUserInitialization(physics);
 
-  auto detector = det_opt.argument ? det_opt.argument : "Prototype";
+  const auto detector = det_opt.argument ? det_opt.argument : "Prototype";
   run->SetUserInitialization(new Construction::Builder(detector));
 
-  auto generator = gen_opt.argument ? gen_opt.argument : "basic";
-  run->SetUserInitialization(new ActionInitialization(generator));
+  const auto generator = gen_opt.argument ? gen_opt.argument : "basic";
+  const auto data_dir = data_opt.argument ? data_opt.argument : "data";
+  run->SetUserInitialization(new ActionInitialization(generator, data_dir));
 
   auto vis = new G4VisExecutive("Quiet");
   vis->Initialize();
 
   Command::Execute("/run/initialize",
-                   "/control/macroPath scripts/",
                    "/control/saveHistory scripts/G4History",
                    "/control/stopSavingHistory");
 
-  Command::Execute(quiet_opt.count ? "/control/execute settings/quiet"
-                                   : "/control/execute settings/verbose");
+  Command::Execute(quiet_opt.count ? "/control/execute scripts/settings/quiet"
+                                   : "/control/execute scripts/settings/verbose");
 
   if (vis_opt.count) {
-     Command::Execute("/control/execute settings/init_vis");
+    Command::Execute("/control/execute scripts/settings/init_vis");
     if (ui->IsGUI())
-       Command::Execute("/control/execute settings/init_gui");
+      Command::Execute("/control/execute scripts/settings/init_gui");
   }
 
   if (script_opt.argument) {
-     Command::Execute("/control/execute " + std::string(script_opt.argument));
+    util::error::exit_when(script_argc % 2,
+      "[FATAL ERROR] Illegal Number of Script Forwarding Arguments:\n",
+      "              Inputed ", script_argc, " arguments but forward arguments must be key-value pairs.\n");
+
+    const auto script_path = std::string(script_opt.argument);
+    if (script_argc) {
+      for (size_t i = 0; i < script_argc; i+=2) {
+        Command::Execute("/control/alias " + std::string(argv[i+1]) + " " + argv[i+2]);
+      }
+      Command::Execute("/control/execute " + script_path);
+    } else {
+      Command::Execute("/control/execute " + script_path);
+    }
   } else if (events_opt.argument) {
-     Command::Execute("/run/beamOn " + std::string(events_opt.argument));
+    Command::Execute("/run/beamOn " + std::string(events_opt.argument));
   }
 
   if (ui) {

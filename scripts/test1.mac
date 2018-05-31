@@ -1,5 +1,12 @@
 /det/select MuonMapper
 /gen/select basic
 
-/gen/basic/ke 100 GeV
+/gen/basic/ke {energy1} GeV
 /gen/basic/p_unit 99.403 0 -100
+
+/run/beamOn 1
+
+/gen/basic/ke {energy2} GeV
+/gen/basic/p_unit 99.403 0 -100
+
+/run/beamOn 1
