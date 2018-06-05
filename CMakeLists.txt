@@ -19,10 +19,10 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 project(MATHUSLA_MU)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
-set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
 find_package(Geant4  REQUIRED gdml ui_all vis_all)
 find_package(Pythia8 REQUIRED)
+find_package(ROOT    REQUIRED)
 
 include(${Geant4_USE_FILE})
 
@@ -62,7 +62,10 @@ add_executable(simulation
 
 target_link_libraries(simulation
     ${Geant4_LIBRARIES}
-    ${PYTHIA8_LIBRARY})
+    ${PYTHIA8_LIBRARY}
+    ${ROOT_LIBRARIES})
+
+target_include_directories(simulation PRIVATE ${ROOT_INCLUDE_DIRS})
 
 target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>

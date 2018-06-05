@@ -1,32 +1,29 @@
-#include "TChain.h"
-#include "TH2D.h"
-
 #include "helper.hh"
 
-void muon_mapper(const char* path,
-                 const size_t length_bins,
-                 const double length_min,
-                 const double length_max,
-                 const size_t energy_bins,
-                 const double energy_min,
-                 const double energy_max) {
+// FIXME: unfortunate magic variable
+static const auto number_of_events = 1000;
+
+void muon_mapper(const char* path) {
 
   using namespace MATHUSLA::MU;
 
-  TChain muon_chain("mu_map_event0");
-  for (const auto& path : helper::search_directory(path))
-    muon_chain.Add(path.c_str());
+  for (const auto& path : helper::search_directory(path)) {
+    auto data_file = TFile::Open(path.c_str(), "READ");
+    if (!data_file)
+      continue;
 
-  auto hist = new TH2D("muon_histogram", "Muon Energy Map",
-    length_bins, length_min, length_max,
-    energy_bins, energy_min, energy_max);
+    auto tree = static_cast<TTree*>(data_file->Get("mu_map_event0"));
+    auto mu_hist = new TH1D("mu_hist", path.c_str(), 100, 0, 100);
+    tree->Draw("KE >> mu_hist", "", "goff");
+    mu_hist->Scale(1.0L/number_of_events);
 
-  muon_chain.Draw("R:KE >> muon_histogram", "", "goff");
+    std::vector<std::string> tokens;
+    helper::string::split(path, tokens, "/");
+    std::vector<std::string> ending;
+    helper::string::split(tokens.back(), ending, ".");
+    ending.back() = "csv";
+    tokens.back() = helper::string::join(ending, ".");
+    helper::to_csv(helper::string::join(tokens, "/"), mu_hist);
+  }
 
-  hist->GetXaxis()->SetTitle("Distance [m]");
-  hist->GetYaxis()->SetTitle("Kinetic Energy [GeV]");
-  
-  auto file = new TFile("../muon_map.root", "RECREATE");
-  hist->Write();
-  file->Close();
 }
