@@ -1,6 +1,7 @@
 #include "helper.hh"
 
-static const auto number_of_events = 10;
+// FIXME: unfortunate magic variable
+static const auto number_of_events = 1000;
 
 void muon_mapper(const char* path) {
 
@@ -18,16 +19,11 @@ void muon_mapper(const char* path) {
 
     std::vector<std::string> tokens;
     helper::string::split(path, tokens, "/");
-    tokens.back().insert(0, "hist_");
-    const auto new_path = helper::string::join(tokens, "/");
-
-    auto out_file = new TFile(new_path.c_str(), "NEW");
-    if (!out_file)
-      continue;
-
-    out_file->cd();
-    mu_hist->Write();
-    out_file->Close();
+    std::vector<std::string> ending;
+    helper::string::split(tokens.back(), ending, ".");
+    ending.back() = "csv";
+    tokens.back() = helper::string::join(ending, ".");
+    helper::to_csv(helper::string::join(tokens, "/"), mu_hist);
   }
 
 }
