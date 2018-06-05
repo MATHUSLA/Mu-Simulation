@@ -3,30 +3,20 @@
 
 #include "helper.hh"
 
-void muon_mapper(const char* path,
-                 const size_t length_bins,
-                 const double length_min,
-                 const double length_max,
-                 const size_t energy_bins,
-                 const double energy_min,
-                 const double energy_max) {
+void muon_mapper(const char* path) {
 
   using namespace MATHUSLA::MU;
 
-  TChain muon_chain("mu_map_event0");
-  for (const auto& path : helper::search_directory(path))
-    muon_chain.Add(path.c_str());
+  for (const auto& path : helper::search_directory(path)) {
+    auto tree = new TTree("mu_map_event0", "Muon Mapper Data");
+    tree->ReadFile(path.c_str(), "KE:R");
+    auto mu_hist = new TH1D("mu_hist", path.c_str(), 100, 0, 100);
+    tree->Draw("KE >> mu_hist");
+    mu_hist->Scale(1.0L/10);
+    auto new_file = new TFile(("hist" + path).c_str());
+    new_file->cd();
+    mu_hist->Write();
+    new_file->Close();
+  }
 
-  auto hist = new TH2D("muon_histogram", "Muon Energy Map",
-    length_bins, length_min, length_max,
-    energy_bins, energy_min, energy_max);
-
-  muon_chain.Draw("R:KE >> muon_histogram", "", "goff");
-
-  hist->GetXaxis()->SetTitle("Distance [m]");
-  hist->GetYaxis()->SetTitle("Kinetic Energy [GeV]");
-  
-  auto file = new TFile("../muon_map.root", "RECREATE");
-  hist->Write();
-  file->Close();
 }

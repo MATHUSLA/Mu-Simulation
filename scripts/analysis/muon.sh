@@ -7,11 +7,11 @@ DATA_FROM="data"
 mkdir -p $DATA_FROM
 mkdir -p $DATA_TO
 
-./install --run -q -s muon_map.mac
+./install --run -q -s scripts/muon_map.mac
 
 if [ "$(ls -A $DATA_FROM)" ]; then
   rsync -av $DATA_FROM/ $DATA_TO/ --remove-source-files
   rm -rf $DATA_FROM
 fi
 
-root -l "scripts/analysis/muon_mapper.C(\"$DATA_TO\", 80, 141, 334, 100, 0, 100)"
+root -l "scripts/analysis/muon_mapper.C(\"$DATA_TO\")"

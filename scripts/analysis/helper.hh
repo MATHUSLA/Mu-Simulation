@@ -19,23 +19,27 @@
 #define MU__SCRIPTS_ANALYSIS_HELPER_HH
 #pragma once
 
+#include <cstdio>
+#include <istream>
+#include <ostream>
 #include <string>
 
 #include "TSystemDirectory.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
 
 namespace MATHUSLA { namespace MU {
 
 namespace helper { /////////////////////////////////////////////////////////////////////////////
 
 //__Get the Size of an Array____________________________________________________________________
-template<class T, size_t N>
-size_t arraysize(const T (&v)[N]) { return N; }
+template<class T, std::size_t N>
+std::size_t arraysize(const T (&v)[N]) { return N; }
 //----------------------------------------------------------------------------------------------
 
 //__Decode Prototype Detector___________________________________________________________________
-static const std::string prototype_detector_decode(int id) {
-  if (id < 0) return "";
-
+inline const std::string prototype_detector_decode(const std::size_t id) {
   static const std::string detector[] = {
     "A11_C7",  "A12_C6",  "A13_C5",  "A14_C4",  "A15_C3",
     "A21_C3",  "A22_C4",  "A23_C5",  "A24_C6",  "A25_C7",
@@ -87,6 +91,87 @@ inline std::vector<std::string> search_directory(const std::string& path) {
   std::vector<std::string> paths{};
   _collect_paths(new TSystemDirectory("data", path.c_str()), paths, "root");
   return paths;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert 1D Histogram to CSV File____________________________________________________________
+inline bool to_csv(const std::string& path,
+                   const TH1* hist,
+                   const char delimeter=',') {
+  std::ofstream file(path);
+  if (!file) return false;
+
+  const auto size = hist->GetNbinsX();
+  for (int i = 1; i <= size; ++i) {
+    file << hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L
+         << delimeter
+         << hist->GetBinContent(i)
+         << "\n";
+  }
+  return static_cast<bool>(file);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert 2D Histogram to CSV File____________________________________________________________
+inline bool to_csv(const std::string& path,
+                   const TH2* hist,
+                   const char delimeter=',') {
+  std::ofstream file(path);
+  if (!file) return false;
+
+  const auto x_size = hist->GetNbinsX();
+  const auto y_size = hist->GetNbinsY();
+  for (int i = 1; i <= x_size; ++i) {
+    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L;
+    for (int j = 1; j <= y_size; ++j) {
+      file << x_data
+           << delimeter
+           << hist->GetYaxis()->GetBinLowEdge(j) + hist->GetYaxis()->GetBinWidth(j) / 2.0L
+           << hist->GetBinContent(i, j)
+           << "\n";
+    }
+  }
+  return static_cast<bool>(file);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert 3D Histogram to CSV File____________________________________________________________
+inline bool to_csv(const std::string& path,
+                   const TH3* hist,
+                   const char delimeter=',') {
+  std::ofstream file(path);
+  if (!file) return false;
+
+  const auto x_size = hist->GetNbinsX();
+  const auto y_size = hist->GetNbinsY();
+  const auto z_size = hist->GetNbinsZ();
+  for (int i = 1; i <= x_size; ++i) {
+    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L;
+    for (int j = 1; j <= y_size; ++j) {
+      const auto y_data = hist->GetYaxis()->GetBinLowEdge(j) + hist->GetYaxis()->GetBinWidth(j) / 2.0L;
+      for (int k = 1; k <= z_size; ++k) {
+        file << x_data
+             << delimeter
+             << y_data
+             << delimeter
+             << hist->GetZaxis()->GetBinLowEdge(k) + hist->GetZaxis()->GetBinWidth(k) / 2.0L
+             << hist->GetBinContent(i, j)
+             << "\n";
+      }
+    }
+  }
+  return static_cast<bool>(file);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert CSV File to TTree___________________________________________________________________
+inline TTree* from_csv(const std::string& name,
+                       const std::string& path,
+                       const std::string& branch_format,
+                       const char delimeter=',') {
+  auto out = new TTree(name.c_str(), name.c_str());
+  out->ReadFile(path.c_str(), branch_format.c_str(), delimeter);
+  return out;
 }
 //----------------------------------------------------------------------------------------------
 
