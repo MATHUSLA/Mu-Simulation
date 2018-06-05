@@ -19,6 +19,11 @@
 
 #include <fstream>
 
+#include <ROOT/TROOT.h>
+#include <ROOT/TFile.h>
+#include <ROOT/TMap.h>
+#include <ROOT/TString.h>
+
 #include "analysis.hh"
 #include "geometry/Construction.hh"
 
@@ -70,6 +75,10 @@ void RunAction::EndOfRunAction(const G4Run*) {
   Analysis::Save();
 
   std::ofstream _info(_path + ".info");
+
+  // auto root_file = TFile::Open((_path + ".root").c_str(), "UPDATE");
+  // root_file->WriteObject(new TString(Construction::Builder::GetDetectorName().c_str()), "detector");
+  // root_file->Close();
 
   _info << "MATHUSLA -- Muon Simulation\n"
         << util::time::GetString("%c %Z") << "\n"

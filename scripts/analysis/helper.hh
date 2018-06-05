@@ -94,6 +94,42 @@ inline std::vector<std::string> search_directory(const std::string& path) {
 }
 //----------------------------------------------------------------------------------------------
 
+namespace string { /////////////////////////////////////////////////////////////////////////////
+
+//__Split String on Delimeters__________________________________________________________________
+template <class Range>
+void split(const std::string& string,
+           Range& tokens,
+           const std::string& delimiters=" ") {
+  const auto size = string.size();
+  std::string::size_type position, previous = 0;
+  while (previous <= size) {
+    position = string.find_first_of(delimiters, previous);
+    if (position == std::string::npos) position = size;
+    tokens.emplace_back(string.data() + previous, position - previous);
+    previous = position + 1;
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Join Range of Strings on Delimeters_________________________________________________________
+template <class Range>
+std::string join(const Range& tokens,
+                 const std::string& delimeter="") {
+  const auto begin = tokens.cbegin();
+  const auto end = tokens.cend();
+  if (begin == end)
+    return "";
+
+  std::string out;
+  out.append(*begin);
+  std::for_each(begin + 1, end, [&](const std::string& string) { out += delimeter + string; });
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+} /* namespace string */ ///////////////////////////////////////////////////////////////////////
+
 //__Convert 1D Histogram to CSV File____________________________________________________________
 inline bool to_csv(const std::string& path,
                    const TH1* hist,
