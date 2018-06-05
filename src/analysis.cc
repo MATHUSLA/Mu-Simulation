@@ -65,7 +65,8 @@ bool CreateNTuple(const std::string& name,
 //__Fill ROOT NTuple____________________________________________________________________________
 bool FillNTuple(const std::string& name,
                 const std::vector<double>& values) {
-  if (values.size() <= 0)
+  const auto size = values.size();
+  if (!size)
     return false;
 
   const auto search = _ntuple.find(name);
@@ -75,7 +76,7 @@ bool FillNTuple(const std::string& name,
   const auto manager = G4AnalysisManager::Instance();
   const auto ntuple_id = search->second;
   const auto iter = values.begin();
-  for (size_t i = 0; i < values.size(); ++i)
+  for (size_t i = 0; i < size; ++i)
     if (!manager->FillNtupleDColumn(ntuple_id, i, iter[i]))
       return false;
   manager->AddNtupleRow(ntuple_id);
