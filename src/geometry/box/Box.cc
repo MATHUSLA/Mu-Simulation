@@ -10,7 +10,7 @@ namespace { ////////////////////////////////////////////////////////////////////
 
 //__Box Sensitive Material______________________________________________________________________
 std::vector<Scintillator*> _scintillators;
-G4LogicalVolume* _box;
+G4LogicalVolume* _steel;
 //----------------------------------------------------------------------------------------------
 
 //__Box Hit Collection__________________________________________________________________________
@@ -30,7 +30,6 @@ const std::vector<std::string>& Detector::DataKeys = {
 //__Detector Constructor________________________________________________________________________
 Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Box") {
   collectionName.insert("Box_HC");
-  _box->SetSensitiveDetector(this);
   for (auto& scintillator : _scintillators)
     scintillator->Register(this);
 }
@@ -61,20 +60,39 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   Scintillator::Material::Define();
   _scintillators.clear();
 
-  constexpr double box_height = 25*m;
-  constexpr double outer_gap = 2*cm;
-  constexpr double inner_gap = 10*cm;
-  auto DetectorVolume = Construction::BoxVolume("Box", 200*m, 200*m, box_height);
+  constexpr auto displacement = 100*m;
+  constexpr auto edge_length = 200*m;
+  constexpr auto steel_height = 3*cm;
+  constexpr auto scintillator_height = 1*cm;
+  constexpr auto scintillator_x_width = 0.25*m;
+  constexpr auto scintillator_y_width = 0.25*m;
+  constexpr auto scintillator_casing_thickness = 0.1*cm;
+  constexpr auto layer_spacing = 1.5*m;
+  constexpr auto full_detector_height = 3 * (layer_spacing + scintillator_height) + steel_height;
 
-  _box = Construction::OpenBoxVolume("BoxOuterLayer",
-    200*m - outer_gap, 200*m - outer_gap, box_height - outer_gap, inner_gap,
-    Scintillator::Material::Scintillator,
+  auto DetectorVolume = Construction::BoxVolume("Box", edge_length, edge_length, full_detector_height);
+
+  constexpr auto x_count = edge_length / scintillator_x_width;
+  constexpr auto y_count = edge_length / scintillator_y_width;
+  for (size_t i = 0; i < x_count; ++i) {
+    for (size_t j = 0; j < y_count; ++j) {
+      // naming scheme-> _ ___ ___
+      // SCINTILLATOR CONSTRUCTOR: new Scintillator("name!", scintillator_x_width, scintillator_y_width, scintillator_height, scintillator_casing_thickness);
+      // STEPS: 1 construct scintillator like above
+      //        2 add to "_scintillators" vector
+      //        3 place into world with "Construction::Transform(x, y, z)" depending on index (i,j)
+    }
+  }
+
+  _steel = Construction::BoxVolume("SteelPlate",
+    edge_length, edge_length, steel_height,
+    Construction::Material::Iron,
     Construction::CasingAttributes());
 
-  Construction::PlaceVolume(_box, DetectorVolume);
+  Construction::PlaceVolume(_steel, DetectorVolume, Construction::Transform(0, 0, 0.5*full_detector_height-0.5*steel_height));
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(100*m, 100*m, -0.5*box_height));
+    G4Translate3D(0.5*edge_length + displacement, 0, -0.5*full_detector_height + steel_height));
 }
 //----------------------------------------------------------------------------------------------
 
