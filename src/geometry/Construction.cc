@@ -70,6 +70,7 @@ auto Material::S = _nist->FindOrBuildElement("S");
 auto Material::Ar = _nist->FindOrBuildElement("Ar");
 auto Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
 auto Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
+auto Material::Iron = _nist->FindOrBuildMaterial("G4_Fe");
 //----------------------------------------------------------------------------------------------
 
 //__Detector Messenger Directory Path___________________________________________________________

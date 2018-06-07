@@ -3,11 +3,11 @@
 // FIXME: unfortunate magic variable
 static const auto number_of_events = 1000;
 
-void muon_mapper(const char* path) {
+void muon_mapper(const char* dir) {
 
   using namespace MATHUSLA::MU;
 
-  for (const auto& path : helper::search_directory(path)) {
+  for (const auto& path : helper::search_directory(dir)) {
     auto data_file = TFile::Open(path.c_str(), "READ");
     if (!data_file)
       continue;
