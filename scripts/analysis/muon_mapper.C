@@ -54,7 +54,7 @@ const std::string hist_title(const long long distance,
 //__Get Muon Efficiency_________________________________________________________________________
 long double efficiency(const TH1D* hist,
                        const long long events) {
-  return static_cast<long double>(hist->GetEntries()) / event_count;
+  return static_cast<long double>(hist->GetEntries()) / events;
 }
 //----------------------------------------------------------------------------------------------
 
