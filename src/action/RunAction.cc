@@ -118,7 +118,7 @@ void RunAction::EndOfRunAction(const G4Run*) {
     if (root_file && !root_file->IsZombie()) {
       // TODO: move some of this code into generator itself
       const auto generator = GeneratorAction::GetGenerator();
-      _write_entry("FILETYPE",   "MATHUSLA Mu-Simulation DATAFILE");
+      _write_entry("FILETYPE",   "MATHULSA MU-SIM DATAFILE");
       _write_entry("DET",        Construction::Builder::GetDetectorName());
       _write_entry("GEN",        generator->GetName());
       _write_entry("GEN_PDG_ID", generator->id());
