@@ -44,7 +44,10 @@ public:
 class EventAction : public G4UserEventAction {
 public:
   EventAction(const size_t print_modulo);
+
   void BeginOfEventAction(const G4Event* event);
+
+  static size_t EventID();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,6 @@
+/det/select MuonMapper
+/gen/basic/p_unit 100.816665289 0 -100
+/gen/basic/ke {energy}
+/run/beamOn 100
+/run/beamOn 100
+/run/beamOn 100

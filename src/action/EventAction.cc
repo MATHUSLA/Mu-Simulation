@@ -24,6 +24,7 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Printing Frequency for Event Count__________________________________________________________
 G4ThreadLocal size_t _print_modulo;
+G4ThreadLocal uint_fast64_t _event_id{};
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
@@ -35,9 +36,15 @@ EventAction::EventAction(const size_t print_modulo) : G4UserEventAction() {
 
 //__Event Initialization________________________________________________________________________
 void EventAction::BeginOfEventAction(const G4Event* event) {
-  const auto eventID = event->GetEventID();
-  if (eventID && !(eventID % _print_modulo))
-    std::cout << "\n\n [ Starting Event " << eventID << " ]\n\n";
+  _event_id = event->GetEventID();
+  if (_event_id && !(_event_id % _print_modulo))
+    std::cout << "\n\n [ Starting Event " << _event_id << " ]\n\n";
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current RunID___________________________________________________________________________
+size_t EventAction::EventID() {
+  return _event_id;
 }
 //----------------------------------------------------------------------------------------------
 

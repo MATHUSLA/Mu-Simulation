@@ -17,7 +17,7 @@
 
 #include "physics/PythiaGenerator.hh"
 
-#include "Pythia8/ParticleData.h"
+#include <Pythia8/ParticleData.h>
 
 #include "physics/Units.hh"
 
