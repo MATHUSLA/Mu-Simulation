@@ -5,5 +5,5 @@
 #                   ENERGY LOOP                   #
 #-------------------------------------------------#
 /control/alias _count_ 10
-/control/loop scripts/muon_map_loop.mac _energy_ 81 81
+/control/loop scripts/muon_map_loop.mac _energy_ 100 100
 #-------------------------------------------------#

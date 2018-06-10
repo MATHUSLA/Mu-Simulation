@@ -1,4 +1,5 @@
-/* scripts/analysis/helper.hh
+/*
+ * scripts/analysis/helper.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -20,7 +21,6 @@
 #pragma once
 
 #include <cstdio>
-#include <istream>
 #include <ostream>
 #include <string>
 
@@ -60,8 +60,7 @@ inline const std::string prototype_detector_decode(const std::size_t id) {
     return detector[id];
   } else {
     const auto out = std::to_string(id);
-    if (out.size() < 5) return "0" + out;
-    else return out;
+    return out.size() < 5 ? "0" + out : out;
   }
 }
 //----------------------------------------------------------------------------------------------
@@ -105,7 +104,8 @@ void split(const std::string& string,
   std::string::size_type position, previous = 0;
   while (previous <= size) {
     position = string.find_first_of(delimiters, previous);
-    if (position == std::string::npos) position = size;
+    if (position == std::string::npos)
+      position = size;
     tokens.emplace_back(string.data() + previous, position - previous);
     previous = position + 1;
   }
@@ -125,6 +125,20 @@ std::string join(const Range& tokens,
   out.append(*begin);
   std::for_each(begin + 1, end, [&](const std::string& string) { out += delimeter + string; });
   return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Remove Leading and Trailing Spaces__________________________________________________________
+inline std::string& strip(std::string& string) {
+  const auto end = string.end();
+
+  auto forward = string.cbegin();
+  while (std::isspace(*forward) && forward != end) ++forward;
+
+  auto reverse = string.crbegin();
+  while (std::isspace(*reverse) && reverse.base() != forward) ++reverse;
+
+  return string = std::string(forward, reverse.base());
 }
 //----------------------------------------------------------------------------------------------
 
