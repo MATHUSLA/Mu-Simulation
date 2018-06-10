@@ -19,13 +19,16 @@
 
 #include <fstream>
 
-#include <ROOT/TROOT.h>
+#include <Geant4/G4Threading.hh>
+#include <Geant4/G4AutoLock.hh>
+#include <Geant4/G4MTRunManager.hh>
+
 #include <ROOT/TFile.h>
-#include <ROOT/TMap.h>
-#include <ROOT/TString.h>
+#include <ROOT/TNamed.h>
 
 #include "analysis.hh"
 #include "geometry/Construction.hh"
+#include "physics/Units.hh"
 
 #include "util/io.hh"
 #include "util/time.hh"
@@ -33,12 +36,39 @@
 namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
-//__Output File Path____________________________________________________________________________
-G4ThreadLocal std::string _data_dir;
-G4ThreadLocal std::string _path;
-G4ThreadLocal uint_fast64_t _event_count;
-G4ThreadLocal uint_fast64_t _run_count;
+
+//__Static Variables____________________________________________________________________________
+G4ThreadLocal std::string _data_dir{};
+G4ThreadLocal std::string _path{};
+G4ThreadLocal uint_fast64_t _event_count{};
+G4ThreadLocal uint_fast64_t _run_count{};
+uint_fast16_t _cycle_count{};
+G4Mutex _mutex = G4MUTEX_INITIALIZER;
 //----------------------------------------------------------------------------------------------
+
+//__Forward Arguments to String Stream__________________________________________________________
+template<class T>
+void _stream_forward(std::stringstream& s, T&& arg) {
+  s << std::forward<T>(arg);
+}
+template<class T, class... Args>
+void _stream_forward(std::stringstream& s, T&& arg, Args&&... args) {
+  _stream_forward(s, arg);
+  _stream_forward(s, args...);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Write Entry to ROOT File____________________________________________________________________
+template<class... Args>
+void _write_entry(const std::string& name,
+                  Args&& ...args) {
+  std::stringstream stream;
+  _stream_forward(stream, args...);
+  TNamed entry(name.c_str(), stream.str().c_str());
+  entry.Write();
+}
+//----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__RunAction Constructor_______________________________________________________________________
@@ -59,6 +89,14 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
 
   _event_count = run->GetNumberOfEventToBeProcessed();
 
+  G4AutoLock lock(&_mutex);
+  #ifdef G4MULTITHREADED
+    ++_cycle_count;
+  #else
+    _cycle_count = 2;
+  #endif
+  lock.unlock();
+
   Analysis::Setup();
   Analysis::Open(_path + ".root");
   Analysis::GenerateNTupleCollection(
@@ -74,25 +112,28 @@ void RunAction::EndOfRunAction(const G4Run*) {
 
   Analysis::Save();
 
-  std::ofstream _info(_path + ".info");
-
-  // auto root_file = TFile::Open((_path + ".root").c_str(), "UPDATE");
-  // root_file->WriteObject(new TString(Construction::Builder::GetDetectorName().c_str()), "detector");
-  // root_file->Close();
-
-  _info << "MATHUSLA -- Muon Simulation\n"
-        << util::time::GetString("%c %Z") << "\n"
-        << Construction::Builder::GetDetectorName() << " Detector\n"
-        << "Run "      << _run_count++ << "\n"
-        << "Events: "  << _event_count << "\n"
-        << "Data: "    << _path << ".root\n"
-        << *GeneratorAction::GetGenerator();
-
-  _info.close();
-
-  std::cout << "\nEnd of Run\n"
-            << "Data File: " << _path << ".root\n"
-            << "Info File: " << _path << ".info\n\n";
+  G4AutoLock lock(&_mutex);
+  if (--_cycle_count == 0) {
+    auto root_file = TFile::Open((_path + ".root").c_str(), "UPDATE");
+    if (root_file && !root_file->IsZombie()) {
+      // TODO: move some of this code into generator itself
+      const auto generator = GeneratorAction::GetGenerator();
+      _write_entry("FILETYPE",   "MATHUSLA Mu-Simulation DATAFILE");
+      _write_entry("DET",        Construction::Builder::GetDetectorName());
+      _write_entry("GEN",        generator->GetName());
+      _write_entry("GEN_PDG_ID", generator->id());
+      _write_entry("GEN_PT",     generator->pT() / Units::Momentum, " ", Units::MomentumString);
+      _write_entry("GEN_ETA",    generator->eta());
+      _write_entry("GEN_PHI",    generator->phi() / Units::Angle, " ", Units::AngleString);
+      _write_entry("GEN_KE",     generator->ke() / Units::Energy, " ", Units::EnergyString);
+      _write_entry("GEN_P_UNIT", generator->p_unit());
+      _write_entry("RUN",        _run_count++);
+      _write_entry("EVENTS",     _event_count);
+      _write_entry("TIMESTAMP",  util::time::GetString("%c %Z"));
+      root_file->Close();
+    }
+    std::cout << "\nEnd of Run\nData File: " << _path << ".root\n\n";
+  }
 }
 //----------------------------------------------------------------------------------------------
 

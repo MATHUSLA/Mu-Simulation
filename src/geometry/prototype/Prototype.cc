@@ -19,10 +19,10 @@
 
 #include <unordered_map>
 
-#include "Geant4/G4HCofThisEvent.hh"
-#include "Geant4/G4Step.hh"
-#include "Geant4/G4RunManager.hh"
+#include <Geant4/G4HCofThisEvent.hh>
+#include <Geant4/G4Step.hh>
 
+#include "action.hh"
 #include "analysis.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
@@ -55,8 +55,7 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 const std::string& Detector::DataPrefix = "event";
 const std::vector<std::string>& Detector::DataKeys = {
   "Deposit", "Time", "Detector",
-  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-  "TimestampDate", "TimestampTime"};
+  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT"};
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -129,7 +128,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       G4LorentzVector(global_time, position),
       G4LorentzVector(energy, momentum)));
 
-  const auto detector_id = EncodeDetector(name);
+  const auto detector_id = static_cast<double>(EncodeDetector(name));
 
   Scintillator::PMTPoint pmt_point = {0, 0, 0};
   if (detector_id < 100) {
@@ -156,24 +155,20 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
-  const auto eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-
-  Analysis::FillNTuple(DataPrefix, eventID, {
-    deposit/MeV,
-    global_time/ns,
-    static_cast<double>(detector_id),
+  Analysis::FillNTuple(DataPrefix, EventAction::EventID(), {
+    deposit      / Units::Energy,
+    global_time  / Units::Time,
+    detector_id,
     static_cast<double>(particle->GetPDGEncoding()),
     static_cast<double>(trackID),
-    position.x()/cm,
-    position.y()/cm,
-    position.z()/cm,
-    energy/MeV,
-    momentum.x()/MeVperC,
-    momentum.y()/MeVperC,
-    momentum.z()/MeVperC,
-    pmt_point.r/cm,
-    std::stod(util::time::GetDate()),
-    std::stod(util::time::GetTime())});
+    position.x() / Units::Length,
+    position.y() / Units::Length,
+    position.z() / Units::Length,
+    energy       / Units::Energy,
+    momentum.x() / Units::Momentum,
+    momentum.y() / Units::Momentum,
+    momentum.z() / Units::Momentum,
+    pmt_point.r  / Units::Length});
 
   return true;
 }

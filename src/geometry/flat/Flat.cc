@@ -39,8 +39,7 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 const std::string& Detector::DataPrefix = "event";
 const std::vector<std::string>& Detector::DataKeys = {
   "Deposit", "Time", "Detector",
-  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT",
-  "TimestampDate", "TimestampTime"};
+  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ"};
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________

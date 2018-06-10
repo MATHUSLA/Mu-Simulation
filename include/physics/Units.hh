@@ -39,6 +39,15 @@ constexpr auto Length   = cm;
 constexpr auto Time     = ns;
 constexpr auto Energy   = MeV;
 constexpr auto Momentum = MeVperC;
+constexpr auto Angle    = deg;
+//----------------------------------------------------------------------------------------------
+
+//__Standard Unit Names________________________________________________________________________
+constexpr auto LengthString   = "cm";
+constexpr auto TimeString     = "ns";
+constexpr auto EnergyString   = "MeV";
+constexpr auto MomentumString = "MeV/c";
+constexpr auto AngleString    = "deg";
 //----------------------------------------------------------------------------------------------
 
 //__Install Momentum Units into Geant4__________________________________________________________

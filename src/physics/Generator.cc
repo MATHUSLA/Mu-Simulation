@@ -18,10 +18,10 @@
 #include "physics/Generator.hh"
 
 #include <cmath>
-#include <sstream>
+#include <ostream>
 
-#include "Geant4/Randomize.hh"
-#include "Geant4/G4ParticleTable.hh"
+#include <Geant4/Randomize.hh>
+#include <Geant4/G4ParticleTable.hh>
 
 #include "physics/Units.hh"
 
@@ -143,7 +143,6 @@ void Generator::SetNewValue(G4UIcommand* command, G4String value) {
     _eta = conversion.eta;
     _phi = conversion.phi;
   }
-
 }
 //----------------------------------------------------------------------------------------------
 
@@ -155,19 +154,15 @@ const G4ThreeVector Generator::p() const {
 
 //__Generator Information String________________________________________________________________
 std::ostream& Generator::Print(std::ostream& os) const {
-  os << "Generator Info:\n  "
-     << "Name: "        << _name                       << "\n  "
-     << "Description: " << _description                << "\n  "
-     << "Particle ID: " << _id                         << "\n  ";
-  if (_using_pt_eta_phi) {
-    os << "pT: "  << G4BestUnit(_pT, "Momentum") << "\n  "
-       << "eta: " << _eta                        << "\n  "
-       << "phi: " << G4BestUnit(_phi, "Angle")   << "\n";
-  } else {
-    os << "ke: "     << G4BestUnit(_ke, "Energy") << "\n  "
-       << "p_unit: " << _p_unit                   << "\n";
-  }
-  return os;
+  return os << "Generator Info:\n  "
+            << "Name: "        << _name                       << "\n  "
+            << "Description: " << _description                << "\n  "
+            << "Particle ID: " << _id                         << "\n  "
+            << "pT: "          << G4BestUnit(_pT, "Momentum") << "\n  "
+            << "eta: "         << _eta                        << "\n  "
+            << "phi: "         << G4BestUnit(_phi, "Angle")   << "\n  "
+            << "ke: "          << G4BestUnit(_ke, "Energy")   << "\n  "
+            << "p_unit: "      << _p_unit                     << "\n";
 }
 //----------------------------------------------------------------------------------------------
 
@@ -289,9 +284,9 @@ RangeGenerator::RangeGenerator(const std::string& name,
 //__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   auto vertex = DefaultVertex();
-  _pT  = G4RandFlat::shoot(_pT_min, _pT_max);
-  _eta = G4RandFlat::shoot(_eta_min, _eta_max);
-  _phi = G4RandFlat::shoot(_phi_min, _phi_max);
+  _pT  = G4MTRandFlat::shoot(_pT_min, _pT_max);
+  _eta = G4MTRandFlat::shoot(_eta_min, _eta_max);
+  _phi = G4MTRandFlat::shoot(_phi_min, _phi_max);
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
   event->AddPrimaryVertex(vertex);
 }

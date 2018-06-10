@@ -48,8 +48,7 @@ extern G4Material* Aluminum;
 extern G4Material* Iron;
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
+//__Geometry Builder Class______________________________________________________________________
 class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:
   Builder(const std::string& detector);
@@ -72,8 +71,7 @@ private:
   Command::NoArg*     _current;
   Command::StringArg* _select;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------
 
 //__Sensitive Material Attribute Definition_____________________________________________________
 const G4VisAttributes SensitiveAttributes();
