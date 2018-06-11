@@ -27,6 +27,15 @@ static const auto INITIAL_KE_KEY    = "GEN_KE";
 static const auto MOMENTUM_UNIT     = "GEN_P_UNIT";
 //----------------------------------------------------------------------------------------------
 
+//__Check If File is MATHUSLA DATAFILE__________________________________________________________
+bool is_datafile(TFile* file) {
+  try {
+    return file->Get("FILETYPE")->GetTitle() == std::string("MATHULSA MU-SIM DATAFILE");
+  } catch (...) {}
+  return false;
+}
+//----------------------------------------------------------------------------------------------
+
 //__Get Distance from String Representation of Momentum Vector__________________________________
 long double calc_distance(std::string vector_string) {
   using namespace MATHUSLA::MU;
@@ -36,7 +45,7 @@ long double calc_distance(std::string vector_string) {
   try {
     // Using the IP as (0, 0, -100)
     return std::hypot(100.0L / std::stold(components[2]) * std::stold(components[0]), 100.0L);
-  } catch(...) {
+  } catch (...) {
     return 0;
   }
 }
@@ -80,6 +89,8 @@ void muon_mapper(const char* dir) {
       continue;
 
     try {
+      if (!is_datafile(data_file)) continue;
+
       const auto event_count = std::stoull(data_file->Get(EVENTS_KEY)->GetTitle());
       const auto energy = std::llround(std::stold(data_file->Get(INITIAL_KE_KEY)->GetTitle()) / 1000.0L);
       const auto distance = std::llround(calc_distance(data_file->Get(MOMENTUM_UNIT)->GetTitle()));

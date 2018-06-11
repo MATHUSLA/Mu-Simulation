@@ -43,19 +43,20 @@ void Detector::Initialize(G4HCofThisEvent*) {}
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto pre_step = step->GetPreStepPoint();
   const auto track = step->GetTrack();
+  try {
+    if (track->GetParticleDefinition()->GetParticleName() != "mu-")
+      return false;
 
-  if (track->GetParticleDefinition()->GetParticleName() != "mu-")
-    return false;
-
-  const auto process = pre_step->GetProcessDefinedStep();
-  const auto process_name = process->GetProcessName();
-  if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
-    Analysis::FillNTuple(DataPrefix, 0, {
-      (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
-      track->GetKineticEnergy() / GeV});
-    track->SetTrackStatus(fStopAndKill);
-    return true;
-  }
+    const auto process = pre_step->GetProcessDefinedStep();
+    const auto process_name = process->GetProcessName();
+    if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
+      Analysis::FillNTuple(DataPrefix, 0, {
+        (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
+        track->GetKineticEnergy() / GeV});
+      track->SetTrackStatus(fStopAndKill);
+      return true;
+    }
+  } catch (...) {}
   return false;
 }
 //----------------------------------------------------------------------------------------------
