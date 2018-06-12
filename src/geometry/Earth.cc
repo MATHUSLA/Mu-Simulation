@@ -83,16 +83,16 @@ G4LogicalVolume* MixVolume() {
 
 //__Earth Transformations_______________________________________________________________________
 const G4Translate3D Transform() {
-  return G4Translate3D(0, 0, 0.5 * TotalDepth);
+  return G4Translate3D(0, 0, 0.5L * TotalDepth);
 }
 const G4Translate3D SandstoneTransform() {
-  return G4Translate3D(0, 0, 0.5 * (SandstoneDepth - TotalDepth));
+  return G4Translate3D(0, 0, 0.5L * (SandstoneDepth - TotalDepth));
 }
 const G4Translate3D MarlTransform() {
-  return G4Translate3D(0, 0, SandstoneDepth + 0.5 * (MarlDepth - TotalDepth));
+  return G4Translate3D(0, 0, SandstoneDepth + 0.5L * (MarlDepth - TotalDepth));
 }
 const G4Translate3D MixTransform() {
-  return G4Translate3D(0, 0, SandstoneDepth + MarlDepth + 0.5 * (MixDepth - TotalDepth));
+  return G4Translate3D(0, 0, SandstoneDepth + MarlDepth + 0.5L * (MixDepth - TotalDepth));
 }
 //----------------------------------------------------------------------------------------------
 

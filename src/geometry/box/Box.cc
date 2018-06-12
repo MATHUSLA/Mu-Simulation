@@ -1,5 +1,7 @@
 #include "geometry/Box.hh"
 
+#include <Geant4/G4SubtractionSolid.hh>
+
 #include "action.hh"
 #include "analysis.hh"
 #include "geometry/Earth.hh"
@@ -26,6 +28,8 @@ constexpr auto edge_length  = 200*m;
 constexpr auto displacement = 100*m;
 
 constexpr auto steel_height = 3*cm;
+
+constexpr auto air_gap = 20*m;
 
 constexpr auto scintillator_x_width 	     = 0.25*m;
 constexpr auto scintillator_y_width 	     = 0.25*m;
@@ -153,7 +157,18 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
 //__Build Earth for Detector____________________________________________________________________
 G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
-  return Earth::Construct(world);
+  Earth::Material::Define();
+
+  auto earth = Earth::Volume();
+  auto modified = Construction::Volume(new G4SubtractionSolid("ModifiedSandstone",
+    Earth::SandstoneVolume()->GetSolid(),
+    Construction::Box("AirBox", edge_length, edge_length, air_gap),
+    Construction::Transform(0.5L*edge_length + displacement, 0, 0.5L*(air_gap-Earth::SandstoneDepth))));
+
+  Construction::PlaceVolume(modified, earth, Earth::SandstoneTransform());
+  Construction::PlaceVolume(Earth::MarlVolume(), earth, Earth::MarlTransform());
+  Construction::PlaceVolume(Earth::MixVolume(), earth, Earth::MixTransform());
+  return Construction::PlaceVolume(earth, world, Earth::Transform());
 }
 //----------------------------------------------------------------------------------------------
 
