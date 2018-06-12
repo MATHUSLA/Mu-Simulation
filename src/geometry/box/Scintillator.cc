@@ -57,6 +57,13 @@ void Scintillator::Register(G4VSensitiveDetector* detector) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Place Scintillator in World_____________________________________________________________________
+G4VPhysicalVolume* Scintillator::PlaceIn(G4LogicalVolume* parent,
+                                         const G4Transform3D& transform) {
+  return Construction::PlaceVolume(_lvolume, parent, transform);
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Box */ //////////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

@@ -52,6 +52,9 @@ public:
 
   void Register(G4VSensitiveDetector* detector);
 
+  G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
+                             const G4Transform3D& transform);
+
 private:
   G4LogicalVolume* _lvolume;
   G4VPhysicalVolume* _sensitive;
