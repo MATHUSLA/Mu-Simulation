@@ -2,6 +2,7 @@
 
 #include "action.hh"
 #include "analysis.hh"
+#include "geometry/Earth.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
 
@@ -147,6 +148,12 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   Construction::PlaceVolume(_steel, DetectorVolume, Construction::Transform(0, 0, half_detector_height-0.5*steel_height));
   return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0.5*edge_length + displacement, 0, -half_detector_height + steel_height));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Build Earth for Detector____________________________________________________________________
+G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
+  return Earth::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 

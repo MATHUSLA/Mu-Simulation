@@ -24,6 +24,7 @@
 
 #include "action.hh"
 #include "analysis.hh"
+#include "geometry/Earth.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
 
@@ -358,6 +359,12 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Build Earth for Detector____________________________________________________________________
+G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
+  return Earth::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 
