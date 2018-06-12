@@ -26,7 +26,6 @@
 #include "analysis.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
-#include "util/time.hh"
 
 namespace MATHUSLA { namespace MU {
 
