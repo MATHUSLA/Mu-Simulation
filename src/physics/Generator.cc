@@ -277,9 +277,9 @@ Analysis::SimSettingList Generator::GetSpecification() const {
     "_ETA",    std::to_string(_eta),
     "_PHI",    std::to_string(_phi / Units::Angle) + " " + Units::AngleString,
     "_KE",     std::to_string(_ke / Units::Energy) + " " + Units::EnergyString,
-    "_P_UNIT", std::to_string(_p_unit.x()) + ", "
-             + std::to_string(_p_unit.y()) + ", "
-             + std::to_string(_p_unit.z()));
+    "_P_UNIT", "(" + std::to_string(_p_unit.x()) + ", "
+                   + std::to_string(_p_unit.y()) + ", "
+                   + std::to_string(_p_unit.z()) + ")");
 }
 //----------------------------------------------------------------------------------------------
 
