@@ -1,4 +1,5 @@
-/* include/physics/PythiaGenerator.hh
+/*
+ * include/physics/PythiaGenerator.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -22,14 +23,16 @@
 #include <string>
 #include <vector>
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8/Event.h"
+#include <Pythia8/Pythia.h>
+#include <Pythia8/Event.h>
 
 #include "physics/Generator.hh"
-#include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
 
+namespace Physics { ////////////////////////////////////////////////////////////////////////////
+
+//__Pythia Particle Generator___________________________________________________________________
 class PythiaGenerator : public RangeGenerator {
 public:
   PythiaGenerator(const int id,
@@ -70,10 +73,13 @@ public:
 
 private:
   Pythia8::Pythia* _pythia;
-  std::vector<std::string> _settings;
+  std::vector<std::string> _pythia_settings;
   Command::StringArg* _read_string;
   Command::StringArg* _read_file;
 };
+//----------------------------------------------------------------------------------------------
+
+} /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 

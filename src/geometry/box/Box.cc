@@ -97,7 +97,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   _hit_collection->insert(new Tracking::Hit(
     particle->GetParticleName(), trackID, parentID, name, deposit, position, momentum));
 
-  Analysis::FillNTuple(DataPrefix, EventAction::EventID(), {
+  Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
     deposit       / Units::Energy,
     position.t()  / Units::Time,
     std::stod(name),

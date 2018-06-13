@@ -1,4 +1,5 @@
-/* src/physics/PythiaGenerator.cc
+/*
+ * src/physics/PythiaGenerator.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -22,6 +23,8 @@
 #include "physics/Units.hh"
 
 namespace MATHUSLA { namespace MU {
+
+namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
 //__Pythia Generator Constructor________________________________________________________________
 PythiaGenerator::PythiaGenerator(const int id,
@@ -111,9 +114,9 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>& settings) {
 
 //__Generate Initial Particles__________________________________________________________________
 void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
-  if (!_settings.empty()) {
+  if (!_pythia_settings.empty()) {
     // delete _pythia;
-    _pythia = _create_pythia(_settings);
+    _pythia = _create_pythia(_pythia_settings);
   } else if (!_pythia) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
@@ -148,9 +151,9 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
 //__Messenger Set Value_________________________________________________________________________
 void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _read_string) {
-    _settings.push_back(value);
+    _pythia_settings.push_back(value);
   } else if (command == _read_file) {
-    _settings.clear();
+    _pythia_settings.clear();
     // delete _pythia;
     _pythia = new Pythia8::Pythia();
     _pythia->readFile(value);
@@ -193,7 +196,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command, G4String value) {
 //__Set Pythia Object from Copy_________________________________________________________________
 void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   if (!pythia) return;
-  _settings.clear();
+  _pythia_settings.clear();
   // delete _pythia;
   _pythia = _reconstruct_pythia(pythia);
   _pythia->init();
@@ -202,9 +205,9 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
 
 //__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(std::vector<std::string> settings) {
-  _settings = std::move(settings);
+  _pythia_settings = std::move(settings);
   // delete _pythia;
-  _pythia = _create_pythia(_settings);
+  _pythia = _create_pythia(_pythia_settings);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -225,5 +228,7 @@ Pythia8::Particle* PythiaGenerator::FindParticle(Pythia8::Event& event) const {
   return nullptr;
 }
 //----------------------------------------------------------------------------------------------
+
+} /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

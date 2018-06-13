@@ -155,7 +155,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
-  Analysis::FillNTuple(DataPrefix, EventAction::EventID(), {
+  Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
     deposit      / Units::Energy,
     global_time  / Units::Time,
     detector_id,

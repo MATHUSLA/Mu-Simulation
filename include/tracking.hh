@@ -1,4 +1,5 @@
-/* include/tracking.hh
+/*
+ * include/tracking.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -21,13 +22,13 @@
 
 #include <ostream>
 
-#include "Geant4/G4Allocator.hh"
-#include "Geant4/G4THitsCollection.hh"
-#include "Geant4/G4LorentzVector.hh"
-#include "Geant4/G4VHit.hh"
-#include "Geant4/G4Step.hh"
-#include "Geant4/G4HCofThisEvent.hh"
-#include "Geant4/G4VSensitiveDetector.hh"
+#include <Geant4/G4Allocator.hh>
+#include <Geant4/G4THitsCollection.hh>
+#include <Geant4/G4LorentzVector.hh>
+#include <Geant4/G4VHit.hh>
+#include <Geant4/G4Step.hh>
+#include <Geant4/G4HCofThisEvent.hh>
+#include <Geant4/G4VSensitiveDetector.hh>
 
 namespace MATHUSLA { namespace MU {
 
@@ -45,8 +46,7 @@ extern G4ThreadLocal G4Allocator<Hit>* HitAllocator;
 using HitCollection = G4THitsCollection<Hit>;
 //----------------------------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
+//__Hit Class Definition________________________________________________________________________
 class Hit : public G4VHit {
 public:
   Hit(const std::string& particle,
@@ -93,8 +93,7 @@ private:
   G4LorentzVector _position;
   G4LorentzVector _momentum;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------
 
 //__Stream Hit__________________________________________________________________________________
 std::ostream& operator<<(std::ostream& os,

@@ -49,7 +49,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     const auto process = pre_step->GetProcessDefinedStep();
     const auto process_name = process->GetProcessName();
     if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
-      Analysis::FillNTuple(DataPrefix, 0, {
+      Analysis::ROOT::FillNTuple(DataPrefix, 0, {
         (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
         track->GetKineticEnergy() / GeV});
       track->SetTrackStatus(fStopAndKill);

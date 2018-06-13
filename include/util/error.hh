@@ -19,35 +19,17 @@
 #define UTIL__ERROR_HH
 #pragma once
 
-#include <iostream>
+#include "util/stream.hh"
 
 namespace MATHUSLA {
 
-namespace util { ///////////////////////////////////////////////////////////////////////////////
-
-namespace error { //////////////////////////////////////////////////////////////////////////////
-
-namespace detail { /////////////////////////////////////////////////////////////////////////////
-
-//__Forward Arguments to std::cerr______________________________________________________________
-template<class T>
-void std_cerr_forward(T&& arg) {
-  std::cerr << std::forward<T>(arg);
-}
-template<class T, class... Args>
-void std_cerr_forward(T&& arg, Args&&... args) {
-  std_cerr_forward(arg);
-  std_cerr_forward(args...);
-}
-//----------------------------------------------------------------------------------------------
-
-} /* namespace detail */ ///////////////////////////////////////////////////////////////////////
+namespace util { namespace error { /////////////////////////////////////////////////////////////
 
 //__Boolean Exit Convenience Functions__________________________________________________________
 template<class... Args>
 void exit_when(bool value, int code, Args&&... msgs) {
   if (value) {
-    detail::std_cerr_forward(msgs...);
+    util::stream::forward(std::cerr, msgs...);
     exit(code);
   }
 }
@@ -64,9 +46,7 @@ template<class... Args>
 void exit(Args&&... msgs) { exit_when(true, EXIT_FAILURE, msgs...); }
 //----------------------------------------------------------------------------------------------
 
-} /* namespace error */ ////////////////////////////////////////////////////////////////////////
-
-} /* namespace util */ /////////////////////////////////////////////////////////////////////////
+} } /* namespace util::error */ ////////////////////////////////////////////////////////////////
 
 } /* namespace MATHUSLA */
 

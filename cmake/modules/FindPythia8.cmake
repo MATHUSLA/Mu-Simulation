@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 find_path(PYTHIA8_INCLUDE_DIR Pythia8/Pythia.h Pythia8Plugins/HepMC2.h
     HINTS

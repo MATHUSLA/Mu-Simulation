@@ -19,9 +19,43 @@
 
 #include <unordered_map>
 
+#include <ROOT/TFile.h>
+#include <ROOT/TNamed.h>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Analysis { ///////////////////////////////////////////////////////////////////////////
+
+//__Save Simulation Entries To File_____________________________________________________________
+bool Save(const std::string& path,
+          SimSetting entry) {
+  TFile file(path.c_str(), "UPDATE");
+  if (!file.IsZombie()) {
+    file.cd();
+    TNamed setting(entry.name.c_str(), entry.text.c_str());
+    setting.Write();
+    file.Close();
+    return true;
+  }
+  return false;
+}
+bool Save(const std::string& path,
+          SimSettingList entries) {
+  TFile file(path.c_str(), "UPDATE");
+  if (!file.IsZombie()) {
+    file.cd();
+    for (const auto entry : entries) {
+      TNamed setting(entry.name.c_str(), entry.text.c_str());
+      setting.Write();
+    }
+    file.Close();
+    return true;
+  }
+  return false;
+}
+//----------------------------------------------------------------------------------------------
+
+namespace ROOT { ///////////////////////////////////////////////////////////////////////////////
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__NTuple Name-Id Map__________________________________________________________________________
@@ -29,7 +63,7 @@ G4ThreadLocal std::unordered_map<std::string, int> _ntuple;
 //----------------------------------------------------------------------------------------------
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-//__Setup Analysis Tool_________________________________________________________________________
+//__Setup ROOT Analysis Tool____________________________________________________________________
 void Setup() {
   _ntuple.clear();
   delete G4AnalysisManager::Instance();
@@ -39,8 +73,8 @@ void Setup() {
 //----------------------------------------------------------------------------------------------
 
 //__Open Output File____________________________________________________________________________
-bool Open(const std::string& file) {
-  return G4AnalysisManager::Instance()->OpenFile(file);
+bool Open(const std::string& path) {
+  return G4AnalysisManager::Instance()->OpenFile(path);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -98,10 +132,12 @@ bool GenerateNTupleCollection(const size_t count,
                               const std::vector<std::string>& columns) {
   bool pass = true;
   for (size_t i = 0; i < count; ++i)
-    pass = pass && Analysis::CreateNTuple(prefix + std::to_string(i), columns);
+    pass = pass && CreateNTuple(prefix + std::to_string(i), columns);
   return pass;
 }
 //----------------------------------------------------------------------------------------------
+
+} /* namespace ROOT */ /////////////////////////////////////////////////////////////////////////
 
 } /* namespace Analysis */ /////////////////////////////////////////////////////////////////////
 

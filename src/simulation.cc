@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
       } else {
         try {
           thread_opt.count = std::stoi(opt);
-        } catch(...) {
+        } catch (...) {
           thread_opt.count = 2;
         }
       }
