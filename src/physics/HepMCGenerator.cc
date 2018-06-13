@@ -18,24 +18,55 @@
 
 #include "physics/HepMCGenerator.hh"
 
-#include <HepMC/HepMC.h>
-#include <HepMC/ReaderAscii.h>
-
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
-//__HepMC Generator Constructor_________________________________________________________________
-HepMCGenerator::HepMCGenerator(const int id,
-                               const double pT_min,
-                               const double pT_max,
-                               const double eta_min,
-                               const double eta_max,
-                               const double phi_min,
-                               const double phi_max)
-    : RangeGenerator("hepmc", "HepMC Generator.", id,
-                     pT_min, pT_max, eta_min, eta_max, phi_min, phi_max) {
+namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+//__Convert HepMC Four Vector to Geant4 ThreeVector_____________________________________________
+const G4ThreeVector _to_G4ThreeVector(const HepMC::FourVector& vector) {
+  return G4ThreeVector(vector.x(), vector.y(), vector.z());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Add HepMC Particles to Vertex_______________________________________________________________
+void _add_to_vertex(G4PrimaryVertex* vertex,
+                    const PropagationList& propagation,
+                    const std::vector<HepMC::GenParticlePtr>& particles) {
+  for (const auto& particle : particles) {
+    const auto momentum = _to_G4ThreeVector(particle->momentum());
+    if (InPropagationList(propagation, particle->pid(), momentum)) {
+      vertex->SetPrimary(CreateParticle(particle->pid(), momentum));
+    }
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__HepMC Generator Constructor_________________________________________________________________
+HepMCGenerator::HepMCGenerator(const std::string& path,
+                               const PropagationList& propagation,
+                               bool unique_events)
+    : _reader(path), _propagation_list(propagation), _unique(unique_events) {}
+//----------------------------------------------------------------------------------------------
+
+//__Generate Primary Verticies__________________________________________________________________
+void HepMCGenerator::GeneratePrimaryVertex(G4Event* event) {
+  if (!_reader.failed()) {
+    _reader.read_event(_current_event);
+
+    if (_reader.failed()) return;
+
+    for (const auto& vertex : _current_event.vertices()) {
+      auto propagated_vertex = DefaultVertex(); // FIXME: is this correct?
+      _add_to_vertex(propagated_vertex, _propagation_list, vertex->particles_in());
+      _add_to_vertex(propagated_vertex, _propagation_list, vertex->particles_out());
+      if (propagated_vertex->GetNumberOfParticle() != 0)
+        event->AddPrimaryVertex(propagated_vertex);
+    }
+  }
 }
 //----------------------------------------------------------------------------------------------
 

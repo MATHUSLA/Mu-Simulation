@@ -29,6 +29,40 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
+//__Check if Particle Matches the Cut___________________________________________________________
+bool ParticleCut::matches(const int particle_id,
+                          const G4ThreeVector& momentum) const {
+  return particle_id == id && matches(momentum);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Check if Particle Matches the Cut___________________________________________________________
+bool ParticleCut::matches(const G4ThreeVector& momentum) const {
+  const auto triplet = Convert(momentum);
+  bool match_pT = true, match_eta = true, match_phi = true;
+  if (!min.pT && !max.pT) match_pT = (triplet.pT <= max.pT) && (triplet.pT >= min.pT);
+  if (!min.eta && !max.eta) match_eta = (triplet.eta <= max.eta) && (triplet.eta >= min.eta);
+  if (!min.phi && !max.phi) match_phi = (triplet.phi <= max.phi) && (triplet.phi >= min.phi);
+  return match_pT && match_eta && match_phi;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Check if Particle Matches Any Cut in PropagationList________________________________________
+bool InPropagationList(const PropagationList& list,
+                       const int particle_id,
+                       const G4ThreeVector& momentum) {
+  for (const auto& cut : list)
+    if (cut.matches(particle_id, momentum)) return true;
+  return false;
+}
+bool InPropagationList(const PropagationList& list,
+                       const G4ThreeVector& momentum) {
+  for (const auto& cut : list)
+    if (cut.matches(momentum)) return true;
+  return false;
+}
+//----------------------------------------------------------------------------------------------
+
 //__Get Mass of Particle from ID________________________________________________________________
 double GetMass(const int id) {
   return G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
@@ -39,7 +73,7 @@ double GetMass(const int id) {
 const G4ThreeVector GetMomentum(const double mass,
                                 const double ke,
                                 const G4ThreeVector& p_unit) {
-  return p_unit.unit() * std::sqrt(ke * (ke + 2 * mass));
+  return p_unit.unit() * std::sqrt(ke * (ke + 2.0L * mass));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -59,6 +93,35 @@ const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
      triplet.pT * std::sinh(triplet.eta),
      triplet.pT * std::sin(triplet.phi),
     -triplet.pT * std::cos(triplet.phi));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Default Vertex for IP_______________________________________________________________________
+G4PrimaryVertex* DefaultVertex() {
+  return new G4PrimaryVertex(0, 0, 100*m, 0);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Momentum________________________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const G4ThreeVector& p) {
+  return new G4PrimaryParticle(id, p.x(), p.y(), p.z());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const double pT,
+                                  const double eta,
+                                  const double phi) {
+  return CreateParticle(id, PseudoLorentzTriplet{pT, eta, phi});
+}
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const PseudoLorentzTriplet& triplet) {
+  return CreateParticle(id, Convert(triplet));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -217,28 +280,6 @@ Analysis::SimSettingList Generator::GetSpecification() const {
     "_P_UNIT", std::to_string(_p_unit.x()) + ", "
              + std::to_string(_p_unit.y()) + ", "
              + std::to_string(_p_unit.z()));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Default Vertex Object_______________________________________________________________________
-G4PrimaryVertex* Generator::DefaultVertex() {
-  return new G4PrimaryVertex(0, 0, 100*m, 0);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Create Particle_____________________________________________________________________________
-G4PrimaryParticle* Generator::CreateParticle(const int id,
-                                             const G4ThreeVector& p) {
-  return new G4PrimaryParticle(id, p.x(), p.y(), p.z());
-}
-//----------------------------------------------------------------------------------------------
-
-//__Create Particle_____________________________________________________________________________
-G4PrimaryParticle* Generator::CreateParticle(const int id,
-                                             const double pT,
-                                             const double eta,
-                                             const double phi) {
-  return CreateParticle(id, Convert(PseudoLorentzTriplet{pT, eta, phi}));
 }
 //----------------------------------------------------------------------------------------------
 

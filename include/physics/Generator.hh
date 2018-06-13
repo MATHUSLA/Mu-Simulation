@@ -38,8 +38,23 @@ struct PseudoLorentzTriplet { double pT, eta, phi; };
 //__Cut on Particle_____________________________________________________________________________
 struct ParticleCut {
   int id;
-  PseudoLorentzTriplet cut;
+  PseudoLorentzTriplet min, max;
+  bool matches(const int particle_id,
+               const G4ThreeVector& momentum) const;
+  bool matches(const G4ThreeVector& momentum) const;
 };
+//----------------------------------------------------------------------------------------------
+
+//__List of Particles to Propagate______________________________________________________________
+using PropagationList = std::vector<ParticleCut>;
+//----------------------------------------------------------------------------------------------
+
+//__Check if Particle Matches Any Cut in PropagationList________________________________________
+bool InPropagationList(const PropagationList& list,
+                       const int particle_id,
+                       const G4ThreeVector& momentum);
+bool InPropagationList(const PropagationList& list,
+                       const G4ThreeVector& momentum);
 //----------------------------------------------------------------------------------------------
 
 //__Get Mass of Particle from ID________________________________________________________________
@@ -58,6 +73,27 @@ const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum);
 
 //__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
 const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet);
+//----------------------------------------------------------------------------------------------
+
+//__Default Vertex for IP_______________________________________________________________________
+G4PrimaryVertex* DefaultVertex();
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Momentum________________________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const G4ThreeVector& p);
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const double pT,
+                                  const double eta,
+                                  const double phi);
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const PseudoLorentzTriplet& triplet);
 //----------------------------------------------------------------------------------------------
 
 //__Default Particle Generator__________________________________________________________________
@@ -79,7 +115,8 @@ public:
   virtual ~Generator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
-  virtual void SetNewValue(G4UIcommand* command, G4String value);
+  virtual void SetNewValue(G4UIcommand* command,
+                           G4String value);
 
   int    id()  const { return _id;  }
   double pT()  const { return _pT;  }
@@ -92,16 +129,6 @@ public:
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual Analysis::SimSettingList GetSpecification() const;
-
-  static G4PrimaryVertex* DefaultVertex();
-
-  static G4PrimaryParticle* CreateParticle(const int id,
-                                           const G4ThreeVector& p);
-
-  static G4PrimaryParticle* CreateParticle(const int id,
-                                           const double pT,
-                                           const double eta,
-                                           const double phi);
 
   static const std::string MessengerDirectory;
   static const std::string SimSettingPrefix;
@@ -155,7 +182,8 @@ public:
   virtual ~RangeGenerator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
-  virtual void SetNewValue(G4UIcommand* command, G4String value);
+  virtual void SetNewValue(G4UIcommand* command,
+                           G4String value);
 
   double pT_min()  const { return _pT_min;  }
   double pT_max()  const { return _pT_max;  }

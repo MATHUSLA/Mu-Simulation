@@ -22,26 +22,29 @@
 
 #include "Generator.hh"
 
+#include <HepMC/HepMC.h>
+#include <HepMC/ReaderAscii.h>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
-class HepMCReader {
+class HepMCGenerator {
 public:
-  HepMCReader(const std::string& path);
-private:
-};
+  HepMCGenerator(const std::string& path,
+                 const PropagationList& propagation,
+                 bool unique_events=true);
 
-class HepMCGenerator : public RangeGenerator {
-public:
-  HepMCGenerator(const int id,
-                 const double pT_min,
-                 const double pT_max,
-                 const double eta_min,
-                 const double eta_max,
-                 const double phi_min,
-                 const double phi_max);
+  const PropagationList GetPropagationList() const { return _propagation_list; };
+  bool UsingUniqueEvents() const { return _unique; }
+
+  void GeneratePrimaryVertex(G4Event* event);
+
 private:
+  HepMC::ReaderAscii _reader;
+  PropagationList _propagation_list;
+  HepMC::GenEvent _current_event;
+  bool _unique;
 };
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
