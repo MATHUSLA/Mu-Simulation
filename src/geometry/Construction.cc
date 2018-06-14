@@ -17,20 +17,19 @@
 
 #include "geometry/Construction.hh"
 
-#include "Geant4/G4SubtractionSolid.hh"
-#include "Geant4/G4GeometryManager.hh"
-#include "Geant4/G4GeometryTolerance.hh"
-#include "Geant4/G4LogicalVolumeStore.hh"
-#include "Geant4/G4PhysicalVolumeStore.hh"
-#include "Geant4/G4SDManager.hh"
-#include "Geant4/G4Colour.hh"
-#include "Geant4/G4SolidStore.hh"
-#include "Geant4/G4PVPlacement.hh"
-#include "Geant4/G4NistManager.hh"
-#include "Geant4/G4GDMLParser.hh"
+#include <Geant4/G4SubtractionSolid.hh>
+#include <Geant4/G4GeometryManager.hh>
+#include <Geant4/G4GeometryTolerance.hh>
+#include <Geant4/G4LogicalVolumeStore.hh>
+#include <Geant4/G4PhysicalVolumeStore.hh>
+#include <Geant4/G4SDManager.hh>
+#include <Geant4/G4Colour.hh>
+#include <Geant4/G4SolidStore.hh>
+#include <Geant4/G4PVPlacement.hh>
+#include <Geant4/G4NistManager.hh>
+#include <Geant4/G4GDMLParser.hh>
 
 #include "geometry/Box.hh"
-#include "geometry/Earth.hh"
 #include "geometry/Prototype.hh"
 #include "geometry/Flat.hh"
 #include "geometry/MuonMapper.hh"
@@ -112,16 +111,20 @@ G4VPhysicalVolume* Builder::Construct() {
 
   auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength - 700*m);
 
-  Export(Earth::Construct(worldLV), "earth.gdml");
+  // Export(Earth::Construct(worldLV), "earth.gdml");
 
   if (_detector == "Flat") {
     Export(Flat::Detector::Construct(worldLV), "flat.gdml");
+    Export(Flat::Detector::ConstructEarth(worldLV), "flat.earth.gdml");
   } else if (_detector == "Box") {
     Export(Box::Detector::Construct(worldLV), "box.gdml");
+    Export(Box::Detector::ConstructEarth(worldLV), "box.earth.gdml");
   } else if (_detector == "MuonMapper") {
     Export(MuonMapper::Detector::Construct(worldLV), "muon_mapper.gdml");
+    Export(MuonMapper::Detector::ConstructEarth(worldLV), "muon_mapper.earth.gdml");
   } else {
     Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
+    Export(Prototype::Detector::ConstructEarth(worldLV), "prototype.earth.gdml");
   }
 
   auto world = PlaceVolume(worldLV, nullptr);

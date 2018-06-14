@@ -27,11 +27,11 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Generator Map_______________________________________________________________________________
-G4ThreadLocal std::unordered_map<std::string, Generator*> _gen_map;
+G4ThreadLocal std::unordered_map<std::string, Physics::Generator*> _gen_map;
 //----------------------------------------------------------------------------------------------
 
 //__Current Generator___________________________________________________________________________
-Generator* _gen;
+Physics::Generator* _gen;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -39,17 +39,17 @@ Generator* _gen;
 //__Generator Action Constructor________________________________________________________________
 GeneratorAction::GeneratorAction(const std::string& generator)
     : G4VUserPrimaryGeneratorAction(),
-      G4UImessenger(Generator::MessengerDirectory, "Particle Generators.") {
+      G4UImessenger(Physics::Generator::MessengerDirectory, "Particle Generators.") {
 
-  _gen_map["basic"] = new Generator(
+  _gen_map["basic"] = new Physics::Generator(
       "basic", "Default Generator.",
       13, 60*GeVperC, 0, 0*deg);
 
-  _gen_map["range"] = new RangeGenerator(
+  _gen_map["range"] = new Physics::RangeGenerator(
       "range", "Default Range Generator.",
       13, 60*GeVperC, 0.1, 5*deg);
 
-  _gen_map["pythia"] = new PythiaGenerator(
+  _gen_map["pythia"] = new Physics::PythiaGenerator(
       -13, 60*GeVperC, 0.5, 10*deg, {
           "Print:quiet = on",
           "Next:numberCount = 10000",
@@ -108,7 +108,7 @@ void GeneratorAction::SetNewValue(G4UIcommand* command, G4String value) {
 //----------------------------------------------------------------------------------------------
 
 //__Get the Current Generator___________________________________________________________________
-const Generator* GeneratorAction::GetGenerator() {
+const Physics::Generator* GeneratorAction::GetGenerator() {
   return _gen;
 }
 //----------------------------------------------------------------------------------------------

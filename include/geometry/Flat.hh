@@ -110,6 +110,7 @@ public:
   static const std::vector<std::string>& DataKeys;
 
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
+  static G4VPhysicalVolume* ConstructEarth(G4LogicalVolume* world);
 };
 
 } /* namespace Flat */ /////////////////////////////////////////////////////////////////////////

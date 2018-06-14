@@ -1,4 +1,5 @@
-/* include/analysis.hh
+/*
+ * include/analysis.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -21,18 +22,104 @@
 
 #include <vector>
 
-#include "Geant4/g4root.hh"
+#include <Geant4/g4root.hh>
 
 namespace MATHUSLA { namespace MU {
 
 namespace Analysis { ///////////////////////////////////////////////////////////////////////////
 
-//__Setup Analysis Tool_________________________________________________________________________
+//__Simulation Setting Key-Value Pair___________________________________________________________
+struct SimSetting { std::string name, text; };
+using SimSettingList = std::vector<SimSetting>;
+//----------------------------------------------------------------------------------------------
+
+//__Simulation Setting Pseudo-Constructors______________________________________________________
+inline SimSetting Setting(const std::string& name,
+                          const std::string& text) {
+  return {name, text};
+}
+inline SimSetting Setting(const std::string& prefix,
+                          const std::string& name,
+                          const std::string& text) {
+  return {prefix + name, text};
+}
+//----------------------------------------------------------------------------------------------
+
+namespace detail { /////////////////////////////////////////////////////////////////////////////
+
+//__Add Setting to SimSettingList_______________________________________________________________
+inline void AddSetting(SimSettingList& list,
+                       const std::string& name,
+                       const std::string& text) {
+  list.push_back(Setting(name, text));
+}
+inline void AddSettingWithPrefix(SimSettingList& list,
+                                 const std::string& prefix,
+                                 const std::string& name,
+                                 const std::string& text) {
+  list.push_back(Setting(prefix, name, text));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Add Settings to SimSettingList______________________________________________________________
+template<class ...Strings>
+void AddSetting(SimSettingList& list,
+                const std::string& name,
+                const std::string& text,
+                const Strings& ...rest) {
+  AddSetting(list, name, text);
+  AddSetting(list, rest...);
+}
+template<class ...Strings>
+void AddSettingWithPrefix(SimSettingList& list,
+                          const std::string& prefix,
+                          const std::string& name,
+                          const std::string& text,
+                          const Strings& ...rest) {
+  AddSettingWithPrefix(list, prefix, name, text);
+  AddSettingWithPrefix(list, prefix, rest...);
+}
+//----------------------------------------------------------------------------------------------
+
+} /* namespace detail */ ///////////////////////////////////////////////////////////////////////
+
+//__Generate SimSettingList_____________________________________________________________________
+template<class ...Strings>
+SimSettingList Settings(const std::string& name,
+                        const std::string& text,
+                        const Strings& ...rest) {
+  SimSettingList out;
+  out.reserve(sizeof...(Strings));
+  detail::AddSetting(out, name, text, rest...);
+  return out;
+}
+template<class ...Strings>
+SimSettingList Settings(const std::string& prefix,
+                        const std::string& name,
+                        const std::string& text,
+                        const Strings& ...rest) {
+  SimSettingList out;
+  out.reserve(sizeof...(Strings));
+  detail::AddSettingWithPrefix(out, prefix, name, text, rest...);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Save Simulation Entries To File_____________________________________________________________
+bool Save(const std::string& path,
+          SimSetting entry);
+bool Save(const std::string& path,
+          SimSettingList entries);
+//----------------------------------------------------------------------------------------------
+
+namespace ROOT { ///////////////////////////////////////////////////////////////////////////////
+
+//__Setup ROOT Analysis Tool____________________________________________________________________
 void Setup();
 //----------------------------------------------------------------------------------------------
 
 //__Open Output File____________________________________________________________________________
-bool Open(const std::string& file);
+bool Open(const std::string& path);
 //----------------------------------------------------------------------------------------------
 
 //__Save Output_________________________________________________________________________________
@@ -60,6 +147,8 @@ bool GenerateNTupleCollection(const size_t count,
                               const std::string& prefix,
                               const std::vector<std::string>& columns);
 //----------------------------------------------------------------------------------------------
+
+} /* namespace ROOT */ /////////////////////////////////////////////////////////////////////////
 
 } /* namespace Analysis */ /////////////////////////////////////////////////////////////////////
 

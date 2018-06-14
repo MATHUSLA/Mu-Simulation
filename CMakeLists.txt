@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(MATHUSLA_MU)
 
@@ -22,6 +22,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 find_package(Geant4  REQUIRED gdml ui_all vis_all)
 find_package(Pythia8 REQUIRED)
+find_package(HepMC   REQUIRED)
 find_package(ROOT    REQUIRED)
 
 include(${Geant4_USE_FILE})
@@ -53,6 +54,7 @@ add_executable(simulation
     src/geometry/prototype/Scintillator.cc
 
     src/physics/Generator.cc
+    src/physics/HepMCGenerator.cc
     src/physics/PythiaGenerator.cc
 
     src/tracking.cc
@@ -63,7 +65,8 @@ add_executable(simulation
 target_link_libraries(simulation
     ${Geant4_LIBRARIES}
     ${PYTHIA8_LIBRARY}
-    ${ROOT_LIBRARIES})
+    ${ROOT_LIBRARIES}
+    ${HEPMC_LIBRARY})
 
 target_include_directories(simulation PRIVATE ${ROOT_INCLUDE_DIRS})
 

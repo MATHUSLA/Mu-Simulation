@@ -24,9 +24,9 @@
 
 #include "action.hh"
 #include "analysis.hh"
+#include "geometry/Earth.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
-#include "util/time.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -155,7 +155,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
-  Analysis::FillNTuple(DataPrefix, EventAction::EventID(), {
+  Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
     deposit      / Units::Energy,
     global_time  / Units::Time,
     detector_id,
@@ -359,6 +359,12 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   return Construction::PlaceVolume(DetectorVolume, world,
     G4Translate3D(0, 0, -0.5*total_outer_box_height));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Build Earth for Detector____________________________________________________________________
+G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
+  return Earth::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 

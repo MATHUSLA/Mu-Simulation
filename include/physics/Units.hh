@@ -1,4 +1,5 @@
-/* include/physics/Units.hh
+/*
+ * include/physics/Units.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -19,9 +20,9 @@
 #define MU__PHYSICS_UNITS_HH
 #pragma once
 
-#include "Geant4/G4UnitsTable.hh"
-#include "Geant4/G4SystemOfUnits.hh"
-#include "Geant4/G4PhysicalConstants.hh"
+#include <Geant4/G4UnitsTable.hh>
+#include <Geant4/G4SystemOfUnits.hh>
+#include <Geant4/G4PhysicalConstants.hh>
 
 namespace MATHUSLA { namespace MU {
 

@@ -13,6 +13,6 @@
 
 # Viewer menu :
 /gui/addMenu viewer Viewer
-/gui/addButton viewer "Side View" "/control/execute scripts/settings/side_view"
-/gui/addButton viewer "Front View" "/control/execute scripts/settings/front_view"
-/gui/addButton viewer "Collision View" "/control/execute scripts/settings/collision_view"
+/gui/addButton viewer "Side View" "/control/execute scripts/views/side_view"
+/gui/addButton viewer "Front View" "/control/execute scripts/views/front_view"
+/gui/addButton viewer "Collision View" "/control/execute scripts/views/collision_view"

@@ -1,4 +1,5 @@
-/* include/util/time.hh
+/*
+ * include/util/time.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -26,28 +27,32 @@
 
 namespace MATHUSLA {
 
-namespace util { ///////////////////////////////////////////////////////////////////////////////
+namespace util { namespace time { //////////////////////////////////////////////////////////////
 
-namespace time { ///////////////////////////////////////////////////////////////////////////////
-
+//__Common Time Formats_________________________________________________________________________
 static const auto FullFormat = "%Y%m%d_%H%M%S";
 static const auto DateFormat = "%Y%m%d";
 static const auto TimeFormat = "%H%M%S";
+//----------------------------------------------------------------------------------------------
 
+//__Current Time________________________________________________________________________________
 static const auto CURRENT_TIME = std::time(nullptr);
+//----------------------------------------------------------------------------------------------
 
+//__Get Time String from Format_________________________________________________________________
 inline const std::string GetString(const char* format=FullFormat) {
   std::stringstream out;
   out << std::put_time(std::gmtime(&CURRENT_TIME), format);
   return out.str();
 }
+//----------------------------------------------------------------------------------------------
 
+//__Get Time String_____________________________________________________________________________
 inline const std::string GetDate() { return GetString(DateFormat); }
 inline const std::string GetTime() { return GetString(TimeFormat); }
+//----------------------------------------------------------------------------------------------
 
-} /* namespace time */ /////////////////////////////////////////////////////////////////////////
-
-} /* namespace util */ /////////////////////////////////////////////////////////////////////////
+} } /* namespace util::time */ /////////////////////////////////////////////////////////////////
 
 } /* namespace MATHUSLA */
 

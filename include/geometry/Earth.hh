@@ -19,10 +19,11 @@
 #define MU__GEOMETRY_EARTH_HH
 #pragma once
 
-#include "Geant4/G4Material.hh"
-#include "Geant4/G4VPhysicalVolume.hh"
-#include "Geant4/G4LogicalVolume.hh"
-#include "Geant4/G4SystemOfUnits.hh"
+#include <Geant4/G4Material.hh>
+#include <Geant4/G4VPhysicalVolume.hh>
+#include <Geant4/G4LogicalVolume.hh>
+#include <Geant4/G4Transform3D.hh>
+#include <Geant4/G4SystemOfUnits.hh>
 
 namespace MATHUSLA { namespace MU {
 
@@ -42,12 +43,26 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Earth Layer Sizes___________________________________________________________________________
-constexpr auto LayerWidthX    = 82500*cm;
-constexpr auto LayerWidthY    = 82500*cm;
-constexpr auto SandstoneDepth =  4530*cm;
-constexpr auto MarlDepth      =  1825*cm;
-constexpr auto MixDepth       =  3645*cm;
+constexpr auto LayerWidthX    = 82500.0L*cm;
+constexpr auto LayerWidthY    = 82500.0L*cm;
+constexpr auto SandstoneDepth =  4530.0L*cm;
+constexpr auto MarlDepth      =  1825.0L*cm;
+constexpr auto MixDepth       =  3645.0L*cm;
 constexpr auto TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
+//----------------------------------------------------------------------------------------------
+
+//__Earth Logical Volumes_______________________________________________________________________
+G4LogicalVolume* Volume();
+G4LogicalVolume* SandstoneVolume();
+G4LogicalVolume* MarlVolume();
+G4LogicalVolume* MixVolume();
+//----------------------------------------------------------------------------------------------
+
+//__Earth Transformations_______________________________________________________________________
+const G4Translate3D Transform();
+const G4Translate3D SandstoneTransform();
+const G4Translate3D MarlTransform();
+const G4Translate3D MixTransform();
 //----------------------------------------------------------------------------------------------
 
 //__Construct Earth_____________________________________________________________________________

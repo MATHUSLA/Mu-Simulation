@@ -2,11 +2,10 @@
 
 #include <Geant4/G4NistManager.hh>
 #include <Geant4/G4VProcess.hh>
-#include <Geant4/G4RunManager.hh>
 
 #include "action.hh"
 #include "analysis.hh"
-#include "util/time.hh"
+#include "geometry/Earth.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -43,19 +42,20 @@ void Detector::Initialize(G4HCofThisEvent*) {}
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto pre_step = step->GetPreStepPoint();
   const auto track = step->GetTrack();
+  try {
+    if (track->GetParticleDefinition()->GetParticleName() != "mu-")
+      return false;
 
-  if (track->GetParticleDefinition()->GetParticleName() != "mu-")
-    return false;
-
-  const auto process = pre_step->GetProcessDefinedStep();
-  const auto process_name = process->GetProcessName();
-  if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
-    Analysis::FillNTuple(DataPrefix, 0, {
-      (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
-      track->GetKineticEnergy() / GeV});
-    track->SetTrackStatus(fStopAndKill);
-    return true;
-  }
+    const auto process = pre_step->GetProcessDefinedStep();
+    const auto process_name = process->GetProcessName();
+    if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
+      Analysis::ROOT::FillNTuple(DataPrefix, 0, {
+        (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,
+        track->GetKineticEnergy() / GeV});
+      track->SetTrackStatus(fStopAndKill);
+      return true;
+    }
+  } catch (...) {}
   return false;
 }
 //----------------------------------------------------------------------------------------------
@@ -78,6 +78,12 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   return Construction::PlaceVolume(_box, world,
     G4Translate3D(x_shift + 0.5 * box_length, 0, -0.5*box_height));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Build Earth for Detector____________________________________________________________________
+G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
+  return Earth::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 

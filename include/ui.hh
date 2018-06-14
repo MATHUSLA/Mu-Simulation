@@ -1,4 +1,5 @@
-/* include/ui.hh
+/*
+ * include/ui.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -19,23 +20,23 @@
 #define MU__UI_HH
 #pragma once
 
-#include "Geant4/G4VMarker.hh"
-#include "Geant4/G4Circle.hh"
-#include "Geant4/G4VisAttributes.hh"
-#include "Geant4/G4VVisManager.hh"
-#include "Geant4/G4ThreeVector.hh"
-#include "Geant4/G4UIcommand.hh"
-#include "Geant4/G4UIdirectory.hh"
-#include "Geant4/G4UIcmdWithoutParameter.hh"
-#include "Geant4/G4UIcmdWithAString.hh"
-#include "Geant4/G4UIcmdWithABool.hh"
-#include "Geant4/G4UIcmdWithAnInteger.hh"
-#include "Geant4/G4UIcmdWithADouble.hh"
-#include "Geant4/G4UIcmdWith3Vector.hh"
-#include "Geant4/G4UIcmdWithADoubleAndUnit.hh"
-#include "Geant4/G4UIcmdWith3VectorAndUnit.hh"
-#include "Geant4/G4UImessenger.hh"
-#include "Geant4/G4UImanager.hh"
+#include <Geant4/G4VMarker.hh>
+#include <Geant4/G4Circle.hh>
+#include <Geant4/G4VisAttributes.hh>
+#include <Geant4/G4VVisManager.hh>
+#include <Geant4/G4ThreeVector.hh>
+#include <Geant4/G4UIcommand.hh>
+#include <Geant4/G4UIdirectory.hh>
+#include <Geant4/G4UIcmdWithoutParameter.hh>
+#include <Geant4/G4UIcmdWithAString.hh>
+#include <Geant4/G4UIcmdWithABool.hh>
+#include <Geant4/G4UIcmdWithAnInteger.hh>
+#include <Geant4/G4UIcmdWithADouble.hh>
+#include <Geant4/G4UIcmdWith3Vector.hh>
+#include <Geant4/G4UIcmdWithADoubleAndUnit.hh>
+#include <Geant4/G4UIcmdWith3VectorAndUnit.hh>
+#include <Geant4/G4UImessenger.hh>
+#include <Geant4/G4UImanager.hh>
 
 namespace MATHUSLA { namespace MU {
 

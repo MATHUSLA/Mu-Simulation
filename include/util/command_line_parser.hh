@@ -1,4 +1,5 @@
-/* include/util/command_line_parser.hh
+/*
+ * include/util/command_line_parser.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -24,9 +25,7 @@
 
 namespace MATHUSLA {
 
-namespace util { ///////////////////////////////////////////////////////////////////////////////
-
-namespace cli { ////////////////////////////////////////////////////////////////////////////////
+namespace util { namespace cli { ///////////////////////////////////////////////////////////////
 
 //__Command Line Option_________________________________________________________________________
 // TODO: needs work
@@ -58,7 +57,8 @@ struct option {
     argument = nullptr;
   }
 
-  void set_argument(char* arg, size_t flag) {
+  void set_argument(char* arg,
+                    size_t flag) {
     argument = arg;
     flags |= flag;
   }
@@ -89,9 +89,7 @@ using option_list = std::vector<option*>;
 size_t parse(char* argv[], option_list options);
 //----------------------------------------------------------------------------------------------
 
-} /* namespace cli */ //////////////////////////////////////////////////////////////////////////
-
-} /* namespace util */ /////////////////////////////////////////////////////////////////////////
+} } /* namespace util::cli */ //////////////////////////////////////////////////////////////////
 
 } /* namespace MATHUSLA */
 

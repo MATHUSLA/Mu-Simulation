@@ -1,4 +1,5 @@
-/* src/util/command_line_parser.cc
+/*
+ * src/util/command_line_parser.cc
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -33,9 +34,7 @@
 
 namespace MATHUSLA {
 
-namespace util { ///////////////////////////////////////////////////////////////////////////////
-
-namespace cli { ////////////////////////////////////////////////////////////////////////////////
+namespace util { namespace cli { ///////////////////////////////////////////////////////////////
 
     /* TODO: ALTERNATIVE IMPLEMENTATION
     class option {
@@ -77,11 +76,9 @@ namespace cli { ////////////////////////////////////////////////////////////////
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Find Long Option from Option List___________________________________________________________
-option* _find_long_option(const std::string& arg, option_list options) {
-  size_t count = 0,
-         found = 0,
-         index = 0,
-         length = std::strcspn(arg.c_str(), "=");
+option* _find_long_option(const std::string& arg,
+                          const option_list& options) {
+  size_t count = 0, found = 0, index = 0, length = std::strcspn(arg.c_str(), "=");
 
   for (const auto& option : options) {
     if (!option->long_name.empty()) {
@@ -102,7 +99,8 @@ option* _find_long_option(const std::string& arg, option_list options) {
 //----------------------------------------------------------------------------------------------
 
 //__Find Short Option from Option List__________________________________________________________
-option* _find_short_option(char arg, option_list options) {
+option* _find_short_option(const char arg,
+                           const option_list& options) {
   for (const auto& option : options)
     if (option->short_name == arg)
       return option;
@@ -123,15 +121,16 @@ bool _is_short(const std::string& arg) {
 //----------------------------------------------------------------------------------------------
 
 //__Option Type Check___________________________________________________________________________
-bool _is_on(option* option, size_t flags) {
+bool _is_on(const option* option,
+            const size_t flags) {
   return (option->flags & flags) == flags;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Auto Help Message___________________________________________________________________________
 void _print_help_message(const std::string& argv0,
-                         option* help,
-                         option_list options) {
+                         const option* help,
+                         const option_list& options) {
   if (!help || !help->count) return;
 
   std::cout << "\r\n " << help->description << "  " << argv0 << " [args]\n";
@@ -154,7 +153,8 @@ void _print_help_message(const std::string& argv0,
 //----------------------------------------------------------------------------------------------
 
 //__Auto Error Message__________________________________________________________________________
-void _print_error_message(const std::string& argv0, option_list options) {
+void _print_error_message(const std::string& argv0,
+                          const option_list& options) {
   for (const auto& option : options) {
     error::exit_when(_is_on(option, option::is_short_without_argument | option::required_arguments),
       argv0, ": option -", option->short_name, " requires an argument\n");
@@ -168,7 +168,7 @@ void _print_error_message(const std::string& argv0, option_list options) {
     error::exit_when(_is_on(option, option::is_long_with_argument | option::no_arguments),
       argv0, ": option --", option->long_name, " must not have an argument\n");
 
-    error::exit_when((option->count > 1) && !(option->flags & option::repeatable),
+    error::exit_when((option->count > 1) && !_is_on(option, option::repeatable),
       argv0, ": option -", option->short_name,
              " (--", option->long_name, ") may not be repeated\n");
   }
@@ -179,20 +179,23 @@ void _print_error_message(const std::string& argv0, option_list options) {
 
 //__Option Constructor__________________________________________________________________________
 option::option() : option(0) {}
-option::option(char short_name,
+option::option(const char short_name,
                const std::string& long_name,
                const std::string& description,
-               size_t flags)
+               const size_t flags)
     : short_name(short_name), long_name(long_name), description(description),
       flags(flags), count(0), argument(nullptr) {}
 //----------------------------------------------------------------------------------------------
 
-//__Command Line Option Parser__________________________________________________________________
-size_t parse(char* argv[], option_list options) {
-  if (options.empty()) return 0;
+//__Commmand Line Option Parser_________________________________________________________________
+size_t parse(char* argv[],
+             option_list options) {
+  if (!options.size()) return 0;
 
   for (auto& option : options)
     option->reset();
+
+  std::vector<size_t> operand_indicies{};
 
   size_t operand_count = 1;
   size_t expecting = option::empty;
@@ -201,6 +204,7 @@ size_t parse(char* argv[], option_list options) {
   auto error = new option();
 
   for (size_t i = 1; argv[i]; ++i) {
+
     if (expecting != option::empty) {
       if (!_is_short(argv[i]) || !(_is_on(current, option::no_hyphen_arguments))) {
         current->set_argument(argv[i], expecting);
@@ -265,13 +269,18 @@ size_t parse(char* argv[], option_list options) {
       argv[operand_count] = argv[i];
       operand_count++;
     }
+
   }
 
   if (expecting != option::empty) {
     current->set_argument(nullptr, expecting >> 1);
   }
 
-  argv[operand_count] = nullptr;
+  // argv[operand_count] = nullptr;
+
+  for (const auto& i : operand_indicies)
+    std::cout << argv[i] << " ";
+  std::cout << "\n";
 
   error::exit_when(error->short_name,
     argv[0], ": unrecognised option -", error->short_name, '\n');
@@ -294,8 +303,6 @@ size_t parse(char* argv[], option_list options) {
 }
 //----------------------------------------------------------------------------------------------
 
-} /* namespace cli */ //////////////////////////////////////////////////////////////////////////
-
-} /* namespace util */ /////////////////////////////////////////////////////////////////////////
+} } /* namespace util::cli */ //////////////////////////////////////////////////////////////////
 
 } /* namespace MATHUSLA */

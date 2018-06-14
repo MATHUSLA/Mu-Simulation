@@ -1,4 +1,5 @@
-/* include/physics/Generator.hh
+/*
+ * include/physics/Generator.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -19,18 +20,85 @@
 #define MU__PHYSICS_GENERATOR_HH
 #pragma once
 
-#include "Geant4/G4Event.hh"
-#include "Geant4/G4PrimaryVertex.hh"
-#include "Geant4/G4PrimaryParticle.hh"
+#include <Geant4/G4Event.hh>
+#include <Geant4/G4PrimaryVertex.hh>
+#include <Geant4/G4PrimaryParticle.hh>
 
+#include "analysis.hh"
 #include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
 
+namespace Physics { ////////////////////////////////////////////////////////////////////////////
+
+//__Pseudo-Lorentz Invariant Triplet____________________________________________________________
+struct PseudoLorentzTriplet { double pT, eta, phi; };
+//----------------------------------------------------------------------------------------------
+
+//__Cut on Particle_____________________________________________________________________________
+struct ParticleCut {
+  int id;
+  PseudoLorentzTriplet min, max;
+  bool matches(const int particle_id,
+               const G4ThreeVector& momentum) const;
+  bool matches(const G4ThreeVector& momentum) const;
+};
+//----------------------------------------------------------------------------------------------
+
+//__List of Particles to Propagate______________________________________________________________
+using PropagationList = std::vector<ParticleCut>;
+//----------------------------------------------------------------------------------------------
+
+//__Check if Particle Matches Any Cut in PropagationList________________________________________
+bool InPropagationList(const PropagationList& list,
+                       const int particle_id,
+                       const G4ThreeVector& momentum);
+bool InPropagationList(const PropagationList& list,
+                       const G4ThreeVector& momentum);
+//----------------------------------------------------------------------------------------------
+
+//__Get Mass of Particle from ID________________________________________________________________
+double GetMass(const int id);
+//----------------------------------------------------------------------------------------------
+
+//__Get Momentum from Mass and Kinetic Energy___________________________________________________
+const G4ThreeVector GetMomentum(const double mass,
+                                const double ke,
+                                const G4ThreeVector& p_unit);
+//----------------------------------------------------------------------------------------------
+
+//__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
+const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum);
+//----------------------------------------------------------------------------------------------
+
+//__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
+const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet);
+//----------------------------------------------------------------------------------------------
+
+//__Default Vertex for IP_______________________________________________________________________
+G4PrimaryVertex* DefaultVertex();
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Momentum________________________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const G4ThreeVector& p);
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const double pT,
+                                  const double eta,
+                                  const double phi);
+//----------------------------------------------------------------------------------------------
+
+//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
+G4PrimaryParticle* CreateParticle(const int id,
+                                  const PseudoLorentzTriplet& triplet);
+//----------------------------------------------------------------------------------------------
+
+//__Default Particle Generator__________________________________________________________________
 class Generator : public G4UImessenger {
 public:
-  struct PseudoLorentzTriplet { double pT, eta, phi; };
-
   Generator(const std::string& name,
             const std::string& description,
             const int id,
@@ -47,39 +115,23 @@ public:
   virtual ~Generator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
-  virtual void SetNewValue(G4UIcommand* command, G4String value);
+  virtual void SetNewValue(G4UIcommand* command,
+                           G4String value);
 
-  const std::string&   GetName() const { return _name;   }
-  int                  id()      const { return _id;     }
-  double               pT()      const { return _pT;     }
-  double               eta()     const { return _eta;    }
-  double               phi()     const { return _phi;    }
-  double               ke()      const { return _ke;     }
-  const G4ThreeVector& p_unit()  const { return _p_unit; }
-
+  int    id()  const { return _id;  }
+  double pT()  const { return _pT;  }
+  double eta() const { return _eta; }
+  double phi() const { return _phi; }
+  double ke()  const { return _ke;  }
+  const G4ThreeVector& p_unit() const { return _p_unit; }
   const G4ThreeVector p() const;
+  const std::string& GetName() const { return _name; }
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
-
-  static G4PrimaryVertex* DefaultVertex();
-
-  static G4PrimaryParticle* CreateParticle(const int id,
-                                           const G4ThreeVector& p);
-
-  static G4PrimaryParticle* CreateParticle(const int id,
-                                           const double pT,
-                                           const double eta,
-                                           const double phi);
-
-  static double GetMass(const int id);
-  static G4ThreeVector GetMomentum(const double mass,
-                                   const double ke,
-                                   const G4ThreeVector& p_unit);
-
-  static PseudoLorentzTriplet Convert(const G4ThreeVector& momentum);
-  static G4ThreeVector Convert(const PseudoLorentzTriplet& triplet);
+  virtual Analysis::SimSettingList GetSpecification() const;
 
   static const std::string MessengerDirectory;
+  static const std::string SimSettingPrefix;
 
 protected:
   std::string _name;
@@ -105,9 +157,9 @@ protected:
   Command::DoubleUnitArg*  _ui_ke;
   Command::ThreeVectorArg* _ui_p;
 };
+//----------------------------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
+//__Default Range Particle Generator____________________________________________________________
 class RangeGenerator : public Generator {
 public:
   RangeGenerator(const std::string& name,
@@ -130,7 +182,8 @@ public:
   virtual ~RangeGenerator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
-  virtual void SetNewValue(G4UIcommand* command, G4String value);
+  virtual void SetNewValue(G4UIcommand* command,
+                           G4String value);
 
   double pT_min()  const { return _pT_min;  }
   double pT_max()  const { return _pT_max;  }
@@ -140,6 +193,7 @@ public:
   double phi_max() const { return _phi_max; }
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
+  virtual Analysis::SimSettingList GetSpecification() const;
 
 protected:
   double _pT_min;
@@ -156,8 +210,7 @@ protected:
   Command::DoubleUnitArg* _ui_phi_min;
   Command::DoubleUnitArg* _ui_phi_max;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------
 
 //__Stream Operator for Generators______________________________________________________________
 inline std::ostream& operator<<(std::ostream& os,
@@ -165,6 +218,8 @@ inline std::ostream& operator<<(std::ostream& os,
   return generator.Print(os);
 }
 //----------------------------------------------------------------------------------------------
+
+} /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */
 
