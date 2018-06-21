@@ -105,6 +105,7 @@ void RunAction::EndOfRunAction(const G4Run*) {
   if (--_cycle_count == 0) {
     auto root_file = TFile::Open((_path + ".root").c_str(), "UPDATE");
     if (root_file && !root_file->IsZombie()) {
+      root_file->cd();
       _write_entry("FILETYPE", "MATHULSA MU-SIM DATAFILE");
       _write_entry("DET", Construction::Builder::GetDetectorName());
       for (const auto& entry : GeneratorAction::GetGenerator()->GetSpecification()) {

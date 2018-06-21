@@ -62,13 +62,15 @@ add_executable(simulation
     src/util/command_line_parser.cc
 )
 
-target_link_libraries(simulation
+target_link_libraries(simulation PUBLIC
     ${Geant4_LIBRARIES}
     ${PYTHIA8_LIBRARY}
     ${ROOT_LIBRARIES}
     ${HEPMC_LIBRARY})
 
-target_include_directories(simulation PRIVATE ${ROOT_INCLUDE_DIRS})
+target_include_directories(simulation PUBLIC
+    ${Geant4_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS})
 
 target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>

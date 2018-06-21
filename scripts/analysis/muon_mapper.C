@@ -84,9 +84,9 @@ void muon_mapper(const char* dir) {
   using namespace MATHUSLA::MU;
 
   for (const auto& path : helper::search_directory(dir)) {
+    std::cout << "Reading " << path << ":\n";
     auto data_file = TFile::Open(path.c_str(), "UPDATE");
-    if (!data_file || data_file->IsZombie())
-      continue;
+    if (!data_file || data_file->IsZombie()) continue;
     try {
       if (!is_datafile(data_file)) continue;
 
@@ -100,8 +100,10 @@ void muon_mapper(const char* dir) {
       auto mu_map_hist = new TH1D(
         HISTOGRAM_NAME.c_str(),
         hist_title(distance, energy).c_str(),
-        100,
-        0.0L, energy);
+        80,
+        0.0L, energy - 60);
+
+      if (!mu_map_hist) continue;
 
       tree->Draw(("KE >> " + HISTOGRAM_NAME).c_str(), "", "goff");
 
@@ -110,7 +112,7 @@ void muon_mapper(const char* dir) {
       mu_map_hist->GetYaxis()->SetTitle("Efficiency");
       mu_map_hist->Write();
 
-      std::cout << "Added Histogram for " << path << "\n"
+      std::cout << "Added Histogram:\n"
                 << "  Event Count: " << event_count << "\n"
                 << "  Initial KE:  " << energy      << "\n"
                 << "  Distance:    " << distance    << "\n"
@@ -119,6 +121,7 @@ void muon_mapper(const char* dir) {
       helper::to_csv(csv_path(path), mu_map_hist);
 
     } catch (...) {}
+    data_file->Close();
   }
 }
 //----------------------------------------------------------------------------------------------
