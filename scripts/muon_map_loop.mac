@@ -9,137 +9,137 @@
 
 #-------------- RUN --------------#
 
-/gen/basic/ke {_energy_} GeV
+/gen/basic/ke {energy} GeV
 
 /gen/basic/p_unit 100.817 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 105.000 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 109.105 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 113.142 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 117.115 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 121.033 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 124.900 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 128.721 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 132.499 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 136.239 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 139.943 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 143.614 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 147.255 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 150.867 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 154.454 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 158.016 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 161.555 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 165.073 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 168.570 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 172.049 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 175.511 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 178.955 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 182.384 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 185.798 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 189.198 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 192.585 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 195.959 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 199.321 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 202.672 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 206.012 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 209.342 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 212.662 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 215.972 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 219.274 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 222.567 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 225.852 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 229.129 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 232.398 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 235.661 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 238.916 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 242.165 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 245.408 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 248.644 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 251.875 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 255.100 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 258.320 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 261.534 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 264.743 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 267.948 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 271.148 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 274.343 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 277.534 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 280.721 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 283.903 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 287.082 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 290.257 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 293.428 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 296.596 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 299.760 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 302.921 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 306.078 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 309.233 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 312.384 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 315.533 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 /gen/basic/p_unit 318.679 0 -100
-/run/beamOn {_count_}
+/run/beamOn {count}
 
 #---------------------------------#
