@@ -153,7 +153,7 @@ inline bool to_csv(const std::string& path,
 
   const auto size = hist->GetNbinsX();
   for (int i = 1; i <= size; ++i) {
-    file << hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L
+    file << hist->GetXaxis()->GetBinLowEdge(i)
          << delimeter
          << hist->GetBinContent(i)
          << "\n";
@@ -172,11 +172,11 @@ inline bool to_csv(const std::string& path,
   const auto x_size = hist->GetNbinsX();
   const auto y_size = hist->GetNbinsY();
   for (int i = 1; i <= x_size; ++i) {
-    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L;
+    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i);
     for (int j = 1; j <= y_size; ++j) {
       file << x_data
            << delimeter
-           << hist->GetYaxis()->GetBinLowEdge(j) + hist->GetYaxis()->GetBinWidth(j) / 2.0L
+           << hist->GetYaxis()->GetBinLowEdge(j)
            << hist->GetBinContent(i, j)
            << "\n";
     }
@@ -196,15 +196,15 @@ inline bool to_csv(const std::string& path,
   const auto y_size = hist->GetNbinsY();
   const auto z_size = hist->GetNbinsZ();
   for (int i = 1; i <= x_size; ++i) {
-    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinWidth(i) / 2.0L;
+    const auto x_data = hist->GetXaxis()->GetBinLowEdge(i);
     for (int j = 1; j <= y_size; ++j) {
-      const auto y_data = hist->GetYaxis()->GetBinLowEdge(j) + hist->GetYaxis()->GetBinWidth(j) / 2.0L;
+      const auto y_data = hist->GetYaxis()->GetBinLowEdge(j);
       for (int k = 1; k <= z_size; ++k) {
         file << x_data
              << delimeter
              << y_data
              << delimeter
-             << hist->GetZaxis()->GetBinLowEdge(k) + hist->GetZaxis()->GetBinWidth(k) / 2.0L
+             << hist->GetZaxis()->GetBinLowEdge(k)
              << hist->GetBinContent(i, j)
              << "\n";
       }
