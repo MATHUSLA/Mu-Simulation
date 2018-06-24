@@ -68,11 +68,13 @@ long double efficiency(const TH1D* hist,
 //----------------------------------------------------------------------------------------------
 
 //__Construct Valid CSV Path From ROOT Path_____________________________________________________
-const std::string csv_path(const std::string& path) {
+const std::string csv_path(const std::string& path,
+                           const std::size_t event_count) {
   using namespace MATHUSLA::MU;
   std::vector<std::string> tokens, ending;
   helper::string::split(path, tokens, "/");
   helper::string::split(tokens.back(), ending, ".");
+  ending.front() += "_" + std::to_string(event_count);
   ending.back() = "csv";
   tokens.back() = helper::string::join(ending, ".");
   return helper::string::join(tokens, "/");
@@ -100,15 +102,15 @@ void muon_mapper(const char* dir) {
       auto mu_map_hist = new TH1D(
         HISTOGRAM_NAME.c_str(),
         hist_title(distance, energy).c_str(),
-        80,
-        0.0L, energy - 60);
+        100,
+        -1.0L, 4.0L);
 
       if (!mu_map_hist) continue;
 
-      tree->Draw(("KE >> " + HISTOGRAM_NAME).c_str(), "", "goff");
+      tree->Draw(("logB >> " + HISTOGRAM_NAME).c_str(), "", "goff");
 
       mu_map_hist->Scale(1.0L / event_count);
-      mu_map_hist->GetXaxis()->SetTitle("KE [GeV]");
+      mu_map_hist->GetXaxis()->SetTitle("log10(Boost)");
       mu_map_hist->GetYaxis()->SetTitle("Efficiency");
       mu_map_hist->Write();
 
