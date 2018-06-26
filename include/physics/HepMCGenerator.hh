@@ -20,31 +20,31 @@
 #define MU__PHYSICS_HEPMCGENERATOR_HH
 #pragma once
 
-#include "Generator.hh"
-
 #include <HepMC/HepMC.h>
-#include <HepMC/ReaderAscii.h>
+#include <HepMC/ReaderRoot.h>
+
+#include "physics/Generator.hh"
 
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
-class HepMCGenerator {
+class HepMCGenerator : public Generator {
 public:
-  HepMCGenerator(const std::string& path,
-                 const PropagationList& propagation,
+  HepMCGenerator(const PropagationList& propagation,
                  bool unique_events=true);
 
   const PropagationList GetPropagationList() const { return _propagation_list; };
   bool UsingUniqueEvents() const { return _unique; }
-
+  void SetNewValue(G4UIcommand* command, G4String value);
   void GeneratePrimaryVertex(G4Event* event);
 
-private:
-  HepMC::ReaderAscii _reader;
+protected:
+  HepMC::ReaderRoot* _reader;
   PropagationList _propagation_list;
   HepMC::GenEvent _current_event;
   bool _unique;
+  Command::StringArg* _read_file;
 };
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////

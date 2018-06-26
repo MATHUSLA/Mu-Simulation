@@ -20,6 +20,7 @@
 #include <unordered_map>
 
 #include "physics/PythiaGenerator.hh"
+#include "physics/HepMCGenerator.hh"
 #include "physics/Units.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -59,6 +60,12 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onMode = off",
           "24:onIfAny = 13"
       });
+
+  _gen_map["hepmc"] = new Physics::HepMCGenerator({
+      {13,
+        {60*GeVperC, 0.5, 10*deg},
+        {60*GeVperC, -0.5, -10*deg}}
+    });
 
   std::string generators;
   for (const auto& element : _gen_map) {

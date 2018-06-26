@@ -66,7 +66,7 @@ target_link_libraries(simulation PUBLIC
     ${Geant4_LIBRARIES}
     ${PYTHIA8_LIBRARY}
     ${ROOT_LIBRARIES}
-    ${HEPMC_LIBRARY})
+    ${HEPMC_LIBRARIES})
 
 target_include_directories(simulation PUBLIC
     ${Geant4_INCLUDE_DIRS}

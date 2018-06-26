@@ -65,7 +65,7 @@ bool InPropagationList(const PropagationList& list,
 
 //__Get Mass of Particle from ID________________________________________________________________
 double GetMass(const int id) {
-  return G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
+  return id == 0 ? 0 : G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
 }
 //----------------------------------------------------------------------------------------------
 
@@ -186,6 +186,7 @@ Generator::Generator(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Generator Constructor_______________________________________________________________________
 Generator::Generator(const std::string& name,
                      const std::string& description,
                      const int id,
@@ -200,6 +201,7 @@ Generator::Generator(const std::string& name,
   _phi = conversion.phi;
   GenerateCommands();
 }
+//----------------------------------------------------------------------------------------------
 
 //__Generate Initial Particles__________________________________________________________________
 void Generator::GeneratePrimaryVertex(G4Event* event) {
