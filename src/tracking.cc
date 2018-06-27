@@ -19,8 +19,8 @@
 
 #include <iomanip>
 
-#include "Geant4/G4SDManager.hh"
-#include "Geant4/G4RunManager.hh"
+#include <Geant4/G4SDManager.hh>
+#include <Geant4/G4RunManager.hh>
 
 #include "physics/Units.hh"
 #include "ui.hh"
@@ -34,7 +34,7 @@ G4ThreadLocal G4Allocator<Hit>* HitAllocator = nullptr;
 //----------------------------------------------------------------------------------------------
 
 //__Hit Constructor_____________________________________________________________________________
-Hit::Hit(const std::string& particle,
+Hit::Hit(const G4ParticleDefinition* particle,
          const int track,
          const int parent,
          const std::string& chamber,
@@ -47,14 +47,15 @@ Hit::Hit(const std::string& particle,
 //----------------------------------------------------------------------------------------------
 
 //__Hit Constructor_____________________________________________________________________________
-Hit::Hit(const G4Step* step, bool post) {
+Hit::Hit(const G4Step* step,
+         bool post) {
   if (!step) return;
 
   const auto track = step->GetTrack();
   const auto step_point = post ? step->GetPostStepPoint()
                                : step->GetPreStepPoint();
 
-  _particle  = track->GetParticleDefinition()->GetParticleName();
+  _particle  = track->GetParticleDefinition();
   _trackID   = track->GetTrackID();
   _parentID  = track->GetParentID();
   _chamberID = track->GetTouchable()->GetHistory()->GetTopVolume()->GetName();
@@ -75,7 +76,7 @@ void Hit::Print(std::ostream& os) const {
   constexpr static auto WIDTH = 10;
   constexpr static auto DECIMAL_PLACES = 4;
   os.precision(DECIMAL_PLACES);
-  os << " "            << _particle
+  os << " "            << GetParticleName()
      << " | "          << _trackID
      << " | "          << _parentID
      << " | "          << _chamberID
@@ -112,9 +113,10 @@ std::ostream& operator<<(std::ostream& os,
 //__Stream Hit Collection_______________________________________________________________________
 std::ostream& operator<<(std::ostream& os,
                          const HitCollection& hits) {
-  const auto&& event_id = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-  const auto&& count = hits.entries();
-  if (!count) return os;
+  const auto event_id = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  const auto count = hits.entries();
+  if (!count)
+    return os;
 
   const auto boxside = std::string(25 + std::to_string(event_id).length()
                                       + std::to_string(count).length(), '-');
@@ -148,13 +150,52 @@ std::ostream& operator<<(std::ostream& os,
 }
 //----------------------------------------------------------------------------------------------
 
-
 //__Add Hit Collection to Detector______________________________________________________________
 HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
                                      G4HCofThisEvent* event) {
   const auto& collection_name = detector->GetCollectionName(0);
   auto out = new HitCollection(detector->GetName(), collection_name);
   event->AddHitsCollection(G4SDManager::GetSDMpointer()->GetCollectionID(collection_name), out);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert HitCollection to Analysis Form______________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
+                                                      const Analysis::ROOT::NameToDataMap& map) {
+  constexpr std::size_t column_count = 13UL;
+
+  Analysis::ROOT::DataEntryList out;
+  out.reserve(column_count);
+
+  const auto size = collection->GetSize();
+  for (std::size_t i = 0; i < column_count; ++i) {
+    Analysis::ROOT::DataEntry entry;
+    entry.reserve(size);
+    out.push_back(entry);
+  }
+
+  const auto map_end = map.cend();
+  for (std::size_t i = 0; i < size; ++i) {
+    const auto hit = dynamic_cast<Hit*>(collection->GetHit(i));
+    out[0].push_back(hit->GetPDGEncoding());
+    out[1].push_back(hit->GetTrackID());
+    out[2].push_back(hit->GetParentID());
+
+    const auto search = map.find(hit->GetChamberID());
+    out[3].push_back(search != map_end ? search->second : -1);
+
+    out[4].push_back(hit->GetDeposit());
+    out[5].push_back(hit->GetPosition().t());
+    out[6].push_back(hit->GetPosition().x());
+    out[7].push_back(hit->GetPosition().y());
+    out[8].push_back(hit->GetPosition().z());
+    out[9].push_back(hit->GetMomentum().e());
+    out[10].push_back(hit->GetMomentum().px());
+    out[11].push_back(hit->GetMomentum().py());
+    out[12].push_back(hit->GetMomentum().pz());
+  }
+
   return out;
 }
 //----------------------------------------------------------------------------------------------

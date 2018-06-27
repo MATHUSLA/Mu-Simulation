@@ -46,8 +46,8 @@ constexpr auto half_detector_height = 0.5 * full_detector_height;
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Box Data Variables__________________________________________________________________________
-const std::string& Detector::DataPrefix = "event";
-const std::vector<std::string>& Detector::DataKeys = {
+const std::string& Detector::DataName = "event";
+const std::vector<std::string>& Detector::DataKeys{
   "Deposit", "Time", "Detector",
   "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ"};
 //----------------------------------------------------------------------------------------------
@@ -95,8 +95,9 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto name = std::to_string(1 + z_index) + x_fullname + y_fullname;
 
   _hit_collection->insert(new Tracking::Hit(
-    particle->GetParticleName(), trackID, parentID, name, deposit, position, momentum));
+    particle, trackID, parentID, name, deposit, position, momentum));
 
+  /*
   Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
     deposit       / Units::Energy,
     position.t()  / Units::Time,
@@ -110,6 +111,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     momentum.x() / Units::Momentum,
     momentum.y() / Units::Momentum,
     momentum.z() / Units::Momentum});
+  */
 
   return true;
 }

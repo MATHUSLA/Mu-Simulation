@@ -88,9 +88,9 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
 
   Analysis::ROOT::Setup();
   Analysis::ROOT::Open(_path + ".root");
-  Analysis::ROOT::GenerateNTupleCollection(
-    Construction::Builder::IsDetectorDataPerEvent() ? _event_count : 1,
-    Construction::Builder::GetDetectorDataPrefix(),
+  Analysis::ROOT::CreateNTuple("dummy", {});
+  Analysis::ROOT::CreateNTuple(
+    Construction::Builder::GetDetectorDataName(),
     Construction::Builder::GetDetectorDataKeys());
 }
 //----------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ const auto _nist = G4NistManager::Instance();
 //__Detector Details for Builder________________________________________________________________
 std::string _detector;
 bool _data_per_event;
-std::string _data_prefix;
+std::string _data_name;
 const std::vector<std::string>* _data_keys;
 //----------------------------------------------------------------------------------------------
 
@@ -149,22 +149,22 @@ G4VPhysicalVolume* Builder::Construct() {
 void Builder::ConstructSDandField() {
   if (_detector == "Flat") {
     _data_per_event = Flat::Detector::DataPerEvent;
-    _data_prefix = Flat::Detector::DataPrefix;
+    _data_name = Flat::Detector::DataName;
     _data_keys = &Flat::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Flat::Detector);
   } else if (_detector == "Box") {
     _data_per_event = Box::Detector::DataPerEvent;
-    _data_prefix = Box::Detector::DataPrefix;
+    _data_name = Box::Detector::DataName;
     _data_keys = &Box::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Box::Detector);
   } else if (_detector == "MuonMapper") {
     _data_per_event = MuonMapper::Detector::DataPerEvent;
-    _data_prefix = MuonMapper::Detector::DataPrefix;
+    _data_name = MuonMapper::Detector::DataName;
     _data_keys = &MuonMapper::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new MuonMapper::Detector);
   } else {
     _data_per_event = Prototype::Detector::DataPerEvent;
-    _data_prefix = Prototype::Detector::DataPrefix;
+    _data_name = Prototype::Detector::DataName;
     _data_keys = &Prototype::Detector::DataKeys;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
@@ -206,8 +206,8 @@ bool Builder::IsDetectorDataPerEvent() {
 //----------------------------------------------------------------------------------------------
 
 //__Get Current Detector Data Prefix____________________________________________________________
-const std::string& Builder::GetDetectorDataPrefix() {
-  return _data_prefix;
+const std::string& Builder::GetDetectorDataName() {
+  return _data_name;
 }
 //----------------------------------------------------------------------------------------------
 

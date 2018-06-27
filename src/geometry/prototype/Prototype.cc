@@ -45,17 +45,17 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 
 //__Encoding/Decoding Maps______________________________________________________________________
 G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
-G4ThreadLocal std::unordered_map<std::string, int>           _encoding;
+G4ThreadLocal std::unordered_map<std::string, double>        _encoding;
 G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Prototype Data Variables____________________________________________________________________
-const std::string& Detector::DataPrefix = "event";
-const std::vector<std::string>& Detector::DataKeys = {
+const std::string& Detector::DataName = "event";
+const std::vector<std::string>& Detector::DataKeys{
   "Deposit", "Time", "Detector",
-  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ", "D_PMT"};
+  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ" /*, "D_PMT"*/};
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -113,14 +113,15 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto history     = track->GetTouchable()->GetHistory();
   const auto name        = history->GetTopVolume()->GetName();
   const auto post_step   = step->GetPostStepPoint();
-  const auto global_time = post_step->GetGlobalTime();
-  const auto position    = post_step->GetPosition();
-  const auto energy      = post_step->GetTotalEnergy();
-  const auto momentum    = post_step->GetMomentum();
+
+  const auto global_time = post_step->GetGlobalTime()  / Units::Time;
+  const auto position    = post_step->GetPosition()    / Units::Length;
+  const auto energy      = post_step->GetTotalEnergy() / Units::Energy;
+  const auto momentum    = post_step->GetMomentum()    / Units::Momentum;
 
   _hit_collection->insert(
     new Tracking::Hit(
-      particle->GetParticleName(),
+      particle,
       trackID,
       track->GetParentID(),
       name,
@@ -130,7 +131,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
   const auto detector_id = static_cast<double>(EncodeDetector(name));
 
-  Scintillator::PMTPoint pmt_point = {0, 0, 0};
+  Scintillator::PMTPoint pmt_point{0, 0, 0};
   if (detector_id < 100) {
     const auto sci = _sci_map[name];
 
@@ -148,13 +149,14 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     const auto& r3 = volume3->GetObjectRotationValue();
     const auto& r4 = volume4->GetObjectRotationValue();
 
-    const auto& translation = r4 * (r3 * (r2 * (t1) + t2) + t3) + t4;
-    const auto& rotation = (r4*r3*r2).inverse();
+    const auto translation = r4 * (r3 * (r2 * (t1) + t2) + t3) + t4;
+    const auto rotation = (r4*r3*r2).inverse();
 
     if (sci)
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
 
+  /*
   Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
     deposit      / Units::Energy,
     global_time  / Units::Time,
@@ -169,6 +171,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     momentum.y() / Units::Momentum,
     momentum.z() / Units::Momentum,
     pmt_point.r  / Units::Length});
+    */
 
   return true;
 }
@@ -178,6 +181,27 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 /*! \brief Print data from Hit Collection
 */
 void Detector::EndOfEvent(G4HCofThisEvent*) {
+  if (_hit_collection->GetSize() == 0)
+    return;
+
+  const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection, _encoding);
+
+  Analysis::ROOT::DataEntryList hit_data;
+  hit_data.reserve(12);
+  hit_data.push_back(collection_data[4]);
+  hit_data.push_back(collection_data[5]);
+  hit_data.push_back(collection_data[3]);
+  hit_data.push_back(collection_data[0]);
+  hit_data.push_back(collection_data[1]);
+  hit_data.push_back(collection_data[6]);
+  hit_data.push_back(collection_data[7]);
+  hit_data.push_back(collection_data[8]);
+  hit_data.push_back(collection_data[9]);
+  hit_data.push_back(collection_data[10]);
+  hit_data.push_back(collection_data[11]);
+  hit_data.push_back(collection_data[12]);
+
+  Analysis::ROOT::FillNTuple(DataName, hit_data);
   if (verboseLevel >= 2 && _hit_collection)
     std::cout << *_hit_collection;
 }
