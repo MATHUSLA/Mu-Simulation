@@ -52,7 +52,7 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Prototype Data Variables____________________________________________________________________
-const std::string& Detector::DataName = "event";
+const std::string& Detector::DataName = "prototype_run";
 const std::vector<std::string>& Detector::DataKeys{
   "Deposit", "Time", "Detector",
   "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ" /*, "D_PMT"*/};

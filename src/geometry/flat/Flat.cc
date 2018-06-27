@@ -37,7 +37,7 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Flat Data Variables_________________________________________________________________________
-const std::string& Detector::DataName = "event";
+const std::string& Detector::DataName = "flat_run";
 const std::vector<std::string>& Detector::DataKeys{
   "Deposit", "Time", "Detector",
   "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ"};

@@ -102,7 +102,6 @@ bool CreateNTuple(const std::string& name,
   _ntuple_data.insert({name, data});
   auto& list = _ntuple_data[name];
 
-  // std::cout << "SUCCESS: " << manager->CreateNtupleDColumn(id, "N") << "\n";
   manager->CreateNtupleDColumn(id, "N");
   for (std::size_t i = 0; i < size; ++i)
     manager->CreateNtupleDColumn(id, columns[i], list[i]);
