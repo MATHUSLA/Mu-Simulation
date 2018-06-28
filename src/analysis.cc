@@ -67,13 +67,15 @@ G4ThreadLocal std::unordered_map<std::string, int> _ntuple;
 G4ThreadLocal std::unordered_map<std::string, DataEntryList> _ntuple_data;
 //----------------------------------------------------------------------------------------------
 
+
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Setup ROOT Analysis Tool____________________________________________________________________
 void Setup() {
   _ntuple.clear();
   delete G4AnalysisManager::Instance();
-  G4AnalysisManager::Instance()->SetNtupleMerging(true);
+  G4AnalysisManager::Instance()->SetNtupleMerging(false);
   G4AnalysisManager::Instance()->SetVerboseLevel(0);
 }
 //----------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@
  */
 
 #include "physics/HepMCGenerator.hh"
+
 #include "physics/Units.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -50,7 +51,7 @@ void _add_to_vertex(G4PrimaryVertex* vertex,
 HepMCGenerator::HepMCGenerator(const PropagationList& propagation,
                                bool unique_events)
     : Generator("hepmc", "HepMC ROOT Reader", 0, 0, 0, 0),
-      _propagation_list(propagation), _unique(unique_events) {
+      _reader(nullptr), _propagation_list(propagation), _unique(unique_events) {
   _read_file = CreateCommand<Command::StringArg>("readFile", "Read HepMC ROOT File.");
   _read_file->SetParameterName("file", false);
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -61,7 +62,7 @@ HepMCGenerator::HepMCGenerator(const PropagationList& propagation,
 void HepMCGenerator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _read_file) {
     if (_reader) {
-      _reader->close();
+      //_reader->close();
       delete _reader;
     }
     _reader = new HepMC::ReaderRoot(value);
