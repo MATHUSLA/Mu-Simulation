@@ -1,6 +1,9 @@
 /det/select Prototype
-# /gen/select hepmc
+/gen/select basic
 
-# /gen/hepmc/readFile sample.root
+/gen/basic/ke 100 GeV
 
-/run/beamOn 10000
+/run/beamOn 100
+/run/beamOn 100
+/run/beamOn 100
+/run/beamOn 100

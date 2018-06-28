@@ -106,7 +106,7 @@ public:
   void EndOfEvent(G4HCofThisEvent*);
 
   static const bool DataPerEvent = true;
-  static const std::string& DataPrefix;
+  static const std::string& DataName;
   static const std::vector<std::string>& DataKeys;
 
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);

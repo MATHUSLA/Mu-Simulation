@@ -63,7 +63,7 @@ public:
 
   static const std::string& GetDetectorName();
   static bool IsDetectorDataPerEvent();
-  static const std::string& GetDetectorDataPrefix();
+  static const std::string& GetDetectorDataName();
   static const std::vector<std::string>& GetDetectorDataKeys();
 
 private:

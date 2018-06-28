@@ -21,6 +21,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include <Geant4/g4root.hh>
 
@@ -126,6 +127,13 @@ bool Open(const std::string& path);
 bool Save();
 //----------------------------------------------------------------------------------------------
 
+//__Data Entry Types____________________________________________________________________________
+using DataEntryValueType = double;
+using DataEntry = std::vector<DataEntryValueType>;
+using DataEntryList = std::vector<DataEntry>;
+using NameToDataMap = std::unordered_map<std::string, DataEntryValueType>;
+//----------------------------------------------------------------------------------------------
+
 //__NTuple Initializer__________________________________________________________________________
 bool CreateNTuple(const std::string& name,
                   const std::vector<std::string>& columns);
@@ -133,19 +141,7 @@ bool CreateNTuple(const std::string& name,
 
 //__Add Data to NTuple__________________________________________________________________________
 bool FillNTuple(const std::string& name,
-                const std::vector<double>& values);
-//----------------------------------------------------------------------------------------------
-
-//__Add Data to NTuple__________________________________________________________________________
-bool FillNTuple(const std::string& prefix,
-                const size_t id,
-                const std::vector<double>& values);
-//----------------------------------------------------------------------------------------------
-
-//__NTuple Collection Initializer_______________________________________________________________
-bool GenerateNTupleCollection(const size_t count,
-                              const std::string& prefix,
-                              const std::vector<std::string>& columns);
+                const DataEntryList& values);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace ROOT */ /////////////////////////////////////////////////////////////////////////

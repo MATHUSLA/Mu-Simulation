@@ -29,6 +29,9 @@
 #include <Geant4/G4Step.hh>
 #include <Geant4/G4HCofThisEvent.hh>
 #include <Geant4/G4VSensitiveDetector.hh>
+#include <Geant4/G4ParticleDefinition.hh>
+
+#include "analysis.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -49,7 +52,7 @@ using HitCollection = G4THitsCollection<Hit>;
 //__Hit Class Definition________________________________________________________________________
 class Hit : public G4VHit {
 public:
-  Hit(const std::string& particle,
+  Hit(const G4ParticleDefinition* particle,
       const int track,
       const int parent,
       const std::string& chamber,
@@ -63,13 +66,14 @@ public:
   void Print(std::ostream& os=std::cout) const;
   void Print();
 
-  const std::string&     GetParticleName() const { return _particle;  }
-  int                    GetTrackID()      const { return _trackID;   }
-  int                    GetParentID()     const { return _parentID;  }
-  const std::string&     GetChamberID()    const { return _chamberID; }
-  double                 GetDeposit()      const { return _deposit;   }
-  const G4LorentzVector& GetPosition()     const { return _position;  }
-  const G4LorentzVector& GetMomentum()     const { return _momentum;  }
+  const std::string&     GetParticleName() const { return _particle->GetParticleName(); }
+  int                    GetPDGEncoding()  const { return _particle->GetPDGEncoding();  }
+  int                    GetTrackID()      const { return _trackID;                     }
+  int                    GetParentID()     const { return _parentID;                    }
+  const std::string&     GetChamberID()    const { return _chamberID;                   }
+  double                 GetDeposit()      const { return _deposit;                     }
+  const G4LorentzVector& GetPosition()     const { return _position;                    }
+  const G4LorentzVector& GetMomentum()     const { return _momentum;                    }
 
   bool operator==(const Hit& rhs) const {
     return this == &rhs;
@@ -85,11 +89,11 @@ public:
   }
 
 private:
-  std::string     _particle;
-  int             _trackID;
-  int             _parentID;
-  std::string     _chamberID;
-  double          _deposit;
+  const G4ParticleDefinition* _particle;
+  int _trackID;
+  int _parentID;
+  std::string _chamberID;
+  double _deposit;
   G4LorentzVector _position;
   G4LorentzVector _momentum;
 };
@@ -108,6 +112,11 @@ std::ostream& operator<<(std::ostream& os,
 //__Add Hit Collection to Detector______________________________________________________________
 HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
                                      G4HCofThisEvent* event);
+//----------------------------------------------------------------------------------------------
+
+//__Convert HitCollection to Analysis Form______________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
+                                                      const Analysis::ROOT::NameToDataMap& map);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////
