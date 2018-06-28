@@ -17,8 +17,6 @@
 
 #include "analysis.hh"
 
-#include <unordered_map>
-
 #include <ROOT/TFile.h>
 #include <ROOT/TNamed.h>
 
@@ -66,8 +64,6 @@ G4ThreadLocal std::unordered_map<std::string, int> _ntuple;
 //__NTuple Data Storage_________________________________________________________________________
 G4ThreadLocal std::unordered_map<std::string, DataEntryList> _ntuple_data;
 //----------------------------------------------------------------------------------------------
-
-
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 

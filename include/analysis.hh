@@ -20,7 +20,6 @@
 #define MU__ANALYSIS_HH
 #pragma once
 
-#include <valarray>
 #include <vector>
 #include <unordered_map>
 
