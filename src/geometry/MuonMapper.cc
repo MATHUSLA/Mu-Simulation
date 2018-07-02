@@ -23,8 +23,10 @@ auto Stopper = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
 
 //__MuonMapper Data Variables___________________________________________________________________
 const std::string& Detector::DataName = "mu_map";
-const std::vector<std::string>& Detector::DataKeys{
+const Analysis::ROOT::DataKeyList Detector::DataKeys{
   "R", "logB"};
+const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes{
+  Analysis::ROOT::DataKeyType::Single, Analysis::ROOT::DataKeyType::Single};
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________
@@ -50,7 +52,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     const auto process = pre_step->GetProcessDefinedStep();
     const auto process_name = process->GetProcessName();
     if (process_name == "Transportation" && track->GetVolume() == track->GetNextVolume()) {
-      const auto kinetic = track->GetKineticEnergy() / GeV;
+      const auto kinetic = track->GetKineticEnergy() / MeV; // from GeV correction
       /*
       Analysis::ROOT::FillNTuple(DataPrefix, 0, {
         (track->GetPosition() - G4ThreeVector(0, 0, 100*m)).mag() / m,

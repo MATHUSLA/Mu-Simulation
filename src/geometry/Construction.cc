@@ -48,7 +48,8 @@ const auto _nist = G4NistManager::Instance();
 std::string _detector;
 bool _data_per_event;
 std::string _data_name;
-const std::vector<std::string>* _data_keys;
+const Analysis::ROOT::DataKeyList* _data_keys;
+const Analysis::ROOT::DataKeyTypeList* _data_key_types;
 //----------------------------------------------------------------------------------------------
 
 //__Detector List_______________________________________________________________________________
@@ -60,16 +61,16 @@ const std::string& _detectors = "Prototype Flat Box MuonMapper";
 namespace Construction { ///////////////////////////////////////////////////////////////////////
 
 //__Construction Materials______________________________________________________________________
-auto Material::H = _nist->FindOrBuildElement("H");
-auto Material::C = _nist->FindOrBuildElement("C");
-auto Material::N = _nist->FindOrBuildElement("N");
-auto Material::O = _nist->FindOrBuildElement("O");
-auto Material::F = _nist->FindOrBuildElement("F");
-auto Material::S = _nist->FindOrBuildElement("S");
-auto Material::Ar = _nist->FindOrBuildElement("Ar");
-auto Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
-auto Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
-auto Material::Iron = _nist->FindOrBuildMaterial("G4_Fe");
+G4Element* Material::H = _nist->FindOrBuildElement("H");
+G4Element* Material::C = _nist->FindOrBuildElement("C");
+G4Element* Material::N = _nist->FindOrBuildElement("N");
+G4Element* Material::O = _nist->FindOrBuildElement("O");
+G4Element* Material::F = _nist->FindOrBuildElement("F");
+G4Element* Material::S = _nist->FindOrBuildElement("S");
+G4Element* Material::Ar = _nist->FindOrBuildElement("Ar");
+G4Material* Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
+G4Material* Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
+G4Material* Material::Iron = _nist->FindOrBuildMaterial("G4_Fe");
 //----------------------------------------------------------------------------------------------
 
 //__Detector Messenger Directory Path___________________________________________________________
@@ -151,21 +152,25 @@ void Builder::ConstructSDandField() {
     _data_per_event = Flat::Detector::DataPerEvent;
     _data_name = Flat::Detector::DataName;
     _data_keys = &Flat::Detector::DataKeys;
+    _data_key_types = &Flat::Detector::DataKeyTypes;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Flat::Detector);
   } else if (_detector == "Box") {
     _data_per_event = Box::Detector::DataPerEvent;
     _data_name = Box::Detector::DataName;
     _data_keys = &Box::Detector::DataKeys;
+    _data_key_types = &Box::Detector::DataKeyTypes;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Box::Detector);
   } else if (_detector == "MuonMapper") {
     _data_per_event = MuonMapper::Detector::DataPerEvent;
     _data_name = MuonMapper::Detector::DataName;
     _data_keys = &MuonMapper::Detector::DataKeys;
+    _data_key_types = &MuonMapper::Detector::DataKeyTypes;
     G4SDManager::GetSDMpointer()->AddNewDetector(new MuonMapper::Detector);
   } else {
     _data_per_event = Prototype::Detector::DataPerEvent;
     _data_name = Prototype::Detector::DataName;
     _data_keys = &Prototype::Detector::DataKeys;
+    _data_key_types = &Prototype::Detector::DataKeyTypes;
     G4SDManager::GetSDMpointer()->AddNewDetector(new Prototype::Detector);
   }
 }
@@ -212,8 +217,14 @@ const std::string& Builder::GetDetectorDataName() {
 //----------------------------------------------------------------------------------------------
 
 //__Get Current Detector Data Keys______________________________________________________________
-const std::vector<std::string>& Builder::GetDetectorDataKeys() {
+const Analysis::ROOT::DataKeyList& Builder::GetDetectorDataKeys() {
   return *_data_keys;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Detector Data Key Types_________________________________________________________
+const Analysis::ROOT::DataKeyTypeList& Builder::GetDetectorDataKeyTypes() {
+  return *_data_key_types;
 }
 //----------------------------------------------------------------------------------------------
 

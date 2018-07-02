@@ -271,7 +271,7 @@ std::ostream& Generator::Print(std::ostream& os) const {
 //----------------------------------------------------------------------------------------------
 
 //__Generator Specifications____________________________________________________________________
-Analysis::SimSettingList Generator::GetSpecification() const {
+const Analysis::SimSettingList Generator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
     "",        _name,
     "_PDG_ID", std::to_string(_id),
@@ -282,6 +282,40 @@ Analysis::SimSettingList Generator::GetSpecification() const {
     "_P_UNIT", "(" + std::to_string(_p_unit.x()) + ", "
                    + std::to_string(_p_unit.y()) + ", "
                    + std::to_string(_p_unit.z()) + ")");
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generator Gen Particle Data_________________________________________________________________
+const Analysis::ROOT::DataEntryList Generator::GetGenParticleData() const {
+  constexpr const std::size_t column_count = 11UL;
+
+  Analysis::ROOT::DataEntryList out;
+  out.reserve(column_count);
+
+  const auto size = 1;
+  for (std::size_t i = 0; i < column_count; ++i) {
+    Analysis::ROOT::DataEntry entry;
+    entry.reserve(size);
+    out.push_back(entry);
+  }
+
+  for (std::size_t i = 0; i < size; ++i) {
+    out[0].push_back(_id);
+    out[1].push_back(1);
+    out[2].push_back(0);
+    out[3].push_back(0);
+    out[4].push_back(0);
+    out[5].push_back(0);
+    out[6].push_back(-100 * m / Units::Length);
+    out[7].push_back((_ke + _mass) / Units::Energy);
+
+    const auto momentum = GetMomentum(_mass, _ke, _p_unit);
+    out[8].push_back(momentum.x() / Units::Momentum);
+    out[9].push_back(momentum.y() / Units::Momentum);
+    out[10].push_back(momentum.z() / Units::Momentum);
+  }
+
+  return out;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -411,7 +445,7 @@ std::ostream& RangeGenerator::Print(std::ostream& os) const {
 //----------------------------------------------------------------------------------------------
 
 //__RangeGenerator Specifications_______________________________________________________________
-Analysis::SimSettingList RangeGenerator::GetSpecification() const {
+const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
     "",        _name,
     "_PDG_ID",  std::to_string(_id),
@@ -421,6 +455,12 @@ Analysis::SimSettingList RangeGenerator::GetSpecification() const {
     "_ETA_MAX", std::to_string(_eta_min),
     "_PHI_MIN", std::to_string(_phi_min / Units::Angle) + " " + Units::AngleString,
     "_PHI_MAX", std::to_string(_phi_min / Units::Angle) + " " + Units::AngleString);
+}
+//----------------------------------------------------------------------------------------------
+
+//__RangeGenerator Gen Particle Data____________________________________________________________
+const Analysis::ROOT::DataEntryList RangeGenerator::GetGenParticleData() const {
+  return Generator::GetGenParticleData();
 }
 //----------------------------------------------------------------------------------------------
 

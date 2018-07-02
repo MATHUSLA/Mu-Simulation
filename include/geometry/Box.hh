@@ -19,8 +19,7 @@
 #define MU__GEOMETRY_BOX_HH
 #pragma once
 
-#include "Geant4/G4VSensitiveDetector.hh"
-
+#include "analysis.hh"
 #include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -72,7 +71,8 @@ public:
 
   static const bool DataPerEvent = true;
   static const std::string& DataName;
-  static const std::vector<std::string>& DataKeys;
+  static const Analysis::ROOT::DataKeyList DataKeys;
+  static const Analysis::ROOT::DataKeyTypeList DataKeyTypes;
 
   static G4VPhysicalVolume* Construct(G4LogicalVolume* world);
   static G4VPhysicalVolume* ConstructEarth(G4LogicalVolume* world);

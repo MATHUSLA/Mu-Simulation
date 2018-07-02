@@ -103,7 +103,8 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
   Analysis::ROOT::Open(_prefix + _temp_path);
   Analysis::ROOT::CreateNTuple(
     Construction::Builder::GetDetectorDataName(),
-    Construction::Builder::GetDetectorDataKeys());
+    Construction::Builder::GetDetectorDataKeys(),
+    Construction::Builder::GetDetectorDataKeyTypes());
 }
 //----------------------------------------------------------------------------------------------
 

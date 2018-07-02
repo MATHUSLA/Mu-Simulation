@@ -53,9 +53,8 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 
 //__Prototype Data Variables____________________________________________________________________
 const std::string& Detector::DataName = "prototype_run";
-const std::vector<std::string>& Detector::DataKeys{
-  "Deposit", "Time", "Detector",
-  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ" /*, "D_PMT"*/};
+const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
+const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -129,8 +128,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       G4LorentzVector(global_time, position),
       G4LorentzVector(energy, momentum)));
 
-  const auto detector_id = static_cast<double>(EncodeDetector(name));
-
+  /* FIXME: add back to data
   Scintillator::PMTPoint pmt_point{0, 0, 0};
   if (detector_id < 100) {
     const auto sci = _sci_map[name];
@@ -155,23 +153,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     if (sci)
       pmt_point = Scintillator::PMTDistance(position, sci, translation, rotation);
   }
-
-  /*
-  Analysis::ROOT::FillNTuple(DataPrefix, EventAction::EventID(), {
-    deposit      / Units::Energy,
-    global_time  / Units::Time,
-    detector_id,
-    static_cast<double>(particle->GetPDGEncoding()),
-    static_cast<double>(trackID),
-    position.x() / Units::Length,
-    position.y() / Units::Length,
-    position.z() / Units::Length,
-    energy       / Units::Energy,
-    momentum.x() / Units::Momentum,
-    momentum.y() / Units::Momentum,
-    momentum.z() / Units::Momentum,
-    pmt_point.r  / Units::Length});
-    */
+  */
 
   return true;
 }
@@ -186,22 +168,31 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
 
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection, _encoding);
 
-  Analysis::ROOT::DataEntryList hit_data;
-  hit_data.reserve(12);
-  hit_data.push_back(collection_data[4]);
-  hit_data.push_back(collection_data[5]);
-  hit_data.push_back(collection_data[3]);
-  hit_data.push_back(collection_data[0]);
-  hit_data.push_back(collection_data[1]);
-  hit_data.push_back(collection_data[6]);
-  hit_data.push_back(collection_data[7]);
-  hit_data.push_back(collection_data[8]);
-  hit_data.push_back(collection_data[9]);
-  hit_data.push_back(collection_data[10]);
-  hit_data.push_back(collection_data[11]);
-  hit_data.push_back(collection_data[12]);
+  Analysis::ROOT::DataEntryList root_data;
+  root_data.reserve(24);
+  root_data.push_back(collection_data[4]);
+  root_data.push_back(collection_data[5]);
+  root_data.push_back(collection_data[3]);
+  root_data.push_back(collection_data[0]);
+  root_data.push_back(collection_data[1]);
+  root_data.push_back(collection_data[2]);
+  root_data.push_back(collection_data[6]);
+  root_data.push_back(collection_data[7]);
+  root_data.push_back(collection_data[8]);
+  root_data.push_back(collection_data[9]);
+  root_data.push_back(collection_data[10]);
+  root_data.push_back(collection_data[11]);
+  root_data.push_back(collection_data[12]);
 
-  Analysis::ROOT::FillNTuple(DataName, hit_data);
+  const auto& gen_particle_data = GeneratorAction::GetGenerator()->GetGenParticleData();
+  root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
+
+  Analysis::ROOT::DataEntry metadata;
+  metadata.reserve(2);
+  metadata.push_back(collection_data[0].size());
+  metadata.push_back(gen_particle_data[0].size());
+
+  Analysis::ROOT::FillNTuple(DataName, Detector::DataKeyTypes, metadata, root_data);
   if (verboseLevel >= 2 && _hit_collection)
     std::cout << *_hit_collection;
 }

@@ -39,6 +39,9 @@ public:
   void SetNewValue(G4UIcommand* command, G4String value);
   void GeneratePrimaryVertex(G4Event* event);
 
+  // TODO: virtual const Analysis::SimSettingList GetSpecification() const;
+  // TODO: virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
+
 protected:
   HepMC::ReaderRoot* _reader;
   PropagationList _propagation_list;
