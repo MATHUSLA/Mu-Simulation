@@ -303,10 +303,12 @@ const Analysis::ROOT::DataEntryList Generator::GetGenParticleData() const {
     out[0].push_back(_id);
     out[1].push_back(1);
     out[2].push_back(0);
-    out[3].push_back(0);
-    out[4].push_back(0);
-    out[5].push_back(0);
-    out[6].push_back(-100 * m / Units::Length);
+
+    const auto default_vertex = DefaultVertex();
+    out[3].push_back(default_vertex->GetT0() / Units::Time);
+    out[4].push_back(default_vertex->GetX0() / Units::Length);
+    out[5].push_back(default_vertex->GetY0() / Units::Length);
+    out[6].push_back(default_vertex->GetZ0() / Units::Length);
     out[7].push_back((_ke + _mass) / Units::Energy);
 
     const auto momentum = GetMomentum(_mass, _ke, _p_unit);

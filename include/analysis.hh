@@ -141,7 +141,7 @@ static const DataKeyList DefaultDataKeyList{
   "Deposit", "Time", "Detector",
   "PDG", "Track", "Parent", "X", "Y", "Z", "E", "PX", "PY", "PZ",
   "N_GEN",
-  "GEN_PDG", "GEN_TRACK", "GEN_PARENT",
+  "GEN_PDG", "GEN_Track", "GEN_Parent",
   "GEN_T", "GEN_X", "GEN_Y", "GEN_Z", "GEN_E", "GEN_PX", "GEN_PY", "GEN_PZ"
 };
 static const DataKeyTypeList DefaultDataKeyTypeList{
