@@ -132,16 +132,64 @@ using DataEntryValueType = double;
 using DataEntry = std::vector<DataEntryValueType>;
 using DataEntryList = std::vector<DataEntry>;
 using NameToDataMap = std::unordered_map<std::string, DataEntryValueType>;
+using DataKey = std::string;
+using DataKeyList = std::vector<DataKey>;
+enum class DataKeyType { Single, Vector };
+using DataKeyTypeList = std::vector<DataKeyType>;
+static const DataKeyList DefaultDataKeyList{
+  "N_HITS",
+  "Deposit", "Time", "Detector",
+  "PDG", "Track", "Parent", "X", "Y", "Z", "E", "PX", "PY", "PZ",
+  "N_GEN",
+  "GEN_PDG", "GEN_Track", "GEN_Parent",
+  "GEN_T", "GEN_X", "GEN_Y", "GEN_Z", "GEN_E", "GEN_PX", "GEN_PY", "GEN_PZ"
+};
+static const DataKeyTypeList DefaultDataKeyTypeList{
+  DataKeyType::Single,
+
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+
+  DataKeyType::Single,
+
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector
+};
 //----------------------------------------------------------------------------------------------
 
 //__NTuple Initializer__________________________________________________________________________
 bool CreateNTuple(const std::string& name,
-                  const std::vector<std::string>& columns);
+                  const DataKeyList& columns,
+                  const DataKeyTypeList& types);
 //----------------------------------------------------------------------------------------------
 
 //__Add Data to NTuple__________________________________________________________________________
 bool FillNTuple(const std::string& name,
-                const DataEntryList& values);
+                const DataKeyTypeList& types,
+                const DataEntry& single_values,
+                const DataEntryList& vector_values);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace ROOT */ /////////////////////////////////////////////////////////////////////////

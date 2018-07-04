@@ -128,7 +128,8 @@ public:
   const std::string& GetName() const { return _name; }
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
-  virtual Analysis::SimSettingList GetSpecification() const;
+  virtual const Analysis::SimSettingList GetSpecification() const;
+  virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
 
   static const std::string MessengerDirectory;
   static const std::string SimSettingPrefix;
@@ -193,7 +194,8 @@ public:
   double phi_max() const { return _phi_max; }
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
-  virtual Analysis::SimSettingList GetSpecification() const;
+  virtual const Analysis::SimSettingList GetSpecification() const;
+  virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
 
 protected:
   double _pT_min;

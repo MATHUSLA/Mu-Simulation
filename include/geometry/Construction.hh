@@ -19,16 +19,18 @@
 #define MU__GEOMETRY_CONSTRUCTION_HH
 #pragma once
 
-#include "Geant4/G4VUserDetectorConstruction.hh"
-#include "Geant4/G4LogicalVolume.hh"
-#include "Geant4/G4VPhysicalVolume.hh"
-#include "Geant4/G4VisAttributes.hh"
-#include "Geant4/G4Transform3D.hh"
-#include "Geant4/G4Box.hh"
-#include "Geant4/G4Trap.hh"
-#include "Geant4/G4Material.hh"
-#include "Geant4/G4SystemOfUnits.hh"
+#include <Geant4/G4VSensitiveDetector.hh>
+#include <Geant4/G4VUserDetectorConstruction.hh>
+#include <Geant4/G4LogicalVolume.hh>
+#include <Geant4/G4VPhysicalVolume.hh>
+#include <Geant4/G4VisAttributes.hh>
+#include <Geant4/G4Transform3D.hh>
+#include <Geant4/G4Box.hh>
+#include <Geant4/G4Trap.hh>
+#include <Geant4/G4Material.hh>
+#include <Geant4/G4SystemOfUnits.hh>
 
+#include "analysis.hh"
 #include "ui.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -64,7 +66,8 @@ public:
   static const std::string& GetDetectorName();
   static bool IsDetectorDataPerEvent();
   static const std::string& GetDetectorDataName();
-  static const std::vector<std::string>& GetDetectorDataKeys();
+  static const Analysis::ROOT::DataKeyList& GetDetectorDataKeys();
+  static const Analysis::ROOT::DataKeyTypeList& GetDetectorDataKeyTypes();
 
 private:
   Command::NoArg*     _list;

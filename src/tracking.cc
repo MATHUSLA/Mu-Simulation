@@ -163,7 +163,7 @@ HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
 //__Convert HitCollection to Analysis Form______________________________________________________
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
                                                       const Analysis::ROOT::NameToDataMap& map) {
-  constexpr std::size_t column_count = 13UL;
+  constexpr const std::size_t column_count = 13UL;
 
   Analysis::ROOT::DataEntryList out;
   out.reserve(column_count);

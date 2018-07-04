@@ -71,6 +71,9 @@ public:
   void SetPythia(std::vector<std::string> settings);
   Pythia8::Particle* FindParticle(Pythia8::Event& event) const;
 
+  // TODO: virtual const Analysis::SimSettingList GetSpecification() const;
+  // TODO: virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
+
 private:
   Pythia8::Pythia* _pythia;
   std::vector<std::string> _pythia_settings;

@@ -47,9 +47,8 @@ constexpr auto half_detector_height = 0.5 * full_detector_height;
 
 //__Box Data Variables__________________________________________________________________________
 const std::string& Detector::DataName = "box_run";
-const std::vector<std::string>& Detector::DataKeys{
-  "Deposit", "Time", "Detector",
-  "PDG", "Track", "X", "Y", "Z", "E", "PX", "PY", "PZ"};
+const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
+const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________

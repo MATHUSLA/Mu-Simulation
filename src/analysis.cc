@@ -90,19 +90,31 @@ bool Save() {
 
 //__Create ROOT NTuple__________________________________________________________________________
 bool CreateNTuple(const std::string& name,
-                  const std::vector<std::string>& columns) {
+                  const DataKeyList& columns,
+                  const DataKeyTypeList& types) {
   const auto manager = G4AnalysisManager::Instance();
   const auto id = manager->CreateNtuple(name, name);
   const auto size = columns.size();
 
+  std::size_t vector_count{};
+  for (const auto& type : types) {
+    if (type == DataKeyType::Vector)
+      ++vector_count;
+  }
+
   DataEntryList data;
-  data.resize(size, {});
+  data.resize(vector_count, {});
   _ntuple_data.insert({name, data});
   auto& list = _ntuple_data[name];
 
-  manager->CreateNtupleDColumn(id, "N");
-  for (std::size_t i = 0; i < size; ++i)
-    manager->CreateNtupleDColumn(id, columns[i], list[i]);
+  for (std::size_t index{}, vector_index{}; index < size; ++index) {
+    if (types[index] == DataKeyType::Vector) {
+      manager->CreateNtupleDColumn(id, columns[index], list[vector_index++]);
+    } else {
+      manager->CreateNtupleDColumn(id, columns[index]);
+    }
+  }
+
   manager->FinishNtuple(id);
   return _ntuple.insert({name, id}).second;
 }
@@ -110,25 +122,31 @@ bool CreateNTuple(const std::string& name,
 
 //__Fill ROOT NTuple____________________________________________________________________________
 bool FillNTuple(const std::string& name,
-                const DataEntryList& values) {
-  const auto size = values.size();
-  if (size == 0)
-    return false;
+                const DataKeyTypeList& types,
+                const DataEntry& single_values,
+                const DataEntryList& vector_values) {
 
   const auto search = _ntuple.find(name);
   if (search == _ntuple.cend())
     return false;
 
   auto& data = _ntuple_data[name];
-  if (data.size() != size)
+  const auto vector_size = vector_values.size();
+  if (data.size() != vector_size)
     return false;
 
-  for (size_t i = 0; i < size; ++i)
-    data[i] = values[i];
+  for (std::size_t i{}; i < vector_size; ++i)
+    data[i] = vector_values[i];
 
   const auto id = search->second;
   const auto manager = G4AnalysisManager::Instance();
-  manager->FillNtupleDColumn(id, 0, data[0].size());
+  const auto size = types.size();
+  for (std::size_t index{}, single_index{}; index < size; ++index) {
+    if (types[index] == DataKeyType::Single) {
+      manager->FillNtupleDColumn(id, index, single_values[single_index++]);
+    }
+  }
+
   manager->AddNtupleRow(id);
   return true;
 }
