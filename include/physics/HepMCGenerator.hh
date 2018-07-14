@@ -21,6 +21,7 @@
 #pragma once
 
 #include <HepMC/HepMC.h>
+#include <HepMC/ReaderAscii.h>
 #include <HepMC/ReaderRoot.h>
 
 #include "physics/Generator.hh"
@@ -43,7 +44,9 @@ public:
   // TODO: virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
 
 protected:
-  HepMC::ReaderRoot* _reader;
+  // TODO: union { HepMC::ReaderAscii* ascii; HepMC::ReaderRoot* root; } _reader;
+  HepMC::ReaderAscii* _reader;
+  bool _using_root_reader;
   PropagationList _propagation_list;
   HepMC::GenEvent _current_event;
   bool _unique;

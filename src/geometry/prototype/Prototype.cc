@@ -124,7 +124,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
       trackID,
       track->GetParentID(),
       name,
-      deposit,
+      deposit / Units::Energy,
       G4LorentzVector(global_time, position),
       G4LorentzVector(energy, momentum)));
 
