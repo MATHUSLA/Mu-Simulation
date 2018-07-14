@@ -38,9 +38,9 @@ void _add_to_vertex(G4PrimaryVertex* vertex,
                     const std::vector<HepMC::GenParticlePtr>& particles) {
   for (const auto& particle : particles) {
     const auto momentum = _to_G4ThreeVector(particle->momentum());
-    if (InPropagationList(propagation, particle->pid(), momentum)) {
+    // if (InPropagationList(propagation, particle->pid(), momentum)) {
       vertex->SetPrimary(CreateParticle(particle->pid(), momentum));
-    }
+    // }
   }
 }
 //----------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void HepMCGenerator::SetNewValue(G4UIcommand* command, G4String value) {
       //_reader->close();
       delete _reader;
     }
-    _reader = new HepMC::ReaderRoot(value);
+    _reader = new HepMC::ReaderAscii(value);
   }
 }
 //----------------------------------------------------------------------------------------------
