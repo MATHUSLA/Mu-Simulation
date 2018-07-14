@@ -65,7 +65,7 @@ void HepMCGenerator::SetNewValue(G4UIcommand* command, G4String value) {
       //_reader->close();
       delete _reader;
     }
-    _reader = new HepMC::ReaderRoot(value);
+    _reader = new HepMC::ReaderAscii(value);
   }
 }
 //----------------------------------------------------------------------------------------------
