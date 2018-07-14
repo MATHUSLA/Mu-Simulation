@@ -59,15 +59,17 @@ Hit::Hit(const G4Step* step,
   _trackID   = track->GetTrackID();
   _parentID  = track->GetParentID();
   _chamberID = track->GetTouchable()->GetHistory()->GetTopVolume()->GetName();
-  _deposit   = step->GetTotalEnergyDeposit();
-  _position  = G4LorentzVector(step_point->GetGlobalTime(), step_point->GetPosition());
-  _momentum  = G4LorentzVector(step_point->GetTotalEnergy(), step_point->GetMomentum());
+  _deposit   = step->GetTotalEnergyDeposit()                / Units::Energy;
+  _position  = G4LorentzVector(step_point->GetGlobalTime()  / Units::Time,
+                               step_point->GetPosition()    / Units::Length);
+  _momentum  = G4LorentzVector(step_point->GetTotalEnergy() / Units::Energy,
+                               step_point->GetMomentum()    / Units::Momentum);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Draw Hit in World___________________________________________________________________________
 void Hit::Draw() {
-  Vis::Draw(Vis::Circle(_position.vect(), 4, G4Color::White()));
+  Vis::Draw(Vis::Circle(_position.vect() * Units::Length, 4, G4Color::White()));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -80,17 +82,17 @@ void Hit::Print(std::ostream& os) const {
      << " | "          << _trackID
      << " | "          << _parentID
      << " | "          << _chamberID
-     << " | Deposit: " << std::setw(WIDTH) << G4BestUnit(_deposit, "Energy")
+     << " | Deposit: " << std::setw(WIDTH) << G4BestUnit(_deposit * Units::Energy, "Energy")
      << " | ["
-      << std::setw(WIDTH) << G4BestUnit(_position.t(), "Time") << " "
-      << std::setw(WIDTH) << G4BestUnit(_position.x(), "Length")
-      << std::setw(WIDTH) << G4BestUnit(_position.y(), "Length")
-      << std::setw(WIDTH) << G4BestUnit(_position.z(), "Length")
+      << std::setw(WIDTH) << G4BestUnit(_position.t() * Units::Time, "Time") << " "
+      << std::setw(WIDTH) << G4BestUnit(_position.x() * Units::Length, "Length")
+      << std::setw(WIDTH) << G4BestUnit(_position.y() * Units::Length, "Length")
+      << std::setw(WIDTH) << G4BestUnit(_position.z() * Units::Length, "Length")
     << "] | ["
-      << std::setw(WIDTH) << G4BestUnit(_momentum.e(),  "Energy")
-      << std::setw(WIDTH) << G4BestUnit(_momentum.px(), "Momentum")
-      << std::setw(WIDTH) << G4BestUnit(_momentum.py(), "Momentum")
-      << std::setw(WIDTH) << G4BestUnit(_momentum.pz(), "Momentum")
+      << std::setw(WIDTH) << G4BestUnit(_momentum.e()  * Units::Energy,  "Energy")
+      << std::setw(WIDTH) << G4BestUnit(_momentum.px() * Units::Momentum, "Momentum")
+      << std::setw(WIDTH) << G4BestUnit(_momentum.py() * Units::Momentum, "Momentum")
+      << std::setw(WIDTH) << G4BestUnit(_momentum.pz() * Units::Momentum, "Momentum")
     << " ]"
     << "\n";
 }
