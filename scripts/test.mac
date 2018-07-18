@@ -1,9 +1,9 @@
 /det/select Prototype
-/gen/select basic
 
-/gen/basic/ke 100 GeV
+/gen/select pythia
+/gen/pythia/readFile .temp/mathusla_test.cmnd
 
-/run/beamOn 100
-/run/beamOn 100
-/run/beamOn 100
-/run/beamOn 100
+# /gen/select basic
+# /gen/basic/ke 100 GeV
+
+/run/beamOn 1

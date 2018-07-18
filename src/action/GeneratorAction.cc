@@ -51,7 +51,11 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       13, 60*GeVperC, 0.1, 5*deg);
 
   _gen_map["pythia"] = new Physics::PythiaGenerator(
-      -13, 60*GeVperC, 0.5, 10*deg, {
+      { {-13, {60*GeVperC,  3, 0},
+              {60*GeVperC, -3, 0}},
+        {13,  {60*GeVperC,  3, 0},
+              {60*GeVperC, -3, 0}} },
+      {
           "Print:quiet = on",
           "Next:numberCount = 10000",
           "Stat:showErrors = off",
@@ -61,11 +65,9 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onIfAny = 13"
       });
 
-  _gen_map["hepmc"] = new Physics::HepMCGenerator({
-      {13,
-        {60*GeVperC, 0.5, 10*deg},
-        {60*GeVperC, -0.5, -10*deg}}
-    });
+  _gen_map["hepmc"] = new Physics::HepMCGenerator(
+      {{13, {60*GeVperC, 0.5, 10*deg},
+           {60*GeVperC, -0.5, -10*deg}}});
 
   std::string generators;
   for (const auto& element : _gen_map) {
@@ -96,7 +98,8 @@ void GeneratorAction::GeneratePrimaries(G4Event* event) {
 //----------------------------------------------------------------------------------------------
 
 //__Generator Action Messenger Set Value________________________________________________________
-void GeneratorAction::SetNewValue(G4UIcommand* command, G4String value) {
+void GeneratorAction::SetNewValue(G4UIcommand* command,
+                                  G4String value) {
   if (command == _select) {
     SetGenerator(value);
   } else if (command == _list) {

@@ -56,11 +56,15 @@ add_executable(simulation
     src/physics/Generator.cc
     src/physics/HepMCGenerator.cc
     src/physics/PythiaGenerator.cc
+    src/physics/RangeGenerator.cc
 
     src/tracking.cc
 
     src/util/command_line_parser.cc
 )
+
+target_compile_features(simulation PUBLIC cxx_std_14)
+target_compile_options(simulation PUBLIC -Wno-missing-braces)
 
 target_link_libraries(simulation PUBLIC
     ${Geant4_LIBRARIES}

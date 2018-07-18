@@ -89,6 +89,12 @@ void HepMCGenerator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Get PythiaGenerator Specifications__________________________________________________________
+const Analysis::SimSettingList HepMCGenerator::GetSpecification() const {
+  return {};
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

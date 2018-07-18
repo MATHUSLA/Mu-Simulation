@@ -162,9 +162,12 @@ HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
 }
 //----------------------------------------------------------------------------------------------
 
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
 //__Convert HitCollection to Analysis Form______________________________________________________
-const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
-                                                      const Analysis::ROOT::NameToDataMap& map) {
+template<class NameMap>
+const Analysis::ROOT::DataEntryList _convert_to_analysis(const HitCollection* collection,
+                                                         NameMap name_map) {
   constexpr const std::size_t column_count = 13UL;
 
   Analysis::ROOT::DataEntryList out;
@@ -177,16 +180,12 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* colle
     out.push_back(entry);
   }
 
-  const auto map_end = map.cend();
   for (std::size_t i = 0; i < size; ++i) {
     const auto hit = dynamic_cast<Hit*>(collection->GetHit(i));
     out[0].push_back(hit->GetPDGEncoding());
     out[1].push_back(hit->GetTrackID());
     out[2].push_back(hit->GetParentID());
-
-    const auto search = map.find(hit->GetChamberID());
-    out[3].push_back(search != map_end ? search->second : -1);
-
+    out[3].push_back(name_map(hit->GetChamberID()));
     out[4].push_back(hit->GetDeposit());
     out[5].push_back(hit->GetPosition().t());
     out[6].push_back(hit->GetPosition().x());
@@ -196,6 +195,71 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* colle
     out[10].push_back(hit->GetMomentum().px());
     out[11].push_back(hit->GetMomentum().py());
     out[12].push_back(hit->GetMomentum().pz());
+  }
+
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__Convert HitCollection to Analysis Form______________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection) {
+  return _convert_to_analysis(collection, [](const auto& id) { return std::stold(id); });
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert HitCollection to Analysis Form______________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
+                                                      const Analysis::ROOT::NameToDataMap& map) {
+  const auto map_end = map.cend();
+  return _convert_to_analysis(collection, [&](const auto& id) {
+    const auto search = map.find(id);
+    return search != map_end ? search->second : -1;
+  });
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert G4Event to Analysis Form____________________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event) {
+  constexpr const std::size_t column_count = 11UL;
+
+  Analysis::ROOT::DataEntryList out;
+  out.reserve(column_count);
+
+  std::size_t size{};
+  const auto vertex_count = event->GetNumberOfPrimaryVertex();
+  for (auto i = 0; i < vertex_count; ++i)
+    size += event->GetPrimaryVertex(i)->GetNumberOfParticle();
+
+  for (std::size_t i{}; i < column_count; ++i) {
+    Analysis::ROOT::DataEntry entry;
+    entry.reserve(size);
+    out.push_back(entry);
+  }
+
+  for (auto i = 0; i < vertex_count; ++i) {
+    const auto vertex = event->GetPrimaryVertex(i);
+    const auto vertex_size = vertex->GetNumberOfParticle();
+    for (auto j = 0; j < vertex_size; ++j) {
+      const auto primary = vertex->GetPrimary(j);
+
+      out[0].push_back(primary->GetPDGcode());
+      out[1].push_back(primary->GetTrackID());
+      out[2].push_back(0);
+
+      out[3].push_back(vertex->GetT0() / Units::Time);
+      out[4].push_back(vertex->GetX0() / Units::Length);
+      out[5].push_back(vertex->GetY0() / Units::Length);
+      out[6].push_back(vertex->GetZ0() / Units::Length);
+      out[7].push_back(primary->GetTotalEnergy() / Units::Energy);
+
+      const auto momentum = primary->GetMomentum();
+      out[8].push_back(momentum.x() / Units::Momentum);
+      out[9].push_back(momentum.y() / Units::Momentum);
+      out[10].push_back(momentum.z() / Units::Momentum);
+
+    }
   }
 
   return out;

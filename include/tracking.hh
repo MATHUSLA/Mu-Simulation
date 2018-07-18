@@ -27,6 +27,7 @@
 #include <Geant4/G4LorentzVector.hh>
 #include <Geant4/G4VHit.hh>
 #include <Geant4/G4Step.hh>
+#include <Geant4/G4Event.hh>
 #include <Geant4/G4HCofThisEvent.hh>
 #include <Geant4/G4VSensitiveDetector.hh>
 #include <Geant4/G4ParticleDefinition.hh>
@@ -115,8 +116,16 @@ HitCollection* GenerateHitCollection(G4VSensitiveDetector* detector,
 //----------------------------------------------------------------------------------------------
 
 //__Convert HitCollection to Analysis Form______________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection);
+//----------------------------------------------------------------------------------------------
+
+//__Convert HitCollection to Analysis Form______________________________________________________
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* collection,
                                                       const Analysis::ROOT::NameToDataMap& map);
+//----------------------------------------------------------------------------------------------
+
+//__Convert G4Event to Analysis Form____________________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////
