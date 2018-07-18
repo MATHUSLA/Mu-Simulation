@@ -90,12 +90,14 @@ RangeGenerator::RangeGenerator(const std::string& name,
 
 //__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
+  /* TODO: fix
   auto vertex = DefaultVertex();
   _pT  = G4MTRandFlat::shoot(_pT_min, _pT_max);
   _eta = G4MTRandFlat::shoot(_eta_min, _eta_max);
   _phi = G4MTRandFlat::shoot(_phi_min, _phi_max);
   vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
   event->AddPrimaryVertex(vertex);
+  */
 }
 //----------------------------------------------------------------------------------------------
 
