@@ -18,7 +18,7 @@ G4LogicalVolume* _box;
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 namespace Material { ///////////////////////////////////////////////////////////////////////////
-auto Stopper = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+G4Material* Stopper = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
 //__MuonMapper Data Variables___________________________________________________________________

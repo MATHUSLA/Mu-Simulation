@@ -126,7 +126,12 @@ void RunAction::EndOfRunAction(const G4Run*) {
 
       TTree* tree = chain;
       file->cd();
-      tree->CloneTree()->Write();
+      auto clone_tree = tree->CloneTree();
+      if (clone_tree) {
+        clone_tree->Write();
+      } else {
+
+      }
       delete chain;
 
       util::io::remove_file(_prefix + _temp_path);
@@ -152,6 +157,12 @@ void RunAction::EndOfRunAction(const G4Run*) {
     }
   }
   lock.unlock();
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Current Run_____________________________________________________________________________
+const G4Run* RunAction::GetRun() {
+  return G4RunManager::GetRunManager()->GetCurrentRun();
 }
 //----------------------------------------------------------------------------------------------
 

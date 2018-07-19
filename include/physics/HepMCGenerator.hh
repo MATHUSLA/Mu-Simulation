@@ -40,8 +40,7 @@ public:
   void SetNewValue(G4UIcommand* command, G4String value);
   void GeneratePrimaryVertex(G4Event* event);
 
-  // TODO: virtual const Analysis::SimSettingList GetSpecification() const;
-  // TODO: virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
+  virtual const Analysis::SimSettingList GetSpecification() const;
 
 protected:
   // TODO: union { HepMC::ReaderAscii* ascii; HepMC::ReaderRoot* root; } _reader;

@@ -150,7 +150,6 @@ static const DataKeyTypeList DefaultDataKeyTypeList{
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,
-
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,
@@ -167,7 +166,6 @@ static const DataKeyTypeList DefaultDataKeyTypeList{
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,
-
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,

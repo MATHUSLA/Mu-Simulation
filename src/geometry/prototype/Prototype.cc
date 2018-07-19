@@ -58,8 +58,6 @@ const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::D
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
-/*! \brief Creates Detector and Assigns sensitive volumes
-*/
 Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
   collectionName.insert("Prototype_HC");
   for (auto envelope : _envelopes) {
@@ -87,16 +85,12 @@ Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
 //----------------------------------------------------------------------------------------------
 
 //__Initalize Event_____________________________________________________________________________
-/*! \brief Initialzes Prototype Hit Collection
-*/
 void Detector::Initialize(G4HCofThisEvent* event) {
   _hit_collection = Tracking::GenerateHitCollection(this, event);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Hit Processing______________________________________________________________________________
-/*! \brief Collects Data from Hit and Stores in ROOT Ntuple and Geant4 Hit Collection
-*/
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto deposit = step->GetTotalEnergyDeposit();
 
@@ -160,8 +154,6 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 //----------------------------------------------------------------------------------------------
 
 //__Post-Event Processing_______________________________________________________________________
-/*! \brief Print data from Hit Collection
-*/
 void Detector::EndOfEvent(G4HCofThisEvent*) {
   if (_hit_collection->GetSize() == 0)
     return;
@@ -184,7 +176,7 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   root_data.push_back(collection_data[11]);
   root_data.push_back(collection_data[12]);
 
-  const auto& gen_particle_data = GeneratorAction::GetGenerator()->GetGenParticleData();
+  const auto gen_particle_data = Tracking::ConvertToAnalysis(EventAction::GetEvent());
   root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
 
   Analysis::ROOT::DataEntry metadata;
@@ -199,24 +191,18 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
 //----------------------------------------------------------------------------------------------
 
 //__Detector Encoding___________________________________________________________________________
-/*! \brief Returns encoding generated at construction
-*/
 int Detector::EncodeDetector(const std::string& name) {
   return _encoding[name];
 }
 //----------------------------------------------------------------------------------------------
 
 //__Detector Decoding___________________________________________________________________________
-/*! \brief Returns decoding generated at construction
-*/
 const std::string Detector::DecodeDetector(int id) {
   return _decoding[id];
 }
 //----------------------------------------------------------------------------------------------
 
 //__Build Detector______________________________________________________________________________
-/*! \brief Builds Scintillator, Envelope, RPC, and Layers for the Prototype Sensitive Detector
-*/
 G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   Scintillator::Material::Define();
   RPC::Material::Define();

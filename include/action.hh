@@ -47,6 +47,7 @@ class EventAction : public G4UserEventAction {
 public:
   EventAction(const size_t print_modulo);
   void BeginOfEventAction(const G4Event* event);
+  static const G4Event* GetEvent();
   static size_t EventID();
 };
 //----------------------------------------------------------------------------------------------
@@ -57,6 +58,7 @@ public:
   RunAction(const std::string& data_dir="");
   void BeginOfRunAction(const G4Run* run);
   void EndOfRunAction(const G4Run*);
+  static const G4Run* GetRun();
   static size_t RunID();
   static size_t EventCount();
 };

@@ -42,6 +42,9 @@ struct ParticleCut {
   bool matches(const int particle_id,
                const G4ThreeVector& momentum) const;
   bool matches(const G4ThreeVector& momentum) const;
+  bool matches(const int particle_id,
+               const PseudoLorentzTriplet& triplet) const;
+  bool matches(const PseudoLorentzTriplet& triplet) const;
 };
 //----------------------------------------------------------------------------------------------
 
@@ -55,6 +58,11 @@ bool InPropagationList(const PropagationList& list,
                        const G4ThreeVector& momentum);
 bool InPropagationList(const PropagationList& list,
                        const G4ThreeVector& momentum);
+bool InPropagationList(const PropagationList& list,
+                       const int particle_id,
+                       const PseudoLorentzTriplet& triplet);
+bool InPropagationList(const PropagationList& list,
+                       const PseudoLorentzTriplet& triplet);
 //----------------------------------------------------------------------------------------------
 
 //__Get Mass of Particle from ID________________________________________________________________
@@ -77,6 +85,28 @@ const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet);
 
 //__Default Vertex for IP_______________________________________________________________________
 G4PrimaryVertex* DefaultVertex();
+//----------------------------------------------------------------------------------------------
+
+//__Generate Primary Vertex_____________________________________________________________________
+G4PrimaryVertex* Vertex(const double x,
+                        const double y,
+                        const double z);
+//----------------------------------------------------------------------------------------------
+
+//__Generate Primary Vertex_____________________________________________________________________
+G4PrimaryVertex* Vertex(const double t,
+                        const double x,
+                        const double y,
+                        const double z);
+//----------------------------------------------------------------------------------------------
+
+//__Generate Primary Vertex_____________________________________________________________________
+G4PrimaryVertex* Vertex(const G4ThreeVector& vertex);
+//----------------------------------------------------------------------------------------------
+
+//__Generate Primary Vertex_____________________________________________________________________
+G4PrimaryVertex* Vertex(const double t,
+                        const G4ThreeVector& vertex);
 //----------------------------------------------------------------------------------------------
 
 //__Create Particle from ID and Momentum________________________________________________________
@@ -112,6 +142,38 @@ public:
             const double ke,
             const G4ThreeVector& p_unit);
 
+  Generator(const std::string& name,
+            const std::string& description,
+            const int id,
+            const double pT,
+            const double eta,
+            const double phi,
+            const G4ThreeVector& vertex);
+
+  Generator(const std::string& name,
+            const std::string& description,
+            const int id,
+            const double ke,
+            const G4ThreeVector& p_unit,
+            const G4ThreeVector& vertex);
+
+  Generator(const std::string& name,
+            const std::string& description,
+            const int id,
+            const double pT,
+            const double eta,
+            const double phi,
+            const double t0,
+            const G4ThreeVector& vertex);
+
+  Generator(const std::string& name,
+            const std::string& description,
+            const int id,
+            const double ke,
+            const G4ThreeVector& p_unit,
+            const double t0,
+            const G4ThreeVector& vertex);
+
   virtual ~Generator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
@@ -129,12 +191,14 @@ public:
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual const Analysis::SimSettingList GetSpecification() const;
-  virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
 
   static const std::string MessengerDirectory;
   static const std::string SimSettingPrefix;
 
 protected:
+  Generator(const std::string& name,
+            const std::string& description);
+
   std::string _name;
   std::string _description;
 
@@ -149,14 +213,19 @@ protected:
 
   bool _using_pt_eta_phi;
 
+  double _t0;
+  G4ThreeVector _vertex;
+
   void GenerateCommands();
 
-  Command::IntegerArg*     _ui_id;
-  Command::DoubleUnitArg*  _ui_pT;
-  Command::DoubleArg*      _ui_eta;
-  Command::DoubleUnitArg*  _ui_phi;
-  Command::DoubleUnitArg*  _ui_ke;
-  Command::ThreeVectorArg* _ui_p;
+  Command::IntegerArg*         _ui_id;
+  Command::DoubleUnitArg*      _ui_pT;
+  Command::DoubleArg*          _ui_eta;
+  Command::DoubleUnitArg*      _ui_phi;
+  Command::DoubleUnitArg*      _ui_ke;
+  Command::ThreeVectorArg*     _ui_p;
+  Command::DoubleUnitArg*      _ui_t0;
+  Command::ThreeVectorUnitArg* _ui_vertex;
 };
 //----------------------------------------------------------------------------------------------
 
@@ -195,7 +264,6 @@ public:
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual const Analysis::SimSettingList GetSpecification() const;
-  virtual const Analysis::ROOT::DataEntryList GetGenParticleData() const;
 
 protected:
   double _pT_min;
