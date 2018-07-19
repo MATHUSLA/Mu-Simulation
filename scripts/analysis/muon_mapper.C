@@ -51,6 +51,13 @@ long double calc_distance(std::string vector_string) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Calculate Boost_____________________________________________________________________________
+long double boost(const long double kinetic,
+                  const long double mass) {
+  return std::sqrt(kinetic*kinetic + 2*kinetic*mass) / mass;
+}
+//----------------------------------------------------------------------------------------------
+
 //__Get Histogram Title_________________________________________________________________________
 const std::string hist_title(const long long distance,
                              const long long energy) {
@@ -97,17 +104,45 @@ void muon_mapper(const char* dir) {
       const auto distance = std::llround(calc_distance(data_file->Get(MOMENTUM_UNIT)->GetTitle()));
 
       auto tree = static_cast<TTree*>(data_file->Get(MUON_MAP_TREE_KEY));
-      if (!tree) continue;
-
+      if (!tree)
+        continue;
+    
+      // correction based on incorrect entry on MuonMapper
+      constexpr auto muon_mass = 105.658369L;
+      auto true_tree = new TTree("corrected_logB_tree", "corrected_logB_tree");
+      Double_t logB, old_logB;
+      true_tree->Branch("logB", &logB);
+      tree->SetBranchStatus("R", 0); // disable corrupt branch
+      tree->SetBranchAddress("logB", &old_logB);
+      long double max_K = 0, min_K = energy * 1000.0L;
+      const auto size = tree->GetEntries();
+      for (int i = 0; i < size; ++i) {
+        tree->GetEntry(i);
+        const auto B = std::pow(10.0L, old_logB);
+        const auto K = muon_mass * (std::sqrt(1 + B*B) - 1) * 1000.0L; // <- scale factor
+        min_K = std::min(K, min_K);
+        max_K = std::max(K, max_K);
+        logB = std::log10(boost(K, muon_mass));
+        true_tree->Fill();
+      }
+      
+      true_tree->Write();
+      
+      const auto min_log_boost = size == 0 ? -1.0L : std::floor(std::log10(boost(min_K, muon_mass)));
+      const auto max_log_boost = size == 0 ?  4.0L : std::ceil(std::log10(boost(max_K, muon_mass)));
+      const auto width = 0.025L;
+      const auto bins = std::llround((max_log_boost - min_log_boost) / width);
       auto mu_map_hist = new TH1D(
         HISTOGRAM_NAME.c_str(),
         hist_title(distance, energy).c_str(),
-        100,
-        -1.0L, 4.0L);
+        bins,
+        min_log_boost,
+        max_log_boost);
 
-      if (!mu_map_hist) continue;
+      if (!mu_map_hist)
+        continue;
 
-      tree->Draw(("logB >> " + HISTOGRAM_NAME).c_str(), "", "goff");
+      true_tree->Draw(("logB >> " + HISTOGRAM_NAME).c_str(), "", "goff");
 
       mu_map_hist->Scale(1.0L / event_count);
       mu_map_hist->GetXaxis()->SetTitle("log10(Boost)");
@@ -116,8 +151,8 @@ void muon_mapper(const char* dir) {
 
       std::cout << "Added Histogram:\n"
                 << "  Event Count: " << event_count << "\n"
-                << "  Initial KE:  " << energy      << "\n"
-                << "  Distance:    " << distance    << "\n"
+                << "  Initial KE:  " << energy      << " GeV\n"
+                << "  Distance:    " << distance    << " m\n"
                 << "  Efficiency:  " << efficiency(mu_map_hist, event_count) << "\n";
 
       helper::to_csv(csv_path(path, event_count), mu_map_hist);
