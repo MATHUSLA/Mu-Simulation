@@ -38,7 +38,7 @@ constexpr auto scintillator_height           = 1*cm;
 constexpr auto scintillator_casing_thickness = 0.1*cm;
 
 constexpr auto layer_spacing = 1.5*m;
-constexpr auto layer_count   = 3;
+constexpr auto layer_count   = 5;
 
 constexpr auto full_detector_height = steel_height + layer_count * (layer_spacing + scintillator_height);
 constexpr auto half_detector_height = 0.5 * full_detector_height;
