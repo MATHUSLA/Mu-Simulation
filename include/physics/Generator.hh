@@ -35,10 +35,29 @@ namespace Physics { ////////////////////////////////////////////////////////////
 struct PseudoLorentzTriplet { double pT, eta, phi; };
 //----------------------------------------------------------------------------------------------
 
+//__Equality Between Pseudo Lorentz Triplet_____________________________________________________
+constexpr bool operator==(const PseudoLorentzTriplet& left,
+                          const PseudoLorentzTriplet& right) {
+  return left.pT == right.pT && left.eta == right.eta && left.phi == right.phi;
+}
+//----------------------------------------------------------------------------------------------
+
 //__Cut on Particle_____________________________________________________________________________
 struct ParticleCut {
   int id;
   PseudoLorentzTriplet min, max;
+
+  ParticleCut() = default;
+  ParticleCut(const int particle_id,
+              const PseudoLorentzTriplet& min_value,
+              const PseudoLorentzTriplet& max_value)
+    : id(particle_id), min(min_value), max(max_value) {}
+  ParticleCut(const PseudoLorentzTriplet& min_value,
+              const PseudoLorentzTriplet& max_value)
+    : ParticleCut(-1, min_value, max_value) {}
+
+  const std::string to_string() const;
+
   bool matches(const int particle_id,
                const G4ThreeVector& momentum) const;
   bool matches(const G4ThreeVector& momentum) const;
@@ -46,6 +65,20 @@ struct ParticleCut {
                const PseudoLorentzTriplet& triplet) const;
   bool matches(const PseudoLorentzTriplet& triplet) const;
 };
+//----------------------------------------------------------------------------------------------
+
+//__Equality Between Cuts_______________________________________________________________________
+constexpr bool operator==(const ParticleCut& left,
+                          const ParticleCut& right) {
+  return left.id == right.id && left.min == right.min && left.max == right.max;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Stream Cut Object___________________________________________________________________________
+inline std::ostream& operator<<(std::ostream& os,
+                                const ParticleCut& cut) {
+  return os << cut.to_string();
+}
 //----------------------------------------------------------------------------------------------
 
 //__List of Particles to Propagate______________________________________________________________
@@ -63,6 +96,10 @@ bool InPropagationList(const PropagationList& list,
                        const PseudoLorentzTriplet& triplet);
 bool InPropagationList(const PropagationList& list,
                        const PseudoLorentzTriplet& triplet);
+//----------------------------------------------------------------------------------------------
+
+//__Parse Propagation List from String__________________________________________________________
+const PropagationList ParsePropagationList(const std::string& cut_string);
 //----------------------------------------------------------------------------------------------
 
 //__Get Mass of Particle from ID________________________________________________________________
@@ -216,7 +253,7 @@ protected:
   double _t0;
   G4ThreeVector _vertex;
 
-  void GenerateCommands();
+  virtual void GenerateCommands();
 
   Command::IntegerArg*         _ui_id;
   Command::DoubleUnitArg*      _ui_pT;
@@ -249,6 +286,46 @@ public:
                  const double phi_min,
                  const double phi_max);
 
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
+                 const int id,
+                 const double pT,
+                 const double eta,
+                 const double phi,
+                 const G4ThreeVector& vertex);
+
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
+                 const int id,
+                 const double pT_min,
+                 const double pT_max,
+                 const double eta_min,
+                 const double eta_max,
+                 const double phi_min,
+                 const double phi_max,
+                 const G4ThreeVector& vertex);
+
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
+                 const int id,
+                 const double pT,
+                 const double eta,
+                 const double phi,
+                 const double t0,
+                 const G4ThreeVector& vertex);
+
+  RangeGenerator(const std::string& name,
+                 const std::string& description,
+                 const int id,
+                 const double pT_min,
+                 const double pT_max,
+                 const double eta_min,
+                 const double eta_max,
+                 const double phi_min,
+                 const double phi_max,
+                 const double t0,
+                 const G4ThreeVector& vertex);
+
   virtual ~RangeGenerator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
@@ -272,6 +349,8 @@ protected:
   double _eta_max;
   double _phi_min;
   double _phi_max;
+
+  virtual void GenerateCommands();
 
   Command::DoubleUnitArg* _ui_pT_min;
   Command::DoubleUnitArg* _ui_pT_max;

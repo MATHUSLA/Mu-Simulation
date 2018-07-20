@@ -19,12 +19,15 @@
 #include "physics/Generator.hh"
 
 #include <cmath>
+#include <limits>
 #include <ostream>
 
 #include <Geant4/Randomize.hh>
 #include <Geant4/G4ParticleTable.hh>
 
 #include "physics/Units.hh"
+
+#include "util/string.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -53,10 +56,47 @@ bool ParticleCut::matches(const int particle_id,
 //__Check if Particle Matches the Cut___________________________________________________________
 bool ParticleCut::matches(const PseudoLorentzTriplet& triplet) const {
   bool match_pT = true, match_eta = true, match_phi = true;
-  if (min.pT && max.pT) match_pT = (triplet.pT <= max.pT) && (triplet.pT >= min.pT);
-  if (min.eta && max.eta) match_eta = (triplet.eta <= max.eta) && (triplet.eta >= min.eta);
-  if (min.phi && max.phi) match_phi = (triplet.phi <= max.phi) && (triplet.phi >= min.phi);
+  if (min.pT || max.pT) match_pT = (triplet.pT <= max.pT) && (triplet.pT >= min.pT);
+  if (min.eta || max.eta) match_eta = (triplet.eta <= max.eta) && (triplet.eta >= min.eta);
+  if (min.phi || max.phi) match_phi = (triplet.phi <= max.phi) && (triplet.phi >= min.phi);
   return match_pT && match_eta && match_phi;
+}
+//----------------------------------------------------------------------------------------------
+
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Convert Particle Cut Part to String_________________________________________________________
+void _cut_values_to_string(std::string& out,
+                           const double min,
+                           const double max,
+                           const double unit,
+                           const std::string& unit_string) {
+  static const auto inf = std::numeric_limits<double>::infinity();
+  if ((min || max) && !(min == -inf && max == inf)) {
+    out.push_back(' ');
+    if (min != -inf)
+      out += std::to_string(min / unit);
+    out.push_back(':');
+    if (max != inf)
+      out += std::to_string(max / unit);
+    out += " " + unit_string;
+  } else {
+    out += " ";
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__Convert Particle Cut to String______________________________________________________________
+const std::string ParticleCut::to_string() const {
+  auto out = "[ " + std::to_string(id) + " |";
+  _cut_values_to_string(out, min.pT, max.pT, Units::Momentum, Units::MomentumString);
+  out += "|";
+  _cut_values_to_string(out, min.eta, max.eta, 1, "");
+  out += "|";
+  _cut_values_to_string(out, min.phi, max.phi, Units::Angle, Units::AngleString);
+  return out + " ]";
 }
 //----------------------------------------------------------------------------------------------
 
@@ -86,6 +126,99 @@ bool InPropagationList(const PropagationList& list,
   for (const auto& cut : list)
     if (cut.matches(triplet)) return true;
   return false;
+}
+//----------------------------------------------------------------------------------------------
+
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Set the Propagation Variables_______________________________________________________________
+bool _set_propagation_limits(double& min,
+                             double& max,
+                             std::string substring,
+                             const std::vector<std::string>& possible_unit_strings,
+                             const std::vector<double>& possible_units) {
+  if (util::string::strip(substring).empty())
+    return true;
+
+  std::vector<std::string> cuts;
+  util::string::split(substring, cuts, ":");
+  const auto size = cuts.size();
+
+  double unit{1.0L};
+  for (std::size_t i{}; i < possible_unit_strings.size(); ++i) {
+    if (substring.rfind(possible_unit_strings[i]) != std::string::npos)
+      unit = possible_units[i];
+  }
+
+  try {
+    if (size == 1UL) {
+      if (!cuts[0].empty()) {
+        if (substring[0] == ':') {
+          min = -std::numeric_limits<double>::infinity() * unit;
+          max = std::stold(cuts[0]) * unit;
+          return true;
+        } else if (substring[substring.size() - 1UL] == ':') {
+          min = std::stold(cuts[0]) * unit;
+          max = std::numeric_limits<double>::infinity() * unit;
+          return true;
+        }
+      }
+    } else if (size == 2UL) {
+      min = std::stold(cuts[0]) * unit;
+      max = std::stold(cuts[1]) * unit;
+      return true;
+    }
+  } catch (...) {}
+  return false;
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__Parse Propagation List from String__________________________________________________________
+const PropagationList ParsePropagationList(const std::string& cut_string) {
+  std::vector<std::string> tokens;
+  util::string::split(util::string::strip(cut_string), tokens, "|");
+
+  if (tokens.size() != 4)
+    return PropagationList{};
+
+  PropagationList out;
+  std::vector<std::string> particles;
+  util::string::split(util::string::strip(tokens[0]), particles, ",");
+  out.reserve(std::min(1UL, particles.size()));
+
+  static const std::vector<std::string> momentum_unit_strings{"GeV/c", "MeV/c", "keV/c", "eV/c" };
+  static const std::vector<double>      momentum_units{        GeVperC, MeVperC, keVperC, eVperC};
+  static const std::vector<std::string> angle_unit_strings{"rad", "deg"};
+  static const std::vector<double>      angle_units{        rad,   deg };
+
+  double min_pT{}, max_pT{}, min_eta{}, max_eta{}, min_phi{}, max_phi{};
+
+  try {
+    if (!_set_propagation_limits(min_pT,  max_pT,  tokens[1], momentum_unit_strings, momentum_units)
+        || !_set_propagation_limits(min_eta, max_eta, tokens[2], {}, {})
+        || !_set_propagation_limits(min_phi, max_phi, tokens[3], angle_unit_strings, angle_units))
+      return PropagationList{};
+
+    const PseudoLorentzTriplet min{min_pT, min_eta, min_phi};
+    const PseudoLorentzTriplet max{max_pT, max_eta, max_phi};
+
+    for (auto& particle : particles) {
+      util::string::strip(particle);
+      if (particle[0] == '-' || particle[0] == '+') {
+        out.emplace_back( std::stol(particle), min, max);
+      } else {
+        out.emplace_back(-std::stol(particle), min, max);
+        out.emplace_back( std::stol(particle), min, max);
+      }
+    }
+
+  } catch (...) {
+    return PropagationList{};
+  }
+
+  return out;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -189,52 +322,6 @@ const std::string Generator::MessengerDirectory = "/gen/";
 const std::string Generator::SimSettingPrefix = "GEN";
 //----------------------------------------------------------------------------------------------
 
-//__Generate UI Commands________________________________________________________________________
-void Generator::GenerateCommands() {
-  _ui_id = CreateCommand<Command::IntegerArg>("id", "Set Particle Id.");
-  _ui_id->SetParameterName("id", false);
-  _ui_id->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_pT = CreateCommand<Command::DoubleUnitArg>("pT", "Set Transverse Momentum.");
-  _ui_pT->SetParameterName("pT", false, false);
-  _ui_pT->SetRange("pT > 0");
-  _ui_pT->SetDefaultUnit("GeV/c");
-  _ui_pT->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
-  _ui_pT->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_eta = CreateCommand<Command::DoubleArg>("eta", "Set Pseudorapidity.");
-  _ui_eta->SetParameterName("eta", false);
-  _ui_eta->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_phi = CreateCommand<Command::DoubleUnitArg>("phi", "Set Semi-Opening Angle.");
-  _ui_phi->SetParameterName("phi", false, false);
-  _ui_phi->SetDefaultUnit("deg");
-  _ui_phi->SetUnitCandidates("degree deg radian rad milliradian mrad");
-  _ui_phi->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_ke = CreateCommand<Command::DoubleUnitArg>("ke", "Set Kinetic Energy.");
-  _ui_ke->SetParameterName("ke", false, false);
-  _ui_ke->SetRange("ke > 0");
-  _ui_ke->SetDefaultUnit("GeV");
-  _ui_ke->SetUnitCandidates("eV keV MeV GeV");
-  _ui_ke->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_p = CreateCommand<Command::ThreeVectorArg>("p_unit", "Set Momentum Direction.");
-  _ui_p->SetParameterName("px", "py", "pz", false, false);
-  _ui_p->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_t0 = CreateCommand<Command::DoubleUnitArg>("t0", "Set Initial Time");
-  _ui_t0->SetParameterName("t0", false, false);
-  _ui_t0->SetDefaultUnit("ns");
-  _ui_t0->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-  _ui_vertex = CreateCommand<Command::ThreeVectorUnitArg>("vertex", "Set Initial Vertex Position");
-  _ui_vertex->SetParameterName("x0", "y0", "z0", false, false);
-  _ui_vertex->SetDefaultUnit("m");
-  _ui_vertex->AvailableForStates(G4State_PreInit, G4State_Idle);
-}
-//----------------------------------------------------------------------------------------------
-
 //__Generator Constructor_______________________________________________________________________
 Generator::Generator(const std::string& name,
                      const std::string& description,
@@ -320,6 +407,52 @@ Generator::Generator(const std::string& name,
                      const std::string& description)
     : G4UImessenger(MessengerDirectory + name + '/', description),
       _name(name), _description(description) {}
+//----------------------------------------------------------------------------------------------
+
+//__Generate UI Commands________________________________________________________________________
+void Generator::GenerateCommands() {
+  _ui_id = CreateCommand<Command::IntegerArg>("id", "Set Particle Id.");
+  _ui_id->SetParameterName("id", false);
+  _ui_id->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_pT = CreateCommand<Command::DoubleUnitArg>("pT", "Set Transverse Momentum.");
+  _ui_pT->SetParameterName("pT", false, false);
+  _ui_pT->SetRange("pT > 0");
+  _ui_pT->SetDefaultUnit("GeV/c");
+  _ui_pT->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
+  _ui_pT->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_eta = CreateCommand<Command::DoubleArg>("eta", "Set Pseudorapidity.");
+  _ui_eta->SetParameterName("eta", false);
+  _ui_eta->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_phi = CreateCommand<Command::DoubleUnitArg>("phi", "Set Semi-Opening Angle.");
+  _ui_phi->SetParameterName("phi", false, false);
+  _ui_phi->SetDefaultUnit("deg");
+  _ui_phi->SetUnitCandidates("degree deg radian rad milliradian mrad");
+  _ui_phi->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_ke = CreateCommand<Command::DoubleUnitArg>("ke", "Set Kinetic Energy.");
+  _ui_ke->SetParameterName("ke", false, false);
+  _ui_ke->SetRange("ke > 0");
+  _ui_ke->SetDefaultUnit("GeV");
+  _ui_ke->SetUnitCandidates("eV keV MeV GeV");
+  _ui_ke->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_p = CreateCommand<Command::ThreeVectorArg>("p_unit", "Set Momentum Direction.");
+  _ui_p->SetParameterName("px", "py", "pz", false, false);
+  _ui_p->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_t0 = CreateCommand<Command::DoubleUnitArg>("t0", "Set Initial Time");
+  _ui_t0->SetParameterName("t0", false, false);
+  _ui_t0->SetDefaultUnit("ns");
+  _ui_t0->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _ui_vertex = CreateCommand<Command::ThreeVectorUnitArg>("vertex", "Set Initial Vertex Position");
+  _ui_vertex->SetParameterName("x0", "y0", "z0", false, false);
+  _ui_vertex->SetDefaultUnit("m");
+  _ui_vertex->AvailableForStates(G4State_PreInit, G4State_Idle);
+}
 //----------------------------------------------------------------------------------------------
 
 //__Generate Initial Particles__________________________________________________________________
