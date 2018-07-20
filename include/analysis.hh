@@ -30,20 +30,16 @@ namespace MATHUSLA { namespace MU {
 namespace Analysis { ///////////////////////////////////////////////////////////////////////////
 
 //__Simulation Setting Key-Value Pair___________________________________________________________
-struct SimSetting { std::string name, text; };
+struct SimSetting {
+  std::string name, text;
+  SimSetting() = default;
+  SimSetting(const std::string& setting_name,
+             const std::string& setting_text) : name(setting_name), text(setting_text) {}
+  SimSetting(const std::string& prefix,
+             const std::string& setting_name,
+             const std::string& setting_text) : name(prefix + setting_name), text(setting_text) {}
+};
 using SimSettingList = std::vector<SimSetting>;
-//----------------------------------------------------------------------------------------------
-
-//__Simulation Setting Pseudo-Constructors______________________________________________________
-inline SimSetting Setting(const std::string& name,
-                          const std::string& text) {
-  return {name, text};
-}
-inline SimSetting Setting(const std::string& prefix,
-                          const std::string& name,
-                          const std::string& text) {
-  return {prefix + name, text};
-}
 //----------------------------------------------------------------------------------------------
 
 namespace detail { /////////////////////////////////////////////////////////////////////////////
@@ -52,13 +48,13 @@ namespace detail { /////////////////////////////////////////////////////////////
 inline void AddSetting(SimSettingList& list,
                        const std::string& name,
                        const std::string& text) {
-  list.push_back(Setting(name, text));
+  list.emplace_back(name, text);
 }
 inline void AddSettingWithPrefix(SimSettingList& list,
                                  const std::string& prefix,
                                  const std::string& name,
                                  const std::string& text) {
-  list.push_back(Setting(prefix, name, text));
+  list.emplace_back(prefix, name, text);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -94,6 +90,9 @@ SimSettingList Settings(const std::string& name,
   detail::AddSetting(out, name, text, rest...);
   return out;
 }
+//----------------------------------------------------------------------------------------------
+
+//__Generate SimSettingList_____________________________________________________________________
 template<class ...Strings>
 SimSettingList Settings(const std::string& prefix,
                         const std::string& name,
@@ -102,6 +101,72 @@ SimSettingList Settings(const std::string& prefix,
   SimSettingList out;
   out.reserve(sizeof...(Strings));
   detail::AddSettingWithPrefix(out, prefix, name, text, rest...);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generate SimSettingList_____________________________________________________________________
+inline SimSettingList Settings(const std::vector<std::string>& names,
+                               const std::vector<std::string>& texts) {
+  const auto name_count = names.size();
+  const auto text_count = texts.size();
+  if (name_count != text_count || name_count == 0UL || text_count == 0UL)
+    return SimSettingList{};
+
+  SimSettingList out;
+  out.reserve(name_count);
+  for (std::size_t i{}; i < name_count; ++i)
+    detail::AddSetting(out, names[i], texts[i]);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generate SimSettingList_____________________________________________________________________
+inline SimSettingList Settings(const std::string& prefix,
+                               const std::vector<std::string>& names,
+                               const std::vector<std::string>& texts) {
+  const auto name_count = names.size();
+  const auto text_count = texts.size();
+  if (name_count != text_count || name_count == 0UL || text_count == 0UL)
+    return SimSettingList{};
+
+  SimSettingList out;
+  out.reserve(name_count);
+  for (std::size_t i{}; i < name_count; ++i)
+    detail::AddSettingWithPrefix(out, prefix, names[i], texts[i]);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generate Indexed SimSettingList_____________________________________________________________
+inline SimSettingList IndexedSettings(const std::string& name,
+                                      const std::vector<std::string>& texts,
+                                      const std::size_t starting_index=0UL) {
+  const auto text_count = texts.size();
+  if (text_count == 0UL)
+    return SimSettingList{};
+
+  SimSettingList out;
+  out.reserve(text_count);
+  for (std::size_t i{}; i < text_count; ++i)
+    detail::AddSetting(out, name + std::to_string(starting_index + i), texts[i]);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generate Indexed SimSettingList_____________________________________________________________
+inline SimSettingList IndexedSettings(const std::string& prefix,
+                                      const std::string& name,
+                                      const std::vector<std::string>& texts,
+                                      const std::size_t starting_index=0UL) {
+  const auto text_count = texts.size();
+  if (text_count == 0UL)
+    return SimSettingList{};
+
+  SimSettingList out;
+  out.reserve(text_count);
+  for (std::size_t i{}; i < text_count; ++i)
+    detail::AddSettingWithPrefix(out, prefix, name + std::to_string(starting_index + i), texts[i]);
   return out;
 }
 //----------------------------------------------------------------------------------------------

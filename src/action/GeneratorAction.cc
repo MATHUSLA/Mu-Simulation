@@ -51,10 +51,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       13, 60*GeVperC, 0.1, 5*deg);
 
   _gen_map["pythia"] = new Physics::PythiaGenerator(
-      { {-13, {60*GeVperC,  3, 0},
-              {60*GeVperC, -3, 0}},
-        {13,  {60*GeVperC,  3, 0},
-              {60*GeVperC, -3, 0}} },
+      {},
       {
           "Print:quiet = on",
           "Next:numberCount = 10000",
@@ -66,8 +63,8 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       });
 
   _gen_map["hepmc"] = new Physics::HepMCGenerator(
-      {{13, {60*GeVperC, 0.5, 10*deg},
-           {60*GeVperC, -0.5, -10*deg}}});
+      {{13, {0, 0, 0},
+            {0, 0, 0}}});
 
   std::string generators;
   for (const auto& element : _gen_map) {

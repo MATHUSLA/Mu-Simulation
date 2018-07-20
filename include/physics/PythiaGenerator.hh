@@ -38,17 +38,21 @@ public:
   PythiaGenerator(const PropagationList& propagation,
                   Pythia8::Pythia* pythia=nullptr);
   PythiaGenerator(const PropagationList& propagation,
-                  std::vector<std::string> settings);
+                  const std::vector<std::string>& settings);
   PythiaGenerator(const PropagationList& propagation,
                   const std::string& path);
+  PythiaGenerator(Pythia8::Pythia* pythia=nullptr);
+  PythiaGenerator(const std::vector<std::string>& settings);
+  PythiaGenerator(const std::string& path);
 
   void GeneratePrimaryVertex(G4Event* event);
   void SetNewValue(G4UIcommand* command, G4String value);
   void SetPythia(Pythia8::Pythia* pythia);
-  void SetPythia(std::vector<std::string> settings);
+  void SetPythia(const std::vector<std::string>& settings);
   void SetPythia(const std::string& path);
 
-  std::vector<Pythia8::Particle> FindParticles(Pythia8::Event& event) const;
+  static std::vector<Pythia8::Particle> FindParticles(Pythia8::Event& event,
+                                                      const PropagationList& list);
 
   virtual const Analysis::SimSettingList GetSpecification() const;
 
@@ -56,6 +60,10 @@ private:
   Pythia8::Pythia* _pythia;
   PropagationList _propagation_list;
   std::vector<std::string> _pythia_settings;
+  bool _settings_on;
+  std::string _path;
+  Command::StringArg* _add_cut;
+  Command::NoArg*     _clear_cuts;
   Command::StringArg* _read_string;
   Command::StringArg* _read_file;
 };
