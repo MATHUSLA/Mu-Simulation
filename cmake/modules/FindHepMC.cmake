@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-find_path(HEPMC_INCLUDE_DIR HepMC/HepMC.h
+find_path(HEPMC_INCLUDE_DIR HepMC/GenEvent.h
     HINTS
         $ENV{HEPMCLOCATION}/include
         ${HEPMCLOCATION}/include
