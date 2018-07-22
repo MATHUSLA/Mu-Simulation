@@ -49,8 +49,10 @@ RangeGenerator::RangeGenerator(const std::string& name,
                                const double phi_min,
                                const double phi_max)
     : Generator(name, description, id, 0, 0, 0),
-      _pT_min(pT_min), _pT_max(pT_max), _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _pT_min(pT_min), _pT_max(pT_max),
+      _eta_min(eta_min), _eta_max(eta_max),
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -80,7 +82,8 @@ RangeGenerator::RangeGenerator(const std::string& name,
     : Generator(name, description, id, 0, 0, 0, vertex),
       _pT_min(pT_min), _pT_max(pT_max),
       _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -112,7 +115,8 @@ RangeGenerator::RangeGenerator(const std::string& name,
     : Generator(name, description, id, 0, 0, 0, t0, vertex),
       _pT_min(pT_min), _pT_max(pT_max),
       _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
