@@ -5,7 +5,7 @@
 /gen/range/t0 0 ns
 /gen/range/vertex 150 0 26 m
 
-/gen/range/pT {energy} GeV/c
+/gen/range/ke {energy} GeV
 
 /gen/range/eta_min -0.499036
 /gen/range/eta_max  0.499036
