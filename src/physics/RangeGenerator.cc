@@ -244,8 +244,7 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
     _ke = std::hypot(conversion.mag(), _mass) - _mass;
     _p_unit = conversion.unit();
   }
-
-
+  
   Generator::SetNewValue(command, value);
 }
 //----------------------------------------------------------------------------------------------
@@ -265,6 +264,9 @@ std::ostream& RangeGenerator::Print(std::ostream& os) const {
             << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
             << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
             << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n  "
+            << "avg ke: "      << G4BestUnit(0.5 * (_ke_min + _ke_max), "Energy")   << "\n    "
+            << "ke min: "      << G4BestUnit(_ke_min, "Energy")                     << "\n    "
+            << "ke max: "      << G4BestUnit(_ke_max, "Energy")                     << "\n  "
             << "vertex: "      << G4BestUnit(_t0, "Time")                           << " "
                                << G4BestUnit(_vertex, "Length")                     << "\n";
 }
@@ -273,7 +275,7 @@ std::ostream& RangeGenerator::Print(std::ostream& os) const {
 //__RangeGenerator Specifications_______________________________________________________________
 const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
-    "",        _name,
+    "",         _name,
     "_PDG_ID",  std::to_string(_id),
     "_PT_MIN",  std::to_string(_pT_min / Units::Momentum) + " " + Units::MomentumString,
     "_PT_MAX",  std::to_string(_pT_max / Units::Momentum) + " " + Units::MomentumString,
@@ -281,6 +283,8 @@ const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
     "_ETA_MAX", std::to_string(_eta_max),
     "_PHI_MIN", std::to_string(_phi_min / Units::Angle) + " " + Units::AngleString,
     "_PHI_MAX", std::to_string(_phi_max / Units::Angle) + " " + Units::AngleString,
+    "_KE_MIN",  std::to_string(_ke_min / Units::Energy) + " " + Units::EnergyString,
+    "_KE_MAX",  std::to_string(_ke_max / Units::Energy) + " " + Units::EnergyString,
     "_VERTEX", "(" + std::to_string(_t0         / Units::Time)   + ", "
                    + std::to_string(_vertex.x() / Units::Length) + ", "
                    + std::to_string(_vertex.y() / Units::Length) + ", "
