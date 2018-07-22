@@ -178,7 +178,7 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
   if (_using_range_ke) {
     _ke = G4MTRandFlat::shoot(_ke_min, _ke_max);
     _p_unit = Convert(PseudoLorentzTriplet{_pT, _eta, _phi}).unit();
-    _pT = Convert(Momentum(_mass, _ke, _p_unit)).pT;
+    _pT = Convert(GetMomentum(_mass, _ke, _p_unit)).pT;
   } else {
     _pT = G4MTRandFlat::shoot(_pT_min, _pT_max);
     const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
@@ -238,13 +238,13 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
 
   if (_using_range_ke) {
     _p_unit = Convert(PseudoLorentzTriplet{_pT, _eta, _phi}).unit();
-    _pT = Convert(Momentum(_mass, _ke, _p_unit)).pT;
+    _pT = Convert(GetMomentum(_mass, _ke, _p_unit)).pT;
   } else {
     const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
     _ke = std::hypot(conversion.mag(), _mass) - _mass;
     _p_unit = conversion.unit();
   }
-  
+
   Generator::SetNewValue(command, value);
 }
 //----------------------------------------------------------------------------------------------
