@@ -338,6 +338,8 @@ public:
   double eta_max() const { return _eta_max; }
   double phi_min() const { return _phi_min; }
   double phi_max() const { return _phi_max; }
+  double ke_min()  const { return _ke_min;  }
+  double ke_max()  const { return _ke_max;  }
 
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual const Analysis::SimSettingList GetSpecification() const;
@@ -350,6 +352,11 @@ protected:
   double _phi_min;
   double _phi_max;
 
+  double _ke_min;
+  double _ke_max;
+
+  bool _using_range_ke;
+
   virtual void GenerateCommands();
 
   Command::DoubleUnitArg* _ui_pT_min;
@@ -358,6 +365,8 @@ protected:
   Command::DoubleArg*     _ui_eta_max;
   Command::DoubleUnitArg* _ui_phi_min;
   Command::DoubleUnitArg* _ui_phi_max;
+  Command::DoubleUnitArg* _ui_ke_min;
+  Command::DoubleUnitArg* _ui_ke_max;
 };
 //----------------------------------------------------------------------------------------------
 

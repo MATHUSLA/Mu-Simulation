@@ -20,9 +20,9 @@
 #define MU__PHYSICS_HEPMCGENERATOR_HH
 #pragma once
 
-#include <HepMC/HepMC.h>
-#include <HepMC/ReaderAscii.h>
-#include <HepMC/ReaderRoot.h>
+// #include <HepMC/HepMC.h>
+// #include <HepMC/ReaderAscii.h>
+// #include <HepMC/ReaderRoot.h>
 
 #include "physics/Generator.hh"
 
@@ -44,10 +44,10 @@ public:
 
 protected:
   // TODO: union { HepMC::ReaderAscii* ascii; HepMC::ReaderRoot* root; } _reader;
-  HepMC::ReaderAscii* _reader;
+  // HepMC::ReaderAscii* _reader;
   bool _using_root_reader;
   PropagationList _propagation_list;
-  HepMC::GenEvent _current_event;
+  // HepMC::GenEvent _current_event;
   bool _unique;
   Command::StringArg* _read_file;
 };
