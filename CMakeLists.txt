@@ -74,7 +74,9 @@ target_link_libraries(simulation PUBLIC
 
 target_include_directories(simulation PUBLIC
     ${Geant4_INCLUDE_DIRS}
-    ${ROOT_INCLUDE_DIRS})
+    ${ROOT_INCLUDE_DIRS}
+    ${PYTHIA8_INCLUDE_DIR}
+    ${HEPMC_INCLUDE_DIR})
 
 target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>

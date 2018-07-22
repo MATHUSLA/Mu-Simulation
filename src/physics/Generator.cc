@@ -257,7 +257,7 @@ const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
 
 //__Default Vertex for IP_______________________________________________________________________
 G4PrimaryVertex* DefaultVertex() {
-  return new G4PrimaryVertex(0, 0, 100*m, 0);
+  return Vertex(0, 0, 100*m);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -265,7 +265,7 @@ G4PrimaryVertex* DefaultVertex() {
 G4PrimaryVertex* Vertex(const double x,
                         const double y,
                         const double z) {
-  return new G4PrimaryVertex(x, y, z, 0);
+  return Vertex(0, x, y, z);
 }
 //----------------------------------------------------------------------------------------------
 
