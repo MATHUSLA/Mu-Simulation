@@ -2,15 +2,16 @@
 
 /gen/select range
 
+/gen/range/id 13
 /gen/range/t0 0 ns
 /gen/range/vertex 150 0 26 m
 
 /gen/range/ke {energy} GeV
 
-/gen/range/eta_min -0.499036
-/gen/range/eta_max  0.499036
+/gen/range/eta_min -1.4
+/gen/range/eta_max  1.4
 
-/gen/range/phi_min -1.09127 rad
-/gen/range/phi_max  1.09127 rad
+/gen/range/phi_min -1.1 rad
+/gen/range/phi_max  1.1 rad
 
 /run/beamOn {count}
