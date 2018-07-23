@@ -17,6 +17,8 @@
 
 #include "geometry/Prototype.hh"
 
+#include <Geant4/tls.hh>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////

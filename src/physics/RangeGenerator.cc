@@ -21,6 +21,8 @@
 #include <ostream>
 
 #include <Geant4/Randomize.hh>
+#include <Geant4/G4MTRandFlat.hh>
+#include <Geant4/tls.hh>
 
 #include "physics/Units.hh"
 
@@ -49,8 +51,11 @@ RangeGenerator::RangeGenerator(const std::string& name,
                                const double phi_min,
                                const double phi_max)
     : Generator(name, description, id, 0, 0, 0),
-      _pT_min(pT_min), _pT_max(pT_max), _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _pT_min(pT_min), _pT_max(pT_max),
+      _eta_min(eta_min), _eta_max(eta_max),
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke),
+      _using_range_ke(false) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -80,7 +85,9 @@ RangeGenerator::RangeGenerator(const std::string& name,
     : Generator(name, description, id, 0, 0, 0, vertex),
       _pT_min(pT_min), _pT_max(pT_max),
       _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke),
+      _using_range_ke(false) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -112,7 +119,9 @@ RangeGenerator::RangeGenerator(const std::string& name,
     : Generator(name, description, id, 0, 0, 0, t0, vertex),
       _pT_min(pT_min), _pT_max(pT_max),
       _eta_min(eta_min), _eta_max(eta_max),
-      _phi_min(phi_min), _phi_max(phi_max) {
+      _phi_min(phi_min), _phi_max(phi_max),
+      _ke_min(_ke), _ke_max(_ke),
+      _using_range_ke(false) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -177,7 +186,7 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
 
   if (_using_range_ke) {
     _ke = G4MTRandFlat::shoot(_ke_min, _ke_max);
-    _p_unit = Convert(PseudoLorentzTriplet{_pT, _eta, _phi}).unit();
+    _p_unit = Convert(PseudoLorentzTriplet{1.0L, _eta, _phi}).unit();
     _pT = Convert(GetMomentum(_mass, _ke, _p_unit)).pT;
   } else {
     _pT = G4MTRandFlat::shoot(_pT_min, _pT_max);
@@ -251,24 +260,30 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
 
 //__Range Generator Information String__________________________________________________________
 std::ostream& RangeGenerator::Print(std::ostream& os) const {
-  return os << "Generator Info:\n  "
-            << "Name: "        << _name                                             << "\n  "
-            << "Description: " << _description                                      << "\n  "
-            << "Particle ID: " << _id                                               << "\n  "
-            << "avg pT: "      << G4BestUnit(0.5 * (_pT_min + _pT_max), "Momentum") << "\n    "
-            << "pT min: "      << G4BestUnit(_pT_min, "Momentum")                   << "\n    "
-            << "pT max: "      << G4BestUnit(_pT_max, "Momentum")                   << "\n  "
-            << "avg eta: "     << 0.5 * (_eta_min + _eta_max)                       << "\n    "
-            << "eta min: "     << _eta_min                                          << "\n    "
-            << "eta max: "     << _eta_max                                          << "\n  "
-            << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
-            << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
-            << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n  "
-            << "avg ke: "      << G4BestUnit(0.5 * (_ke_min + _ke_max), "Energy")   << "\n    "
-            << "ke min: "      << G4BestUnit(_ke_min, "Energy")                     << "\n    "
-            << "ke max: "      << G4BestUnit(_ke_max, "Energy")                     << "\n  "
-            << "vertex: "      << G4BestUnit(_t0, "Time")                           << " "
-                               << G4BestUnit(_vertex, "Length")                     << "\n";
+  os << "Generator Info:\n  "
+     << "Name: "        << _name                                             << "\n  "
+     << "Description: " << _description                                      << "\n  "
+     << "Particle ID: " << _id                                               << "\n  ";
+
+  if (_using_range_ke) {
+    os << "avg ke: "      << G4BestUnit(0.5 * (_ke_min + _ke_max), "Energy")   << "\n    "
+       << "ke min: "      << G4BestUnit(_ke_min, "Energy")                     << "\n    "
+       << "ke max: "      << G4BestUnit(_ke_max, "Energy")                     << "\n  ";
+  } else {
+    os << "avg pT: "      << G4BestUnit(0.5 * (_pT_min + _pT_max), "Momentum") << "\n    "
+       << "pT min: "      << G4BestUnit(_pT_min, "Momentum")                   << "\n    "
+       << "pT max: "      << G4BestUnit(_pT_max, "Momentum")                   << "\n  ";
+  }
+
+  os << "avg eta: "     << 0.5 * (_eta_min + _eta_max)                       << "\n    "
+     << "eta min: "     << _eta_min                                          << "\n    "
+     << "eta max: "     << _eta_max                                          << "\n  "
+     << "avg phi: "     << G4BestUnit(0.5 * (_phi_min + _phi_max), "Angle")  << "\n    "
+     << "phi min: "     << G4BestUnit(_phi_min, "Angle")                     << "\n    "
+     << "phi max: "     << G4BestUnit(_phi_max, "Angle")                     << "\n  "
+     << "vertex: "      << G4BestUnit(_t0, "Time")                           << " "
+                        << G4BestUnit(_vertex, "Length")                     << "\n";
+  return os;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -277,14 +292,16 @@ const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
     "",         _name,
     "_PDG_ID",  std::to_string(_id),
-    "_PT_MIN",  std::to_string(_pT_min / Units::Momentum) + " " + Units::MomentumString,
-    "_PT_MAX",  std::to_string(_pT_max / Units::Momentum) + " " + Units::MomentumString,
+    (_using_range_ke ? "_KE_MIN" : "_PT_MIN"),
+    (_using_range_ke ? std::to_string(_ke_min / Units::Energy)   + " " + Units::EnergyString
+                     : std::to_string(_pT_min / Units::Momentum) + " " + Units::MomentumString),
+    (_using_range_ke ? "_KE_MAX" : "_PT_MAX"),
+    (_using_range_ke ? std::to_string(_ke_max / Units::Energy)   + " " + Units::EnergyString
+                     : std::to_string(_pT_max / Units::Momentum) + " " + Units::MomentumString),
     "_ETA_MIN", std::to_string(_eta_min),
     "_ETA_MAX", std::to_string(_eta_max),
     "_PHI_MIN", std::to_string(_phi_min / Units::Angle) + " " + Units::AngleString,
     "_PHI_MAX", std::to_string(_phi_max / Units::Angle) + " " + Units::AngleString,
-    "_KE_MIN",  std::to_string(_ke_min / Units::Energy) + " " + Units::EnergyString,
-    "_KE_MAX",  std::to_string(_ke_max / Units::Energy) + " " + Units::EnergyString,
     "_VERTEX", "(" + std::to_string(_t0         / Units::Time)   + ", "
                    + std::to_string(_vertex.x() / Units::Length) + ", "
                    + std::to_string(_vertex.y() / Units::Length) + ", "

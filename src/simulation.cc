@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-#include "Geant4/G4MTRunManager.hh"
-#include "Geant4/FTFP_BERT.hh"
-#include "Geant4/G4StepLimiterPhysics.hh"
-#include "Geant4/G4UIExecutive.hh"
-#include "Geant4/G4VisExecutive.hh"
+#include <Geant4/G4MTRunManager.hh>
+#include <Geant4/FTFP_BERT.hh>
+#include <Geant4/G4StepLimiterPhysics.hh>
+#include <Geant4/G4UIExecutive.hh>
+#include <Geant4/G4VisExecutive.hh>
+#include <Geant4/tls.hh>
 
 #include <ROOT/TApplication.h>
 

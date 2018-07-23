@@ -21,6 +21,7 @@
 
 #include <Geant4/G4HCofThisEvent.hh>
 #include <Geant4/G4Step.hh>
+#include <Geant4/tls.hh>
 
 #include "action.hh"
 #include "analysis.hh"

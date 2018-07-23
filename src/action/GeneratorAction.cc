@@ -19,6 +19,8 @@
 
 #include <unordered_map>
 
+#include <Geant4/tls.hh>
+
 #include "physics/PythiaGenerator.hh"
 #include "physics/HepMCGenerator.hh"
 #include "physics/Units.hh"

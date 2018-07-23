@@ -19,11 +19,12 @@
 
 #include <cmath>
 
-#include "Geant4/G4SubtractionSolid.hh"
-#include "Geant4/G4UnionSolid.hh"
-#include "Geant4/G4Tubs.hh"
-#include "Geant4/G4VisAttributes.hh"
-#include "Geant4/G4NistManager.hh"
+#include <Geant4/G4SubtractionSolid.hh>
+#include <Geant4/G4UnionSolid.hh>
+#include <Geant4/G4Tubs.hh>
+#include <Geant4/G4VisAttributes.hh>
+#include <Geant4/G4NistManager.hh>
+#include <Geant4/tls.hh>
 
 #include "geometry/Construction.hh"
 

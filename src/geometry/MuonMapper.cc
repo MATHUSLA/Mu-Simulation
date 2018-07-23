@@ -2,6 +2,7 @@
 
 #include <Geant4/G4NistManager.hh>
 #include <Geant4/G4VProcess.hh>
+#include <Geant4/tls.hh>
 
 #include "action.hh"
 #include "analysis.hh"
