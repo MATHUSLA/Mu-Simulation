@@ -22,6 +22,7 @@
 
 #include <Geant4/Randomize.hh>
 #include <Geant4/G4MTRandFlat.hh>
+#include <Geant4/tls.hh>
 
 #include "physics/Units.hh"
 

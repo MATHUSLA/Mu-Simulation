@@ -28,6 +28,7 @@
 #include <Geant4/G4PVPlacement.hh>
 #include <Geant4/G4NistManager.hh>
 #include <Geant4/G4GDMLParser.hh>
+#include <Geant4/tls.hh>
 
 #include "geometry/Box.hh"
 #include "geometry/Prototype.hh"

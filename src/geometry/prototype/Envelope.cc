@@ -17,8 +17,9 @@
 
 #include "geometry/Prototype.hh"
 
-#include "Geant4/G4UnionSolid.hh"
-#include "Geant4/G4Box.hh"
+#include <Geant4/G4UnionSolid.hh>
+#include <Geant4/G4Box.hh>
+#include <Geant4/tls.hh>
 
 namespace MATHUSLA { namespace MU {
 

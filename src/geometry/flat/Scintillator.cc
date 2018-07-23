@@ -17,8 +17,9 @@
 
 #include "geometry/Flat.hh"
 
-#include "Geant4/G4SubtractionSolid.hh"
-#include "Geant4/G4UnionSolid.hh"
+#include <Geant4/G4SubtractionSolid.hh>
+#include <Geant4/G4UnionSolid.hh>
+#include <Geant4/tls.hh>
 
 namespace MATHUSLA { namespace MU {
 

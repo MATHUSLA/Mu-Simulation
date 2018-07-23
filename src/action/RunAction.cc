@@ -24,6 +24,7 @@
 #include <Geant4/G4Threading.hh>
 #include <Geant4/G4AutoLock.hh>
 #include <Geant4/G4MTRunManager.hh>
+#include <Geant4/tls.hh>
 
 #include <ROOT/TFile.h>
 #include <ROOT/TNamed.h>

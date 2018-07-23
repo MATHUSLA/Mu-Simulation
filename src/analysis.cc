@@ -17,6 +17,8 @@
 
 #include "analysis.hh"
 
+#include <Geant4/tls.hh>
+
 #include <ROOT/TFile.h>
 #include <ROOT/TNamed.h>
 

@@ -17,6 +17,8 @@
 
 #include "geometry/Earth.hh"
 
+#include <Geant4/tls.hh>
+
 #include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
