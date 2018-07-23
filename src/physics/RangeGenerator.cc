@@ -21,6 +21,7 @@
 #include <ostream>
 
 #include <Geant4/Randomize.hh>
+#include <Geant4/G4MTRandFlat.hh>
 
 #include "physics/Units.hh"
 
