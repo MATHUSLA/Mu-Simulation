@@ -118,14 +118,11 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   }
 
   std::vector<Pythia8::Particle> particles;
-  std::uint_fast64_t counter{};
-  while (++counter) {
+  while (++_counter) {
     if (!_pythia->next()) continue;
     particles = FindParticles(_pythia->process, _propagation_list);
     if (!particles.empty()) break;
   }
-
-  std::cout << "Pythia Generated " << counter << " Attempts.\n";
 
   // FIXME: there is a smarter way of doing this
   for (std::size_t i{}; i < particles.size(); ++i) {
@@ -166,6 +163,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command,
 void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   if (!pythia)
     return;
+  _counter = 0ULL;
   _pythia_settings.clear();
   _settings_on = false;
   // delete _pythia;
@@ -177,6 +175,7 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
 //__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(const std::vector<std::string>& settings) {
   _pythia_settings = settings;
+  _counter = 0ULL;
   // delete _pythia;
   _pythia = _create_pythia(_pythia_settings, _settings_on);
 }
@@ -184,6 +183,7 @@ void PythiaGenerator::SetPythia(const std::vector<std::string>& settings) {
 
 //__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(const std::string& path) {
+  _counter = 0ULL;
   _pythia_settings.clear();
   _settings_on = false;
   _path = path;
@@ -222,7 +222,7 @@ const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
   }
 
   Analysis::SimSettingList out;
-  out.reserve(1UL + config.size() + _propagation_list.size());
+  out.reserve(2UL + config.size() + _propagation_list.size());
   out.emplace_back(SimSettingPrefix, "", _name);
   out.insert(out.cend(),
              std::make_move_iterator(config.begin()),
@@ -237,6 +237,7 @@ const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
   out.insert(out.cend(),
              std::make_move_iterator(cuts.begin()),
              std::make_move_iterator(cuts.end()));
+  out.emplace_back(SimSettingPrefix, "_EVENTS", std::to_string(_counter));
 
   return out;
 }
