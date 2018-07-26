@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./install --run -j$1 -q -s studies/box/background/script.mac energy $2 count $3

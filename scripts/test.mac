@@ -1,6 +1,0 @@
-/det/select Box
-
-/gen/select pythia
-/gen/pythia/readFile .temp/mathusla_test.cmnd
-
-/run/beamOn {count}

@@ -1,5 +1,5 @@
 /*
- * scripts/analysis/muon_mapper.C
+ * studies/muon_map/muon_mapper.C
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "helper.hh"
+#include "../helper.hh"
 
 //__MATHUSLA ROOT File Keys_____________________________________________________________________
 static const auto MUON_MAP_TREE_KEY = "mu_map0";
@@ -106,7 +106,7 @@ void muon_mapper(const char* dir) {
       auto tree = static_cast<TTree*>(data_file->Get(MUON_MAP_TREE_KEY));
       if (!tree)
         continue;
-    
+
       // correction based on incorrect entry on MuonMapper
       constexpr auto muon_mass = 105.658369L;
       auto true_tree = new TTree("corrected_logB_tree", "corrected_logB_tree");
@@ -125,9 +125,9 @@ void muon_mapper(const char* dir) {
         logB = std::log10(boost(K, muon_mass));
         true_tree->Fill();
       }
-      
+
       true_tree->Write();
-      
+
       const auto min_log_boost = size == 0 ? -1.0L : std::floor(std::log10(boost(min_K, muon_mass)));
       const auto max_log_boost = size == 0 ?  4.0L : std::ceil(std::log10(boost(max_K, muon_mass)));
       const auto width = 0.025L;

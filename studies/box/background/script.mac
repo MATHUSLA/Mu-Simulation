@@ -10,7 +10,6 @@
 
 /gen/range/eta_min -1.4
 /gen/range/eta_max  1.4
-
 /gen/range/phi_min -1.1 rad
 /gen/range/phi_max  1.1 rad
 
