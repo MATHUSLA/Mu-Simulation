@@ -1,4 +1,4 @@
-! File: tau.cmnd
+! File: electron.cmnd
 ! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
@@ -46,9 +46,9 @@ HiggsBSM:allH2 = on                  ! Higgs production by gluon-gluon fusion
 25:3:bRatio  = 0.000                 ! H -> c cbar
 25:4:bRatio  = 0.000                 ! H -> b bbar
 25:5:bRatio  = 0.000                 ! H -> t tbar
-25:6:bRatio  = 0.000                 ! H -> e+ e-
+25:6:bRatio  = 1.000                 ! H -> e+ e-
 25:7:bRatio  = 0.000                 ! H -> mu+ mu-
-25:8:bRatio  = 1.000                 ! H -> tau+ tau-
+25:8:bRatio  = 0.000                 ! H -> tau+ tau-
 25:9:bRatio  = 0.000                 ! H -> g g
 25:10:bRatio = 0.000                 ! H -> gamma gamma
 25:11:bRatio = 0.000                 ! H -> gamma Z
