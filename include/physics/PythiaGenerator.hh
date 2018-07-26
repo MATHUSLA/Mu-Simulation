@@ -62,6 +62,7 @@ private:
   std::vector<std::string> _pythia_settings;
   bool _settings_on;
   std::string _path;
+  std::uint_fast64_t _counter;
   Command::StringArg* _add_cut;
   Command::NoArg*     _clear_cuts;
   Command::StringArg* _read_string;

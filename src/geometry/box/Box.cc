@@ -27,22 +27,22 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 //__Box Specification Variables_________________________________________________________________
 constexpr auto x_edge_length = 100*m;
 constexpr auto y_edge_length = 100*m;
-constexpr auto displacement = 100*m;
+constexpr auto x_displacement = 100*m;
+constexpr auto y_displacement = -50*m;
 
 constexpr auto steel_height = 3*cm;
-
-constexpr auto air_gap = 20*m;
+constexpr auto air_gap = 25*m;
 
 constexpr auto scintillator_x_width 	     = 0.25*m;
 constexpr auto scintillator_y_width 	     = 0.25*m;
 constexpr auto scintillator_height           = 1*cm;
 constexpr auto scintillator_casing_thickness = 0.1*cm;
 
-constexpr auto layer_spacing = 1.5*m;
-constexpr auto layer_count   = 5;
+constexpr auto layer_spacing = 1.5L*m;
+constexpr auto layer_count   = 5UL;
 
-constexpr auto full_detector_height = steel_height + layer_count * (layer_spacing + scintillator_height);
-constexpr auto half_detector_height = 0.5 * full_detector_height;
+constexpr auto full_detector_height = steel_height + layer_count * (layer_spacing + scintillator_height) - layer_spacing;
+constexpr auto half_detector_height = 0.5L * full_detector_height;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -82,23 +82,24 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto position   = G4LorentzVector(step_point->GetGlobalTime(), step_point->GetPosition());
   const auto momentum   = G4LorentzVector(step_point->GetTotalEnergy(), step_point->GetMomentum());
 
-  const auto local_position = position.vect() - G4ThreeVector(displacement, -0.5 * y_edge_length, steel_height);
+  const auto local_position = position.vect() - G4ThreeVector(x_displacement, y_displacement, 0);
 
-  const auto layer_z = local_position.z() + steel_height + layer_count * scintillator_height - layer_spacing;
-  const auto x_index = static_cast<size_t>(std::ceil(local_position.x() / scintillator_x_width));
-  const auto y_index = static_cast<size_t>(std::ceil(local_position.y() / scintillator_y_width));
-  const auto z_index = static_cast<size_t>(std::abs(std::ceil(layer_z / layer_spacing)));
+  const auto x_index = static_cast<size_t>(std::floor(+local_position.x() / scintillator_x_width));
+  const auto y_index = static_cast<size_t>(std::floor(+local_position.y() / scintillator_y_width));
+  const auto z_index = static_cast<size_t>(std::floor(-local_position.z() / (layer_spacing + scintillator_height)));
 
   const auto x_name = std::to_string(x_index);
-  const auto x_fullname = x_index < 10 ? "00" + x_name : (x_index < 100 ? "0" + x_name : x_name);
   const auto y_name = std::to_string(y_index);
-  const auto y_fullname = y_index < 10 ? "00" + y_name : (y_index < 100 ? "0" + y_name : y_name);
-  const auto name = std::to_string(1 + z_index) + x_fullname + y_fullname;
 
   _hit_collection->insert(new Tracking::Hit(
-    particle, trackID, parentID, name,
+    particle,
+    trackID,
+    parentID,
+    std::to_string(1UL + z_index)
+      + (x_index < 10UL ? "00" + x_name : (x_index < 100UL ? "0" + x_name : x_name))
+      + (y_index < 10UL ? "00" + y_name : (y_index < 100UL ? "0" + y_name : y_name)),
     deposit / Units::Energy,
-    G4LorentzVector(position.t() / Units::Time, position.vect() / Units::Length),
+    G4LorentzVector(position.t() / Units::Time,   position.vect() / Units::Length),
     G4LorentzVector(momentum.e() / Units::Energy, momentum.vect() / Units::Momentum)));
 
   return true;
@@ -113,7 +114,7 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection);
 
   Analysis::ROOT::DataEntryList root_data;
-  root_data.reserve(24);
+  root_data.reserve(24UL);
   root_data.push_back(collection_data[4]);
   root_data.push_back(collection_data[5]);
   root_data.push_back(collection_data[3]);
@@ -132,9 +133,9 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
 
   Analysis::ROOT::DataEntry metadata;
-  metadata.reserve(2);
-  metadata.push_back(collection_data[0].size());
-  metadata.push_back(gen_particle_data[0].size());
+  metadata.reserve(2UL);
+  metadata.push_back(collection_data[0UL].size());
+  metadata.push_back(gen_particle_data[0UL].size());
 
   Analysis::ROOT::FillNTuple(DataName, Detector::DataKeyTypes, metadata, root_data);
   if (verboseLevel >= 2 && _hit_collection)
@@ -149,8 +150,8 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   auto DetectorVolume = Construction::BoxVolume("Box", x_edge_length, y_edge_length, full_detector_height);
 
-  for (size_t layer = 0; layer < layer_count; ++layer) {
-    auto current = new Scintillator("S" + std::to_string(1+layer),
+  for (std::size_t layer{}; layer < layer_count; ++layer) {
+    auto current = new Scintillator("S" + std::to_string(1UL + layer),
       x_edge_length,
       y_edge_length,
       scintillator_height,
@@ -160,7 +161,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
       0,
       half_detector_height
         - steel_height
-        - 0.5*scintillator_height
+        - 0.5L*scintillator_height
         - layer * (scintillator_height + layer_spacing)));
     _scintillators.push_back(current);
   }
@@ -169,9 +170,9 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     x_edge_length, y_edge_length, steel_height,
     Construction::Material::Iron,
     Construction::CasingAttributes());
-  Construction::PlaceVolume(_steel, DetectorVolume, Construction::Transform(0, 0, half_detector_height-0.5*steel_height));
+  Construction::PlaceVolume(_steel, DetectorVolume, Construction::Transform(0, 0, half_detector_height-0.5L*steel_height));
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(0.5*x_edge_length + displacement, 0, -half_detector_height + steel_height));
+    G4Translate3D(0.5L*x_edge_length + x_displacement, 0.5L*y_edge_length + y_displacement, -half_detector_height + steel_height));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -183,7 +184,9 @@ G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
   auto modified = Construction::Volume(new G4SubtractionSolid("ModifiedSandstone",
     Earth::SandstoneVolume()->GetSolid(),
     Construction::Box("AirBox", x_edge_length, y_edge_length, air_gap),
-    Construction::Transform(0.5L*x_edge_length + displacement, 0, 0.5L*(air_gap-Earth::SandstoneDepth))));
+    Construction::Transform(0.5L*x_edge_length + x_displacement,
+                            0.5L*y_edge_length + y_displacement,
+                            0.5L*(air_gap-Earth::SandstoneDepth))));
 
   Construction::PlaceVolume(modified, earth, Earth::SandstoneTransform());
   Construction::PlaceVolume(Earth::MarlVolume(), earth, Earth::MarlTransform());
