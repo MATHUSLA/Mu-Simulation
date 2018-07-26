@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./install --run -j1 -q -s studies/box/signal/script.mac particle $1 count $2

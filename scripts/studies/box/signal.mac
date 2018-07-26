@@ -1,9 +1,0 @@
-/det/select Box
-
-/gen/select pythia
-/gen/pythia/read_file scripts/studies/box/mathusla_signal.cmnd
-
-/gen/pythia/cuts/clear
-/gen/pythia/cuts/add 13 | | 0.8:1.6 | -0.4636:0.4636 rad
-
-/run/beamOn {count}

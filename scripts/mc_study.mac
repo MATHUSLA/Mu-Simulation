@@ -1,5 +1,0 @@
-/det/select Prototype
-/gen/select basic
-
-/gen/basic/ke {energy} GeV
-/run/beamOn {count}

@@ -1,4 +1,4 @@
-! File: main16.cmnd
+! File: tau.cmnd
 ! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
@@ -40,20 +40,20 @@ HiggsBSM:allH2 = on                  ! Higgs production by gluon-gluon fusion
 25:mMin      = 20
 25:mWidth    = 0.00403               ! Higgs width
 25:tau0      = 10000                 ! Life time of light higgs = [0,10,50]
-25:0:bRatio  = 0.0                   ! H -> d dbar
-25:1:bRatio  = 0.0                   ! H -> u ubar
+25:0:bRatio  = 0.000                 ! H -> d dbar
+25:1:bRatio  = 0.000                 ! H -> u ubar
 25:2:bRatio  = 0.000                 ! H -> s sbar
-25:3:bRatio  = 0.00                  ! H -> c cbar
-25:4:bRatio  = 0.0                   ! H -> b bbar
-25:5:bRatio  = 0.0                   ! H -> t tbar
-25:6:bRatio  = 0.0                   ! H -> e+ e-
-25:7:bRatio  = 1.000                 ! H -> mu+ mu-
-25:8:bRatio  = 0.0                   ! H -> tau+ tau-
-25:9:bRatio  = 0.0                   ! H -> g g
-25:10:bRatio = 0.00                  ! H -> gamma gamma
-25:11:bRatio = 0.00                  ! H -> gamma Z
-25:12:bRatio = 0.0                   ! H -> Z0 Z0
-25:13:bRatio = 0.0                   ! H -> W+ W-
+25:3:bRatio  = 0.000                 ! H -> c cbar
+25:4:bRatio  = 0.000                 ! H -> b bbar
+25:5:bRatio  = 0.000                 ! H -> t tbar
+25:6:bRatio  = 0.000                 ! H -> e+ e-
+25:7:bRatio  = 0.000                 ! H -> mu+ mu-
+25:8:bRatio  = 1.000                 ! H -> tau+ tau-
+25:9:bRatio  = 0.000                 ! H -> g g
+25:10:bRatio = 0.000                 ! H -> gamma gamma
+25:11:bRatio = 0.000                 ! H -> gamma Z
+25:12:bRatio = 0.000                 ! H -> Z0 Z0
+25:13:bRatio = 0.000                 ! H -> W+ W-
 25:0:meMode  = 100                   ! set meMode = 100 so that
 25:1:meMode  = 100                   ! branching ratios are not
 25:2:meMode  = 100                   ! overwritten at initialization

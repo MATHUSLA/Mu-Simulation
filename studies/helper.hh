@@ -1,5 +1,5 @@
 /*
- * scripts/analysis/helper.hh
+ * studies/helper.hh
  *
  * Copyright 2018 Brandon Gomes
  *
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef MU__SCRIPTS_ANALYSIS_HELPER_HH
-#define MU__SCRIPTS_ANALYSIS_HELPER_HH
+#ifndef MU__STUDIES_HELPER_HH
+#define MU__STUDIES_HELPER_HH
 #pragma once
 
 #include <cstdio>
@@ -229,4 +229,4 @@ inline TTree* from_csv(const std::string& name,
 
 } } /* namespace MATHUSLA::MU */
 
-#endif /* MU__SCRIPTS_ANALYSIS_HELPER_HH */
+#endif /* MU__STUDIES_HELPER_HH */
