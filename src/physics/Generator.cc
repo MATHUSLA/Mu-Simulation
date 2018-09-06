@@ -222,36 +222,11 @@ const PropagationList ParsePropagationList(const std::string& cut_string) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Mass of Particle from ID________________________________________________________________
-double GetMass(const int id) {
-  return id == 0 ? 0 : G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
-}
-//----------------------------------------------------------------------------------------------
-
 //__Get Momentum from Mass and Kinetic Energy___________________________________________________
 const G4ThreeVector GetMomentum(const double mass,
                                 const double ke,
                                 const G4ThreeVector& p_unit) {
   return p_unit.unit() * std::sqrt(ke * (ke + 2.0L * mass));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
-const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
-  const auto magnitude = momentum.mag();
-  if (magnitude == 0)
-    return {};
-  const auto eta = std::atanh(momentum.x() / magnitude);
-  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
-}
-//----------------------------------------------------------------------------------------------
-
-//__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
-const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
-  return G4ThreeVector(
-     triplet.pT * std::sinh(triplet.eta),
-     triplet.pT * std::sin(triplet.phi),
-    -triplet.pT * std::cos(triplet.phi));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -373,7 +348,7 @@ Generator::Generator(const std::string& name,
                      const G4ThreeVector& vertex)
     : G4UImessenger(MessengerDirectory + name + '/', description),
       _name(name), _description(description),
-      _id(id), _pT(pT), _eta(eta), _phi(phi), _mass(GetMass(id)), _using_pt_eta_phi(true),
+      _id(id), _pT(pT), _eta(eta), _phi(phi), _mass(GetParticleMass(id)), _using_pt_eta_phi(true),
       _t0(t0), _vertex(vertex) {
   const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
   _ke = std::hypot(conversion.mag(), _mass) - _mass;
@@ -392,7 +367,7 @@ Generator::Generator(const std::string& name,
                      const G4ThreeVector& vertex)
     : G4UImessenger(MessengerDirectory + name + '/', description),
       _name(name), _description(description),
-      _id(id), _ke(ke), _p_unit(p_unit), _mass(GetMass(id)), _using_pt_eta_phi(false),
+      _id(id), _ke(ke), _p_unit(p_unit), _mass(GetParticleMass(id)), _using_pt_eta_phi(false),
       _t0(t0), _vertex(vertex) {
   const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
   _pT = conversion.pT;
@@ -471,7 +446,7 @@ void Generator::GeneratePrimaryVertex(G4Event* event) {
 void Generator::SetNewValue(G4UIcommand* command, G4String value) {
   if (command == _ui_id) {
     _id = _ui_id->GetNewIntValue(value);
-    _mass = GetMass(_id);
+    _mass = GetParticleMass(_id);
   } else if (command == _ui_pT) {
     _pT = _ui_pT->GetNewDoubleValue(value);
     _using_pt_eta_phi = true;

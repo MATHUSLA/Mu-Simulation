@@ -27,20 +27,11 @@
 #include "analysis.hh"
 #include "ui.hh"
 
+#include "physics/Particle.hh"
+
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
-
-//__Pseudo-Lorentz Invariant Triplet____________________________________________________________
-struct PseudoLorentzTriplet { double pT, eta, phi; };
-//----------------------------------------------------------------------------------------------
-
-//__Equality Between Pseudo Lorentz Triplet_____________________________________________________
-constexpr bool operator==(const PseudoLorentzTriplet& left,
-                          const PseudoLorentzTriplet& right) {
-  return left.pT == right.pT && left.eta == right.eta && left.phi == right.phi;
-}
-//----------------------------------------------------------------------------------------------
 
 //__Cut on Particle_____________________________________________________________________________
 struct ParticleCut {
@@ -102,22 +93,10 @@ bool InPropagationList(const PropagationList& list,
 const PropagationList ParsePropagationList(const std::string& cut_string);
 //----------------------------------------------------------------------------------------------
 
-//__Get Mass of Particle from ID________________________________________________________________
-double GetMass(const int id);
-//----------------------------------------------------------------------------------------------
-
 //__Get Momentum from Mass and Kinetic Energy___________________________________________________
 const G4ThreeVector GetMomentum(const double mass,
                                 const double ke,
                                 const G4ThreeVector& p_unit);
-//----------------------------------------------------------------------------------------------
-
-//__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
-const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum);
-//----------------------------------------------------------------------------------------------
-
-//__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
-const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet);
 //----------------------------------------------------------------------------------------------
 
 //__Default Vertex for IP_______________________________________________________________________
