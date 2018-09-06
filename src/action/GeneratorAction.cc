@@ -21,6 +21,7 @@
 
 #include <Geant4/tls.hh>
 
+#include "physics/CORSIKAReaderGenerator.hh"
 #include "physics/PythiaGenerator.hh"
 #include "physics/HepMCGenerator.hh"
 #include "physics/Units.hh"
@@ -67,6 +68,8 @@ GeneratorAction::GeneratorAction(const std::string& generator)
   _gen_map["hepmc"] = new Physics::HepMCGenerator(
       {{13, {0, 0, 0},
             {0, 0, 0}}});
+
+  _gen_map["corsica_reader"] = new Physics::CORSIKAReaderGenerator();
 
   std::string generators;
   for (const auto& element : _gen_map) {

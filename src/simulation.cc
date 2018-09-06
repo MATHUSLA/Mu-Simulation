@@ -22,8 +22,6 @@
 #include <Geant4/G4VisExecutive.hh>
 #include <Geant4/tls.hh>
 
-#include <ROOT/TApplication.h>
-
 #include "action.hh"
 #include "geometry/Construction.hh"
 #include "physics/Units.hh"
@@ -36,8 +34,6 @@
 int main(int argc, char* argv[]) {
   using namespace MATHUSLA;
   using namespace MATHUSLA::MU;
-
-  // FIXME: TApplication app("app", 0, 0);
 
   using util::cli::option;
 

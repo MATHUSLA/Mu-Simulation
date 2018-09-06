@@ -1,0 +1,12 @@
+/det/select Box
+
+/gen/select basic
+
+/gen/basic/id 13
+/gen/basic/t0 0 ns
+/gen/basic/vertex 150 0 -100 m
+/gen/basic/p_unit 0 0 1
+
+/gen/basic/ke {energy} GeV
+
+/run/beamOn {count}
