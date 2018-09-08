@@ -26,6 +26,7 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
+//__CORSIKA Simulation Config Structure_________________________________________________________
 struct CORSIKAConfig {
   int primary_id;
   double energy_slope,
@@ -36,7 +37,9 @@ struct CORSIKAConfig {
          zenith_min,
          zenith_max;
 };
+//----------------------------------------------------------------------------------------------
 
+//__CORSIKA Simulation Event Structure__________________________________________________________
 struct CORSIKAEvent {
   std::vector<int> id;
   std::vector<double> t, x, y, z, px, py, pz;
@@ -52,16 +55,22 @@ struct CORSIKAEvent {
                  double new_px,
                  double new_py,
                  double new_pz);
+  const Particle operator[](const std::size_t index) const;
 };
+//----------------------------------------------------------------------------------------------
 
+//__CORSIKA Simulation Event Vector_____________________________________________________________
 using CORSIKAEventVector = std::vector<CORSIKAEvent>;
+//----------------------------------------------------------------------------------------------
 
+//__CORSIKA Simulation Generator________________________________________________________________
 class CORSIKAReaderGenerator : public Generator {
 public:
   CORSIKAReaderGenerator();
 
   void GeneratePrimaryVertex(G4Event* event);
-  void SetNewValue(G4UIcommand* command, G4String value);
+  void SetNewValue(G4UIcommand* command,
+                   G4String value);
   void SetFile(const std::string& path);
 
   virtual const Analysis::SimSettingList GetSpecification() const;
@@ -74,6 +83,7 @@ private:
   Command::StringArg* _read_file;
   // TODO: Command::StringArg* _read_directory;
 };
+//----------------------------------------------------------------------------------------------
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 

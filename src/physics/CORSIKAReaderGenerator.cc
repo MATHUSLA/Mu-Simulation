@@ -91,6 +91,12 @@ void CORSIKAEvent::push_back(int new_id,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Particle Data Index Accessor Operator_______________________________________________________
+const Particle CORSIKAEvent::operator[](const std::size_t index) const {
+  return Particle{id[index], t[index], x[index], y[index], z[index], px[index], py[index], pz[index]};
+}
+//----------------------------------------------------------------------------------------------
+
 //__Initialize CORSIKA Data Vector______________________________________________________________
 G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
 G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
@@ -110,11 +116,8 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator()
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
   if (_data_index < _data->size()) {
     const auto entry = (*_data)[_data_index];
-    for (std::size_t i{}; i < entry.size(); ++i) {
-      auto vertex = Vertex(entry.t[i], entry.x[i], entry.y[i], entry.z[i]);
-      vertex->SetPrimary(CreateParticle(entry.id[i], G4ThreeVector(entry.px[i], entry.py[i], entry.pz[i])));
-      event->AddPrimaryVertex(vertex);
-    }
+    for (std::size_t i{}; i < entry.size(); ++i)
+      AddParticle(entry[i], *event);
     ++_data_index;
   }
 }

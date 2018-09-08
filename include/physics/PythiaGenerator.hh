@@ -51,9 +51,6 @@ public:
   void SetPythia(const std::vector<std::string>& settings);
   void SetPythia(const std::string& path);
 
-  static std::vector<Pythia8::Particle> FindParticles(Pythia8::Event& event,
-                                                      const PropagationList& list);
-
   virtual const Analysis::SimSettingList GetSpecification() const;
 
 private:

@@ -131,7 +131,19 @@ double BasicParticle::mass() const {
 
 //__Get Basic Particle Kinetic Energy___________________________________________________________
 double BasicParticle::ke() const {
-  return 0;
+  return e() - mass();
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Basic Particle Total Energy_____________________________________________________________
+double BasicParticle::e() const {
+  return std::hypot(p_mag(), mass());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Basic Particle Total Momentum___________________________________________________________
+double BasicParticle::p_mag() const {
+  return G4ThreeVector(px, py, pz).mag();
 }
 //----------------------------------------------------------------------------------------------
 
@@ -144,6 +156,162 @@ const G4ThreeVector BasicParticle::p_unit() const {
 //__Get Basic Particle Momentum Vector__________________________________________________________
 const G4ThreeVector BasicParticle::p() const {
   return G4ThreeVector(px, py, pz);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle PT_______________________________________________________________________
+void BasicParticle::set_pT(double new_pT) {
+
+// triplet.pT * std::sinh(triplet.eta),
+// triplet.pT * std::sin(triplet.phi),
+// -triplet.pT * std::cos(triplet.phi)
+
+
+  set_pseudo_lorentz_triplet(new_pT, eta(), phi());
+}
+//----------------------------------------------------------------------------------------------
+
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Convert Eta to Theta________________________________________________________________________
+long double _eta_to_theta(const long double eta) {
+  const auto subangle = 2.0L * std::atan(std::exp(-std::abs(eta)));
+  return (eta < 0) ? 3.1415926535897932384626L - subangle : subangle;
+}
+//----------------------------------------------------------------------------------------------
+
+//__2D-Rotation_________________________________________________________________________________
+const std::pair<long double, long double> _rotate(const long double x,
+                                                  const long double y,
+                                                  const long double theta) {
+  const long double cosine{std::cos(theta)};
+  const long double sine{std::sin(theta)};
+  return {x * cosine - y * sine, x * sine + y * cosine};
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__Set Basic Particle ETA______________________________________________________________________
+void BasicParticle::set_eta(double new_eta) {
+  const auto rotation = _rotate(px, -pz, _eta_to_theta(new_eta) - _eta_to_theta(eta()));
+  px = rotation.first;
+  pz = -rotation.second;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle PHI______________________________________________________________________
+void BasicParticle::set_phi(double new_phi) {
+  // triplet.pT * std::sinh(triplet.eta),
+  // triplet.pT * std::sin(triplet.phi),
+  // -triplet.pT * std::cos(triplet.phi)
+
+  const auto rotation = _rotate(-pz, py, new_phi - phi());
+  pz = -rotation.first;
+  py = rotation.second;
+
+  // set_pseudo_lorentz_triplet(pT(), eta(), new_phi);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle PseudoLorentzTriplet_____________________________________________________
+void BasicParticle::set_pseudo_lorentz_triplet(double new_pT,
+                                               double new_eta,
+                                               double new_phi) {
+  set_pseudo_lorentz_triplet(PseudoLorentzTriplet{new_pT, new_eta, new_phi});
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle PseudoLorentzTriplet_____________________________________________________
+void BasicParticle::set_pseudo_lorentz_triplet(const PseudoLorentzTriplet& triplet) {
+  set_p(Convert(triplet));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Kinetic Energy___________________________________________________________
+void BasicParticle::set_ke(double new_ke) {
+  set_p(p_unit() * std::sqrt(new_ke * (new_ke + 2.0L * mass())));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Total Momentum___________________________________________________________
+void BasicParticle::set_p_mag(double magnitude) {
+  set_p(magnitude * p_unit());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Momentum Unit Vector_____________________________________________________
+void BasicParticle::set_p_unit(double pu_x,
+                               double pu_y,
+                               double pu_z) {
+  set_p_unit({pu_x, pu_y, pu_z});
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Momentum Unit Vector_____________________________________________________
+void BasicParticle::set_p_unit(const G4ThreeVector& new_p_unit) {
+  const auto magnitude = p_mag();
+  set_p((!magnitude ? 1 : magnitude) * new_p_unit.unit());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Momentum Vector__________________________________________________________
+void BasicParticle::set_p(double new_px,
+                          double new_py,
+                          double new_pz) {
+  px = new_px;
+  py = new_py;
+  pz = new_pz;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Basic Particle Momentum Vector__________________________________________________________
+void BasicParticle::set_p(const G4ThreeVector& new_p) {
+  set_p(new_p.x(), new_p.y(), new_p.z());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Particle Vertex_________________________________________________________________________
+void Particle::set_vertex(double new_x,
+                          double new_y,
+                          double new_z) {
+  x = new_x;
+  y = new_y;
+  z = new_z;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Particle Vertex_________________________________________________________________________
+void Particle::set_vertex(double new_t,
+                          double new_x,
+                          double new_y,
+                          double new_z) {
+  t = new_t;
+  x = new_x;
+  y = new_y;
+  z = new_z;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Particle Vertex_________________________________________________________________________
+void Particle::set_vertex(double new_t,
+                          const G4ThreeVector& vertex) {
+  set_vertex(new_t, vertex.x(), vertex.y(), vertex.z());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Particle Vertex_________________________________________________________________________
+void Particle::set_vertex(const G4ThreeVector& vertex) {
+  set_vertex(vertex.x(), vertex.y(), vertex.z());
+}
+//----------------------------------------------------------------------------------------------
+
+//__Add Momentum and Vertex Particle To Event___________________________________________________
+void AddParticle(const Particle& particle,
+                 G4Event& event) {
+  const auto vertex = new G4PrimaryVertex(particle.x, particle.y, particle.z, particle.t);
+  vertex->SetPrimary(new G4PrimaryParticle(particle.id, particle.px, particle.py, particle.pz));
+  event.AddPrimaryVertex(vertex);
 }
 //----------------------------------------------------------------------------------------------
 

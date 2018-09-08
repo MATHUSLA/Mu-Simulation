@@ -106,6 +106,25 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>& settings,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Find Particle in Event______________________________________________________________________
+ParticleVector _find_pythia_particles(Pythia8::Event& event,
+                                      const PropagationList& list) {
+  ParticleVector out;
+  for (int i = 0; i < event.size(); ++i) {
+    const auto& particle = event[i];
+    Particle next{particle.id(),
+                  particle.tProd()  * mm / c_light,
+                  particle.zProd()  * mm,
+                  particle.yProd()  * mm,
+                  -particle.xProd() * mm + 100*m};
+    next.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
+    if (list.empty() || InPropagationList(list, next))
+      out.push_back(next);
+  }
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Generate Initial Particles__________________________________________________________________
@@ -117,27 +136,15 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
 
-  std::vector<Pythia8::Particle> particles;
+  ParticleVector particles;
   while (++_counter) {
     if (!_pythia->next()) continue;
-    particles = FindParticles(_pythia->process, _propagation_list);
+    particles = _find_pythia_particles(_pythia->process, _propagation_list);
     if (!particles.empty()) break;
   }
 
-  // FIXME: there is a smarter way of doing this
-  for (std::size_t i{}; i < particles.size(); ++i) {
-    const auto particle = particles[i];
-    auto vertex = Vertex(particle.tProd()  * mm / c_light,
-                         particle.zProd()  * mm,
-                         particle.yProd()  * mm,
-                         -particle.xProd() * mm + 100*m);
-    vertex->SetPrimary(CreateParticle(
-      particle.id(),
-      Convert(PseudoLorentzTriplet{particle.pT() * GeVperC,
-                                   particle.eta(),
-                                   particle.phi() * rad})));
-    event->AddPrimaryVertex(vertex);
-  }
+  for (const auto& particle : particles)
+    AddParticle(particle, *event);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -194,23 +201,6 @@ void PythiaGenerator::SetPythia(const std::string& path) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Find Particle in Event______________________________________________________________________
-std::vector<Pythia8::Particle> PythiaGenerator::FindParticles(Pythia8::Event& event,
-                                                              const PropagationList& list) {
-  std::vector<Pythia8::Particle> out;
-  for (int i = 0; i < event.size(); ++i) {
-    const auto &particle = event[i];
-    if (list.empty() ||
-        InPropagationList(list, particle.id(), PseudoLorentzTriplet{particle.pT() * GeVperC,
-                                                                    particle.eta(),
-                                                                    particle.phi() * rad})) {
-      out.push_back(particle);
-    }
-  }
-  return out;
-}
-//----------------------------------------------------------------------------------------------
-
 //__PythiaGenerator Specifications______________________________________________________________
 const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
 
@@ -231,7 +221,7 @@ const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
   std::vector<std::string> cut_strings;
   cut_strings.reserve(_propagation_list.size());
   for (const auto& cut : _propagation_list)
-    cut_strings.push_back(cut.to_string());
+    cut_strings.push_back(GetParticleCutString(cut));
 
   auto cuts = Analysis::IndexedSettings(SimSettingPrefix, "_CUTS_", cut_strings);
   out.insert(out.cend(),

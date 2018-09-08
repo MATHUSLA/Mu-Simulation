@@ -1,10 +1,16 @@
 /det/select Box
-
 /gen/select range
+
+/vis/filtering/trajectories/create/chargeFilter
+/vis/filtering/trajectories/chargeFilter-0/add 0
+/vis/filtering/trajectories/chargeFilter-0/invert true
+/vis/filtering/trajectories/chargeFilter-0/verbose false
+/vis/filtering/trajectories/chargeFilter-0/active true
 
 /gen/range/id 13
 /gen/range/t0 0 ns
 /gen/range/vertex 150 0 26 m
+/gen/range/p_unit 0 0 -1
 
 /gen/range/ke {energy} GeV
 
