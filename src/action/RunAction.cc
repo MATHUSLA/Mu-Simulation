@@ -128,11 +128,8 @@ void RunAction::EndOfRunAction(const G4Run*) {
       TTree* tree = chain;
       file->cd();
       auto clone_tree = tree->CloneTree();
-      if (clone_tree) {
+      if (clone_tree)
         clone_tree->Write();
-      } else {
-
-      }
       delete chain;
 
       util::io::remove_file(_prefix + _temp_path);
