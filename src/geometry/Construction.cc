@@ -47,6 +47,7 @@ const auto _nist = G4NistManager::Instance();
 
 //__Detector Details for Builder________________________________________________________________
 std::string _detector;
+std::string _export_dir;
 bool _data_per_event;
 std::string _data_name;
 const Analysis::ROOT::DataKeyList* _data_keys;
@@ -79,9 +80,11 @@ const std::string Builder::MessengerDirectory = "/det/";
 //----------------------------------------------------------------------------------------------
 
 //__Builder Constructor_________________________________________________________________________
-Builder::Builder(const std::string& detector)
+Builder::Builder(const std::string& detector,
+                 const std::string& export_dir)
     : G4VUserDetectorConstruction(), G4UImessenger(MessengerDirectory, "Particle Detectors.") {
   _detector = detector;
+  _export_dir = export_dir;
 
   _select = CreateCommand<Command::StringArg>("select", "Select Detector.");
   _select->SetParameterName("detector", false);
@@ -113,31 +116,33 @@ G4VPhysicalVolume* Builder::Construct() {
 
   auto worldLV = BoxVolume("World", WorldLength, WorldLength, WorldLength - 700*m);
 
-  // Export(Earth::Construct(worldLV), "earth.gdml");
-
-  if (_detector == "Flat") {
-    Export(Flat::Detector::Construct(worldLV), "flat.gdml");
-    Export(Flat::Detector::ConstructEarth(worldLV), "flat.earth.gdml");
-  } else if (_detector == "Box") {
-    Export(Box::Detector::Construct(worldLV), "box.gdml");
-    Export(Box::Detector::ConstructEarth(worldLV), "box.earth.gdml");
-  } else if (_detector == "MuonMapper") {
-    Export(MuonMapper::Detector::Construct(worldLV), "muon_mapper.gdml");
-    Export(MuonMapper::Detector::ConstructEarth(worldLV), "muon_mapper.earth.gdml");
-  } else {
-    Export(Prototype::Detector::Construct(worldLV), "prototype.gdml");
-    Export(Prototype::Detector::ConstructEarth(worldLV), "prototype.earth.gdml");
+  if (!_export_dir.empty()) {
+    if (_detector == "Flat") {
+      Export(Flat::Detector::Construct(worldLV), _export_dir, "flat.gdml");
+      Export(Flat::Detector::ConstructEarth(worldLV), _export_dir, "flat.earth.gdml");
+    } else if (_detector == "Box") {
+      Export(Box::Detector::Construct(worldLV), _export_dir, "box.gdml");
+      Export(Box::Detector::ConstructEarth(worldLV), _export_dir, "box.earth.gdml");
+    } else if (_detector == "MuonMapper") {
+      Export(MuonMapper::Detector::Construct(worldLV), _export_dir, "muon_mapper.gdml");
+      Export(MuonMapper::Detector::ConstructEarth(worldLV), _export_dir, "muon_mapper.earth.gdml");
+    } else {
+      Export(Prototype::Detector::Construct(worldLV), _export_dir, "prototype.gdml");
+      Export(Prototype::Detector::ConstructEarth(worldLV), _export_dir, "prototype.earth.gdml");
+    }
   }
 
   auto world = PlaceVolume(worldLV, nullptr);
-  if (_detector == "Flat") {
-    Export(world, "world.flat.gdml");
-  } else if (_detector == "Box") {
-    Export(world, "world.box.gdml");
-  } else if (_detector == "MuonMapper") {
-    Export(world, "world.muon_mapper.gdml");
-  } else {
-    Export(world, "world.prototype.gdml");
+  if (!_export_dir.empty()) {
+    if (_detector == "Flat") {
+      Export(world, _export_dir, "world.flat.gdml");
+    } else if (_detector == "Box") {
+      Export(world, _export_dir, "world.box.gdml");
+    } else if (_detector == "MuonMapper") {
+      Export(world, _export_dir, "world.muon_mapper.gdml");
+    } else {
+      Export(world, _export_dir, "world.prototype.gdml");
+    }
   }
 
   std::cout << "Materials: "
@@ -498,10 +503,11 @@ G4RotationMatrix Matrix(const double mxx,
 
 //__GDML File Export____________________________________________________________________________
 void Export(const G4LogicalVolume* volume,
+            const std::string& dir,
             const std::string& file,
             const std::string& schema) {
-  util::io::create_directory("export");
-  auto path = "export/" + file;
+  util::io::create_directory(dir);
+  auto path = dir + "/" + file;
   if (util::io::path_exists(path))
     util::io::remove_file(path);
 
@@ -513,10 +519,11 @@ void Export(const G4LogicalVolume* volume,
 
 //__GDML File Export____________________________________________________________________________
 void Export(const G4VPhysicalVolume* volume,
+            const std::string& dir,
             const std::string& file,
             const std::string& schema) {
-  util::io::create_directory("export");
-  auto path = "export/" + file;
+  util::io::create_directory(dir);
+  auto path = dir + "/" + file;
   if (util::io::path_exists(path))
     util::io::remove_file(path);
 

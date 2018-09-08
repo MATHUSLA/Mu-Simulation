@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
   option gen_opt    ('g', "gen",    "Generator",                option::required_arguments);
   option det_opt    ('d', "det",    "Detector",                 option::required_arguments);
   option data_opt   ('o' ,"out",    "Data Output Directory",    option::required_arguments);
+  option export_opt ('E', "export", "Export Output Directory",  option::required_arguments);
   option script_opt ('s', "script", "Custom Script",            option::required_arguments);
   option events_opt ('e', "events", "Event Count",              option::required_arguments);
   option vis_opt    ('v', "vis",    "Visualization",            option::no_arguments);
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
   //TODO: pass quiet argument to builder and action initiaization to improve quietness
 
   const auto script_argc = -1 + util::cli::parse(argv,
-    {&help_opt, &gen_opt, &det_opt, &data_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
+    {&help_opt, &gen_opt, &det_opt, &data_opt, &export_opt, &script_opt, &events_opt, &vis_opt, &quiet_opt, &thread_opt});
 
   util::error::exit_when(script_argc && !script_opt.argument,
     "[FATAL ERROR] Illegal Forwarding Arguments:\n"
@@ -107,7 +108,8 @@ int main(int argc, char* argv[]) {
   run->SetUserInitialization(physics);
 
   const auto detector = det_opt.argument ? det_opt.argument : "Prototype";
-  run->SetUserInitialization(new Construction::Builder(detector));
+  const auto export_dir = export_opt.argument ? export_opt.argument : "";
+  run->SetUserInitialization(new Construction::Builder(detector, export_dir));
 
   const auto generator = gen_opt.argument ? gen_opt.argument : "basic";
   const auto data_dir = data_opt.argument ? data_opt.argument : "data";
