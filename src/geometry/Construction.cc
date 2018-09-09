@@ -130,6 +130,20 @@ G4VPhysicalVolume* Builder::Construct() {
       Export(Prototype::Detector::Construct(worldLV), _export_dir, "prototype.gdml");
       Export(Prototype::Detector::ConstructEarth(worldLV), _export_dir, "prototype.earth.gdml");
     }
+  } else {
+    if (_detector == "Flat") {
+      Flat::Detector::Construct(worldLV);
+      Flat::Detector::ConstructEarth(worldLV);
+    } else if (_detector == "Box") {
+      Box::Detector::Construct(worldLV);
+      Box::Detector::ConstructEarth(worldLV);
+    } else if (_detector == "MuonMapper") {
+      MuonMapper::Detector::Construct(worldLV);
+      MuonMapper::Detector::ConstructEarth(worldLV);
+    } else {
+      Prototype::Detector::Construct(worldLV);
+      Prototype::Detector::ConstructEarth(worldLV);
+    }
   }
 
   auto world = PlaceVolume(worldLV, nullptr);

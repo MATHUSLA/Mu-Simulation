@@ -1,7 +1,7 @@
 /det/select Box
 
 /gen/select corsica_reader
-/gen/corsica_reader/read_file studies/box/cosmics/corsika/test_files/DAT000001.root
+/gen/corsica_reader/read_file studies/box/cosmics/corsika/files/DAT000001.root
 
 # /vis/filtering/trajectories/create/particleFilter
 # /vis/filtering/trajectories/particleFilter-0/add gamma
@@ -15,4 +15,4 @@
 # /vis/filtering/trajectories/chargeFilter-0/verbose false
 # /vis/filtering/trajectories/chargeFilter-0/active true
 
-/run/beamOn 10000
+/run/beamOn 1

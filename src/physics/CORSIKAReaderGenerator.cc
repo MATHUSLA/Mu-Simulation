@@ -222,8 +222,8 @@ double _convert_primary_id(int corsika_id) {
 //----------------------------------------------------------------------------------------------
 
 //__Load Configuration from TTree to CORSIKAConfig______________________________________________
-void load_config(TTree* tree,
-                 CORSIKAConfig& config) {
+void _load_config(TTree* tree,
+                  CORSIKAConfig& config) {
   auto primary_id = _prepare_leaf(tree, "run.ParticleID");
   auto energy_slope = _prepare_leaf(tree, "run.EnergySlope");
   auto energy_min = _prepare_leaf(tree, "run.EnergyMin");
@@ -274,7 +274,7 @@ void CORSIKAReaderGenerator::SetFile(const std::string& path) {
     if (spec_tree && data_tree && (spec_tree->GetEntries() == 1) && (data_entries > 0)) {
       spec_tree->SetBranchStatus("*", 0);
       if (_config.primary_id == 0)
-        load_config(spec_tree, _config);
+        _load_config(spec_tree, _config);
 
       data_tree->SetBranchStatus("*", 0);
       auto id = _prepare_leaf(data_tree, "particle..ParticleID");
@@ -293,48 +293,84 @@ void CORSIKAReaderGenerator::SetFile(const std::string& path) {
       const auto size = _threaded_count(static_cast<std::size_t>(data_entries));
       _data->clear();
       _data->reserve(size);
+
       for (std::size_t i{}; i < size; ++i) {
         data_tree->GetEntry(_thread_index(i));
         const auto signed_event_size = id->GetLen();
         const auto event_size = signed_event_size > 0 ? static_cast<std::size_t>(signed_event_size) : 0UL;
+
+        _data->emplace_back();
+        auto& next = _data->back();
+        next.reserve(event_size);
+
         std::cout << i << ":\n";
+        std::size_t counter{};
+        long double average_t{}, average_x{}, average_y{};
         for (std::size_t j{}; j < event_size; ++j) {
           const auto particle_id = _convert_primary_id(id->GetValue(j));
-          if (particle_id == PROTON_PDG)
+          if (particle_id == PROTON_PDG) {
+            ++counter;
             continue;
-          _data->emplace_back();
-          auto& back = _data->back();
-          back.reserve(event_size);
+          }
           const auto old_x = x->GetValue(j) * cm;
           const auto old_y = y->GetValue(j) * cm;
           const auto old_px = px->GetValue(j) * GeVperC;
           const auto old_py = py->GetValue(j) * GeVperC;
-          back.push_back(particle_id,
+          next.push_back(particle_id,
                          t->GetValue(j) * ns,
-                         _cms_x_rotation(old_x, old_y) / 1000,
-                         _cms_y_rotation(old_x, old_y) / 1000,
+                         _cms_x_rotation(old_x, old_y),
+                         _cms_y_rotation(old_x, old_y),
                          z_level->GetValue(observation_level->GetValue(j) - 1) * cm - 40*m, // figure out constant
                          _cms_x_rotation(old_px, old_py),
                          _cms_y_rotation(old_px, old_py),
                          pz->GetValue(j) * GeVperC);
-          // /*
+          average_t += next.t.back();
+          average_x += next.x.back();
+          average_y += next.y.back();
+
+          /*
           std::cout << j << ": "
-                    << back.id.back() << " "
-                    << back.t.back() / ns << " "
-                    << back.x.back() / cm << " "
-                    << back.y.back() / cm << " "
-                    << back.z.back() / cm << " "
-                    << back.px.back() / GeVperC << " "
-                    << back.py.back() / GeVperC << " "
-                    << back.pz.back() / GeVperC << "\n";
-          // */
+                    << next.id.back() << " "
+                    << next.t.back() / ns << " "
+                    << next.x.back() / cm << " "
+                    << next.y.back() / cm << " "
+                    << next.z.back() / cm << " "
+                    << next.px.back() / GeVperC << " "
+                    << next.py.back() / GeVperC << " "
+                    << next.pz.back() / GeVperC << "\n";
+          */
         }
+        average_t /= (event_size - counter);
+        average_x /= (event_size - counter);
+        average_y /= (event_size - counter);
+
+        counter = 0UL;
+        for (std::size_t j{}; j < event_size; ++j) {
+          if (_convert_primary_id(id->GetValue(j)) == PROTON_PDG) {
+            ++counter;
+            continue;
+          }
+          next.t[j - counter] -= average_t;
+          next.x[j - counter] -= average_x;
+          next.y[j - counter] -= average_y;
+
+          std::cout //<< j << ": "
+                    //<< next.id[j] << " "
+                    //<< next.t[j] / ns << " "
+                    << next.x[j - counter] / cm << "\n";
+                    //<< next.y[j] / cm << " "
+                    //<< next.z[j] / cm << " "
+                    //<< next.px[j] / GeVperC << " "
+                    //<< next.py[j] / GeVperC << " "
+                    //<< next.pz[j] / GeVperC << "\n";
+        }
+
         std::cout << "\n";
       }
     }
   }
   file.Close();
-  // exit(1);
+  //exit(1);
 }
 //----------------------------------------------------------------------------------------------
 
