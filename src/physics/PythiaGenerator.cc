@@ -26,10 +26,17 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
+//__G4ThreadLocal Static Variables______________________________________________________________
+G4ThreadLocal Pythia8::Pythia* PythiaGenerator::_pythia = nullptr;
+G4ThreadLocal std::vector<std::string>* PythiaGenerator::_pythia_settings = nullptr;
+G4ThreadLocal bool PythiaGenerator::_settings_on = false;
+//----------------------------------------------------------------------------------------------
+
 //__Pythia Generator Construction_______________________________________________________________
 PythiaGenerator::PythiaGenerator(const PropagationList& propagation,
                                  Pythia8::Pythia* pythia)
     : Generator("pythia", "Pythia8 Generator."), _propagation_list(propagation) {
+  _pythia_settings = new std::vector<std::string>();
   SetPythia(pythia);
 
   _read_string = CreateCommand<Command::StringArg>("read_string", "Read Pythia String.");
@@ -66,18 +73,15 @@ PythiaGenerator::PythiaGenerator(const PropagationList& propagation,
 //----------------------------------------------------------------------------------------------
 
 //__Pythia Generator Construction_______________________________________________________________
-PythiaGenerator::PythiaGenerator(Pythia8::Pythia* pythia)
-    : PythiaGenerator({}, pythia) {}
+PythiaGenerator::PythiaGenerator(Pythia8::Pythia* pythia) : PythiaGenerator({}, pythia) {}
 //----------------------------------------------------------------------------------------------
 
 //__Pythia Generator Construction_______________________________________________________________
-PythiaGenerator::PythiaGenerator(const std::vector<std::string>& settings)
-    : PythiaGenerator({}, settings) {}
+PythiaGenerator::PythiaGenerator(const std::vector<std::string>& settings) : PythiaGenerator({}, settings) {}
 //----------------------------------------------------------------------------------------------
 
 //__Pythia Generator Construction_______________________________________________________________
-PythiaGenerator::PythiaGenerator(const std::string& path)
-    : PythiaGenerator({}, path) {}
+PythiaGenerator::PythiaGenerator(const std::string& path) : PythiaGenerator({}, path) {}
 //----------------------------------------------------------------------------------------------
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +92,8 @@ Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
     return new Pythia8::Pythia();
   } else {
     auto out = new Pythia8::Pythia(pythia->settings, pythia->particleData);
+    out->readString("Random:setSeed = on");
+    out->readString("Random:seed = 0");
     // delete pythia;
     return out;
   }
@@ -95,11 +101,13 @@ Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
 //----------------------------------------------------------------------------------------------
 
 //__Create Pythia from Settings_________________________________________________________________
-Pythia8::Pythia* _create_pythia(std::vector<std::string>& settings,
+Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
                                 bool& settings_on) {
   auto pythia = new Pythia8::Pythia();
-  for (const auto& setting : settings)
+  for (const auto& setting : *settings)
     pythia->readString(setting);
+  pythia->readString("Random:setSeed = on");
+  pythia->readString("Random:seed = 0");
   pythia->init();
   settings_on = true;
   return pythia;
@@ -129,7 +137,7 @@ ParticleVector _find_pythia_particles(Pythia8::Event& event,
 
 //__Generate Initial Particles__________________________________________________________________
 void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
-  if (!_settings_on && !_pythia_settings.empty()) {
+  if (!_settings_on && !_pythia_settings->empty()) {
     // delete _pythia;
     _pythia = _create_pythia(_pythia_settings, _settings_on);
   } else if (!_pythia) {
@@ -137,7 +145,8 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   }
 
   ParticleVector particles;
-  while (++_counter) {
+  while (true) {
+    ++_counter;
     if (!_pythia->next()) continue;
     particles = _find_pythia_particles(_pythia->process, _propagation_list);
     if (!particles.empty()) break;
@@ -152,7 +161,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
 void PythiaGenerator::SetNewValue(G4UIcommand* command,
                                   G4String value) {
   if (command == _read_string) {
-    _pythia_settings.push_back(value);
+    _pythia_settings->push_back(value);
     _settings_on = true;
   } else if (command == _read_file) {
     SetPythia(value);
@@ -171,7 +180,7 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   if (!pythia)
     return;
   _counter = 0ULL;
-  _pythia_settings.clear();
+  _pythia_settings->clear();
   _settings_on = false;
   // delete _pythia;
   _pythia = _reconstruct_pythia(pythia);
@@ -181,7 +190,7 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
 
 //__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(const std::vector<std::string>& settings) {
-  _pythia_settings = settings;
+  *_pythia_settings = settings;
   _counter = 0ULL;
   // delete _pythia;
   _pythia = _create_pythia(_pythia_settings, _settings_on);
@@ -191,7 +200,7 @@ void PythiaGenerator::SetPythia(const std::vector<std::string>& settings) {
 //__Set Pythia Object from Settings_____________________________________________________________
 void PythiaGenerator::SetPythia(const std::string& path) {
   _counter = 0ULL;
-  _pythia_settings.clear();
+  _pythia_settings->clear();
   _settings_on = false;
   _path = path;
   // delete _pythia;
@@ -203,10 +212,9 @@ void PythiaGenerator::SetPythia(const std::string& path) {
 
 //__PythiaGenerator Specifications______________________________________________________________
 const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
-
   Analysis::SimSettingList config;
-  if (_path.empty() && !_pythia_settings.empty()) {
-    config = Analysis::IndexedSettings(SimSettingPrefix, "_SETTING_", _pythia_settings);
+  if (_path.empty() && !_pythia_settings->empty()) {
+    config = Analysis::IndexedSettings(SimSettingPrefix, "_SETTING_", *_pythia_settings);
   } else if (!_path.empty()) {
     config.emplace_back(SimSettingPrefix, "_CONFIG", _path);
   }

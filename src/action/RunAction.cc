@@ -106,6 +106,9 @@ void RunAction::BeginOfRunAction(const G4Run* run) {
     Construction::Builder::GetDetectorDataName(),
     Construction::Builder::GetDetectorDataKeys(),
     Construction::Builder::GetDetectorDataKeyTypes());
+
+  if (!G4Threading::IsWorkerThread())
+    std::cout << "\n\n";
 }
 //----------------------------------------------------------------------------------------------
 
@@ -151,7 +154,7 @@ void RunAction::EndOfRunAction(const G4Run*) {
       file->Close();
 
       ++_run_count;
-      std::cout << "\nEnd of Run\nData File: " << _path << "\n\n";
+      std::cout << "\n\n\nEnd of Run\nData File: " << _path << "\n\n";
     }
   }
   lock.unlock();

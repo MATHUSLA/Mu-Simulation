@@ -15,4 +15,4 @@
 # /vis/filtering/trajectories/chargeFilter-0/verbose false
 # /vis/filtering/trajectories/chargeFilter-0/active true
 
-/run/beamOn 1
+/run/beamOn 24

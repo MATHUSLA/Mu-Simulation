@@ -54,12 +54,12 @@ public:
   virtual const Analysis::SimSettingList GetSpecification() const;
 
 private:
-  Pythia8::Pythia* _pythia;
+  static G4ThreadLocal Pythia8::Pythia* _pythia;
+  static G4ThreadLocal std::vector<std::string>* _pythia_settings;
+  static G4ThreadLocal bool _settings_on;
   PropagationList _propagation_list;
-  std::vector<std::string> _pythia_settings;
-  bool _settings_on;
-  std::string _path;
   std::uint_fast64_t _counter;
+  std::string _path;
   Command::StringArg* _add_cut;
   Command::NoArg*     _clear_cuts;
   Command::StringArg* _read_string;

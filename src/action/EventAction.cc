@@ -38,8 +38,10 @@ EventAction::EventAction(const size_t print_modulo) : G4UserEventAction() {
 //__Event Initialization________________________________________________________________________
 void EventAction::BeginOfEventAction(const G4Event* event) {
   _event_id = event->GetEventID();
-  if (_event_id && !(_event_id % _print_modulo))
-    std::cout << "\n\n [ Starting Event " << _event_id << " ]\n\n";
+  std::cout << "\r  Event [ "
+             + std::to_string(_event_id)
+             + " ]"
+             + (!(_event_id % _print_modulo) ? "\n\n" : "");
 }
 //----------------------------------------------------------------------------------------------
 
