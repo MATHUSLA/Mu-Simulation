@@ -65,6 +65,8 @@ inline const std::string prototype_detector_decode(const std::size_t id) {
 }
 //----------------------------------------------------------------------------------------------
 
+namespace io { /////////////////////////////////////////////////////////////////////////////////
+
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 //__Recursive TSystemFile Traversal_____________________________________________________________
 void _collect_paths(TSystemDirectory* dir,
@@ -86,12 +88,44 @@ void _collect_paths(TSystemDirectory* dir,
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Search and Collect ROOT File Paths__________________________________________________________
-inline std::vector<std::string> search_directory(const std::string& path) {
+inline std::vector<std::string> search_directory(const std::string& path,
+                                                 const std::string& ext="root") {
   std::vector<std::string> paths{};
-  _collect_paths(new TSystemDirectory("data", path.c_str()), paths, "root");
+  _collect_paths(new TSystemDirectory("data", path.c_str()), paths, ext);
   return paths;
 }
 //----------------------------------------------------------------------------------------------
+
+//__Save TObjects to File_______________________________________________________________________
+void save_objects(TFile* file,
+                  const TObject* object) {
+  file->WriteTObject(object);
+}
+template<class ...Args>
+void save_objects(TFile* file,
+                  const TObject* object,
+                  Args&& ...args) {
+  save_objects(file, object);
+  save_objects(file, std::forward<Args>(args)...);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Run Function While File is Open_____________________________________________________________
+template<class UnaryFunction>
+UnaryFunction while_open(const std::string& path,
+                         const std::string& mode,
+                         UnaryFunction f) {
+  auto file = TFile::Open(path.c_str(), mode.c_str());
+  if (file && !file->IsZombie()) {
+    file->cd();
+    f(file);
+    file->Close();
+  }
+  return std::move(f);
+}
+//----------------------------------------------------------------------------------------------
+
+} /* namespace io */ ///////////////////////////////////////////////////////////////////////////
 
 namespace string { /////////////////////////////////////////////////////////////////////////////
 
@@ -143,6 +177,8 @@ inline std::string& strip(std::string& string) {
 //----------------------------------------------------------------------------------------------
 
 } /* namespace string */ ///////////////////////////////////////////////////////////////////////
+
+namespace hist { ///////////////////////////////////////////////////////////////////////////////
 
 //__Convert 1D Histogram to CSV File____________________________________________________________
 inline bool to_csv(const std::string& path,
@@ -214,6 +250,10 @@ inline bool to_csv(const std::string& path,
 }
 //----------------------------------------------------------------------------------------------
 
+} /* namespace hist */ /////////////////////////////////////////////////////////////////////////
+
+namespace tree { ///////////////////////////////////////////////////////////////////////////////
+
 //__Convert CSV File to TTree___________________________________________________________________
 inline TTree* from_csv(const std::string& name,
                        const std::string& path,
@@ -224,6 +264,72 @@ inline TTree* from_csv(const std::string& name,
   return out;
 }
 //----------------------------------------------------------------------------------------------
+
+//__Get Tree from File__________________________________________________________________________
+TTree* get(TFile* file,
+           const std::string& name) {
+  return dynamic_cast<TTree*>(file->Get(name.c_str()));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set TTree Branch Base Function______________________________________________________________
+void set_addresses(TTree* tree,
+                   const std::string& name,
+                   void* address) {
+  tree->SetBranchAddress(name.c_str(), address);
+}
+template<class... Args>
+void set_addresses(TTree* tree,
+                   const std::string& name,
+                   void* address,
+                   Args&& ...args) {
+  set_addresses(tree, name, address);
+  set_addresses(tree, std::forward<Args>(args)...);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Linear Traverse Entries in TTree____________________________________________________________
+template<class PreCondition, class Function>
+std::pair<PreCondition, Function> traverse(std::vector<TTree*> trees,
+                                           PreCondition pre_condition,
+                                           Function f) {
+  const auto size = trees.size();
+  std::vector<int64_t> size_vector;
+  size_vector.reserve(size);
+  for (const auto& tree : trees) {
+    const auto entries = tree->GetEntries();
+    if (!pre_condition(entries)) {
+      return std::make_pair(std::move(pre_condition), std::move(f));
+    }
+    size_vector.push_back(entries);
+  }
+
+  std::size_t counter{};
+  bool active = true;
+  for (; active; ++counter) {
+    active = false;
+    for (std::size_t i{}; i < size; ++i) {
+      if (size_vector[i] > counter) {
+        trees[i]->GetEntry(counter);
+        active = true;
+      }
+    }
+    f(counter);
+  }
+
+  return std::make_pair(std::move(pre_condition), std::move(f));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Linear Traverse Entries in TTree____________________________________________________________
+template<class Function>
+Function traverse(std::vector<TTree*> trees,
+                  Function f) {
+  return traverse(trees, [](const int64_t) { return true; }, f).second;
+}
+//----------------------------------------------------------------------------------------------
+
+} /* namespace tree */ /////////////////////////////////////////////////////////////////////////
 
 } /* namespace helper */ ///////////////////////////////////////////////////////////////////////
 
