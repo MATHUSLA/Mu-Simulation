@@ -54,7 +54,7 @@ void _add_to_vertex(G4PrimaryVertex* vertex,
 //__HepMC Generator Constructor_________________________________________________________________
 HepMCGenerator::HepMCGenerator(const PropagationList& propagation,
                                bool unique_events)
-    : Generator("hepmc", "HepMC ROOT Reader", 0, 0, 0, 0),
+    : Generator("hepmc", "HepMC ROOT Reader"),
       /* FIXME: _reader(nullptr),*/ _propagation_list(propagation), _unique(unique_events) {
   _read_file = CreateCommand<Command::StringArg>("readFile", "Read HepMC ROOT File.");
   _read_file->SetParameterName("file", false);

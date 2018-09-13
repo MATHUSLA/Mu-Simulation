@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./simulation -j$2 -o $1 -q -s studies/box/cosmics/muon/script.mac energy $3 count $4

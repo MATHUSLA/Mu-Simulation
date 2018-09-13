@@ -33,36 +33,6 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
-//__Check if Particle Matches the Cut___________________________________________________________
-bool ParticleCut::matches(const int particle_id,
-                          const G4ThreeVector& momentum) const {
-  return matches(particle_id, Convert(momentum));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Check if Particle Matches the Cut___________________________________________________________
-bool ParticleCut::matches(const G4ThreeVector& momentum) const {
-  return matches(Convert(momentum));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Check if Particle Matches the Cut___________________________________________________________
-bool ParticleCut::matches(const int particle_id,
-                          const PseudoLorentzTriplet& triplet) const {
-  return particle_id == id && matches(triplet);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Check if Particle Matches the Cut___________________________________________________________
-bool ParticleCut::matches(const PseudoLorentzTriplet& triplet) const {
-  bool match_pT = true, match_eta = true, match_phi = true;
-  if (min.pT || max.pT) match_pT = (triplet.pT <= max.pT) && (triplet.pT >= min.pT);
-  if (min.eta || max.eta) match_eta = (triplet.eta <= max.eta) && (triplet.eta >= min.eta);
-  if (min.phi || max.phi) match_phi = (triplet.phi <= max.phi) && (triplet.phi >= min.phi);
-  return match_pT && match_eta && match_phi;
-}
-//----------------------------------------------------------------------------------------------
-
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Convert Particle Cut Part to String_________________________________________________________
@@ -88,44 +58,15 @@ void _cut_values_to_string(std::string& out,
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-//__Convert Particle Cut to String______________________________________________________________
-const std::string ParticleCut::to_string() const {
-  auto out = "[ " + std::to_string(id) + " |";
-  _cut_values_to_string(out, min.pT, max.pT, Units::Momentum, Units::MomentumString);
+//__Get ParticleCut String______________________________________________________________________
+const std::string GetParticleCutString(const ParticleCut& cut) {
+  auto out = "[ " + std::to_string(cut.id) + " |";
+  _cut_values_to_string(out, cut.min.pT, cut.max.pT, Units::Momentum, Units::MomentumString);
   out += "|";
-  _cut_values_to_string(out, min.eta, max.eta, 1, "");
+  _cut_values_to_string(out, cut.min.eta, cut.max.eta, 1, "");
   out += "|";
-  _cut_values_to_string(out, min.phi, max.phi, Units::Angle, Units::AngleString);
+  _cut_values_to_string(out, cut.min.phi, cut.max.phi, Units::Angle, Units::AngleString);
   return out + " ]";
-}
-//----------------------------------------------------------------------------------------------
-
-//__Check if Particle Matches Any Cut in PropagationList________________________________________
-bool InPropagationList(const PropagationList& list,
-                       const int particle_id,
-                       const G4ThreeVector& momentum) {
-  for (const auto& cut : list)
-    if (cut.matches(particle_id, momentum)) return true;
-  return false;
-}
-bool InPropagationList(const PropagationList& list,
-                       const G4ThreeVector& momentum) {
-  for (const auto& cut : list)
-    if (cut.matches(momentum)) return true;
-  return false;
-}
-bool InPropagationList(const PropagationList& list,
-                       const int particle_id,
-                       const PseudoLorentzTriplet& triplet) {
-  for (const auto& cut : list)
-    if (cut.matches(particle_id, triplet)) return true;
-  return false;
-}
-bool InPropagationList(const PropagationList& list,
-                       const PseudoLorentzTriplet& triplet) {
-  for (const auto& cut : list)
-    if (cut.matches(triplet)) return true;
-  return false;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -207,10 +148,10 @@ const PropagationList ParsePropagationList(const std::string& cut_string) {
     for (auto& particle : particles) {
       util::string::strip(particle);
       if (particle[0] == '-' || particle[0] == '+') {
-        out.emplace_back( std::stol(particle), min, max);
+        out.push_back({{ std::stoi(particle)}, {min, max}});
       } else {
-        out.emplace_back(-std::stol(particle), min, max);
-        out.emplace_back( std::stol(particle), min, max);
+        out.push_back({{-std::stoi(particle)}, {min, max}});
+        out.push_back({{ std::stoi(particle)}, {min, max}});
       }
     }
 
@@ -222,95 +163,12 @@ const PropagationList ParsePropagationList(const std::string& cut_string) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Mass of Particle from ID________________________________________________________________
-double GetMass(const int id) {
-  return id == 0 ? 0 : G4ParticleTable::GetParticleTable()->FindParticle(id)->GetPDGMass();
-}
-//----------------------------------------------------------------------------------------------
-
-//__Get Momentum from Mass and Kinetic Energy___________________________________________________
-const G4ThreeVector GetMomentum(const double mass,
-                                const double ke,
-                                const G4ThreeVector& p_unit) {
-  return p_unit.unit() * std::sqrt(ke * (ke + 2.0L * mass));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
-const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
-  const auto magnitude = momentum.mag();
-  if (magnitude == 0)
-    return {};
-  const auto eta = std::atanh(momentum.x() / magnitude);
-  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
-}
-//----------------------------------------------------------------------------------------------
-
-//__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
-const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
-  return G4ThreeVector(
-     triplet.pT * std::sinh(triplet.eta),
-     triplet.pT * std::sin(triplet.phi),
-    -triplet.pT * std::cos(triplet.phi));
-}
-//----------------------------------------------------------------------------------------------
-
-//__Default Vertex for IP_______________________________________________________________________
-G4PrimaryVertex* DefaultVertex() {
-  return Vertex(0, 0, 100*m);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generate Primary Vertex_____________________________________________________________________
-G4PrimaryVertex* Vertex(const double x,
-                        const double y,
-                        const double z) {
-  return Vertex(0, x, y, z);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generate Primary Vertex_____________________________________________________________________
-G4PrimaryVertex* Vertex(const double t,
-                        const double x,
-                        const double y,
-                        const double z) {
-  return new G4PrimaryVertex(x, y, z, t);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generate Primary Vertex_____________________________________________________________________
-G4PrimaryVertex* Vertex(const G4ThreeVector& vertex) {
-  return Vertex(vertex.x(), vertex.y(), vertex.z());
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generate Primary Vertex_____________________________________________________________________
-G4PrimaryVertex* Vertex(const double t,
-                        const G4ThreeVector& vertex) {
-  return Vertex(t, vertex.x(), vertex.y(), vertex.z());
-}
-//----------------------------------------------------------------------------------------------
-
-//__Create Particle from ID and Momentum________________________________________________________
-G4PrimaryParticle* CreateParticle(const int id,
-                                  const G4ThreeVector& p) {
-  return new G4PrimaryParticle(id, p.x(), p.y(), p.z());
-}
-//----------------------------------------------------------------------------------------------
-
-//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
-G4PrimaryParticle* CreateParticle(const int id,
-                                  const double pT,
-                                  const double eta,
-                                  const double phi) {
-  return CreateParticle(id, PseudoLorentzTriplet{pT, eta, phi});
-}
-//----------------------------------------------------------------------------------------------
-
-//__Create Particle from ID and Pseudo-Lorentz Triplet__________________________________________
-G4PrimaryParticle* CreateParticle(const int id,
-                                  const PseudoLorentzTriplet& triplet) {
-  return CreateParticle(id, Convert(triplet));
+//__Check if Particle Matches Any Cut in PropagationList________________________________________
+bool InPropagationList(const PropagationList& list,
+                       const BasicParticle& particle) {
+  for (const auto& cut : list)
+    if (cut(particle)) return true;
+  return false;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -325,79 +183,9 @@ const std::string Generator::SimSettingPrefix = "GEN";
 //__Generator Constructor_______________________________________________________________________
 Generator::Generator(const std::string& name,
                      const std::string& description,
-                     const int id,
-                     const double pT,
-                     const double eta,
-                     const double phi)
-    : Generator(name, description, id, pT, eta, phi, 0, {0, 0, 100*m}) {}
-//----------------------------------------------------------------------------------------------
-
-//__Generator Constructor_______________________________________________________________________
-Generator::Generator(const std::string& name,
-                     const std::string& description,
-                     const int id,
-                     const double ke,
-                     const G4ThreeVector& p_unit)
-    : Generator(name, description, id, ke, p_unit, 0, {0, 0, 100*m}) {}
-//----------------------------------------------------------------------------------------------
-
-//__Generator Constructor_______________________________________________________________________
-Generator::Generator(const std::string& name,
-                     const std::string& description,
-                     const int id,
-                     const double pT,
-                     const double eta,
-                     const double phi,
-                     const G4ThreeVector& vertex)
-    : Generator(name, description, id, pT, eta, phi, 0, vertex) {}
-//----------------------------------------------------------------------------------------------
-
-//__Generator Constructor_______________________________________________________________________
-Generator::Generator(const std::string& name,
-                     const std::string& description,
-                     const int id,
-                     const double ke,
-                     const G4ThreeVector& p_unit,
-                     const G4ThreeVector& vertex)
-    : Generator(name, description, id, ke, p_unit, 0, vertex) {}
-//----------------------------------------------------------------------------------------------
-
-//__Generator Constructor_______________________________________________________________________
-Generator::Generator(const std::string& name,
-                     const std::string& description,
-                     const int id,
-                     const double pT,
-                     const double eta,
-                     const double phi,
-                     const double t0,
-                     const G4ThreeVector& vertex)
+                     const Particle& particle)
     : G4UImessenger(MessengerDirectory + name + '/', description),
-      _name(name), _description(description),
-      _id(id), _pT(pT), _eta(eta), _phi(phi), _mass(GetMass(id)), _using_pt_eta_phi(true),
-      _t0(t0), _vertex(vertex) {
-  const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
-  _ke = std::hypot(conversion.mag(), _mass) - _mass;
-  _p_unit = conversion.unit();
-  GenerateCommands();
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generator Constructor_______________________________________________________________________
-Generator::Generator(const std::string& name,
-                     const std::string& description,
-                     const int id,
-                     const double ke,
-                     const G4ThreeVector& p_unit,
-                     const double t0,
-                     const G4ThreeVector& vertex)
-    : G4UImessenger(MessengerDirectory + name + '/', description),
-      _name(name), _description(description),
-      _id(id), _ke(ke), _p_unit(p_unit), _mass(GetMass(id)), _using_pt_eta_phi(false),
-      _t0(t0), _vertex(vertex) {
-  const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
-  _pT = conversion.pT;
-  _eta = conversion.eta;
-  _phi = conversion.phi;
+      _name(name), _description(description), _particle(particle) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -405,8 +193,7 @@ Generator::Generator(const std::string& name,
 //__Generator Constructor_______________________________________________________________________
 Generator::Generator(const std::string& name,
                      const std::string& description)
-    : G4UImessenger(MessengerDirectory + name + '/', description),
-      _name(name), _description(description) {}
+    : Generator(name, description, {}) {}
 //----------------------------------------------------------------------------------------------
 
 //__Generate UI Commands________________________________________________________________________
@@ -457,74 +244,48 @@ void Generator::GenerateCommands() {
 
 //__Generate Initial Particles__________________________________________________________________
 void Generator::GeneratePrimaryVertex(G4Event* event) {
-  auto vertex = Vertex(_t0, _vertex);
-  if (_using_pt_eta_phi) {
-    vertex->SetPrimary(CreateParticle(_id, _pT, _eta, _phi));
-  } else {
-    vertex->SetPrimary(CreateParticle(_id, GetMomentum(_mass, _ke, _p_unit)));
-  }
-  event->AddPrimaryVertex(vertex);
+  AddParticle(_particle, *event);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generator Messenger Set Value_______________________________________________________________
-void Generator::SetNewValue(G4UIcommand* command, G4String value) {
+void Generator::SetNewValue(G4UIcommand* command,
+                            G4String value) {
   if (command == _ui_id) {
-    _id = _ui_id->GetNewIntValue(value);
-    _mass = GetMass(_id);
+    _particle.id = _ui_id->GetNewIntValue(value);
   } else if (command == _ui_pT) {
-    _pT = _ui_pT->GetNewDoubleValue(value);
-    _using_pt_eta_phi = true;
+    _particle.set_pT(_ui_pT->GetNewDoubleValue(value));
   } else if (command == _ui_eta) {
-    _eta = _ui_eta->GetNewDoubleValue(value);
-    _using_pt_eta_phi = true;
+    _particle.set_eta(_ui_eta->GetNewDoubleValue(value));
   } else if (command == _ui_phi) {
-    _phi = _ui_phi->GetNewDoubleValue(value);
-    _using_pt_eta_phi = true;
+    _particle.set_phi(_ui_phi->GetNewDoubleValue(value));
   } else if (command == _ui_ke) {
-    _ke = _ui_ke->GetNewDoubleValue(value);
-    _using_pt_eta_phi = false;
+    _particle.set_ke(_ui_ke->GetNewDoubleValue(value));
   } else if (command == _ui_p) {
-    _p_unit = _ui_p->GetNew3VectorValue(value).unit();
-    _using_pt_eta_phi = false;
+    _particle.set_p_unit(_ui_p->GetNew3VectorValue(value).unit());
   } else if (command == _ui_t0) {
-    _t0 = _ui_t0->GetNewDoubleValue(value);
+    _particle.t = _ui_t0->GetNewDoubleValue(value);
   } else if (command == _ui_vertex) {
-    _vertex = _ui_vertex->GetNew3VectorValue(value);
+    _particle.set_vertex(_ui_vertex->GetNew3VectorValue(value));
   }
-
-  if (_using_pt_eta_phi) {
-    const auto conversion = Convert(PseudoLorentzTriplet{_pT, _eta, _phi});
-    _ke = std::hypot(conversion.mag(), _mass) - _mass;
-    _p_unit = conversion.unit();
-  } else {
-    const auto conversion = Convert(GetMomentum(_mass, _ke, _p_unit));
-    _pT = conversion.pT;
-    _eta = conversion.eta;
-    _phi = conversion.phi;
-  }
-}
-//----------------------------------------------------------------------------------------------
-
-//__Total Momentum______________________________________________________________________________
-const G4ThreeVector Generator::p() const {
-  return GetMomentum(_mass, _ke, _p_unit);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generator Information String________________________________________________________________
 std::ostream& Generator::Print(std::ostream& os) const {
   return os << "Generator Info:\n  "
-            << "Name: "        << _name                        << "\n  "
-            << "Description: " << _description                 << "\n  "
-            << "Particle ID: " << _id                          << "\n  "
-            << "pT: "          << G4BestUnit(_pT, "Momentum")  << "\n  "
-            << "eta: "         << _eta                         << "\n  "
-            << "phi: "         << G4BestUnit(_phi, "Angle")    << "\n  "
-            << "ke: "          << G4BestUnit(_ke, "Energy")    << "\n  "
-            << "p_unit: "      << _p_unit                      << "\n  "
-            << "vertex: "      << G4BestUnit(_t0, "Time")       << " "
-                               << G4BestUnit(_vertex, "Length") << "\n";
+            << "Name:        "  << _name                                  << "\n  "
+            << "Description: "  << _description                           << "\n  "
+            << "Particle ID: "  << _particle.id                           << "\n  "
+            << "pT:          "  << G4BestUnit(_particle.pT(), "Momentum") << "\n  "
+            << "eta:         "  << _particle.eta()                        << "\n  "
+            << "phi:         "  << G4BestUnit(_particle.phi(), "Angle")   << "\n  "
+            << "ke:          "  << G4BestUnit(_particle.ke(), "Energy")   << "\n  "
+            << "p_unit:      "  << _particle.p_unit()                     << "\n  "
+            << "vertex:      (" << G4BestUnit(_particle.t, "Time")        << ", "
+                                << G4BestUnit(_particle.x, "Length")      << ", "
+                                << G4BestUnit(_particle.y, "Length")      << ", "
+                                << G4BestUnit(_particle.z, "Length")      << ")\n";
 }
 //----------------------------------------------------------------------------------------------
 
@@ -532,18 +293,18 @@ std::ostream& Generator::Print(std::ostream& os) const {
 const Analysis::SimSettingList Generator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
     "",        _name,
-    "_PDG_ID", std::to_string(_id),
-    "_PT",     std::to_string(_pT / Units::Momentum) + " " + Units::MomentumString,
-    "_ETA",    std::to_string(_eta),
-    "_PHI",    std::to_string(_phi / Units::Angle) + " " + Units::AngleString,
-    "_KE",     std::to_string(_ke / Units::Energy) + " " + Units::EnergyString,
-    "_P_UNIT", "(" + std::to_string(_p_unit.x()) + ", "
-                   + std::to_string(_p_unit.y()) + ", "
-                   + std::to_string(_p_unit.z()) + ")",
-    "_VERTEX", "(" + std::to_string(_t0         / Units::Time)   + ", "
-                   + std::to_string(_vertex.x() / Units::Length) + ", "
-                   + std::to_string(_vertex.y() / Units::Length) + ", "
-                   + std::to_string(_vertex.z() / Units::Length) + ")");
+    "_PDG_ID", std::to_string(_particle.id),
+    "_PT",     std::to_string(_particle.pT() / Units::Momentum)  + " " + Units::MomentumString,
+    "_ETA",    std::to_string(_particle.eta()),
+    "_PHI",    std::to_string(_particle.phi() / Units::Angle)    + " " + Units::AngleString,
+    "_KE",     std::to_string(_particle.ke() / Units::Energy)    + " " + Units::EnergyString,
+    "_P_UNIT", "(" + std::to_string(_particle.p_unit().x())      + ", "
+                   + std::to_string(_particle.p_unit().y())      + ", "
+                   + std::to_string(_particle.p_unit().z())      + ")",
+    "_VERTEX", "(" + std::to_string(_particle.t / Units::Time)   + ", "
+                   + std::to_string(_particle.x / Units::Length) + ", "
+                   + std::to_string(_particle.y / Units::Length) + ", "
+                   + std::to_string(_particle.z / Units::Length) + ")");
 }
 //----------------------------------------------------------------------------------------------
 

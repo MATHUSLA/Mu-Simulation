@@ -5,6 +5,8 @@
 #------------- SETUP -------------#
 /det/select MuonMapper
 /gen/select basic
+/gen/basic/vertex 0 0 100
+/gen/basic/p_unit 0 0 -1
 #---------------------------------#
 
 #-------------- RUN --------------#

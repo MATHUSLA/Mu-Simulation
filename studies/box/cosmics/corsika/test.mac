@@ -1,0 +1,18 @@
+/det/select Box
+
+/gen/select corsica_reader
+/gen/corsica_reader/read_file studies/box/cosmics/corsika/files/DAT000001.root
+
+# /vis/filtering/trajectories/create/particleFilter
+# /vis/filtering/trajectories/particleFilter-0/add gamma
+# /vis/filtering/trajectories/particleFilter-0/invert true
+# /vis/filtering/trajectories/particleFilter-0/verbose false
+# /vis/filtering/trajectories/particleFilter-0/active true
+
+# /vis/filtering/trajectories/create/chargeFilter
+# /vis/filtering/trajectories/chargeFilter-0/add 0
+# /vis/filtering/trajectories/chargeFilter-0/invert true
+# /vis/filtering/trajectories/chargeFilter-0/verbose false
+# /vis/filtering/trajectories/chargeFilter-0/active true
+
+/run/beamOn 24

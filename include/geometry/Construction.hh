@@ -53,7 +53,8 @@ extern G4Material* Iron;
 //__Geometry Builder Class______________________________________________________________________
 class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:
-  Builder(const std::string& detector);
+  Builder(const std::string& detector,
+          const std::string& export_dir);
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
 
@@ -258,12 +259,14 @@ G4RotationMatrix Matrix(const double mxx,
 
 //__GDML File Export____________________________________________________________________________
 void Export(const G4LogicalVolume* volume,
+            const std::string& dir,
             const std::string& file,
             const std::string& schema="");
 //----------------------------------------------------------------------------------------------
 
 //__GDML File Export____________________________________________________________________________
 void Export(const G4VPhysicalVolume* volume,
+            const std::string& dir,
             const std::string& file,
             const std::string& schema="");
 //----------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 
 #include <Geant4/tls.hh>
 
+#include "physics/CORSIKAReaderGenerator.hh"
 #include "physics/PythiaGenerator.hh"
 #include "physics/HepMCGenerator.hh"
 #include "physics/Units.hh"
@@ -45,12 +46,10 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       G4UImessenger(Physics::Generator::MessengerDirectory, "Particle Generators.") {
 
   _gen_map["basic"] = new Physics::Generator(
-      "basic", "Default Generator.",
-      13, 60*GeVperC, 0, 0*deg);
+      "basic", "Default Generator.", {});
 
   _gen_map["range"] = new Physics::RangeGenerator(
-      "range", "Default Range Generator.",
-      13, 60*GeVperC, 0.1, 5*deg);
+      "range", "Default Range Generator.", {});
 
   _gen_map["pythia"] = new Physics::PythiaGenerator(
       {},
@@ -64,9 +63,9 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onIfAny = 13"
       });
 
-  _gen_map["hepmc"] = new Physics::HepMCGenerator(
-      {{13, {0, 0, 0},
-            {0, 0, 0}}});
+  _gen_map["hepmc"] = new Physics::HepMCGenerator({});
+
+  _gen_map["corsica_reader"] = new Physics::CORSIKAReaderGenerator();
 
   std::string generators;
   for (const auto& element : _gen_map) {
@@ -103,15 +102,10 @@ void GeneratorAction::SetNewValue(G4UIcommand* command,
     SetGenerator(value);
   } else if (command == _list) {
     std::cout << "Generators: \n";
-    for (const auto& element : _gen_map) {
-      const auto& gen = element.second;
-      std::cout << element.first << ": \n  "
-                << "pT "  << G4BestUnit(gen->pT(), "Momentum") << "  "
-                << "eta " << gen->eta()                        << "  "
-                << "phi " << G4BestUnit(gen->phi(), "Angle")   << "\n\n";
-    }
+    for (const auto& element : _gen_map)
+      std::cout << element.second << "\n";
   } else if (command == _current) {
-    std::cout << "Current Generator: \n  " << _gen->GetName() << "\n\n";
+    std::cout << "Current Generator: \n  " << _gen->name() << "\n\n";
   }
 }
 //----------------------------------------------------------------------------------------------

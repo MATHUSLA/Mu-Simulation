@@ -53,10 +53,12 @@ add_executable(simulation
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
 
+    src/physics/Particle.cc
     src/physics/Generator.cc
     src/physics/HepMCGenerator.cc
     src/physics/PythiaGenerator.cc
     src/physics/RangeGenerator.cc
+    src/physics/CORSIKAReaderGenerator.cc
 
     src/tracking.cc
 
@@ -66,7 +68,6 @@ add_executable(simulation
 target_compile_features(simulation PUBLIC cxx_std_14)
 target_compile_options(simulation PUBLIC -Wno-missing-braces
                                          -pthread
-                                         -ftls-model=global-dynamic
                                          -fPIC)
 
 target_link_libraries(simulation PUBLIC

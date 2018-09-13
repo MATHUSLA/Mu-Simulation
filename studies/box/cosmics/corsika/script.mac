@@ -1,0 +1,6 @@
+/det/select Box
+
+/gen/select corsica_reader
+/gen/corsica_reader/read_file {file}
+
+/run/beamOn {count}
