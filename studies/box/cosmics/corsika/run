@@ -1,3 +1,2 @@
 #!/bin/bash
-
 ./simulation -q -o $1 -j$2 -s studies/box/cosmics/corsika/script.mac file $3 count $4
