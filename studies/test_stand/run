@@ -1,0 +1,2 @@
+#!/bin/bash
+./simulation -j$2 -q -o $1 -s studies/test_stand/script.mac count $3

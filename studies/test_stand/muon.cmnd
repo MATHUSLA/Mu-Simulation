@@ -1,0 +1,9 @@
+! File: muon.cmnd
+
+Print:quiet = on
+Next:numberCount = 10000
+Stat:showErrors = off
+Beams:eCM = 13000.
+WeakSingleBoson:ffbar2W = on
+24:onMode = off
+24:onIfAny = 13

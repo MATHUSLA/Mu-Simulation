@@ -1,0 +1,9 @@
+/det/select Prototype
+
+/gen/select pythia
+/gen/pythia/read_file studies/test_stand/muon.cmnd
+
+/gen/pythia/cuts/clear
+/gen/pythia/cuts/add 13 | | -0.1:0.1 | -0.2:0.2 rad
+
+/run/beamOn {count}
