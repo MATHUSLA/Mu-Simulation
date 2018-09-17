@@ -4,6 +4,6 @@
 /gen/pythia/read_file studies/test_stand/muon.cmnd
 
 /gen/pythia/cuts/clear
-/gen/pythia/cuts/add 13 | | -0.1:0.1 | -0.2:0.2 rad
+/gen/pythia/cuts/add 13 | 45: | -0.01:0.01 | -0.01:0.01 rad
 
 /run/beamOn {count}
