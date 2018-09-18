@@ -161,12 +161,6 @@ const G4ThreeVector BasicParticle::p() const {
 
 //__Set Basic Particle PT_______________________________________________________________________
 void BasicParticle::set_pT(double new_pT) {
-
-// triplet.pT * std::sinh(triplet.eta),
-// triplet.pT * std::sin(triplet.phi),
-// -triplet.pT * std::cos(triplet.phi)
-
-
   set_pseudo_lorentz_triplet(new_pT, eta(), phi());
 }
 //----------------------------------------------------------------------------------------------
@@ -202,15 +196,9 @@ void BasicParticle::set_eta(double new_eta) {
 
 //__Set Basic Particle PHI______________________________________________________________________
 void BasicParticle::set_phi(double new_phi) {
-  // triplet.pT * std::sinh(triplet.eta),
-  // triplet.pT * std::sin(triplet.phi),
-  // -triplet.pT * std::cos(triplet.phi)
-
   const auto rotation = _rotate(-pz, py, new_phi - phi());
   pz = -rotation.first;
   py = rotation.second;
-
-  // set_pseudo_lorentz_triplet(pT(), eta(), new_phi);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -251,7 +239,7 @@ void BasicParticle::set_p_unit(double pu_x,
 //__Set Basic Particle Momentum Unit Vector_____________________________________________________
 void BasicParticle::set_p_unit(const G4ThreeVector& new_p_unit) {
   const auto magnitude = p_mag();
-  set_p((!magnitude ? 1 : magnitude) * new_p_unit.unit());
+  set_p((!magnitude ? 1.0L : magnitude) * new_p_unit.unit());
 }
 //----------------------------------------------------------------------------------------------
 

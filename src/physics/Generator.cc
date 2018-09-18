@@ -72,6 +72,12 @@ const std::string GetParticleCutString(const ParticleCut& cut) {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+//__Check if String has Number__________________________________________________________________
+bool _has_digit(const std::string& s) {
+  return std::any_of(s.begin(), s.end(), ::isdigit);
+}
+//----------------------------------------------------------------------------------------------
+
 //__Set the Propagation Variables_______________________________________________________________
 bool _set_propagation_limits(double& min,
                              double& max,
@@ -83,7 +89,6 @@ bool _set_propagation_limits(double& min,
 
   std::vector<std::string> cuts;
   util::string::split(substring, cuts, ":");
-  const auto size = cuts.size();
 
   double unit{1.0L};
   for (std::size_t i{}; i < possible_unit_strings.size(); ++i) {
@@ -92,23 +97,17 @@ bool _set_propagation_limits(double& min,
   }
 
   try {
-    if (size == 1UL) {
-      if (!cuts[0].empty()) {
-        if (substring[0] == ':') {
-          min = -std::numeric_limits<double>::infinity() * unit;
-          max = std::stold(cuts[0]) * unit;
-          return true;
-        } else if (substring[substring.size() - 1UL] == ':') {
-          min = std::stold(cuts[0]) * unit;
-          max = std::numeric_limits<double>::infinity() * unit;
-          return true;
-        }
-      }
-    } else if (size == 2UL) {
+    if (!_has_digit(cuts[0])) {
+      min = -std::numeric_limits<double>::infinity() * unit;
+      max = std::stold(cuts[1]) * unit;
+    } else if (!_has_digit(cuts[1])) {
+      min = std::stold(cuts[0]) * unit;
+      max = std::numeric_limits<double>::infinity() * unit;
+    } else {
       min = std::stold(cuts[0]) * unit;
       max = std::stold(cuts[1]) * unit;
-      return true;
     }
+    return true;
   } catch (...) {}
   return false;
 }
