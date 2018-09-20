@@ -229,19 +229,19 @@ _event_subtree _load_subtree(TTree* spec_tree,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Load Event from Subtree_____________________________________________________________________
-void _load_event(const std::size_t i,
-                 _event_subtree& subtree,
-                 const int particle_id,
-                 const long double height,
-                 CORSIKAEvent& out) {
+//__Load Particle from Subtree__________________________________________________________________
+void _load_particle(const std::size_t i,
+                    _event_subtree& subtree,
+                    const int particle_id,
+                    const long double height,
+                    CORSIKAEvent& out) {
   const auto position = _cms_rotation(subtree.x->GetValue(i), subtree.y->GetValue(i));
   const auto momentum = _cms_rotation(subtree.px->GetValue(i), subtree.py->GetValue(i));
   out.push_back(particle_id,
                 subtree.t->GetValue(i) * ns,
                 position.first * cm,
                 position.second * cm,
-                subtree.z->GetValue(subtree.obs->GetValue(i) - 1) * cm - height,
+                subtree.z->GetValue(subtree.obs->GetValue(i) - 1) * cm + height,
                 momentum.first * GeVperC,
                 momentum.second * GeVperC,
                 subtree.pz->GetValue(i) * GeVperC);
@@ -364,17 +364,17 @@ void _fill_data(const std::string& path,
           const auto particle_id = _convert_primary_id(subtree.id->GetValue(j));
           if (particle_id == PROTON_PDG || particle_id == NEUTRON_PDG)
             continue;
-          _load_event(j, subtree, particle_id, particle.z, next);
+          _load_particle(j, subtree, particle_id, particle.z, next);
         }
 
-        const auto next_size = next.size();
-        if (next_size == 0)
+        if (next.empty())
           continue;
 
         _transform_and_split_event(next, 500*ns, particle.x, particle.y, events);
       }
     }
   }
+
   file.Close();
 }
 //----------------------------------------------------------------------------------------------
@@ -401,11 +401,12 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator()
 
 //__Generate Initial Particles__________________________________________________________________
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  std::cout << _data_index << " " << _data->size();
+  // std::cout << _data_index << " " << _data->size();
   if (_data_index < _data->size()) {
     const auto entry = (*_data)[_data_index];
     for (std::size_t i{}; i < entry.size(); ++i)
       AddParticle(entry[i], *event);
+    std::cout << "EVENT!\n";
     ++_data_index;
   } else {
     // load in new particles or ignore
@@ -418,18 +419,16 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
                                          G4String value) {
   if (command == _read_file) {
     SetFile(value);
-  } else if (command == _run) {
     if (G4Threading::IsWorkerThread()) {
       G4AutoLock lock(&_mutex);
       _fill_data(_path, _particle, _config, *_data, _calculate_thread_range);
-      _active_count += _data->size();
-      _active_mode += 1UL;
+      // _active_count += _data->size();
+      // _active_mode += 1UL;
     }
-
-    if (_active_mode == static_cast<std::size_t>(G4Threading::GetNumberOfRunningWorkerThreads())) {
-      // G4RunManager::GetRunManager()->RunInitialization();//BeamOn(_active_count);
-      // G4RunManager::GetRunManager()->RunTermination();
-    }
+  } else if (command == _run) {
+    // TODO: fix
+  } else {
+    Generator::SetNewValue(command, value);
   }
 }
 //----------------------------------------------------------------------------------------------
@@ -437,9 +436,9 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
 //__Set Pythia Object from Settings_____________________________________________________________
 void CORSIKAReaderGenerator::SetFile(const std::string& path) {
   _path = path;
-  _active_count = 0UL;
   _data_index = 0UL;
-  _active_mode = 0UL;
+  // _active_count = 0UL;
+  // _active_mode = 0UL;
 }
 //----------------------------------------------------------------------------------------------
 

@@ -92,8 +92,10 @@ bool _set_propagation_limits(double& min,
 
   double unit{1.0L};
   for (std::size_t i{}; i < possible_unit_strings.size(); ++i) {
-    if (substring.rfind(possible_unit_strings[i]) != std::string::npos)
+    if (substring.rfind(possible_unit_strings[i]) != std::string::npos) {
       unit = possible_units[i];
+      break;
+    }
   }
 
   try {
