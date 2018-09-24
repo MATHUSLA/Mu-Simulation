@@ -362,15 +362,15 @@ void _fill_data(const std::string& path,
 
         for (std::size_t j{}; j < event_size; ++j) {
           const auto particle_id = _convert_primary_id(subtree.id->GetValue(j));
-          if (particle_id == PROTON_PDG || particle_id == NEUTRON_PDG)
-            continue;
+          //if (particle_id == PROTON_PDG || particle_id == NEUTRON_PDG)
+            //continue;
           _load_particle(j, subtree, particle_id, particle.z, next);
         }
 
         if (next.empty())
           continue;
 
-        _transform_and_split_event(next, 500*ns, particle.x, particle.y, events);
+        _transform_and_split_event(next, 50000000*ns, particle.x, particle.y, events);
       }
     }
   }
@@ -401,12 +401,13 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator()
 
 //__Generate Initial Particles__________________________________________________________________
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  // std::cout << _data_index << " " << _data->size();
+  //std::cout << "      ---" << _data_index << " " << _data->size();
   if (_data_index < _data->size()) {
     const auto entry = (*_data)[_data_index];
+    std::cout << "<><><> ++ " << entry.size() << "\n";
     for (std::size_t i{}; i < entry.size(); ++i)
       AddParticle(entry[i], *event);
-    std::cout << "EVENT!\n";
+    //std::cout << "EVENT!\n";
     ++_data_index;
   } else {
     // load in new particles or ignore
