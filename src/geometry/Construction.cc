@@ -102,8 +102,6 @@ Builder::Builder(const std::string& detector,
 
 //__Build World and Detector Geometry___________________________________________________________
 G4VPhysicalVolume* Builder::Construct() {
-  constexpr static auto WorldLength = 1000*m;
-
   G4GeometryManager::GetInstance()->OpenGeometry();
   G4PhysicalVolumeStore::GetInstance()->Clean();
   G4LogicalVolumeStore::GetInstance()->Clean();

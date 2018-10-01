@@ -27,6 +27,7 @@
 #include <ROOT/TTree.h>
 #include <ROOT/TLeaf.h>
 
+#include "geometry/Construction.hh"
 #include "physics/Units.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -278,15 +279,21 @@ CORSIKAEvent _time_sort(const CORSIKAEvent& event) {
 //----------------------------------------------------------------------------------------------
 
 //__Shift Event X and Y_________________________________________________________________________
-CORSIKAEvent& _shift_event_xy(CORSIKAEvent& event,
-                              const std::size_t size,
-                              const long double x_shift,
-                              const long double y_shift) {
+CORSIKAEvent _shift_event_xy(CORSIKAEvent& event,
+                             const std::size_t size,
+                             const long double x_shift,
+                             const long double y_shift) {
+  CORSIKAEvent out;
+  out.reserve(size);
   for (std::size_t i{}; i < size; ++i) {
     event.x[i] -= x_shift;
     event.y[i] -= y_shift;
+    if (!( std::abs(event.x[i]) >= Construction::WorldLength / 2.0L
+        || std::abs(event.y[i]) >= Construction::WorldLength / 2.0L))
+      out.push_back(event[i]);
   }
-  return event;
+
+  return out;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -336,6 +343,7 @@ void _transform_and_split_event(const CORSIKAEvent& event,
 template<class RangeCalculator>
 void _fill_data(const std::string& path,
                 const Particle& particle,
+                const double time_block,
                 CORSIKAConfig& config,
                 CORSIKAEventVector& events,
                 RangeCalculator range) {
@@ -362,15 +370,13 @@ void _fill_data(const std::string& path,
 
         for (std::size_t j{}; j < event_size; ++j) {
           const auto particle_id = _convert_primary_id(subtree.id->GetValue(j));
-          //if (particle_id == PROTON_PDG || particle_id == NEUTRON_PDG)
-            //continue;
           _load_particle(j, subtree, particle_id, particle.z, next);
         }
 
         if (next.empty())
           continue;
 
-        _transform_and_split_event(next, 50000000*ns, particle.x, particle.y, events);
+        _transform_and_split_event(next, time_block, particle.x, particle.y, events);
       }
     }
   }
@@ -384,33 +390,30 @@ void _fill_data(const std::string& path,
 //__Initialize CORSIKA Data Vector______________________________________________________________
 G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
 G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
-std::size_t CORSIKAReaderGenerator::_active_mode = 0UL;
 //----------------------------------------------------------------------------------------------
 
 //__CORSIKA Reader Generator Constructor________________________________________________________
 CORSIKAReaderGenerator::CORSIKAReaderGenerator()
-    : Generator("corsika_reader", "CORSIKA Reader Generator."), _path("") {
+    : Generator("corsika_reader", "CORSIKA Reader Generator."), _path(""), _time_block(1*ns) {
   _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
-  // TODO: _read_directory = CreateCommand<Command::StringArg>("read_directory", "Read Directory with CORSIKA ROOT Files.");
-  _run = CreateCommand<Command::NoArg>("run", "Run Over CORSIKA Data.");
-  _run->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_time_block = CreateCommand<Command::DoubleUnitArg>("time_block", "Set Shower Time Block.");
+  _set_time_block->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_time_block->SetParameterName("block", false, false);
+  _set_time_block->SetRange("block > 0");
+  _set_time_block->SetDefaultUnit("ns");
+  _set_time_block->SetUnitCandidates("ns ms s");
   if (!_data) _data = new CORSIKAEventVector;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generate Initial Particles__________________________________________________________________
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  //std::cout << "      ---" << _data_index << " " << _data->size();
   if (_data_index < _data->size()) {
     const auto entry = (*_data)[_data_index];
-    std::cout << "<><><> ++ " << entry.size() << "\n";
     for (std::size_t i{}; i < entry.size(); ++i)
       AddParticle(entry[i], *event);
-    //std::cout << "EVENT!\n";
     ++_data_index;
-  } else {
-    // load in new particles or ignore
   }
 }
 //----------------------------------------------------------------------------------------------
@@ -422,12 +425,10 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
     SetFile(value);
     if (G4Threading::IsWorkerThread()) {
       G4AutoLock lock(&_mutex);
-      _fill_data(_path, _particle, _config, *_data, _calculate_thread_range);
-      // _active_count += _data->size();
-      // _active_mode += 1UL;
+      _fill_data(_path, _particle, _time_block, _config, *_data, _calculate_thread_range);
     }
-  } else if (command == _run) {
-    // TODO: fix
+  } else if (command == _set_time_block) {
+    _time_block = _set_time_block->GetNewDoubleValue(value);
   } else {
     Generator::SetNewValue(command, value);
   }
@@ -438,8 +439,6 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
 void CORSIKAReaderGenerator::SetFile(const std::string& path) {
   _path = path;
   _data_index = 0UL;
-  // _active_count = 0UL;
-  // _active_mode = 0UL;
 }
 //----------------------------------------------------------------------------------------------
 

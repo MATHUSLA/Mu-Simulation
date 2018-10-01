@@ -1,8 +1,8 @@
 /det/select Box
 
 /gen/select corsika_reader
-/gen/corsika_reader/vertex 150 0 -40
+/gen/corsika_reader/vertex 150 0 -40 m
+/gen/corsika_reader/time_block {block}
 /gen/corsika_reader/read_file {file}
 
-/gen/corsika_reader/run
 /run/beamOn {count}

@@ -50,6 +50,10 @@ extern G4Material* Aluminum;
 extern G4Material* Iron;
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
+//__Size of The World___________________________________________________________________________
+static constexpr const auto WorldLength = 1500*m;
+//----------------------------------------------------------------------------------------------
+
 //__Geometry Builder Class______________________________________________________________________
 class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:

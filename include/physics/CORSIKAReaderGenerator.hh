@@ -80,12 +80,10 @@ private:
   static G4ThreadLocal CORSIKAEventVector* _data;
   static G4ThreadLocal std::size_t _data_index;
   CORSIKAConfig _config;
-  std::size_t _active_count;
-  static std::size_t _active_mode;
   std::string _path;
   Command::StringArg* _read_file;
-  // TODO: Command::StringArg* _read_directory;
-  Command::NoArg* _run;
+  double _time_block;
+  Command::DoubleUnitArg* _set_time_block;
 };
 //----------------------------------------------------------------------------------------------
 

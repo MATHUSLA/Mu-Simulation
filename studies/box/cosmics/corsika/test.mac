@@ -2,19 +2,7 @@
 
 /gen/select corsika_reader
 /gen/corsika_reader/vertex 150 0 -40
+/gen/corsika_reader/time_block 5000 ns
 /gen/corsika_reader/read_file /Users/brandongomes/Desktop/Cosmics/corsika_archive_THETA0_100GeV/DAT000001.root
 
-# /vis/filtering/trajectories/create/particleFilter
-# /vis/filtering/trajectories/particleFilter-0/add gamma
-# /vis/filtering/trajectories/particleFilter-0/invert true
-# /vis/filtering/trajectories/particleFilter-0/verbose false
-# /vis/filtering/trajectories/particleFilter-0/active true
-
-/vis/filtering/trajectories/create/chargeFilter
-/vis/filtering/trajectories/chargeFilter-0/add 0
-/vis/filtering/trajectories/chargeFilter-0/invert true
-/vis/filtering/trajectories/chargeFilter-0/verbose false
-/vis/filtering/trajectories/chargeFilter-0/active true
-
-# /gen/corsika_reader/run
 /run/beamOn 1000
