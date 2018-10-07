@@ -1,0 +1,16 @@
+/det/select Prototype
+
+/gen/select range
+
+/gen/range/id 13
+/gen/range/vertex 0 0 100
+/gen/range/p_unit 0 0 -1
+
+/gen/range/pT {pt} GeV/c
+
+/gen/range/phi_min -0.05 rad
+/gen/range/phi_max  0.05 rad
+/gen/range/eta_min -0.05
+/gen/range/eta_max  0.05
+
+/run/beamOn {count}
