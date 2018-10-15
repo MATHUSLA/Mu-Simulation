@@ -37,8 +37,7 @@ void Material::Define() {
 
 //__Cavern Logical Volumes______________________________________________________________________
 G4LogicalVolume* Volume() {
-  return Construction::Volume(Construction::Cylinder("Cavern",
-           DetectorLength, DetectorRadius - SteelThickness, DetectorRadius));
+  return Construction::BoxVolume("Cavern", TotalHeight, 2.0L * DetectorRadius, DetectorLength);
 }
 G4LogicalVolume* RingVolume() {
   return Construction::Volume(Construction::Cylinder("DetectorRing",
@@ -121,7 +120,8 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   }
 
   Construction::PlaceVolume(RingVolume(), earth,
-    G4Translate3D(0, 0, -0.5 * Earth::TotalDepth + CenterDepth) * Construction::Rotate(0, 1, 0, 90*deg));
+    G4Translate3D(0, 0, -0.5 * Earth::TotalDepth + CenterDepth + 0.5 * TotalHeight - DetectorHeight)
+      * Construction::Rotate(0, 1, 0, 90*deg));
   return Construction::PlaceVolume(earth, world, Earth::Transform());
 }
 //----------------------------------------------------------------------------------------------
