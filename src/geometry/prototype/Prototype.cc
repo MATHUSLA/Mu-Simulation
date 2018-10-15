@@ -25,7 +25,7 @@
 
 #include "action.hh"
 #include "analysis.hh"
-#include "geometry/Earth.hh"
+#include "geometry/Cavern.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
 
@@ -366,7 +366,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
 //__Build Earth for Detector____________________________________________________________________
 G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
-  return Earth::Construct(world);
+  return Cavern::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 

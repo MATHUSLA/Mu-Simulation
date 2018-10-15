@@ -41,6 +41,7 @@ add_executable(simulation
     src/geometry/box/Scintillator.cc
 
     src/geometry/Construction.cc
+    src/geometry/Cavern.cc
     src/geometry/Earth.cc
     src/geometry/MuonMapper.cc
 

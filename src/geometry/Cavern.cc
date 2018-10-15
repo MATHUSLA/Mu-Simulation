@@ -17,6 +17,8 @@
 
 #include "geometry/Cavern.hh"
 
+#include <Geant4/G4SubtractionSolid.hh>
+
 #include "geometry/Construction.hh"
 
 namespace MATHUSLA { namespace MU {
@@ -35,30 +37,92 @@ void Material::Define() {
 
 //__Cavern Logical Volumes______________________________________________________________________
 G4LogicalVolume* Volume() {
-  return nullptr;
+  return Construction::Volume(Construction::Cylinder("Cavern",
+           DetectorLength, DetectorRadius - SteelThickness, DetectorRadius));
 }
 G4LogicalVolume* RingVolume() {
   return Construction::Volume(Construction::Cylinder("DetectorRing",
            DetectorLength, DetectorRadius - SteelThickness, DetectorRadius),
-           Material::Steel);
+           Material::Steel,
+           Construction::CasingAttributes());
 }
 //----------------------------------------------------------------------------------------------
 
-//__Cavern Transformations______________________________________________________________________
-const G4Translate3D Transform() {
-  return G4Translate3D(0, 0, 0.5L * TotalDepth);
-}
-const G4Translate3D RingTransform() {
-  return G4Translate3D(0, 0, 0.5L * (SandstoneDepth - TotalDepth));
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Check Between-Ness__________________________________________________________________________
+bool _between(const double min_layer,
+              const double max_layer,
+              const double target) {
+  return min_layer < target && target < max_layer;
 }
 //----------------------------------------------------------------------------------------------
+
+//__Calculate Subtraction of Volumes____________________________________________________________
+G4LogicalVolume* _calculate_modification(const std::string& name,
+                                         G4LogicalVolume* earth_component,
+                                         const double base_depth,
+                                         const double top_depth) {
+  return Construction::Volume(new G4SubtractionSolid(name,
+    earth_component->GetSolid(),
+    Volume()->GetSolid(),
+    Construction::Transform(0, 0, -0.5 * (base_depth - top_depth) + CenterDepth - top_depth)
+      * Construction::Rotate(0, 1, 0, 90*deg)),
+    earth_component->GetMaterial());
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__Construct Cavern____________________________________________________________________________
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   Material::Define();
-  auto cavern = Volume();
-  Construction::PlaceVolume(RingVolume(), cavern, RingTransform());
-  return Construction::PlaceVolume(cavern, world, Transform());
+  Earth::Material::Define();
+
+  auto earth = Earth::Volume();
+
+  const auto mix_top = Earth::TotalDepth - Earth::MixDepth;
+  const auto marl_top = mix_top - Earth::MarlDepth;
+  const auto sandstone_top = marl_top - Earth::SandstoneDepth;
+
+  const auto modify_mix = _between(mix_top, mix_top + Earth::MixDepth, BaseDepth)
+                       || _between(TopDepth, BaseDepth, mix_top)
+                       || _between(TopDepth, BaseDepth, mix_top + Earth::MixDepth);
+  const auto modify_marl = _between(marl_top, marl_top + Earth::MarlDepth, BaseDepth)
+                        || _between(TopDepth, BaseDepth, marl_top)
+                        || _between(TopDepth, BaseDepth, marl_top + Earth::MarlDepth);
+  const auto modify_sandstone = _between(sandstone_top, sandstone_top + Earth::SandstoneDepth, BaseDepth)
+                             || _between(TopDepth, BaseDepth, sandstone_top)
+                             || _between(TopDepth, BaseDepth, sandstone_top + Earth::SandstoneDepth);
+
+  if (modify_mix) {
+    Construction::PlaceVolume(
+      _calculate_modification("modified_mix", Earth::MixVolume(), mix_top + Earth::MixDepth, mix_top),
+      earth, Earth::MixTransform());
+  } else {
+    Construction::PlaceVolume(Earth::MixVolume(), earth, Earth::MixTransform());
+  }
+
+  if (modify_marl) {
+    Construction::PlaceVolume(
+      _calculate_modification("modified_marl", Earth::MarlVolume(), marl_top + Earth::MarlDepth, marl_top),
+      earth, Earth::MarlTransform());
+  } else {
+    Construction::PlaceVolume(Earth::MarlVolume(), earth, Earth::MarlTransform());
+  }
+
+  if (modify_sandstone) {
+    Construction::PlaceVolume(
+      _calculate_modification("modified_sandstone", Earth::SandstoneVolume(),
+                              sandstone_top + Earth::SandstoneDepth, sandstone_top),
+      earth, Earth::SandstoneTransform());
+  } else {
+    Construction::PlaceVolume(Earth::SandstoneVolume(), earth, Earth::SandstoneTransform());
+  }
+
+  Construction::PlaceVolume(RingVolume(), earth,
+    G4Translate3D(0, 0, -0.5 * Earth::TotalDepth + CenterDepth) * Construction::Rotate(0, 1, 0, 90*deg));
+  return Construction::PlaceVolume(earth, world, Earth::Transform());
 }
 //----------------------------------------------------------------------------------------------
 

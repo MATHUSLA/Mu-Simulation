@@ -41,6 +41,8 @@ constexpr auto DetectorRadius = 11*m;
 constexpr auto DetectorHeight = 11*m;
 constexpr auto TotalHeight    = 35*m;
 constexpr auto BaseDepth      = 92*m;
+constexpr auto TopDepth       = BaseDepth - TotalHeight;
+constexpr auto CenterDepth    = BaseDepth - 0.5 * TotalHeight;
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Logical Volumes______________________________________________________________________
@@ -48,12 +50,7 @@ G4LogicalVolume* Volume();
 G4LogicalVolume* RingVolume();
 //----------------------------------------------------------------------------------------------
 
-//__Cavern Transformations______________________________________________________________________
-const G4Translate3D Transform();
-const G4Translate3D RingTransform();
-//----------------------------------------------------------------------------------------------
-
-//__Construct Cavern____________________________________________________________________________
+//__Construct Cavern and Earth__________________________________________________________________
 G4VPhysicalVolume* Construct(G4LogicalVolume* world);
 //----------------------------------------------------------------------------------------------
 
