@@ -124,7 +124,7 @@ ParticleVector _find_pythia_particles(Pythia8::Event& event,
                   particle.tProd()  * mm / c_light,
                   particle.zProd()  * mm,
                   particle.yProd()  * mm,
-                  -particle.xProd() * mm + 100*m};
+                  -particle.xProd() * mm + 81*m};
     next.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
     if (list.empty() || InPropagationList(list, next))
       out.push_back(next);

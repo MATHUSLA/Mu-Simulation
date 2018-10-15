@@ -3,7 +3,7 @@
 /gen/select range
 
 /gen/range/id 13
-/gen/range/vertex 0 0 100
+/gen/range/vertex 0 0 81
 /gen/range/p_unit 0 0 -1
 
 /gen/range/pT {pt} GeV/c
