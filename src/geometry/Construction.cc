@@ -292,6 +292,15 @@ G4Trap* Trap(const std::string& name,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Cylinder Builder____________________________________________________________________________
+G4Tubs* Cylinder(const std::string& name,
+                 const double height,
+                 const double inner_radius,
+                 const double outer_radius) {
+  return new G4Tubs(name, inner_radius, outer_radius, 0.5 * height, 0, 360*deg);
+}
+//----------------------------------------------------------------------------------------------
+
 //__Volume Builder______________________________________________________________________________
 G4LogicalVolume* Volume(const std::string& name,
                         G4VSolid* solid,

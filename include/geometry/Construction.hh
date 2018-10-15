@@ -27,6 +27,7 @@
 #include <Geant4/G4Transform3D.hh>
 #include <Geant4/G4Box.hh>
 #include <Geant4/G4Trap.hh>
+#include <Geant4/G4Tubs.hh>
 #include <Geant4/G4Material.hh>
 #include <Geant4/G4SystemOfUnits.hh>
 
@@ -106,6 +107,13 @@ G4Trap* Trap(const std::string& name,
              const double minwidth,
              const double maxwidth,
              const double depth);
+//----------------------------------------------------------------------------------------------
+
+//__Cylinder Builder____________________________________________________________________________
+G4Tubs* Cylinder(const std::string& name,
+                 const double height,
+                 const double inner_radius,
+                 const double outer_radius);
 //----------------------------------------------------------------------------------------------
 
 //__Volume Builder______________________________________________________________________________
