@@ -360,7 +360,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     Construction::Transform(0, 0, 0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(0, 0, -0.5*total_outer_box_height));
+    G4Translate3D(253.9*cm, 0, -0.5*total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

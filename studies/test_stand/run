@@ -3,4 +3,4 @@
 MOMENTUM_OPTION=""
 if [[ ! -z "$5" ]]; then MOMENTUM_OPTION="pt $5"; fi
 
-./simulation -v -j$2 -q -o $1 -s studies/test_stand/$3.mac $MOMENTUM_OPTION count $4
+./simulation -j$2 -q -o $1 -s studies/test_stand/$3.mac $MOMENTUM_OPTION count $4
