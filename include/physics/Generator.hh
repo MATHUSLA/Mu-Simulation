@@ -106,7 +106,9 @@ protected:
   Command::DoubleArg*          _ui_eta;
   Command::DoubleUnitArg*      _ui_phi;
   Command::DoubleUnitArg*      _ui_ke;
-  Command::ThreeVectorArg*     _ui_p;
+  Command::ThreeVectorUnitArg* _ui_p;
+  Command::ThreeVectorArg*     _ui_p_unit;
+  Command::DoubleUnitArg*      _ui_p_mag;
   Command::DoubleUnitArg*      _ui_t0;
   Command::ThreeVectorUnitArg* _ui_vertex;
 };
@@ -149,113 +151,6 @@ protected:
   Command::DoubleUnitArg* _ui_ke_max;
 };
 //----------------------------------------------------------------------------------------------
-
-
-/*
-//__Default Range Particle Generator____________________________________________________________
-class RangeGenerator : public Generator {
-public:
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT,
-                 const double eta,
-                 const double phi);
-
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT_min,
-                 const double pT_max,
-                 const double eta_min,
-                 const double eta_max,
-                 const double phi_min,
-                 const double phi_max);
-
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT,
-                 const double eta,
-                 const double phi,
-                 const G4ThreeVector& vertex);
-
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT_min,
-                 const double pT_max,
-                 const double eta_min,
-                 const double eta_max,
-                 const double phi_min,
-                 const double phi_max,
-                 const G4ThreeVector& vertex);
-
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT,
-                 const double eta,
-                 const double phi,
-                 const double t0,
-                 const G4ThreeVector& vertex);
-
-  RangeGenerator(const std::string& name,
-                 const std::string& description,
-                 const int id,
-                 const double pT_min,
-                 const double pT_max,
-                 const double eta_min,
-                 const double eta_max,
-                 const double phi_min,
-                 const double phi_max,
-                 const double t0,
-                 const G4ThreeVector& vertex);
-
-  virtual ~RangeGenerator() = default;
-
-  virtual void GeneratePrimaryVertex(G4Event* event);
-  virtual void SetNewValue(G4UIcommand* command,
-                           G4String value);
-
-  double pT_min()  const { return _pT_min;  }
-  double pT_max()  const { return _pT_max;  }
-  double eta_min() const { return _eta_min; }
-  double eta_max() const { return _eta_max; }
-  double phi_min() const { return _phi_min; }
-  double phi_max() const { return _phi_max; }
-  double ke_min()  const { return _ke_min;  }
-  double ke_max()  const { return _ke_max;  }
-
-  virtual std::ostream& Print(std::ostream& os=std::cout) const;
-  virtual const Analysis::SimSettingList GetSpecification() const;
-
-protected:
-  double _pT_min;
-  double _pT_max;
-  double _eta_min;
-  double _eta_max;
-  double _phi_min;
-  double _phi_max;
-
-  double _ke_min;
-  double _ke_max;
-
-  bool _using_range_ke;
-
-  virtual void GenerateCommands();
-
-  Command::DoubleUnitArg* _ui_pT_min;
-  Command::DoubleUnitArg* _ui_pT_max;
-  Command::DoubleArg*     _ui_eta_min;
-  Command::DoubleArg*     _ui_eta_max;
-  Command::DoubleUnitArg* _ui_phi_min;
-  Command::DoubleUnitArg* _ui_phi_max;
-  Command::DoubleUnitArg* _ui_ke_min;
-  Command::DoubleUnitArg* _ui_ke_max;
-};
-//----------------------------------------------------------------------------------------------
-*/
 
 //__Stream Operator for Generators______________________________________________________________
 inline std::ostream& operator<<(std::ostream& os,

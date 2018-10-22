@@ -26,6 +26,8 @@
 
 #include "physics/Units.hh"
 
+#include <iostream>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
@@ -115,7 +117,11 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
 //__Range Generator Messenger Set Value_________________________________________________________
 void RangeGenerator::SetNewValue(G4UIcommand* command,
                                  G4String value) {
-  if (command == _ui_pT) {
+  if (command == _ui_id) {
+    _particle.id = _ui_id->GetNewIntValue(value);
+    _min.id = _particle.id;
+    _max.id = _particle.id;
+  } else if (command == _ui_pT) {
     const auto pT = _ui_pT->GetNewDoubleValue(value);
     _particle.set_pT(pT);
     _min.set_pT(pT);
@@ -157,11 +163,17 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
   } else if (command == _ui_ke_max) {
     _max.set_ke(_ui_ke_max->GetNewDoubleValue(value));
     _using_range_ke = true;
-  } else if (command == _ui_p) {
-    const auto unit = _ui_p->GetNew3VectorValue(value).unit();
+  } else if (command == _ui_p_unit) {
+    const auto unit = _ui_p_unit->GetNew3VectorValue(value).unit();
     _particle.set_p_unit(unit);
     _min.set_p_unit(unit);
     _max.set_p_unit(unit);
+  } else if (command == _ui_p_mag) {
+    const auto magnitude = _ui_p_mag->GetNewDoubleValue(value);
+    _particle.set_p_mag(magnitude);
+    _min.set_p_mag(magnitude);
+    _max.set_p_mag(magnitude);
+    _using_range_ke = true;
   } else {
     Generator::SetNewValue(command, value);
   }
@@ -210,6 +222,8 @@ const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
     (_using_range_ke ? "_KE_MAX" : "_PT_MAX"),
     (_using_range_ke ? std::to_string(_max.ke() / Units::Energy)   + " " + Units::EnergyString
                      : std::to_string(_max.pT() / Units::Momentum) + " " + Units::MomentumString),
+    "_P_MAG_MIN", std::to_string(_min.p_mag() / Units::Momentum) + " " + Units::MomentumString,
+    "_P_MAG_MAX", std::to_string(_max.p_mag() / Units::Momentum) + " " + Units::MomentumString,
     "_ETA_MIN", std::to_string(_min.eta()),
     "_ETA_MAX", std::to_string(_max.eta()),
     "_PHI_MIN", std::to_string(_min.phi() / Units::Angle) + " " + Units::AngleString,

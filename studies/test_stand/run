@@ -1,6 +1,6 @@
 #!/bin/bash
 
 MOMENTUM_OPTION=""
-if [[ ! -z "$5" ]]; then MOMENTUM_OPTION="pt $5"; fi
+if [[ ! -z "$5" ]]; then MOMENTUM_OPTION="pmag $5"; fi
 
 ./simulation -j$2 -q -o $1 -s studies/test_stand/$3.mac $MOMENTUM_OPTION count $4
