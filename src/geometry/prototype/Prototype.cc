@@ -56,6 +56,7 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 const std::string& Detector::DataName = "prototype_run";
 const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
 const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
+bool Detector::SaveAll = false;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -156,7 +157,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 //__Post-Event Processing_______________________________________________________________________
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-  if (_hit_collection->GetSize() == 0)
+  if (_hit_collection->GetSize() == 0 && !SaveAll)
     return;
 
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection, _encoding);

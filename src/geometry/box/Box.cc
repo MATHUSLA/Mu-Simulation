@@ -51,6 +51,7 @@ constexpr auto half_detector_height = 0.5L * full_detector_height;
 const std::string& Detector::DataName = "box_run";
 const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
 const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
+bool Detector::SaveAll = false;
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________
@@ -108,7 +109,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 //__Post-Event Processing_______________________________________________________________________
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-  if (_hit_collection->GetSize() == 0)
+  if (_hit_collection->GetSize() == 0 && !SaveAll)
     return;
 
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection);

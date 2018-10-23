@@ -52,6 +52,7 @@ bool _data_per_event;
 std::string _data_name;
 const Analysis::ROOT::DataKeyList* _data_keys;
 const Analysis::ROOT::DataKeyTypeList* _data_key_types;
+bool _save_option;
 //----------------------------------------------------------------------------------------------
 
 //__Detector List_______________________________________________________________________________
@@ -81,10 +82,12 @@ const std::string Builder::MessengerDirectory = "/det/";
 
 //__Builder Constructor_________________________________________________________________________
 Builder::Builder(const std::string& detector,
-                 const std::string& export_dir)
+                 const std::string& export_dir,
+                 const bool save_option)
     : G4VUserDetectorConstruction(), G4UImessenger(MessengerDirectory, "Particle Detectors.") {
   _detector = detector;
   _export_dir = export_dir;
+  _save_option = save_option;
 
   _select = CreateCommand<Command::StringArg>("select", "Select Detector.");
   _select->SetParameterName("detector", false);
@@ -143,6 +146,8 @@ G4VPhysicalVolume* Builder::Construct() {
       Prototype::Detector::ConstructEarth(worldLV);
     }
   }
+
+  Builder::SetSaveOption(_save_option);
 
   auto world = PlaceVolume(worldLV, nullptr);
   if (!_export_dir.empty()) {
@@ -213,6 +218,20 @@ void Builder::SetDetector(const std::string& detector) {
                    "/run/geometryModified",
                    "/run/initialize",
                    "/vis/viewer/clearTransients");
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Current Detector Save Option____________________________________________________________
+void Builder::SetSaveOption(bool option) {
+  if (_detector == "Flat") {
+    Flat::Detector::SaveAll = option;
+  } else if (_detector == "Box") {
+    Box::Detector::SaveAll = option;
+  } else if (_detector == "MuonMapper") {
+    MuonMapper::Detector::SaveAll = option;
+  } else {
+    Prototype::Detector::SaveAll = option;
+  }
 }
 //----------------------------------------------------------------------------------------------
 

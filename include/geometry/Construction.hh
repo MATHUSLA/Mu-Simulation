@@ -59,7 +59,8 @@ static constexpr const auto WorldLength = 1500*m;
 class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:
   Builder(const std::string& detector,
-          const std::string& export_dir);
+          const std::string& export_dir,
+          const bool save_option);
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
 
@@ -68,6 +69,7 @@ public:
   static const std::string MessengerDirectory;
 
   static void SetDetector(const std::string& detector);
+  static void SetSaveOption(const bool option);
 
   static const std::string& GetDetectorName();
   static bool IsDetectorDataPerEvent();
