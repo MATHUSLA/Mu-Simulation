@@ -1,7 +1,7 @@
 /det/select Prototype
 
 /gen/select pythia
-/gen/pythia/read_file studies/test_stand/muon.cmnd
+/gen/pythia/read_file studies/test_stand/{particle}_to_muon.cmnd
 
 /gen/pythia/cuts/clear
 /gen/pythia/cuts/add 13 | 30: GeV/c | -0.5:1.1 | -0.07:0.07 rad

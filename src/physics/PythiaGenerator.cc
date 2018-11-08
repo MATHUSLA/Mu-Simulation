@@ -144,15 +144,9 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
 
-  ParticleVector particles;
-  while (true) {
-    ++_counter;
-    if (!_pythia->next()) continue;
-    particles = _find_pythia_particles(_pythia->process, _propagation_list);
-    if (!particles.empty()) break;
-  }
-
-  for (const auto& particle : particles)
+  ++_counter;
+  _pythia->next();
+  for (const auto& particle : _find_pythia_particles(_pythia->process, _propagation_list))
     AddParticle(particle, *event);
 }
 //----------------------------------------------------------------------------------------------
