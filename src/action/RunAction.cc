@@ -121,6 +121,8 @@ void RunAction::EndOfRunAction(const G4Run*) {
 
   G4AutoLock lock(&_mutex);
   if (!G4Threading::IsWorkerThread()) {
+    if (util::io::path_exists(_path))
+      return;
     auto file = TFile::Open(_path.c_str(), "UPDATE");
     if (file && !file->IsZombie()) {
       file->cd();
