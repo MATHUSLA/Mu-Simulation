@@ -20,6 +20,7 @@
 
 #include <fstream>
 #include <ostream>
+#include <thread>
 
 #include <Geant4/G4Threading.hh>
 #include <Geant4/G4AutoLock.hh>
@@ -74,6 +75,21 @@ void _write_entry(TFile* file,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Make DateTime Directories___________________________________________________________________
+std::string _make_directories(std::string prefix) {
+  util::io::create_directory(prefix);
+  util::io::create_directory(prefix += '/' + util::time::GetDate());
+  std::string time_path;
+  do {
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(1s);
+    time_path = '/' + util::time::GetTime();
+  } while (util::io::path_exists(prefix + time_path));
+  util::io::create_directory(prefix += time_path);
+  return prefix;
+}
+//----------------------------------------------------------------------------------------------
+
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
 //__RunAction Constructor_______________________________________________________________________
@@ -89,13 +105,7 @@ RunAction::RunAction(const std::string& data_dir) : G4UserRunAction() {
 
 //__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
-  _prefix = _data_dir;
-  util::io::create_directory(_prefix);
-  _prefix += '/' + util::time::GetDate();
-  util::io::create_directory(_prefix);
-  _prefix += '/' + util::time::GetTime();
-  util::io::create_directory(_prefix);
-  _prefix += "/run";
+  _prefix = _make_directories(_data_dir) + "/run";
   _path = _prefix + std::to_string(_run_count) + ".root";
 
   _event_count = run->GetNumberOfEventToBeProcessed();
