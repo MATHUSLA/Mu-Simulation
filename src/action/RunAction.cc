@@ -45,11 +45,12 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Data Directory Variables____________________________________________________________________
-G4ThreadLocal std::string _data_dir{};
-G4ThreadLocal std::string _prefix{};
-G4ThreadLocal std::string _path{};
+std::string _data_dir{};
+std::string _prefix{};
+std::string _path{};
 const std::string _temp_path = ".temp.root";
 std::vector<std::string> _worker_tags;
+bool _prefix_loaded = false;
 //----------------------------------------------------------------------------------------------
 
 //__Environment Counters________________________________________________________________________
@@ -80,11 +81,11 @@ std::string _make_directories(std::string prefix) {
   util::io::create_directory(prefix);
   util::io::create_directory(prefix += '/' + util::time::GetDate());
   std::string time_path;
-  std::size_t counter{};
   do {
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(1s);
-    time_path = '/' + util::time::GetTime().substr(0, 5) + std::to_string(++counter);
+    const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    time_path = '/' + util::time::GetTime(&now);
   } while (util::io::path_exists(prefix + time_path));
   util::io::create_directory(prefix += time_path);
   return prefix;
@@ -106,8 +107,12 @@ RunAction::RunAction(const std::string& data_dir) : G4UserRunAction() {
 
 //__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
-  _prefix = _make_directories(_data_dir) + "/run";
-  _path = _prefix + std::to_string(_run_count) + ".root";
+  G4AutoLock lock(&_mutex);
+  if (_prefix.find("/run") == std::string::npos) {
+    _prefix = _make_directories(_data_dir) + "/run";
+    _path = _prefix + std::to_string(_run_count) + ".root";
+  }
+  lock.unlock();
 
   _event_count = run->GetNumberOfEventToBeProcessed();
 
@@ -171,6 +176,7 @@ void RunAction::EndOfRunAction(const G4Run*) {
     }
   }
   lock.unlock();
+  _prefix_loaded = false;
 }
 //----------------------------------------------------------------------------------------------
 
