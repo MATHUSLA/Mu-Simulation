@@ -160,8 +160,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command,
   } else if (command == _read_file) {
     SetPythia(value);
   } else if (command == _add_cut) {
-    const auto cuts = ParsePropagationList(value);
-    for (const auto& cut : cuts)
+    for (const auto& cut : ParsePropagationList(value))
       _propagation_list.push_back(cut);
   } else if (command == _clear_cuts) {
     _propagation_list.clear();

@@ -80,10 +80,11 @@ std::string _make_directories(std::string prefix) {
   util::io::create_directory(prefix);
   util::io::create_directory(prefix += '/' + util::time::GetDate());
   std::string time_path;
+  std::size_t counter{};
   do {
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(1s);
-    time_path = '/' + util::time::GetTime();
+    time_path = '/' + util::time::GetTime().substr(0, 5) + std::to_string(++counter);
   } while (util::io::path_exists(prefix + time_path));
   util::io::create_directory(prefix += time_path);
   return prefix;
