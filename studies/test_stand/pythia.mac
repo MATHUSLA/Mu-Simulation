@@ -4,8 +4,8 @@
 /gen/pythia/read_file studies/test_stand/{particle}_to_muon.cmnd
 
 /gen/pythia/cuts/clear
-/gen/pythia/cuts/add 13 | 22: GeV/c | -0.5:1.1 | -0.07:0.07 rad
-/gen/pythia/cuts/add 14 | 22: GeV/c | -0.5:1.1 | -0.07:0.07 rad
+/gen/pythia/cuts/add 13 | 24: GeV/c | -0.5:1.1 | -0.07:0.07 rad
+/gen/pythia/cuts/add 14 | 24: GeV/c | -0.5:1.1 | -0.07:0.07 rad
 
 /run/beamOn {count}
 
