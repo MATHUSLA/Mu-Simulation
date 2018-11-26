@@ -114,6 +114,12 @@ void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Get Last Event Data_________________________________________________________________________
+ParticleVector RangeGenerator::GetLastEvent() const {
+  return ParticleVector{};
+}
+//----------------------------------------------------------------------------------------------
+
 //__Range Generator Messenger Set Value_________________________________________________________
 void RangeGenerator::SetNewValue(G4UIcommand* command,
                                  G4String value) {

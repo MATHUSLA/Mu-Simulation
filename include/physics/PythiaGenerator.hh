@@ -46,6 +46,7 @@ public:
   PythiaGenerator(const std::string& path);
 
   void GeneratePrimaryVertex(G4Event* event);
+  ParticleVector GetLastEvent() const;
   void SetNewValue(G4UIcommand* command, G4String value);
   void SetPythia(Pythia8::Pythia* pythia);
   void SetPythia(const std::vector<std::string>& settings);
@@ -58,6 +59,7 @@ private:
   static G4ThreadLocal std::vector<std::string>* _pythia_settings;
   static G4ThreadLocal bool _settings_on;
   PropagationList _propagation_list;
+  ParticleVector _last_event;
   std::uint_fast64_t _counter;
   std::string _path;
   Command::StringArg* _add_cut;

@@ -262,6 +262,12 @@ void Generator::GeneratePrimaryVertex(G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Get Last Event Data_________________________________________________________________________
+ParticleVector Generator::GetLastEvent() const {
+  return ParticleVector{_particle};
+}
+//----------------------------------------------------------------------------------------------
+
 //__Generator Messenger Set Value_______________________________________________________________
 void Generator::SetNewValue(G4UIcommand* command,
                             G4String value) {

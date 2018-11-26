@@ -115,8 +115,8 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
 //----------------------------------------------------------------------------------------------
 
 //__Find Particle in Event______________________________________________________________________
-ParticleVector _find_pythia_particles(Pythia8::Event& event,
-                                      const PropagationList& list) {
+template<class Predicate>
+ParticleVector _convert_pythia_event(Pythia8::Event& event, Predicate predicate) {
   ParticleVector out;
   for (int i = 0; i < event.size(); ++i) {
     const auto& particle = event[i];
@@ -126,7 +126,7 @@ ParticleVector _find_pythia_particles(Pythia8::Event& event,
                   particle.yProd()  * mm,
                   -particle.xProd() * mm + 81*m};
     next.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
-    if (list.empty() || InPropagationList(list, next))
+    if (predicate(next))
       out.push_back(next);
   }
   return out;
@@ -146,8 +146,23 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
 
   ++_counter;
   _pythia->next();
-  for (const auto& particle : _find_pythia_particles(_pythia->process, _propagation_list))
-    AddParticle(particle, *event);
+
+  _last_event = _convert_pythia_event(_pythia->process, [&](const auto& next) {
+    for (const auto& entry : _propagation_list)
+      if (next.id == entry.id)
+        return true;
+    return false;
+  });
+
+  for (const auto& particle : _last_event)
+    if (InPropagationList(_propagation_list, particle))
+      AddParticle(particle, *event);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Last Event Data_________________________________________________________________________
+ParticleVector PythiaGenerator::GetLastEvent() const {
+  return _last_event;
 }
 //----------------------------------------------------------------------------------------------
 

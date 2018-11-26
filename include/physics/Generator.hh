@@ -82,6 +82,7 @@ public:
   virtual ~Generator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
+  virtual ParticleVector GetLastEvent() const;
   virtual void SetNewValue(G4UIcommand* command,
                            G4String value);
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
@@ -128,6 +129,7 @@ public:
   virtual ~RangeGenerator() = default;
 
   virtual void GeneratePrimaryVertex(G4Event* event);
+  virtual ParticleVector GetLastEvent() const;
   virtual void SetNewValue(G4UIcommand* command,
                            G4String value);
   virtual std::ostream& Print(std::ostream& os=std::cout) const;

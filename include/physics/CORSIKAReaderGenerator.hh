@@ -70,6 +70,7 @@ public:
   CORSIKAReaderGenerator();
 
   void GeneratePrimaryVertex(G4Event* event);
+  // TODO: void GetLastEvent() const;
   void SetNewValue(G4UIcommand* command,
                    G4String value);
   void SetFile(const std::string& path);
