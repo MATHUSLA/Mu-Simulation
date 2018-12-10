@@ -128,7 +128,7 @@ const std::pair<double, double> _cms_rotation(double x,
 //----------------------------------------------------------------------------------------------
 
 //__Convert Primary ID from CORSIKA to PDG______________________________________________________
-double _convert_primary_id(int corsika_id) {
+std::pair<int, int> _convert_primary_id(int corsika_id) {
   static const int id_table[] = {
        22,   -11,    11,     0,   -13,
        13,   111,   211,  -211,   130,
@@ -171,7 +171,7 @@ double _convert_primary_id(int corsika_id) {
         0,     0,     0,     0,     0,
         0,     0,     0,     0,     0
   };
-  return id_table[corsika_id - 1];
+  return std::make_pair(id_table[corsika_id - 1], corsika_id);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ void _load_config(TTree* tree,
   auto zenith_max = _load_leaf(tree, "run.ZenithMax");
   tree->GetEntry(0);
 
-  config.primary_id = _convert_primary_id(primary_id->GetValue(0));
+  config.primary_id = _convert_primary_id(primary_id->GetValue(0)).first;
   config.energy_slope = energy_slope->GetValue(0);
   config.energy_min = energy_min->GetValue(0);
   config.energy_max = energy_max->GetValue(0);
@@ -262,7 +262,6 @@ CORSIKAEvent _time_sort(const CORSIKAEvent& event) {
   const auto size = event.size();
   if (size == 0UL)
     return CORSIKAEvent{};
-
   CORSIKAEvent out;
   out.reserve(size);
   std::vector<std::size_t> indices;
@@ -271,7 +270,6 @@ CORSIKAEvent _time_sort(const CORSIKAEvent& event) {
     indices.push_back(i);
   std::sort(std::begin(indices), std::end(indices),
     [&](const auto left, const auto right) { return event.t[left] < event.t[right]; });
-
   for (std::size_t i{}; i < size; ++i)
     out.push_back(event[indices[i]]);
   return out;
@@ -292,7 +290,6 @@ CORSIKAEvent _shift_event_xy(CORSIKAEvent& event,
         || std::abs(event.y[i]) >= Construction::WorldLength / 2.0L))
       out.push_back(event[i]);
   }
-
   return out;
 }
 //----------------------------------------------------------------------------------------------
@@ -369,8 +366,11 @@ void _fill_data(const std::string& path,
         next.reserve(event_size);
 
         for (std::size_t j{}; j < event_size; ++j) {
-          const auto particle_id = _convert_primary_id(subtree.id->GetValue(j));
-          _load_particle(j, subtree, particle_id, particle.z, next);
+          const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(j));
+          // fix for bad muons
+          if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
+            continue;
+          _load_particle(j, subtree, particle_id_pair.second, particle.z, next);
         }
 
         if (next.empty())
@@ -403,7 +403,8 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator()
   _set_time_block->SetRange("block > 0");
   _set_time_block->SetDefaultUnit("ns");
   _set_time_block->SetUnitCandidates("ns ms s");
-  if (!_data) _data = new CORSIKAEventVector;
+  if (!_data)
+    _data = new CORSIKAEventVector;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -447,6 +448,7 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
   return Analysis::Settings(SimSettingPrefix,
     "",              _name,
     "_INPUT_FILE",   _path,
+    "_TIME_BLOCK",   std::to_string(_time_block),
     "_PRIMARY_ID",   std::to_string(_config.primary_id),
     "_ENERGY_SLOPE", std::to_string(_config.energy_slope),
     "_ENERGY_MIN",   std::to_string(_config.energy_min),
