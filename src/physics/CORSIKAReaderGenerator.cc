@@ -393,7 +393,7 @@ void _fill_data(const std::string& path,
             time_block, particle.x + translation.first, particle.y + translation.second, events);
       }
     }
-    std::cout << "Completed. Beginning Run ...\n";
+    std::cout << "Completed. Beginning Run ...\n\n";
   }
   file.Close();
 }

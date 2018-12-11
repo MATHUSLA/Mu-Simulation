@@ -1,3 +1,4 @@
 #!/bin/bash
 
-./simulation -j$2 -q -o $1 --save_all -s studies/test_stand/$3.mac count $4 $5 $6
+# ./simulation -j$2 -q -o $1 --save_all -s studies/test_stand/$3.mac count $4 $5 $6
+./simulation -q -o $1 -j$2 --save_all -s scripts/looper.mac macro studies/test_stand/$4.mac runs $3 count $5 $6 $7

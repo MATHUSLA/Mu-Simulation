@@ -54,9 +54,9 @@ bool _prefix_loaded = false;
 //----------------------------------------------------------------------------------------------
 
 //__Environment Counters________________________________________________________________________
-G4ThreadLocal std::size_t _worker_count{};
-G4ThreadLocal std::size_t _event_count{};
-G4ThreadLocal std::size_t _run_count{};
+std::size_t _worker_count{};
+std::size_t _event_count{};
+std::size_t _run_count{};
 //----------------------------------------------------------------------------------------------
 
 //__Mutex for ROOT Interface____________________________________________________________________
@@ -108,13 +108,13 @@ RunAction::RunAction(const std::string& data_dir) : G4UserRunAction() {
 //__Run Initialization__________________________________________________________________________
 void RunAction::BeginOfRunAction(const G4Run* run) {
   G4AutoLock lock(&_mutex);
-  if (_prefix.find("/run") == std::string::npos) {
-    _prefix = _make_directories(_data_dir) + "/run";
+  if (!G4Threading::IsWorkerThread()) {
+    if (_prefix.find("/run") == std::string::npos)
+      _prefix = _make_directories(_data_dir) + "/run";
     _path = _prefix + std::to_string(_run_count) + ".root";
+    _event_count = run->GetNumberOfEventToBeProcessed();
   }
   lock.unlock();
-
-  _event_count = run->GetNumberOfEventToBeProcessed();
 
   Analysis::ROOT::Setup();
   Analysis::ROOT::Open(_prefix + _temp_path);
@@ -187,13 +187,13 @@ const G4Run* RunAction::GetRun() {
 //----------------------------------------------------------------------------------------------
 
 //__Get Current RunID___________________________________________________________________________
-size_t RunAction::RunID() {
+std::size_t RunAction::RunID() {
   return _run_count;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Get Current EventCount______________________________________________________________________
-size_t RunAction::EventCount() {
+std::size_t RunAction::EventCount() {
   return _event_count;
 }
 //----------------------------------------------------------------------------------------------
