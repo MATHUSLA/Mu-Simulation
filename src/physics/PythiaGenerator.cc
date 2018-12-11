@@ -86,14 +86,19 @@ PythiaGenerator::PythiaGenerator(const std::string& path) : PythiaGenerator({}, 
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+Pythia8::Pythia* _setup_random(Pythia8::Pythia* pythia) {
+  pythia->readString("Random:setSeed = on");
+  pythia->readString("Random:seed = 0");
+  return pythia;
+}
+
 //__Reconstruct Pythia Object from Old Object___________________________________________________
 Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
   if (!pythia) {
     return new Pythia8::Pythia();
   } else {
     auto out = new Pythia8::Pythia(pythia->settings, pythia->particleData);
-    out->readString("Random:setSeed = on");
-    out->readString("Random:seed = 0");
+    _setup_random(out);
     // delete pythia;
     return out;
   }
@@ -106,8 +111,7 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
   auto pythia = new Pythia8::Pythia();
   for (const auto& setting : *settings)
     pythia->readString(setting);
-  pythia->readString("Random:setSeed = on");
-  pythia->readString("Random:seed = 0");
+  _setup_random(pythia);
   pythia->init();
   settings_on = true;
   return pythia;
@@ -214,6 +218,7 @@ void PythiaGenerator::SetPythia(const std::string& path) {
   // delete _pythia;
   _pythia = new Pythia8::Pythia();
   _pythia->readFile(_path);
+  _setup_random(_pythia);
   _pythia->init();
 }
 //----------------------------------------------------------------------------------------------

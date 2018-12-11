@@ -1,2 +1,2 @@
 #!/bin/bash
-./simulation -q -o $1 -j$2 -s studies/box/cosmics/corsika/script.mac block $3 file $4 count $5
+./simulation -q -o $1 -j$2 -s studies/box/cosmics/corsika/script.mac file $3 block $4 radius $5 count $6

@@ -29,6 +29,7 @@
 
 #include "geometry/Construction.hh"
 #include "physics/Units.hh"
+#include "util/random.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -336,16 +337,26 @@ void _transform_and_split_event(const CORSIKAEvent& event,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Perform Random Translation of Event Vector__________________________________________________
+std::pair<double, double> _random_translation(double max_radius) {
+  const auto r = max_radius * std::sqrt(util::random::uniform());
+  const auto theta = 2.0L * 3.141592653589793238462643383279502884L * util::random::uniform();
+  return std::make_pair(r * std::cos(theta), r * std::sin(theta));
+}
+//----------------------------------------------------------------------------------------------
+
 //__Fill Tree Data into EventVector_____________________________________________________________
 template<class RangeCalculator>
 void _fill_data(const std::string& path,
                 const Particle& particle,
                 const double time_block,
+                const double max_radius,
                 CORSIKAConfig& config,
                 CORSIKAEventVector& events,
                 RangeCalculator range) {
   TFile file(path.c_str(), "READ");
   if (!file.IsZombie()) {
+    std::cout << "\n\nLoading Data from " + path + " ...\n\n";
     file.cd();
     auto spec_tree = dynamic_cast<TTree*>(file.Get("run"));
     auto data_tree = dynamic_cast<TTree*>(file.Get("sim"));
@@ -357,6 +368,8 @@ void _fill_data(const std::string& path,
       auto subtree = _load_subtree(spec_tree, data_tree);
       const auto range_pair = range(static_cast<std::size_t>(data_entries));
 
+      const auto translation = _random_translation(max_radius);
+
       for (std::size_t i{range_pair.first}; i < range_pair.second; ++i) {
         data_tree->GetEntry(i);
         const auto signed_event_size = subtree.id->GetLen();
@@ -367,7 +380,7 @@ void _fill_data(const std::string& path,
 
         for (std::size_t j{}; j < event_size; ++j) {
           const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(j));
-          // fix for bad muons
+          // NOTE: fix for bad muons
           if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
             continue;
           _load_particle(j, subtree, particle_id_pair.second, particle.z, next);
@@ -376,11 +389,12 @@ void _fill_data(const std::string& path,
         if (next.empty())
           continue;
 
-        _transform_and_split_event(next, time_block, particle.x, particle.y, events);
+        _transform_and_split_event(next,
+            time_block, particle.x + translation.first, particle.y + translation.second, events);
       }
     }
+    std::cout << "Completed. Beginning Run ...\n";
   }
-
   file.Close();
 }
 //----------------------------------------------------------------------------------------------
@@ -394,15 +408,25 @@ G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
 
 //__CORSIKA Reader Generator Constructor________________________________________________________
 CORSIKAReaderGenerator::CORSIKAReaderGenerator()
-    : Generator("corsika_reader", "CORSIKA Reader Generator."), _path(""), _time_block(1*ns) {
+    : Generator("corsika_reader", "CORSIKA Reader Generator."),
+      _path(""), _max_radius(100*m), _time_block(1*ns) {
   _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
+
   _set_time_block = CreateCommand<Command::DoubleUnitArg>("time_block", "Set Shower Time Block.");
   _set_time_block->AvailableForStates(G4State_PreInit, G4State_Idle);
   _set_time_block->SetParameterName("block", false, false);
   _set_time_block->SetRange("block > 0");
   _set_time_block->SetDefaultUnit("ns");
   _set_time_block->SetUnitCandidates("ns ms s");
+
+  _set_max_radius = CreateCommand<Command::DoubleUnitArg>("max_radius", "Set Shower Shift Max Radius.");
+  _set_max_radius->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_max_radius->SetParameterName("radius", false, false);
+  _set_max_radius->SetRange("radius > 0");
+  _set_max_radius->SetDefaultUnit("m");
+  _set_max_radius->SetUnitCandidates("m cm");
+
   if (!_data)
     _data = new CORSIKAEventVector;
 }
@@ -426,10 +450,12 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
     SetFile(value);
     if (G4Threading::IsWorkerThread()) {
       G4AutoLock lock(&_mutex);
-      _fill_data(_path, _particle, _time_block, _config, *_data, _calculate_thread_range);
+      _fill_data(_path, _particle, _time_block, _max_radius, _config, *_data, _calculate_thread_range);
     }
   } else if (command == _set_time_block) {
     _time_block = _set_time_block->GetNewDoubleValue(value);
+  } else if (command == _set_max_radius) {
+    _max_radius = _set_max_radius->GetNewDoubleValue(value);
   } else {
     Generator::SetNewValue(command, value);
   }
@@ -446,17 +472,18 @@ void CORSIKAReaderGenerator::SetFile(const std::string& path) {
 //__CORSIKA Reader Generator Specifications_____________________________________________________
 const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const {
   return Analysis::Settings(SimSettingPrefix,
-    "",              _name,
-    "_INPUT_FILE",   _path,
-    "_TIME_BLOCK",   std::to_string(_time_block),
-    "_PRIMARY_ID",   std::to_string(_config.primary_id),
-    "_ENERGY_SLOPE", std::to_string(_config.energy_slope),
-    "_ENERGY_MIN",   std::to_string(_config.energy_min),
-    "_ENERGY_MAX",   std::to_string(_config.energy_max),
-    "_AZIMUTH_MIN",  std::to_string(_config.azimuth_min),
-    "_AZIMUTH_MAX",  std::to_string(_config.azimuth_max),
-    "_ZENITH_MIN",   std::to_string(_config.zenith_min),
-    "_ZENITH_MAX",   std::to_string(_config.zenith_max)
+    "",                  _name,
+    "_INPUT_FILE",       _path,
+    "_TIME_BLOCK",       Units::to_string(_time_block, Units::Time, Units::TimeString),
+    "_MAX_SHIFT_RADIUS", Units::to_string(_max_radius, Units::Length, Units::LengthString),
+    "_PRIMARY_ID",       std::to_string(_config.primary_id),
+    "_ENERGY_SLOPE",     std::to_string(_config.energy_slope),
+    "_ENERGY_MIN",       std::to_string(_config.energy_min),
+    "_ENERGY_MAX",       std::to_string(_config.energy_max),
+    "_AZIMUTH_MIN",      std::to_string(_config.azimuth_min),
+    "_AZIMUTH_MAX",      std::to_string(_config.azimuth_max),
+    "_ZENITH_MIN",       std::to_string(_config.zenith_min),
+    "_ZENITH_MAX",       std::to_string(_config.zenith_max)
   );
 }
 //----------------------------------------------------------------------------------------------

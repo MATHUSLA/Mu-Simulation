@@ -140,8 +140,8 @@ int main(int argc, char* argv[]) {
 
     const auto script_path = std::string(script_opt.argument);
     if (script_argc) {
-      for (size_t i = 0; i < script_argc; i+=2) {
-        Command::Execute("/control/alias " + std::string(argv[i+1]) + " " + argv[i+2]);
+      for (std::size_t i{}; i < script_argc; i += 2) {
+        Command::Execute("/control/alias " + std::string(argv[i + 1]) + " " + std::string(argv[i + 2]));
       }
       Command::Execute("/control/execute " + script_path);
     } else {

@@ -83,7 +83,9 @@ private:
   CORSIKAConfig _config;
   std::string _path;
   Command::StringArg* _read_file;
+  double _max_radius;
   double _time_block;
+  Command::DoubleUnitArg* _set_max_radius;
   Command::DoubleUnitArg* _set_time_block;
 };
 //----------------------------------------------------------------------------------------------
