@@ -118,20 +118,43 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Find Particle in Event______________________________________________________________________
+//__Convert Pythia Particle to Particle_________________________________________________________
+Particle _convert_particle(Pythia8::Particle& particle) {
+  Particle out{particle.id(),
+               particle.tProd() * mm / c_light,
+               particle.zProd() * mm,
+               particle.yProd() * mm,
+              -particle.xProd() * mm + 81*m};
+  out.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert and Pushback Pythia8 Particle if Predicate__________________________________________
 template<class Predicate>
-ParticleVector _convert_pythia_event(Pythia8::Event& event, Predicate predicate) {
+bool _push_back_convert_if(ParticleVector& out,
+                           Pythia8::Particle& particle,
+                           Predicate predicate) {
+  const auto next = _convert_particle(particle);
+  const auto passed_selection = predicate(next);
+  if (passed_selection)
+    out.push_back(next);
+  return passed_selection;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert Pythia Hard and Soft Processes______________________________________________________
+template<class Predicate>
+ParticleVector _convert_pythia_event(Pythia8::Event& process,
+                                     Pythia8::Event& event,
+                                     Predicate predicate) {
   ParticleVector out;
+  for (int i = 0; i < process.size(); ++i)
+    _push_back_convert_if(out, process[i], predicate);
   for (int i = 0; i < event.size(); ++i) {
-    const auto& particle = event[i];
-    Particle next{particle.id(),
-                  particle.tProd()  * mm / c_light,
-                  particle.zProd()  * mm,
-                  particle.yProd()  * mm,
-                  -particle.xProd() * mm + 81*m};
-    next.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
-    if (predicate(next))
-      out.push_back(next);
+    if (!event[i].isFinal())
+      continue;
+    _push_back_convert_if(out, event[i], predicate);
   }
   return out;
 }
@@ -151,7 +174,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   ++_counter;
   _pythia->next();
 
-  _last_event = _convert_pythia_event(_pythia->process, [&](const auto& next) {
+  _last_event = _convert_pythia_event(_pythia->process, _pythia->event, [&](const auto& next) {
     for (const auto& entry : _propagation_list)
       if (next.id == entry.id)
         return true;
