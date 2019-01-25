@@ -87,5 +87,5 @@ target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 
-install(DIRECTORY scripts DESTINATION bin)
-install(TARGETS simulation DESTINATION bin)
+install(DIRECTORY scripts DESTINATION bin/MATHUSLA)
+install(TARGETS simulation DESTINATION bin/MATHUSLA)
