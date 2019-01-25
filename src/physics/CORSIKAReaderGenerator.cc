@@ -27,7 +27,9 @@
 #include <ROOT/TTree.h>
 #include <ROOT/TLeaf.h>
 
+#include "geometry/Construction.hh"
 #include "physics/Units.hh"
+#include "util/random.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -91,44 +93,15 @@ void CORSIKAEvent::push_back(int new_id,
 }
 //----------------------------------------------------------------------------------------------
 
+//__Pushback Particle Data______________________________________________________________________
+void CORSIKAEvent::push_back(const Particle& particle) {
+  push_back(particle.id, particle.t, particle.x, particle.y, particle.z, particle.px, particle.py, particle.pz);
+}
+//----------------------------------------------------------------------------------------------
+
 //__Particle Data Index Accessor Operator_______________________________________________________
 const Particle CORSIKAEvent::operator[](const std::size_t index) const {
   return Particle{id[index], t[index], x[index], y[index], z[index], px[index], py[index], pz[index]};
-}
-//----------------------------------------------------------------------------------------------
-
-//__Initialize CORSIKA Data Vector______________________________________________________________
-G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
-G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
-//----------------------------------------------------------------------------------------------
-
-//__CORSIKA Reader Generator Constructor________________________________________________________
-CORSIKAReaderGenerator::CORSIKAReaderGenerator()
-    : Generator("corsica_reader", "CORSIKA Reader Generator."), _path("") {
-  _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
-  if (!_data)
-    _data = new CORSIKAEventVector;
-  // TODO: _read_directory = CreateCommand<Command::StringArg>("read_directory", "Read Directory with CORSIKA ROOT Files.");
-}
-//----------------------------------------------------------------------------------------------
-
-//__Generate Initial Particles__________________________________________________________________
-void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  if (_data_index < _data->size()) {
-    const auto entry = (*_data)[_data_index];
-    for (std::size_t i{}; i < entry.size(); ++i)
-      AddParticle(entry[i], *event);
-    ++_data_index;
-  }
-}
-//----------------------------------------------------------------------------------------------
-
-//__Messenger Set Value_________________________________________________________________________
-void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
-                                         G4String value) {
-  if (command == _read_file) {
-    SetFile(value);
-  }
 }
 //----------------------------------------------------------------------------------------------
 
@@ -138,33 +111,15 @@ namespace { ////////////////////////////////////////////////////////////////////
 G4Mutex _mutex = G4MUTEX_INITIALIZER;
 //----------------------------------------------------------------------------------------------
 
-//__Prepare TTree Leaf for Scanning_____________________________________________________________
-TLeaf* _prepare_leaf(TTree* tree,
-                     const std::string& name) {
-  tree->SetBranchStatus(name.c_str(), 1);
-  return tree->GetLeaf(name.c_str());
-}
-//----------------------------------------------------------------------------------------------
-
-//__Size Limit of ROOT Stack Object_____________________________________________________________
-#define STACK_WIDTH 65536
-//----------------------------------------------------------------------------------------------
-
 //__CMS Plot Rotation Angle_____________________________________________________________________
 const auto CMS_ROTATION_ANGLE = 80.0L * deg;
 //----------------------------------------------------------------------------------------------
 
-//__Calculate CMS Final X Rotation Value________________________________________________________
-double _cms_x_rotation(double x,
-                       double y) {
-  return x * std::cos(CMS_ROTATION_ANGLE / rad) + y * std::sin(CMS_ROTATION_ANGLE / rad);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Calculate CMS Final Y Rotation Value________________________________________________________
-double _cms_y_rotation(double x,
-                       double y) {
-  return x * std::sin(CMS_ROTATION_ANGLE / rad) - y * std::cos(CMS_ROTATION_ANGLE / rad);
+//__Calculate CMS Final Rotation________________________________________________________________
+const std::pair<double, double> _cms_rotation(double x,
+                                              double y) {
+  return {x * std::cos(CMS_ROTATION_ANGLE / rad) + y * std::sin(CMS_ROTATION_ANGLE / rad),
+          x * std::sin(CMS_ROTATION_ANGLE / rad) - y * std::cos(CMS_ROTATION_ANGLE / rad)};
 }
 //----------------------------------------------------------------------------------------------
 
@@ -174,7 +129,7 @@ double _cms_y_rotation(double x,
 //----------------------------------------------------------------------------------------------
 
 //__Convert Primary ID from CORSIKA to PDG______________________________________________________
-double _convert_primary_id(int corsika_id) {
+std::pair<int, int> _convert_primary_id(int corsika_id) {
   static const int id_table[] = {
        22,   -11,    11,     0,   -13,
        13,   111,   211,  -211,   130,
@@ -217,24 +172,32 @@ double _convert_primary_id(int corsika_id) {
         0,     0,     0,     0,     0,
         0,     0,     0,     0,     0
   };
-  return id_table[corsika_id - 1];
+  return std::make_pair(id_table[corsika_id - 1], corsika_id);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Prepare TTree Leaf for Scanning_____________________________________________________________
+TLeaf* _load_leaf(TTree* tree,
+                  const std::string& name) {
+  tree->SetBranchStatus(name.c_str(), 1);
+  return tree->GetLeaf(name.c_str());
 }
 //----------------------------------------------------------------------------------------------
 
 //__Load Configuration from TTree to CORSIKAConfig______________________________________________
 void _load_config(TTree* tree,
                   CORSIKAConfig& config) {
-  auto primary_id = _prepare_leaf(tree, "run.ParticleID");
-  auto energy_slope = _prepare_leaf(tree, "run.EnergySlope");
-  auto energy_min = _prepare_leaf(tree, "run.EnergyMin");
-  auto energy_max = _prepare_leaf(tree, "run.EnergyMax");
-  auto azimuth_min = _prepare_leaf(tree, "run.AzimuthMin");
-  auto azimuth_max = _prepare_leaf(tree, "run.AzimuthMax");
-  auto zenith_min = _prepare_leaf(tree, "run.ZenithMin");
-  auto zenith_max = _prepare_leaf(tree, "run.ZenithMax");
+  auto primary_id = _load_leaf(tree, "run.ParticleID");
+  auto energy_slope = _load_leaf(tree, "run.EnergySlope");
+  auto energy_min = _load_leaf(tree, "run.EnergyMin");
+  auto energy_max = _load_leaf(tree, "run.EnergyMax");
+  auto azimuth_min = _load_leaf(tree, "run.AzimuthMin");
+  auto azimuth_max = _load_leaf(tree, "run.AzimuthMax");
+  auto zenith_min = _load_leaf(tree, "run.ZenithMin");
+  auto zenith_max = _load_leaf(tree, "run.ZenithMax");
   tree->GetEntry(0);
 
-  config.primary_id = _convert_primary_id(primary_id->GetValue(0));
+  config.primary_id = _convert_primary_id(primary_id->GetValue(0)).first;
   config.energy_slope = energy_slope->GetValue(0);
   config.energy_min = energy_min->GetValue(0);
   config.energy_max = energy_max->GetValue(0);
@@ -245,138 +208,283 @@ void _load_config(TTree* tree,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Count When Using Threads________________________________________________________________
-std::size_t _threaded_count(const std::size_t total) {
-  const auto ratio = total / G4Threading::GetNumberOfRunningWorkerThreads();
-  return !G4Threading::G4GetThreadId() ? ratio + total % G4Threading::GetNumberOfRunningWorkerThreads() : ratio;
+//__Event Subtree Struct________________________________________________________________________
+struct _event_subtree { TLeaf *id, *t, *x, *y, *z, *obs, *px, *py, *pz; };
+//----------------------------------------------------------------------------------------------
+
+//__Load Subtree From Tree______________________________________________________________________
+_event_subtree _load_subtree(TTree* spec_tree,
+                             TTree* data_tree) {
+  _event_subtree out;
+  data_tree->SetBranchStatus("*", 0);
+  out.id = _load_leaf(data_tree, "particle..ParticleID");
+  out.t = _load_leaf(data_tree, "particle..Time");
+  out.x = _load_leaf(data_tree, "particle..x");
+  out.y = _load_leaf(data_tree, "particle..y");
+  out.z = _load_leaf(spec_tree, "run.ObservationLevel");
+  out.px = _load_leaf(data_tree, "particle..Px");
+  out.py = _load_leaf(data_tree, "particle..Py");
+  out.pz = _load_leaf(data_tree, "particle..Pz");
+  spec_tree->GetEntry(0);
+  out.obs = _load_leaf(data_tree, "particle..ObservationLevel");
+  return out;
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Thread Index in List of Threads_________________________________________________________
-std::size_t _thread_index(const std::size_t cycle) {
-  return cycle * G4Threading::GetNumberOfRunningWorkerThreads() + G4Threading::G4GetThreadId();
+//__Load Particle from Subtree__________________________________________________________________
+void _load_particle(const std::size_t i,
+                    _event_subtree& subtree,
+                    const int particle_id,
+                    const long double height,
+                    CORSIKAEvent& out) {
+  const auto position = _cms_rotation(subtree.x->GetValue(i), subtree.y->GetValue(i));
+  const auto momentum = _cms_rotation(subtree.px->GetValue(i), subtree.py->GetValue(i));
+  out.push_back(particle_id,
+                subtree.t->GetValue(i) * ns,
+                position.first * cm,
+                position.second * cm,
+                subtree.z->GetValue(subtree.obs->GetValue(i) - 1) * cm + height,
+                momentum.first * GeVperC,
+                momentum.second * GeVperC,
+                subtree.pz->GetValue(i) * GeVperC);
 }
 //----------------------------------------------------------------------------------------------
 
-} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+//__Get Range of Thread in Data_________________________________________________________________
+std::pair<std::size_t, std::size_t> _calculate_thread_range(const std::size_t total) {
+  const auto bucket_size = std::ceil(total / static_cast<long double>(G4Threading::GetNumberOfRunningWorkerThreads()));
+  const auto first = bucket_size * G4Threading::G4GetThreadId();
+  return {first, first + bucket_size};
+}
+//----------------------------------------------------------------------------------------------
 
-//__Set Pythia Object from Settings_____________________________________________________________
-void CORSIKAReaderGenerator::SetFile(const std::string& path) {
-  _path = path;
+//__Sort Event in Time Order____________________________________________________________________
+CORSIKAEvent _time_sort(const CORSIKAEvent& event) {
+  const auto size = event.size();
+  if (size == 0UL)
+    return CORSIKAEvent{};
+  CORSIKAEvent out;
+  out.reserve(size);
+  std::vector<std::size_t> indices;
+  indices.reserve(size);
+  for (std::size_t i{}; i < size; ++i)
+    indices.push_back(i);
+  std::sort(std::begin(indices), std::end(indices),
+    [&](const auto left, const auto right) { return event.t[left] < event.t[right]; });
+  for (std::size_t i{}; i < size; ++i)
+    out.push_back(event[indices[i]]);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
 
-  G4AutoLock lock(&_mutex);
+//__Shift Event X and Y_________________________________________________________________________
+CORSIKAEvent _shift_event_xy(CORSIKAEvent& event,
+                             const std::size_t size,
+                             const long double x_shift,
+                             const long double y_shift) {
+  CORSIKAEvent out;
+  out.reserve(size);
+  for (std::size_t i{}; i < size; ++i) {
+    event.x[i] -= x_shift;
+    event.y[i] -= y_shift;
+    if (!( std::abs(event.x[i]) >= Construction::WorldLength / 2.0L
+        || std::abs(event.y[i]) >= Construction::WorldLength / 2.0L))
+      out.push_back(event[i]);
+  }
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Split Event into Time Windows_______________________________________________________________
+void _transform_and_split_event(const CORSIKAEvent& event,
+                                const long double time_window,
+                                const long double center_x,
+                                const long double center_y,
+                                CORSIKAEventVector& out) {
+  const auto size = event.size();
+  if (size == 0UL)
+    return;
+
+  const auto sorted = _time_sort(event);
+  const auto min_time = sorted.t.front();
+
+  CORSIKAEvent next;
+  next.reserve(size);
+
+  long double sum_x{}, sum_y{};
+  std::size_t i{}, window_counter{};
+  for (; i < size; ++i) {
+    const auto next_size = next.size();
+    if (sorted.t[i] >= min_time + time_window * window_counter) {
+      if (next_size) {
+        out.push_back(_shift_event_xy(next, next_size, sum_x / next_size - center_x, sum_y / next_size - center_y));
+        next.clear();
+      }
+      ++window_counter;
+      sum_x = 0.0L;
+      sum_y = 0.0L;
+    }
+    next.push_back(sorted[i]);
+    sum_x += next.x.back();
+    sum_y += next.y.back();
+  }
+
+  if (i == size) {
+    const auto next_size = next.size();
+    if (next_size)
+      out.push_back(_shift_event_xy(next, next_size, sum_x / next_size - center_x, sum_y / next_size - center_y));
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Perform Random Translation of Event Vector__________________________________________________
+std::pair<double, double> _random_translation(double max_radius) {
+  const auto r = max_radius * std::sqrt(util::random::uniform());
+  const auto theta = 2.0L * 3.141592653589793238462643383279502884L * util::random::uniform();
+  return std::make_pair(r * std::cos(theta), r * std::sin(theta));
+}
+//----------------------------------------------------------------------------------------------
+
+//__Fill Tree Data into EventVector_____________________________________________________________
+template<class RangeCalculator>
+void _fill_data(const std::string& path,
+                const Particle& particle,
+                const double time_block,
+                const double max_radius,
+                CORSIKAConfig& config,
+                CORSIKAEventVector& events,
+                RangeCalculator range) {
   TFile file(path.c_str(), "READ");
   if (!file.IsZombie()) {
+    std::cout << "\n\nLoading Data from " + path + " ...\n\n";
     file.cd();
     auto spec_tree = dynamic_cast<TTree*>(file.Get("run"));
     auto data_tree = dynamic_cast<TTree*>(file.Get("sim"));
     const auto data_entries = data_tree->GetEntries();
     if (spec_tree && data_tree && (spec_tree->GetEntries() == 1) && (data_entries > 0)) {
       spec_tree->SetBranchStatus("*", 0);
-      if (_config.primary_id == 0)
-        _load_config(spec_tree, _config);
+      _load_config(spec_tree, config);
 
-      data_tree->SetBranchStatus("*", 0);
-      auto id = _prepare_leaf(data_tree, "particle..ParticleID");
-      auto t = _prepare_leaf(data_tree, "particle..Time");
-      auto x = _prepare_leaf(data_tree, "particle..x");
-      auto y = _prepare_leaf(data_tree, "particle..y");
-      auto px = _prepare_leaf(data_tree, "particle..Px");
-      auto py = _prepare_leaf(data_tree, "particle..Py");
-      auto pz = _prepare_leaf(data_tree, "particle..Pz");
-      auto observation_level = _prepare_leaf(data_tree, "particle..ObservationLevel");
+      auto subtree = _load_subtree(spec_tree, data_tree);
+      const auto range_pair = range(static_cast<std::size_t>(data_entries));
 
-      auto z_level = _prepare_leaf(spec_tree, "run.ObservationLevel");
-      spec_tree->GetEntry(0);
+      const auto translation = _random_translation(max_radius);
 
-      // FIXME: sizes
-      const auto size = _threaded_count(static_cast<std::size_t>(data_entries));
-      _data->clear();
-      _data->reserve(size);
-
-      for (std::size_t i{}; i < size; ++i) {
-        data_tree->GetEntry(_thread_index(i));
-        const auto signed_event_size = id->GetLen();
+      for (std::size_t i{range_pair.first}; i < range_pair.second; ++i) {
+        data_tree->GetEntry(i);
+        const auto signed_event_size = subtree.id->GetLen();
         const auto event_size = signed_event_size > 0 ? static_cast<std::size_t>(signed_event_size) : 0UL;
 
-        _data->emplace_back();
-        auto& next = _data->back();
+        CORSIKAEvent next;
         next.reserve(event_size);
 
-        std::cout << i << ":\n";
-        std::size_t counter{};
-        long double average_t{}, average_x{}, average_y{};
         for (std::size_t j{}; j < event_size; ++j) {
-          const auto particle_id = _convert_primary_id(id->GetValue(j));
-          if (particle_id == PROTON_PDG) {
-            ++counter;
+          const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(j));
+          // NOTE: fix for bad muons
+          if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
             continue;
-          }
-          const auto old_x = x->GetValue(j) * cm;
-          const auto old_y = y->GetValue(j) * cm;
-          const auto old_px = px->GetValue(j) * GeVperC;
-          const auto old_py = py->GetValue(j) * GeVperC;
-          next.push_back(particle_id,
-                         t->GetValue(j) * ns,
-                         _cms_x_rotation(old_x, old_y),
-                         _cms_y_rotation(old_x, old_y),
-                         z_level->GetValue(observation_level->GetValue(j) - 1) * cm - 40*m, // figure out constant
-                         _cms_x_rotation(old_px, old_py),
-                         _cms_y_rotation(old_px, old_py),
-                         pz->GetValue(j) * GeVperC);
-          average_t += next.t.back();
-          average_x += next.x.back();
-          average_y += next.y.back();
-
-          /*
-          std::cout << j << ": "
-                    << next.id.back() << " "
-                    << next.t.back() / ns << " "
-                    << next.x.back() / cm << " "
-                    << next.y.back() / cm << " "
-                    << next.z.back() / cm << " "
-                    << next.px.back() / GeVperC << " "
-                    << next.py.back() / GeVperC << " "
-                    << next.pz.back() / GeVperC << "\n";
-          */
-        }
-        average_t /= (event_size - counter);
-        average_x /= (event_size - counter);
-        average_y /= (event_size - counter);
-
-        counter = 0UL;
-        for (std::size_t j{}; j < event_size; ++j) {
-          if (_convert_primary_id(id->GetValue(j)) == PROTON_PDG) {
-            ++counter;
-            continue;
-          }
-          next.t[j - counter] -= average_t;
-          next.x[j - counter] -= average_x;
-          next.y[j - counter] -= average_y;
-
-          std::cout //<< j << ": "
-                    //<< next.id[j] << " "
-                    //<< next.t[j] / ns << " "
-                    << next.x[j - counter] / cm << "\n";
-                    //<< next.y[j] / cm << " "
-                    //<< next.z[j] / cm << " "
-                    //<< next.px[j] / GeVperC << " "
-                    //<< next.py[j] / GeVperC << " "
-                    //<< next.pz[j] / GeVperC << "\n";
+          _load_particle(j, subtree, particle_id_pair.second, particle.z, next);
         }
 
-        std::cout << "\n";
+        if (next.empty())
+          continue;
+
+        _transform_and_split_event(next,
+            time_block, particle.x + translation.first, particle.y + translation.second, events);
       }
     }
+    std::cout << "Completed. Beginning Run ...\n\n";
   }
   file.Close();
-  //exit(1);
+}
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
+//__Initialize CORSIKA Data Vector______________________________________________________________
+G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
+G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
+//----------------------------------------------------------------------------------------------
+
+//__CORSIKA Reader Generator Constructor________________________________________________________
+CORSIKAReaderGenerator::CORSIKAReaderGenerator()
+    : Generator("corsika_reader", "CORSIKA Reader Generator."),
+      _path(""), _max_radius(100*m), _time_block(1*ns) {
+  _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
+  _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _set_time_block = CreateCommand<Command::DoubleUnitArg>("time_block", "Set Shower Time Block.");
+  _set_time_block->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_time_block->SetParameterName("block", false, false);
+  _set_time_block->SetRange("block > 0");
+  _set_time_block->SetDefaultUnit("ns");
+  _set_time_block->SetUnitCandidates("ns ms s");
+
+  _set_max_radius = CreateCommand<Command::DoubleUnitArg>("max_radius", "Set Shower Shift Max Radius.");
+  _set_max_radius->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_max_radius->SetParameterName("radius", false, false);
+  _set_max_radius->SetRange("radius > 0");
+  _set_max_radius->SetDefaultUnit("m");
+  _set_max_radius->SetUnitCandidates("m cm");
+
+  if (!_data)
+    _data = new CORSIKAEventVector;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generate Initial Particles__________________________________________________________________
+void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
+  if (_data_index < _data->size()) {
+    const auto entry = (*_data)[_data_index];
+    for (std::size_t i{}; i < entry.size(); ++i)
+      AddParticle(entry[i], *event);
+    ++_data_index;
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Messenger Set Value_________________________________________________________________________
+void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
+                                         G4String value) {
+  if (command == _read_file) {
+    SetFile(value);
+    if (G4Threading::IsWorkerThread()) {
+      G4AutoLock lock(&_mutex);
+      _fill_data(_path, _particle, _time_block, _max_radius, _config, *_data, _calculate_thread_range);
+    }
+  } else if (command == _set_time_block) {
+    _time_block = _set_time_block->GetNewDoubleValue(value);
+  } else if (command == _set_max_radius) {
+    _max_radius = _set_max_radius->GetNewDoubleValue(value);
+  } else {
+    Generator::SetNewValue(command, value);
+  }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Pythia Object from Settings_____________________________________________________________
+void CORSIKAReaderGenerator::SetFile(const std::string& path) {
+  _path = path;
+  _data_index = 0UL;
 }
 //----------------------------------------------------------------------------------------------
 
 //__CORSIKA Reader Generator Specifications_____________________________________________________
 const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const {
-  return {};
+  return Analysis::Settings(SimSettingPrefix,
+    "",                  _name,
+    "_INPUT_FILE",       _path,
+    "_TIME_BLOCK",       Units::to_string(_time_block, Units::Time, Units::TimeString),
+    "_MAX_SHIFT_RADIUS", Units::to_string(_max_radius, Units::Length, Units::LengthString),
+    "_PRIMARY_ID",       std::to_string(_config.primary_id),
+    "_ENERGY_SLOPE",     std::to_string(_config.energy_slope),
+    "_ENERGY_MIN",       std::to_string(_config.energy_min),
+    "_ENERGY_MAX",       std::to_string(_config.energy_max),
+    "_AZIMUTH_MIN",      std::to_string(_config.azimuth_min),
+    "_AZIMUTH_MAX",      std::to_string(_config.azimuth_max),
+    "_ZENITH_MIN",       std::to_string(_config.zenith_min),
+    "_ZENITH_MAX",       std::to_string(_config.zenith_max)
+  );
 }
 //----------------------------------------------------------------------------------------------
 

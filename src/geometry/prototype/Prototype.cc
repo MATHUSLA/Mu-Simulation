@@ -25,7 +25,7 @@
 
 #include "action.hh"
 #include "analysis.hh"
-#include "geometry/Earth.hh"
+#include "geometry/Cavern.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
 
@@ -56,6 +56,7 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 const std::string& Detector::DataName = "prototype_run";
 const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
 const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
+bool Detector::SaveAll = false;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Constructor_______________________________________________________________________
@@ -156,7 +157,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 //__Post-Event Processing_______________________________________________________________________
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-  if (_hit_collection->GetSize() == 0)
+  if (_hit_collection->GetSize() == 0 && !SaveAll)
     return;
 
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection, _encoding);
@@ -177,7 +178,8 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   root_data.push_back(collection_data[11]);
   root_data.push_back(collection_data[12]);
 
-  const auto gen_particle_data = Tracking::ConvertToAnalysis(EventAction::GetEvent());
+  const auto gen_particle_data = SaveAll ? Tracking::ConvertToAnalysis(GeneratorAction::GetLastEvent())
+                                         : Tracking::ConvertToAnalysis(EventAction::GetEvent());
   root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
 
   Analysis::ROOT::DataEntry metadata;
@@ -360,13 +362,13 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     Construction::Transform(0, 0, 0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(0, 0, -0.5*total_outer_box_height));
+    G4Translate3D(253.9*cm, 0, -0.5*total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 
 //__Build Earth for Detector____________________________________________________________________
 G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
-  return Earth::Construct(world);
+  return Cavern::Construct(world);
 }
 //----------------------------------------------------------------------------------------------
 

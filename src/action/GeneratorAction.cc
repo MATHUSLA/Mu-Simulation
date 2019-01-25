@@ -46,7 +46,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       G4UImessenger(Physics::Generator::MessengerDirectory, "Particle Generators.") {
 
   _gen_map["basic"] = new Physics::Generator(
-      "basic", "Default Generator.", {});
+      "basic", "Default Generator.", Physics::Particle(13, 0, 0, 81*m, 0, 0, -100*GeVperC));
 
   _gen_map["range"] = new Physics::RangeGenerator(
       "range", "Default Range Generator.", {});
@@ -63,9 +63,9 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onIfAny = 13"
       });
 
-  _gen_map["hepmc"] = new Physics::HepMCGenerator({});
+  // _gen_map["hepmc"] = new Physics::HepMCGenerator({});
 
-  _gen_map["corsica_reader"] = new Physics::CORSIKAReaderGenerator();
+  _gen_map["corsika_reader"] = new Physics::CORSIKAReaderGenerator();
 
   std::string generators;
   for (const auto& element : _gen_map) {
@@ -113,6 +113,12 @@ void GeneratorAction::SetNewValue(G4UIcommand* command,
 //__Get the Current Generator___________________________________________________________________
 const Physics::Generator* GeneratorAction::GetGenerator() {
   return _gen;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Last Event Data_________________________________________________________________________
+Physics::ParticleVector GeneratorAction::GetLastEvent() {
+  return _gen->GetLastEvent();
 }
 //----------------------------------------------------------------------------------------------
 

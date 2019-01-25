@@ -28,6 +28,8 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
+#include "TFile.h"
+#include "TTree.h"
 
 namespace MATHUSLA { namespace MU {
 

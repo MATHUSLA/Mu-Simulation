@@ -267,6 +267,40 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event) {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Convert ParticleVector to Analysis Form_____________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const Physics::ParticleVector& particles) {
+  constexpr const std::size_t column_count = 11UL;
+
+  Analysis::ROOT::DataEntryList out;
+  out.reserve(column_count);
+
+  const auto size = particles.size();
+
+  for (std::size_t i{}; i < column_count; ++i) {
+    Analysis::ROOT::DataEntry entry;
+    entry.reserve(size);
+    out.push_back(entry);
+  }
+
+  for (std::size_t index{}; index < size; ++index) {
+    const auto& particle = particles[index];
+    out[0].push_back(particle.id);
+    out[1].push_back(index);
+    out[2].push_back(0);
+    out[3].push_back(particle.t / Units::Time);
+    out[4].push_back(particle.x / Units::Length);
+    out[5].push_back(particle.y / Units::Length);
+    out[6].push_back(particle.z / Units::Length);
+    out[7].push_back(particle.e() / Units::Energy);
+    out[8].push_back(particle.px / Units::Momentum);
+    out[9].push_back(particle.py / Units::Momentum);
+    out[10].push_back(particle.pz / Units::Momentum);
+  }
+
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

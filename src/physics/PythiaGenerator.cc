@@ -86,14 +86,19 @@ PythiaGenerator::PythiaGenerator(const std::string& path) : PythiaGenerator({}, 
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+Pythia8::Pythia* _setup_random(Pythia8::Pythia* pythia) {
+  pythia->readString("Random:setSeed = on");
+  pythia->readString("Random:seed = 0");
+  return pythia;
+}
+
 //__Reconstruct Pythia Object from Old Object___________________________________________________
 Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
   if (!pythia) {
     return new Pythia8::Pythia();
   } else {
     auto out = new Pythia8::Pythia(pythia->settings, pythia->particleData);
-    out->readString("Random:setSeed = on");
-    out->readString("Random:seed = 0");
+    _setup_random(out);
     // delete pythia;
     return out;
   }
@@ -106,28 +111,50 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
   auto pythia = new Pythia8::Pythia();
   for (const auto& setting : *settings)
     pythia->readString(setting);
-  pythia->readString("Random:setSeed = on");
-  pythia->readString("Random:seed = 0");
+  _setup_random(pythia);
   pythia->init();
   settings_on = true;
   return pythia;
 }
 //----------------------------------------------------------------------------------------------
 
-//__Find Particle in Event______________________________________________________________________
-ParticleVector _find_pythia_particles(Pythia8::Event& event,
-                                      const PropagationList& list) {
+//__Convert Pythia Particle to Particle_________________________________________________________
+Particle _convert_particle(Pythia8::Particle& particle) {
+  Particle out{particle.id(),
+               particle.tProd() * mm / c_light,
+               particle.zProd() * mm,
+               particle.yProd() * mm,
+              -particle.xProd() * mm + 81*m};
+  out.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert and Pushback Pythia8 Particle if Predicate__________________________________________
+template<class Predicate>
+bool _push_back_convert_if(ParticleVector& out,
+                           Pythia8::Particle& particle,
+                           Predicate predicate) {
+  const auto next = _convert_particle(particle);
+  const auto passed_selection = predicate(next);
+  if (passed_selection)
+    out.push_back(next);
+  return passed_selection;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert Pythia Hard and Soft Processes______________________________________________________
+template<class Predicate>
+ParticleVector _convert_pythia_event(Pythia8::Event& process,
+                                     Pythia8::Event& event,
+                                     Predicate predicate) {
   ParticleVector out;
+  for (int i = 0; i < process.size(); ++i)
+    _push_back_convert_if(out, process[i], predicate);
   for (int i = 0; i < event.size(); ++i) {
-    const auto& particle = event[i];
-    Particle next{particle.id(),
-                  particle.tProd()  * mm / c_light,
-                  particle.zProd()  * mm,
-                  particle.yProd()  * mm,
-                  -particle.xProd() * mm + 100*m};
-    next.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
-    if (list.empty() || InPropagationList(list, next))
-      out.push_back(next);
+    if (!event[i].isFinal())
+      continue;
+    _push_back_convert_if(out, event[i], predicate);
   }
   return out;
 }
@@ -144,16 +171,25 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
   }
 
-  ParticleVector particles;
-  while (true) {
-    ++_counter;
-    if (!_pythia->next()) continue;
-    particles = _find_pythia_particles(_pythia->process, _propagation_list);
-    if (!particles.empty()) break;
-  }
+  ++_counter;
+  _pythia->next();
 
-  for (const auto& particle : particles)
-    AddParticle(particle, *event);
+  _last_event = _convert_pythia_event(_pythia->process, _pythia->event, [&](const auto& next) {
+    for (const auto& entry : _propagation_list)
+      if (next.id == entry.id)
+        return true;
+    return false;
+  });
+
+  for (const auto& particle : _last_event)
+    if (InPropagationList(_propagation_list, particle))
+      AddParticle(particle, *event);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Last Event Data_________________________________________________________________________
+ParticleVector PythiaGenerator::GetLastEvent() const {
+  return _last_event;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -166,8 +202,7 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command,
   } else if (command == _read_file) {
     SetPythia(value);
   } else if (command == _add_cut) {
-    const auto cuts = ParsePropagationList(value);
-    for (const auto& cut : cuts)
+    for (const auto& cut : ParsePropagationList(value))
       _propagation_list.push_back(cut);
   } else if (command == _clear_cuts) {
     _propagation_list.clear();
@@ -206,6 +241,7 @@ void PythiaGenerator::SetPythia(const std::string& path) {
   // delete _pythia;
   _pythia = new Pythia8::Pythia();
   _pythia->readFile(_path);
+  _setup_random(_pythia);
   _pythia->init();
 }
 //----------------------------------------------------------------------------------------------

@@ -30,6 +30,8 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
+/*
+
 class HepMCGenerator : public Generator {
 public:
   HepMCGenerator(const PropagationList& propagation,
@@ -51,6 +53,8 @@ protected:
   bool _unique;
   Command::StringArg* _read_file;
 };
+
+*/
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 

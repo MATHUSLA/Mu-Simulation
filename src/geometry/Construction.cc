@@ -52,6 +52,7 @@ bool _data_per_event;
 std::string _data_name;
 const Analysis::ROOT::DataKeyList* _data_keys;
 const Analysis::ROOT::DataKeyTypeList* _data_key_types;
+bool _save_option;
 //----------------------------------------------------------------------------------------------
 
 //__Detector List_______________________________________________________________________________
@@ -81,10 +82,12 @@ const std::string Builder::MessengerDirectory = "/det/";
 
 //__Builder Constructor_________________________________________________________________________
 Builder::Builder(const std::string& detector,
-                 const std::string& export_dir)
+                 const std::string& export_dir,
+                 const bool save_option)
     : G4VUserDetectorConstruction(), G4UImessenger(MessengerDirectory, "Particle Detectors.") {
   _detector = detector;
   _export_dir = export_dir;
+  _save_option = save_option;
 
   _select = CreateCommand<Command::StringArg>("select", "Select Detector.");
   _select->SetParameterName("detector", false);
@@ -102,8 +105,6 @@ Builder::Builder(const std::string& detector,
 
 //__Build World and Detector Geometry___________________________________________________________
 G4VPhysicalVolume* Builder::Construct() {
-  constexpr static auto WorldLength = 1000*m;
-
   G4GeometryManager::GetInstance()->OpenGeometry();
   G4PhysicalVolumeStore::GetInstance()->Clean();
   G4LogicalVolumeStore::GetInstance()->Clean();
@@ -145,6 +146,8 @@ G4VPhysicalVolume* Builder::Construct() {
       Prototype::Detector::ConstructEarth(worldLV);
     }
   }
+
+  Builder::SetSaveOption(_save_option);
 
   auto world = PlaceVolume(worldLV, nullptr);
   if (!_export_dir.empty()) {
@@ -215,6 +218,20 @@ void Builder::SetDetector(const std::string& detector) {
                    "/run/geometryModified",
                    "/run/initialize",
                    "/vis/viewer/clearTransients");
+}
+//----------------------------------------------------------------------------------------------
+
+//__Set Current Detector Save Option____________________________________________________________
+void Builder::SetSaveOption(bool option) {
+  if (_detector == "Flat") {
+    Flat::Detector::SaveAll = option;
+  } else if (_detector == "Box") {
+    Box::Detector::SaveAll = option;
+  } else if (_detector == "MuonMapper") {
+    MuonMapper::Detector::SaveAll = option;
+  } else {
+    Prototype::Detector::SaveAll = option;
+  }
 }
 //----------------------------------------------------------------------------------------------
 
@@ -291,6 +308,15 @@ G4Trap* Trap(const std::string& name,
     0.5 * height, 0, 0,
     0.5 * depth, 0.5 * minwidth, 0.5 * minwidth, 0,
     0.5 * depth, 0.5 * maxwidth, 0.5 * maxwidth, 0);
+}
+//----------------------------------------------------------------------------------------------
+
+//__Cylinder Builder____________________________________________________________________________
+G4Tubs* Cylinder(const std::string& name,
+                 const double height,
+                 const double inner_radius,
+                 const double outer_radius) {
+  return new G4Tubs(name, inner_radius, outer_radius, 0.5 * height, 0, 360*deg);
 }
 //----------------------------------------------------------------------------------------------
 

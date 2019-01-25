@@ -1,0 +1,11 @@
+! File: z_to_muon.cmnd
+
+Print:quiet = on
+Next:numberCount = 10000
+Stat:showErrors = off
+Beams:eCM = 13000.
+WeakSingleBoson:ffbar2gmZ = on
+PhaseSpace:mHatMin = 66
+PhaseSpace:mHatMax = 116
+23:onMode = off
+23:onIfAny = 13

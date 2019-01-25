@@ -33,6 +33,7 @@
 #include <Geant4/G4ParticleDefinition.hh>
 
 #include "analysis.hh"
+#include "physics/Particle.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -126,6 +127,10 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* colle
 
 //__Convert G4Event to Analysis Form____________________________________________________________
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event);
+//----------------------------------------------------------------------------------------------
+
+//__Convert ParticleVector to Analysis Form_____________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const Physics::ParticleVector& particles);
 //----------------------------------------------------------------------------------------------
 
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////

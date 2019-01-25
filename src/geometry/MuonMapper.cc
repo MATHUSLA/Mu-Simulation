@@ -28,6 +28,7 @@ const Analysis::ROOT::DataKeyList Detector::DataKeys{
   "R", "logB"};
 const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes{
   Analysis::ROOT::DataKeyType::Single, Analysis::ROOT::DataKeyType::Single};
+bool Detector::SaveAll = false;
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________

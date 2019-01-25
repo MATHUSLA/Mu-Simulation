@@ -51,6 +51,7 @@ constexpr auto half_detector_height = 0.5L * full_detector_height;
 const std::string& Detector::DataName = "box_run";
 const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
 const Analysis::ROOT::DataKeyTypeList Detector::DataKeyTypes = Analysis::ROOT::DefaultDataKeyTypeList;
+bool Detector::SaveAll = false;
 //----------------------------------------------------------------------------------------------
 
 //__Detector Constructor________________________________________________________________________
@@ -108,7 +109,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 //__Post-Event Processing_______________________________________________________________________
 void Detector::EndOfEvent(G4HCofThisEvent*) {
-  if (_hit_collection->GetSize() == 0)
+  if (_hit_collection->GetSize() == 0 && !SaveAll)
     return;
 
   const auto collection_data = Tracking::ConvertToAnalysis(_hit_collection);
@@ -129,7 +130,8 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   root_data.push_back(collection_data[11]);
   root_data.push_back(collection_data[12]);
 
-  const auto gen_particle_data = Tracking::ConvertToAnalysis(EventAction::GetEvent());
+  const auto gen_particle_data = SaveAll ? Tracking::ConvertToAnalysis(GeneratorAction::GetLastEvent())
+                                         : Tracking::ConvertToAnalysis(EventAction::GetEvent());
   root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
 
   Analysis::ROOT::DataEntry metadata;
@@ -186,7 +188,8 @@ G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
     Construction::Box("AirBox", x_edge_length, y_edge_length, air_gap),
     Construction::Transform(0.5L*x_edge_length + x_displacement,
                             0.5L*y_edge_length + y_displacement,
-                            0.5L*(air_gap-Earth::SandstoneDepth))));
+                            0.5L*(air_gap-Earth::SandstoneDepth))),
+    Earth::Material::SiO2);
 
   Construction::PlaceVolume(modified, earth, Earth::SandstoneTransform());
   Construction::PlaceVolume(Earth::MarlVolume(), earth, Earth::MarlTransform());

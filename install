@@ -49,10 +49,11 @@ fi
 mkdir -p build
 cd build
 
-if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake ..;   fi;
+if [[ "$CONFIG_CMAKE" -eq 1 ]]; then cmake -DCMAKE_INSTALL_PREFIX=../.temp/sim-install/ ..;   fi;
 if [[ "$CLEAN_BUILD"  -eq 1 ]]; then make clean; fi;
 
 make -j8
+make install -j8
 
 if [[ ! "$?" -eq 0 ]]; then
     echo -e "\nBuild Failed!\n"

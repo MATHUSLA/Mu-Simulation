@@ -41,6 +41,7 @@ add_executable(simulation
     src/geometry/box/Scintillator.cc
 
     src/geometry/Construction.cc
+    src/geometry/Cavern.cc
     src/geometry/Earth.cc
     src/geometry/MuonMapper.cc
 
@@ -86,5 +87,5 @@ target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 
-install(DIRECTORY scripts DESTINATION bin)
-install(TARGETS simulation DESTINATION bin)
+install(DIRECTORY scripts DESTINATION bin/MATHUSLA)
+install(TARGETS simulation DESTINATION bin/MATHUSLA)

@@ -27,6 +27,7 @@
 #include <Geant4/G4Transform3D.hh>
 #include <Geant4/G4Box.hh>
 #include <Geant4/G4Trap.hh>
+#include <Geant4/G4Tubs.hh>
 #include <Geant4/G4Material.hh>
 #include <Geant4/G4SystemOfUnits.hh>
 
@@ -50,11 +51,16 @@ extern G4Material* Aluminum;
 extern G4Material* Iron;
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
+//__Size of The World___________________________________________________________________________
+static constexpr const auto WorldLength = 1500*m;
+//----------------------------------------------------------------------------------------------
+
 //__Geometry Builder Class______________________________________________________________________
 class Builder : public G4VUserDetectorConstruction, public G4UImessenger {
 public:
   Builder(const std::string& detector,
-          const std::string& export_dir);
+          const std::string& export_dir,
+          const bool save_option);
   G4VPhysicalVolume* Construct();
   void ConstructSDandField();
 
@@ -63,6 +69,7 @@ public:
   static const std::string MessengerDirectory;
 
   static void SetDetector(const std::string& detector);
+  static void SetSaveOption(const bool option);
 
   static const std::string& GetDetectorName();
   static bool IsDetectorDataPerEvent();
@@ -102,6 +109,13 @@ G4Trap* Trap(const std::string& name,
              const double minwidth,
              const double maxwidth,
              const double depth);
+//----------------------------------------------------------------------------------------------
+
+//__Cylinder Builder____________________________________________________________________________
+G4Tubs* Cylinder(const std::string& name,
+                 const double height,
+                 const double inner_radius,
+                 const double outer_radius);
 //----------------------------------------------------------------------------------------------
 
 //__Volume Builder______________________________________________________________________________

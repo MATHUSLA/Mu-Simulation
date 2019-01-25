@@ -55,6 +55,7 @@ struct CORSIKAEvent {
                  double new_px,
                  double new_py,
                  double new_pz);
+  void push_back(const Particle& particle);
   const Particle operator[](const std::size_t index) const;
 };
 //----------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ public:
   CORSIKAReaderGenerator();
 
   void GeneratePrimaryVertex(G4Event* event);
+  // TODO: void GetLastEvent() const;
   void SetNewValue(G4UIcommand* command,
                    G4String value);
   void SetFile(const std::string& path);
@@ -81,7 +83,10 @@ private:
   CORSIKAConfig _config;
   std::string _path;
   Command::StringArg* _read_file;
-  // TODO: Command::StringArg* _read_directory;
+  double _max_radius;
+  double _time_block;
+  Command::DoubleUnitArg* _set_max_radius;
+  Command::DoubleUnitArg* _set_time_block;
 };
 //----------------------------------------------------------------------------------------------
 

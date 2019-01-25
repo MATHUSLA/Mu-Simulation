@@ -51,11 +51,13 @@ void _add_to_vertex(G4PrimaryVertex* vertex,
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+/*
+
 //__HepMC Generator Constructor_________________________________________________________________
 HepMCGenerator::HepMCGenerator(const PropagationList& propagation,
                                bool unique_events)
     : Generator("hepmc", "HepMC ROOT Reader"),
-      /* FIXME: _reader(nullptr),*/ _propagation_list(propagation), _unique(unique_events) {
+      _reader(nullptr), _propagation_list(propagation), _unique(unique_events) {
   _read_file = CreateCommand<Command::StringArg>("readFile", "Read HepMC ROOT File.");
   _read_file->SetParameterName("file", false);
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -64,7 +66,6 @@ HepMCGenerator::HepMCGenerator(const PropagationList& propagation,
 
 //__Messenger Set Value_________________________________________________________________________
 void HepMCGenerator::SetNewValue(G4UIcommand* command, G4String value) {
-  /* FIXME:
   if (command == _read_file) {
     if (_reader) {
       //_reader->close();
@@ -72,13 +73,11 @@ void HepMCGenerator::SetNewValue(G4UIcommand* command, G4String value) {
     }
     _reader = new HepMC::ReaderAscii(value);
   }
-  */
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generate Primary Verticies__________________________________________________________________
 void HepMCGenerator::GeneratePrimaryVertex(G4Event* event) {
-  /* FIXME:
   if (_reader && !_reader->failed()) {
     _reader->read_event(_current_event);
 
@@ -93,7 +92,6 @@ void HepMCGenerator::GeneratePrimaryVertex(G4Event* event) {
         event->AddPrimaryVertex(propagated_vertex);
     }
   }
-  */
 }
 //----------------------------------------------------------------------------------------------
 
@@ -102,6 +100,8 @@ const Analysis::SimSettingList HepMCGenerator::GetSpecification() const {
   return {};
 }
 //----------------------------------------------------------------------------------------------
+
+*/
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 

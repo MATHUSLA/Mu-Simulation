@@ -1,3 +1,2 @@
 #!/bin/bash
-
 ./simulation -j$2 -q -o $1 -s studies/box/signal/script.mac particle $3 count $4
