@@ -149,8 +149,6 @@ ParticleVector _convert_pythia_event(Pythia8::Event& process,
                                      Pythia8::Event& event,
                                      Predicate predicate) {
   ParticleVector out;
-  for (int i = 0; i < process.size(); ++i)
-    _push_back_convert_if(out, process[i], predicate);
   for (int i = 0; i < event.size(); ++i) {
     if (!event[i].isFinal())
       continue;
