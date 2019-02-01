@@ -72,6 +72,8 @@ void Detector::Initialize(G4HCofThisEvent* event) {
 G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   const auto deposit = step->GetTotalEnergyDeposit();
 
+  // std::cout << "\n\n[HIT]\n\n";
+
   if (deposit == 0.0L)
     return false;
 

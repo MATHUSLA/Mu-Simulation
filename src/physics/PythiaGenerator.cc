@@ -145,8 +145,7 @@ bool _push_back_convert_if(ParticleVector& out,
 
 //__Convert Pythia Hard and Soft Processes______________________________________________________
 template<class Predicate>
-ParticleVector _convert_pythia_event(Pythia8::Event& process,
-                                     Pythia8::Event& event,
+ParticleVector _convert_pythia_event(Pythia8::Event& event,
                                      Predicate predicate) {
   ParticleVector out;
   for (int i = 0; i < event.size(); ++i) {
@@ -172,16 +171,19 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   ++_counter;
   _pythia->next();
 
-  _last_event = _convert_pythia_event(_pythia->process, _pythia->event, [&](const auto& next) {
+  _last_event = _convert_pythia_event(_pythia->event, [&](const auto& next) {
     for (const auto& entry : _propagation_list)
       if (next.id == entry.id)
         return true;
     return false;
   });
 
-  for (const auto& particle : _last_event)
-    if (InPropagationList(_propagation_list, particle))
+  for (const auto& particle : _last_event) {
+    if (InPropagationList(_propagation_list, particle)) {
       AddParticle(particle, *event);
+      std::cout << particle.pz << "\n";
+    }
+  }
 }
 //----------------------------------------------------------------------------------------------
 

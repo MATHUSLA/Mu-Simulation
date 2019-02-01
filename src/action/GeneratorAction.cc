@@ -65,7 +65,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
 
   // _gen_map["hepmc"] = new Physics::HepMCGenerator({});
 
-  _gen_map["corsika_reader"] = new Physics::CORSIKAReaderGenerator();
+  _gen_map["corsika_reader"] = new Physics::CORSIKAReaderGenerator("");
 
   std::string generators;
   for (const auto& element : _gen_map) {

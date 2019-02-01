@@ -1,4 +1,6 @@
 #!/bin/bash
 
 # ./simulation -q -o $1 -j$2 -s studies/box/cosmics/corsika/script.mac file $3 block $4 radius $5 count $6
-./simulation -q -o $1 -j$2 -s scripts/looper.mac macro studies/box/cosmics/corsika/script.mac runs $3 file $4 block $5 radius $6 count $7
+# ./simulation -q -o $1 -j$2 -s scripts/looper.mac macro studies/box/cosmics/corsika/script.mac runs $3 file $4 block $5 radius $6 count $7
+
+./simulation -q -o $1 -j$2 -s scripts/looper.mac macro studies/box/cosmics/corsika/script.mac runs $3 file $4 event $5 radius $6 count $7

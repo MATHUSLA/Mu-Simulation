@@ -29,6 +29,11 @@ namespace Physics { ////////////////////////////////////////////////////////////
 //__CORSIKA Simulation Config Structure_________________________________________________________
 struct CORSIKAConfig {
   int primary_id;
+  unsigned long long event_id;
+  double energy;
+  double theta, phi;
+  double z0;
+  unsigned long long electron_count, muon_count, hadron_count;
   double energy_slope,
          energy_min,
          energy_max,
@@ -36,13 +41,14 @@ struct CORSIKAConfig {
          azimuth_max,
          zenith_min,
          zenith_max;
+  double max_radius;
 };
 //----------------------------------------------------------------------------------------------
 
 //__CORSIKA Simulation Event Structure__________________________________________________________
 struct CORSIKAEvent {
   std::vector<int> id;
-  std::vector<double> t, x, y, z, px, py, pz;
+  std::vector<double> t, x, y, z, px, py, pz, weight;
   bool empty() const;
   std::size_t size() const;
   void clear();
@@ -54,8 +60,9 @@ struct CORSIKAEvent {
                  double new_z,
                  double new_px,
                  double new_py,
-                 double new_pz);
-  void push_back(const Particle& particle);
+                 double new_pz,
+                 double new_weight);
+  void push_back(const Particle& particle, double weight);
   const Particle operator[](const std::size_t index) const;
 };
 //----------------------------------------------------------------------------------------------
@@ -67,7 +74,7 @@ using CORSIKAEventVector = std::vector<CORSIKAEvent>;
 //__CORSIKA Simulation Generator________________________________________________________________
 class CORSIKAReaderGenerator : public Generator {
 public:
-  CORSIKAReaderGenerator();
+  CORSIKAReaderGenerator(const std::string& path);
 
   void GeneratePrimaryVertex(G4Event* event);
   // TODO: void GetLastEvent() const;
@@ -80,13 +87,12 @@ public:
 private:
   static G4ThreadLocal CORSIKAEventVector* _data;
   static G4ThreadLocal std::size_t _data_index;
+  CORSIKAEvent _event;
   CORSIKAConfig _config;
   std::string _path;
   Command::StringArg* _read_file;
-  double _max_radius;
-  double _time_block;
   Command::DoubleUnitArg* _set_max_radius;
-  Command::DoubleUnitArg* _set_time_block;
+  Command::IntegerArg* _set_event_id;
 };
 //----------------------------------------------------------------------------------------------
 
