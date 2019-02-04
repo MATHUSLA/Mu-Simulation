@@ -405,6 +405,7 @@ void CORSIKAReaderGenerator::SetFile(const std::string& path) {
   _data_index = 0UL;
   if (G4Threading::IsWorkerThread()) {
     G4AutoLock lock(&_mutex);
+    _event.clear();
     _collect_source(_path, _particle, _config, _event);
   }
 }
