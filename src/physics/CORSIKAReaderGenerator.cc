@@ -379,7 +379,6 @@ void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
     if (std::abs(particle.x) >= Construction::WorldLength / 2.0L
         || std::abs(particle.y) >= Construction::WorldLength / 2.0L)
       continue;
-    // std::cout << particle.z << " " << particle.pz << "\n";
     AddParticle(particle, *event);
   }
 }
