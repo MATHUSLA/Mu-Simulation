@@ -87,6 +87,7 @@ public:
                            G4String value);
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual const Analysis::SimSettingList GetSpecification() const;
+  virtual const std::vector<std::vector<double>> ExtraDetails() const;
 
   const Particle& particle() const { return _particle; }
   const std::string& name() const { return _name; }

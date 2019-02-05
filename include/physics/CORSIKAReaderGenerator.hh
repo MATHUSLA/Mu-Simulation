@@ -77,18 +77,19 @@ public:
   CORSIKAReaderGenerator(const std::string& path);
 
   void GeneratePrimaryVertex(G4Event* event);
-  // TODO: void GetLastEvent() const;
+  virtual ParticleVector GetLastEvent() const;
   void SetNewValue(G4UIcommand* command,
                    G4String value);
   void SetFile(const std::string& path);
 
   virtual const Analysis::SimSettingList GetSpecification() const;
+  virtual const std::vector<std::vector<double>> ExtraDetails() const;
 
 private:
-  static G4ThreadLocal CORSIKAEventVector* _data;
-  static G4ThreadLocal std::size_t _data_index;
+  ParticleVector _last_event;
   CORSIKAEvent _event;
   CORSIKAConfig _config;
+  std::pair<double, double> _translation;
   std::string _path;
   Command::StringArg* _read_file;
   Command::DoubleUnitArg* _set_max_radius;

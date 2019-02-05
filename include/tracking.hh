@@ -133,6 +133,18 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event);
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const Physics::ParticleVector& particles);
 //----------------------------------------------------------------------------------------------
 
+//__Convert Extra to Analysis Form______________________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const std::vector<std::vector<double>>& extra);
+//----------------------------------------------------------------------------------------------
+
+//__Empty Extra Vector__________________________________________________________________________
+inline const std::vector<std::vector<double>>& EmptyExtra() {
+  static const std::vector<std::vector<double>> _empty{
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+  return _empty;
+}
+//----------------------------------------------------------------------------------------------
+
 } /* namespace Tracking */ /////////////////////////////////////////////////////////////////////
 
 } } /* namespace MATHUSLA::MU */

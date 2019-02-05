@@ -21,6 +21,7 @@
 #include <Pythia8/ParticleData.h>
 
 #include "physics/Units.hh"
+#include "util/string.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -53,6 +54,10 @@ PythiaGenerator::PythiaGenerator(const PropagationList& propagation,
 
   _clear_cuts = CreateCommand<Command::NoArg>("cuts/clear", "Clear Cuts from Pythia Filter");
   _clear_cuts->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  _process = CreateCommand<Command::StringArg>("process", "Specify Pythia Process.");
+  _process->SetParameterName("process", false);
+  _process->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -86,11 +91,13 @@ PythiaGenerator::PythiaGenerator(const std::string& path) : PythiaGenerator({}, 
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+//__Setup Pythia Randomness_____________________________________________________________________
 Pythia8::Pythia* _setup_random(Pythia8::Pythia* pythia) {
   pythia->readString("Random:setSeed = on");
   pythia->readString("Random:seed = 0");
   return pythia;
 }
+//----------------------------------------------------------------------------------------------
 
 //__Reconstruct Pythia Object from Old Object___________________________________________________
 Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
@@ -99,7 +106,6 @@ Pythia8::Pythia* _reconstruct_pythia(Pythia8::Pythia* pythia) {
   } else {
     auto out = new Pythia8::Pythia(pythia->settings, pythia->particleData);
     _setup_random(out);
-    // delete pythia;
     return out;
   }
 }
@@ -115,6 +121,25 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
   pythia->init();
   settings_on = true;
   return pythia;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Pythia Event Type_______________________________________________________________________
+Pythia8::Event _get_event(Pythia8::Pythia* pythia, const std::string& type) {
+  const auto type_string = util::string::strip(type);
+  if (type_string == "hard") {
+    return pythia->process;
+  } else if (type_string == "soft") {
+    const auto& process = pythia->process;
+    const auto process_size = static_cast<std::size_t>(process.size());
+    const auto& event = pythia->event;
+    const auto event_size = static_cast<std::size_t>(event.size());
+    Pythia8::Event out;
+    for (std::size_t i{process_size}; i < event_size; ++i)
+      out.append(event[i]);
+    return out;
+  }
+  return pythia->event;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -145,7 +170,7 @@ bool _push_back_convert_if(ParticleVector& out,
 
 //__Convert Pythia Hard and Soft Processes______________________________________________________
 template<class Predicate>
-ParticleVector _convert_pythia_event(Pythia8::Event& event,
+ParticleVector _convert_pythia_event(Pythia8::Event event,
                                      Predicate predicate) {
   ParticleVector out;
   for (int i = 0; i < event.size(); ++i) {
@@ -162,7 +187,6 @@ ParticleVector _convert_pythia_event(Pythia8::Event& event,
 //__Generate Initial Particles__________________________________________________________________
 void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   if (!_settings_on && !_pythia_settings->empty()) {
-    // delete _pythia;
     _pythia = _create_pythia(_pythia_settings, _settings_on);
   } else if (!_pythia) {
     std::cout << "\n[ERROR] No Pythia Configuration Specified.\n";
@@ -171,19 +195,16 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   ++_counter;
   _pythia->next();
 
-  _last_event = _convert_pythia_event(_pythia->event, [&](const auto& next) {
+  _last_event = _convert_pythia_event(_get_event(_pythia, _process_string), [&](const auto& next) {
     for (const auto& entry : _propagation_list)
       if (next.id == entry.id)
         return true;
     return false;
   });
 
-  for (const auto& particle : _last_event) {
-    if (InPropagationList(_propagation_list, particle)) {
+  for (const auto& particle : _last_event)
+    if (InPropagationList(_propagation_list, particle))
       AddParticle(particle, *event);
-      std::cout << particle.pz << "\n";
-    }
-  }
 }
 //----------------------------------------------------------------------------------------------
 
@@ -206,6 +227,10 @@ void PythiaGenerator::SetNewValue(G4UIcommand* command,
       _propagation_list.push_back(cut);
   } else if (command == _clear_cuts) {
     _propagation_list.clear();
+  } else if (command == _process) {
+    _process_string = value;
+  } else {
+    Generator::SetNewValue(command, value);
   }
 }
 //----------------------------------------------------------------------------------------------
@@ -217,7 +242,6 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   _counter = 0ULL;
   _pythia_settings->clear();
   _settings_on = false;
-  // delete _pythia;
   _pythia = _reconstruct_pythia(pythia);
   _pythia->init();
 }
@@ -227,7 +251,6 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
 void PythiaGenerator::SetPythia(const std::vector<std::string>& settings) {
   *_pythia_settings = settings;
   _counter = 0ULL;
-  // delete _pythia;
   _pythia = _create_pythia(_pythia_settings, _settings_on);
 }
 //----------------------------------------------------------------------------------------------
@@ -238,7 +261,6 @@ void PythiaGenerator::SetPythia(const std::string& path) {
   _pythia_settings->clear();
   _settings_on = false;
   _path = path;
-  // delete _pythia;
   _pythia = new Pythia8::Pythia();
   _pythia->readFile(_path);
   _setup_random(_pythia);

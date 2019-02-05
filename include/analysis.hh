@@ -203,11 +203,24 @@ enum class DataKeyType { Single, Vector };
 using DataKeyTypeList = std::vector<DataKeyType>;
 static const DataKeyList DefaultDataKeyList{
   "N_HITS",
+
   "Deposit", "Time", "Detector",
-  "PDG", "Track", "Parent", "X", "Y", "Z", "E", "PX", "PY", "PZ",
+  "PDG", "Track", "Parent",
+  "X", "Y", "Z",
+  "E", "PX", "PY", "PZ",
+  "WEIGHT",
+
   "N_GEN",
+
   "GEN_PDG", "GEN_Track", "GEN_Parent",
-  "GEN_T", "GEN_X", "GEN_Y", "GEN_Z", "GEN_E", "GEN_PX", "GEN_PY", "GEN_PZ"
+  "GEN_T", "GEN_X", "GEN_Y", "GEN_Z",
+  "GEN_E", "GEN_PX", "GEN_PY", "GEN_PZ",
+  "GEN_WEIGHT",
+
+  "EXTRA_00", "EXTRA_01", "EXTRA_02", "EXTRA_03",
+  "EXTRA_04", "EXTRA_05", "EXTRA_06", "EXTRA_07",
+  "EXTRA_08", "EXTRA_09", "EXTRA_10", "EXTRA_11",
+  "EXTRA_12", "EXTRA_13", "EXTRA_14", "EXTRA_15"
 };
 static const DataKeyTypeList DefaultDataKeyTypeList{
   DataKeyType::Single,
@@ -225,9 +238,28 @@ static const DataKeyTypeList DefaultDataKeyTypeList{
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,
+  DataKeyType::Vector,
 
   DataKeyType::Single,
 
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
+  DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,
   DataKeyType::Vector,

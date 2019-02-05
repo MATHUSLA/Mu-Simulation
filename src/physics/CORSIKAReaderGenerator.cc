@@ -31,6 +31,7 @@
 #include "physics/Units.hh"
 #include "util/random.hh"
 #include "action.hh"
+#include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -209,7 +210,7 @@ TLeaf* _load_leaf(TTree* tree,
 struct _event_subtree {
   TTree *spec_tree, *data_tree;
   TLeaf *event_id, *energy, *theta, *phi, *z0, *electron_count, *muon_count, *hadron_count,
-        *id, *t, *x, *y, *z, *obs, *px, *py, *pz,
+        *id, *t, *x, *y, *z, *obs, *px, *py, *pz, *weight,
         *primary_id,
         *energy_slope, *energy_min, *energy_max,
         *azimuth_min, *azimuth_max, *zenith_min, *zenith_max;
@@ -233,6 +234,7 @@ struct _event_subtree {
     px             = _load_leaf(data_tree, "particle..Px");
     py             = _load_leaf(data_tree, "particle..Py");
     pz             = _load_leaf(data_tree, "particle..Pz");
+    weight         = _load_leaf(data_tree, "particle..Weight");
     obs            = _load_leaf(spec_tree, "run.ObservationLevel");
     primary_id     = _load_leaf(spec_tree, "run.ParticleID");
     energy_slope   = _load_leaf(spec_tree, "run.EnergySlope");
@@ -282,7 +284,7 @@ void _load_particle(const std::size_t i,
                 momentum.first,
                 momentum.second,
                 subtree.pz->GetValue(i) * GeVperC,
-                1);
+                subtree.weight->GetValue(i));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -339,14 +341,9 @@ void _collect_source(const std::string& path,
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-//__Initialize CORSIKA Data Vector______________________________________________________________
-G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
-G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
-//----------------------------------------------------------------------------------------------
-
 //__CORSIKA Reader Generator Constructor________________________________________________________
 CORSIKAReaderGenerator::CORSIKAReaderGenerator(const std::string& path)
-    : Generator("corsika_reader", "CORSIKA Reader Generator."), _path(path) {
+    : Generator("corsika_reader", "CORSIKA Reader Generator."), _last_event({}), _translation({0, 0}), _path(path) {
   _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -361,26 +358,29 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator(const std::string& path)
   _set_max_radius->SetRange("radius > 0");
   _set_max_radius->SetDefaultUnit("m");
   _set_max_radius->SetUnitCandidates("m cm");
-
-  if (!_data) {
-    _data = new CORSIKAEventVector;
-    SetFile(path);
-  }
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generate Initial Particles__________________________________________________________________
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  const auto translation = _random_translation(_config.max_radius);
+  _last_event.clear();
+  _translation = _random_translation(_config.max_radius);
   for (std::size_t i{}; i < _event.size(); ++i) {
     auto particle = _event[i];
-    particle.x -= translation.first;
-    particle.y -= translation.second;
+    particle.x -= _translation.first;
+    particle.y -= _translation.second;
     if (std::abs(particle.x) >= Construction::WorldLength / 2.0L
         || std::abs(particle.y) >= Construction::WorldLength / 2.0L)
       continue;
+    _last_event.push_back(particle);
     AddParticle(particle, *event);
   }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Previous Event__________________________________________________________________________
+ParticleVector CORSIKAReaderGenerator::GetLastEvent() const {
+  return _last_event;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -402,7 +402,6 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
 //__Set Pythia Object from Settings_____________________________________________________________
 void CORSIKAReaderGenerator::SetFile(const std::string& path) {
   _path = path;
-  _data_index = 0UL;
   if (G4Threading::IsWorkerThread()) {
     G4AutoLock lock(&_mutex);
     _event.clear();
@@ -432,10 +431,22 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
     "_AZIMUTH_MIN",      std::to_string(_config.azimuth_min),
     "_AZIMUTH_MAX",      std::to_string(_config.azimuth_max),
     "_ZENITH_MIN",       std::to_string(_config.zenith_min),
-    "_ZENITH_MAX",       std::to_string(_config.zenith_max)
+    "_ZENITH_MAX",       std::to_string(_config.zenith_max),
+    "_EXTRA_00",         "[Shower Core X]",
+    "_EXTRA_01",         "[Shower Core Y]"
   );
 }
 //----------------------------------------------------------------------------------------------
+
+//__CORSIKA Reader Generator Extra Details______________________________________________________
+const std::vector<std::vector<double>> CORSIKAReaderGenerator::ExtraDetails() const {
+  auto out = Tracking::EmptyExtra();
+  out[0].push_back(_translation.first);
+  out[1].push_back(_translation.second);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 
