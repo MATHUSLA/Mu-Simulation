@@ -262,6 +262,8 @@ const Analysis::SimSettingList PythiaGenerator::GetSpecification() const {
     config.emplace_back(SimSettingPrefix, "_CONFIG", _path);
   }
 
+  config.emplace_back(SimSettingPrefix, "_PROCESS", _process_string);
+
   Analysis::SimSettingList out;
   out.reserve(2UL + config.size() + _propagation_list.size());
   out.emplace_back(SimSettingPrefix, "", _name);
