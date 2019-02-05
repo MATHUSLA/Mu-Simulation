@@ -124,25 +124,6 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Get Pythia Event Type_______________________________________________________________________
-Pythia8::Event _get_event(Pythia8::Pythia* pythia, const std::string& type) {
-  const auto type_string = util::string::strip(type);
-  if (type_string == "hard") {
-    return pythia->process;
-  } else if (type_string == "soft") {
-    const auto& process = pythia->process;
-    const auto process_size = static_cast<std::size_t>(process.size());
-    const auto& event = pythia->event;
-    const auto event_size = static_cast<std::size_t>(event.size());
-    Pythia8::Event out;
-    for (std::size_t i{process_size}; i < event_size; ++i)
-      out.append(event[i]);
-    return out;
-  }
-  return pythia->event;
-}
-//----------------------------------------------------------------------------------------------
-
 //__Convert Pythia Particle to Particle_________________________________________________________
 Particle _convert_particle(Pythia8::Particle& particle) {
   Particle out{particle.id(),
@@ -170,10 +151,14 @@ bool _push_back_convert_if(ParticleVector& out,
 
 //__Convert Pythia Hard and Soft Processes______________________________________________________
 template<class Predicate>
-ParticleVector _convert_pythia_event(Pythia8::Event event,
+ParticleVector _convert_pythia_event(Pythia8::Pythia* pythia,
+                                     const std::string& type,
                                      Predicate predicate) {
+  const auto type_string = util::string::strip(type);
+  auto& event = type_string == "hard" ? pythia->process : pythia->event;
+  const auto starting_index = type_string == "soft" ? pythia->process.size() : 0;
   ParticleVector out;
-  for (int i = 0; i < event.size(); ++i) {
+  for (int i = starting_index; i < event.size(); ++i) {
     if (!event[i].isFinal())
       continue;
     _push_back_convert_if(out, event[i], predicate);
@@ -195,7 +180,7 @@ void PythiaGenerator::GeneratePrimaryVertex(G4Event* event) {
   ++_counter;
   _pythia->next();
 
-  _last_event = _convert_pythia_event(_get_event(_pythia, _process_string), [&](const auto& next) {
+  _last_event = _convert_pythia_event(_pythia, _process_string, [&](const auto& next) {
     for (const auto& entry : _propagation_list)
       if (next.id == entry.id)
         return true;
