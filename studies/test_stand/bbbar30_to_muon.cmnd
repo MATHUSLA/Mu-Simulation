@@ -1,0 +1,8 @@
+! File: bbbar30_to_muon.cmnd
+
+Print:quiet = on
+Next:numberCount = 10000
+Stat:showErrors = off
+Beams:eCM = 13000.
+HardQCD:hardbbbar = on
+PhaseSpace:pTHatMin = 30.0
