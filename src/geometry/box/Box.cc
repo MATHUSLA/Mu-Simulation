@@ -191,7 +191,7 @@ G4VPhysicalVolume* Detector::ConstructEarth(G4LogicalVolume* world) {
     Construction::Box("AirBox", x_edge_length, y_edge_length, air_gap),
     Construction::Transform(0.5L*x_edge_length + x_displacement,
                             0.5L*y_edge_length + y_displacement,
-                            0.5L*(air_gap-Earth::SandstoneDepth))),
+                            0.5L*(air_gap-Earth::SandstoneDepth()))),
     Earth::Material::SiO2);
 
   Construction::PlaceVolume(modified, earth, Earth::SandstoneTransform());

@@ -23,6 +23,19 @@
 
 namespace MATHUSLA { namespace MU {
 
+namespace { ////////////////////////////////////////////////////////////////////////////////////
+
+//__Earth Layer Size Constants__________________________________________________________________
+static auto _lastshift       = 0*m;
+static auto _layer_width_x   = 82500.0L*cm;
+static auto _layer_width_y   = 82500.0L*cm;
+static auto _sandstone_depth = 4530.0L*cm;
+static auto _marl_depth      = 1825.0L*cm;
+static auto _mix_depth       = 3645.0L*cm;
+//----------------------------------------------------------------------------------------------
+
+} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
+
 namespace Earth { //////////////////////////////////////////////////////////////////////////////
 
 //__Earth Materials_____________________________________________________________________________
@@ -64,37 +77,85 @@ void Material::Define() {
 }
 //----------------------------------------------------------------------------------------------
 
+//__Earth Layer Sizes___________________________________________________________________________
+long double LastShift() {
+  return _lastshift;
+}
+long double LastShift(long double shift) {
+  _lastshift = shift;
+  return LastShift();
+}
+long double LayerWidthX() {
+  return _layer_width_x;
+}
+long double LayerWidthX(long double value) {
+  _layer_width_x = value;
+  return LayerWidthX();
+}
+long double LayerWidthY() {
+  return _layer_width_y;
+}
+long double LayerWidthY(long double value) {
+  _layer_width_y = value;
+  return LayerWidthY();
+}
+long double SandstoneDepth() {
+  return _sandstone_depth + LastShift();
+}
+long double SandstoneDepth(long double value) {
+  _sandstone_depth = value;
+  return SandstoneDepth();
+}
+long double MarlDepth() {
+  return _marl_depth;
+}
+long double MarlDepth(long double value) {
+  _marl_depth = value;
+  return MarlDepth();
+}
+long double MixDepth() {
+  return _mix_depth;
+}
+long double MixDepth(long double value) {
+  _mix_depth = value;
+  return MixDepth();
+}
+long double TotalDepth() {
+  return SandstoneDepth() + MarlDepth() + MixDepth();
+}
+//----------------------------------------------------------------------------------------------
+
 //__Earth Logical Volumes_______________________________________________________________________
 G4LogicalVolume* Volume() {
   return Construction::BoxVolume("Earth",
-    LayerWidthX, LayerWidthY, TotalDepth);
+    LayerWidthX(), LayerWidthY(), TotalDepth());
 }
 G4LogicalVolume* SandstoneVolume() {
   return Construction::BoxVolume("Sandstone",
-    LayerWidthX, LayerWidthY, SandstoneDepth, Material::SiO2);
+    LayerWidthX(), LayerWidthY(), SandstoneDepth(), Material::SiO2);
 }
 G4LogicalVolume* MarlVolume() {
   return Construction::BoxVolume("Marl",
-    LayerWidthX, LayerWidthY, MarlDepth, Material::Marl);
+    LayerWidthX(), LayerWidthY(), MarlDepth(), Material::Marl);
 }
 G4LogicalVolume* MixVolume() {
   return Construction::BoxVolume("Mix",
-    LayerWidthX, LayerWidthY, MixDepth, Material::Mix);
+    LayerWidthX(), LayerWidthY(), MixDepth(), Material::Mix);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Earth Transformations_______________________________________________________________________
 const G4Translate3D Transform() {
-  return G4Translate3D(0, 0, 0.5L * (TotalDepth - LastShift));
+  return G4Translate3D(0, 0, 0.5L * (TotalDepth() - LastShift()));
 }
 const G4Translate3D SandstoneTransform() {
-  return G4Translate3D(0, 0, 0.5L * (SandstoneDepth - TotalDepth));
+  return G4Translate3D(0, 0, 0.5L * (SandstoneDepth() - TotalDepth()));
 }
 const G4Translate3D MarlTransform() {
-  return G4Translate3D(0, 0, SandstoneDepth + 0.5L * (MarlDepth - TotalDepth));
+  return G4Translate3D(0, 0, SandstoneDepth() + 0.5L * (MarlDepth() - TotalDepth()));
 }
 const G4Translate3D MixTransform() {
-  return G4Translate3D(0, 0, SandstoneDepth + MarlDepth + 0.5L * (MixDepth - TotalDepth));
+  return G4Translate3D(0, 0, SandstoneDepth() + MarlDepth() + 0.5L * (MixDepth() - TotalDepth()));
 }
 //----------------------------------------------------------------------------------------------
 
