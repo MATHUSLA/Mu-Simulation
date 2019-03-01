@@ -40,7 +40,7 @@ constexpr auto DetectorLength = 40*m;
 constexpr auto DetectorRadius = 11*m;
 constexpr auto DetectorHeight = 11*m;
 constexpr auto TotalHeight    = 35*m;
-constexpr auto BaseDepth      = 92*m;
+constexpr auto BaseDepth      = 92*m + Earth::LastShift;
 constexpr auto TopDepth       = BaseDepth - TotalHeight;
 constexpr auto CenterDepth    = BaseDepth - 0.5 * TotalHeight;
 //----------------------------------------------------------------------------------------------

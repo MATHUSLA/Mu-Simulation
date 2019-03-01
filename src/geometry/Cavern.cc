@@ -96,7 +96,8 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
 
   if (modify_mix) {
     Construction::PlaceVolume(
-      _calculate_modification("modified_mix", Earth::MixVolume(), mix_top + Earth::MixDepth, mix_top),
+      _calculate_modification("modified_mix", Earth::MixVolume(),
+                              mix_top + Earth::MixDepth, mix_top),
       earth, Earth::MixTransform());
   } else {
     Construction::PlaceVolume(Earth::MixVolume(), earth, Earth::MixTransform());
@@ -104,7 +105,8 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
 
   if (modify_marl) {
     Construction::PlaceVolume(
-      _calculate_modification("modified_marl", Earth::MarlVolume(), marl_top + Earth::MarlDepth, marl_top),
+      _calculate_modification("modified_marl", Earth::MarlVolume(),
+                              marl_top + Earth::MarlDepth, marl_top),
       earth, Earth::MarlTransform());
   } else {
     Construction::PlaceVolume(Earth::MarlVolume(), earth, Earth::MarlTransform());
