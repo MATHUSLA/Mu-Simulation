@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./simulation -q -o $1 -j$2 --shift=$4 --save_all -s scripts/looper.mac macro studies/test_stand/$5.mac runs $3 count $5 "${@:7}"
+./simulation -q -o $1 -j$2 --shift=$4 --save_all -s scripts/looper.mac macro studies/test_stand/$5.mac runs $3 count $6 "${@:7}"
