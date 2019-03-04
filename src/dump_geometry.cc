@@ -38,7 +38,7 @@ void dump_volume(const G4VPhysicalVolume &physical_volume, const G4ThreeVector &
 
 int main() {
 	MATHUSLA::MU::Construction::Builder test("Prototype", "test-stand-geometry-dump", true);
-	const auto &world = *test.Construct();
+	const auto &world = *(test.Construct());
 	dump_volume(world, G4ThreeVector(0.0, 0.0, 0.0), G4RotationMatrix(0.0, 0.0, 0.0));
 	return 0;
 }
