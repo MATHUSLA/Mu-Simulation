@@ -52,6 +52,9 @@ G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
+constexpr double RPC::Centroids[12][3];
+constexpr double RPC::Angles[12];
+
 //__Prototype Data Variables____________________________________________________________________
 const std::string& Detector::DataName = "prototype_run";
 const Analysis::ROOT::DataKeyList Detector::DataKeys = Analysis::ROOT::DefaultDataKeyList;
@@ -212,11 +215,11 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   _envelopes.clear();
   _rpcs.clear();
 
-  constexpr double total_height = 6649*mm;
+  //constexpr double total_height = 6649*mm;
 
-  constexpr double total_outer_box_height = total_height + 170*mm;
+  constexpr double total_outer_box_height = 6796*mm;
   auto DetectorVolume = Construction::BoxVolume(
-    "Prototype", 2800*mm, 2800*mm, total_outer_box_height);
+    "Prototype", 2980*mm, 2980*mm, total_outer_box_height);
 
   constexpr auto Top    = Envelope::LayerType::TopFirst;
   constexpr auto Bottom = Envelope::LayerType::BottomFirst;
@@ -267,15 +270,15 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   _envelopes = {A1_L, A2_H, A3_L, A4_H, A5_L, A6_H, B1_L, B2_H, B3_L, B4_H, B5_L, B6_H};
 
   constexpr double envelope_spacing = 24*cm;
-  constexpr double outer_layer_spacing = total_height - 50*cm;
+  //constexpr double outer_layer_spacing = total_height - 50*cm;
 
 
-  constexpr double height_A = 255*cm,
-                    width_A = 254*cm,
-                    depth_A =  40*cm;
+  constexpr double height_A = 297.85*cm,
+                    width_A = 297.45*cm,
+                    depth_A = 61.775*cm;
   auto layerA = Construction::BoxVolume("A-Layer", width_A, depth_A, height_A);
 
-  double shift_A = 0;
+  double shift_A = 49.4*cm;
   bool flip_A = 0, stack_A = 0;
   for (auto aenv : {A6_H, A5_L, A4_H, A3_L, A2_H, A1_L}) {
     const auto env_width = flip_A ? aenv->GetBottomWidth() : aenv->GetTopWidth();
@@ -291,44 +294,57 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   Construction::PlaceVolume(layerA, DetectorVolume,
-    Construction::Transform(0, 0, -0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
+    Construction::Transform(0, 0, -(total_outer_box_height / 2.0 - depth_A / 2.0), 1, 0, 0, 90*deg));
+    //Construction::Transform(0, 0, -0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
 
 
-  constexpr double rpc_top_gap          =  900*mm;
-  constexpr double rpc_sublayer_spacing =   97*mm;
-  constexpr double rpc_small_spacing    =  344*mm;
-  constexpr double rpc_large_spacing    = 1738*mm;
+  //constexpr double rpc_top_gap          =  900*mm;
+  //constexpr double rpc_sublayer_spacing =  100*mm;
+  //constexpr double rpc_small_spacing    =  340*mm;
+  //constexpr double rpc_large_spacing    = 1735*mm;
 
   for (short layer_i = 0; layer_i < 6; ++layer_i) {
-    const auto&& layer_mod2 = layer_i % 2;
+    //const auto layer_mod2 = layer_i % 2;
     auto layer = Construction::BoxVolume(
       "RPCLayer" + std::to_string(1 + layer_i),
       2 * RPC::Width, RPC::Height, RPC::Depth);
-    for (short rpc_i = 1; rpc_i <= 2; ++rpc_i) {
-      auto rpc = new RPC(2 * layer_i + rpc_i);
-      const auto&& rpc_shift_direction = (rpc_i % 2) ? 0.5 : -0.5;
-      rpc->PlaceIn(layer, G4Translate3D(
-        (layer_mod2 ? -1 : 1) * rpc_shift_direction * RPC::Width,
-        0,
-        rpc_shift_direction * rpc_sublayer_spacing));
+    //const auto layer_average_angle = (RPC::Angle[2 * layer_i] + RPC::Angle[2 * layer_i + 1]) / 2.0;
+    //const auto layer_average_x = (RPC::Centroids[2 * layer_i][0] + RPC::Centroids[2 * layer_i + 1][0]) / 2.0;
+    //const auto layer_average_y = (RPC::Centroids[2 * layer_i][1] + RPC::Centroids[2 * layer_i + 1][1]) / 2.0;
+    const auto layer_average_z = (RPC::Centroids[2 * layer_i][2] + RPC::Centroids[2 * layer_i + 1][2]) / 2.0;
+    for (short rpc_i = 0; rpc_i < 2; ++rpc_i) {
+      const auto rpc_overall_index = 2 * layer_i + rpc_i;
+      const auto rpc = new RPC(rpc_overall_index + 1);
+      //const auto rpc_x_shift_direction = (rpc_i == 1 ? -1 : 1) * (layer_i % 2 ? 1 : -1) * (layer_i < 2 ? -1 : 1);
+      //const auto rpc_z_shift_direction = (rpc_i == 0 ? -1 : 1) * (layer_i % 2 ? -1 : 1) * (layer_i / 2 == 1 ? -1 : 1);
+      rpc->PlaceIn(layer, Construction::Transform(
+        RPC::Centroids[rpc_overall_index][0],
+        RPC::Centroids[rpc_overall_index][1],
+        //rpc_x_shift_direction * 0.5 * RPC::Width,
+        //0,
+        //rpc_z_shift_direction * 0.5 * rpc_sublayer_spacing,
+        RPC::Centroids[rpc_overall_index][2] - layer_average_z,
+        //0, 0, 1, -(RPC::Angle[rpc_overall_index] - layer_average_angle)));
+        0, 0, 1, -RPC::Angles[rpc_overall_index]));
       _rpcs.push_back(rpc);
     }
     Construction::PlaceVolume(layer, DetectorVolume,
-      Construction::Transform(
-        0, 0,
-        rpc_top_gap - 0.5 * outer_layer_spacing
-          + (layer_mod2 ? 0.5 : -0.5) * rpc_small_spacing
-          + (layer_i / 2) * rpc_large_spacing,
-        0, 0, -1, RPC::Angle + (layer_mod2 ? 90*deg : 0*deg)));
+      //Construction::Transform(
+      G4Translate3D(0, 0, layer_average_z));
+        //rpc_top_gap - 0.5 * outer_layer_spacing
+          //+ (layer_mod2 ? 0.5 : -0.5) * rpc_small_spacing
+          //+ (layer_i / 2) * rpc_large_spacing,
+          //+ (layer_i / 2) * rpc_large_spacing));
+        //0, 0, 1, -layer_average_angle));
   }
 
 
-  constexpr double height_B = 254*cm,
-                    width_B = 236*cm,
-                    depth_B =  40*cm;
+  constexpr double height_B = 297.65*cm,
+                    width_B =  291.2*cm,
+                    depth_B =  170.0*cm;
   auto layerB = Construction::BoxVolume("B-Layer", height_B, depth_B, width_B);
 
-  double shift_B = 0;
+  double shift_B = 44.05*cm;
   bool flip_B = 1, stack_B = 1;
   for (auto benv : {B1_L, B2_H, B3_L}) {
     const auto env_width = flip_B ? benv->GetBottomWidth() : benv->GetTopWidth();
@@ -359,10 +375,10 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   Construction::PlaceVolume(layerB, DetectorVolume,
-    Construction::Transform(0, 0, 0.5 * outer_layer_spacing, 1, 0, 0, 90*deg));
+    Construction::Transform(0, 0, total_outer_box_height / 2.0 - depth_B / 2.0, 1, 0, 0, 90*deg));
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(253.9*cm, 0, -0.5*total_outer_box_height));
+    G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

@@ -124,7 +124,7 @@ private:
 class RPC {
 public:
   struct Pad {
-    Pad(int id);
+    Pad(int input_id);
     G4LogicalVolume* lvolume;
     G4VPhysicalVolume* pvolume;
     std::vector<G4LogicalVolume*> lvolume_strips;
@@ -141,7 +141,7 @@ public:
     Material();
   };
 
-  RPC(int id);
+  RPC(int input_id);
 
   int                GetID()        const { return _id;        }
   const std::string& GetName()      const { return _name;      }
@@ -154,27 +154,56 @@ public:
   G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
                              const G4Transform3D& transform=G4Transform3D());
 
-  constexpr static auto Width     = 1257*mm;
-  constexpr static auto Height    = 2854*mm;
-  constexpr static auto Depth     =   60*mm;   // what is true value?
-  constexpr static auto Thickness =   10*mm;   // what is true value?
-  constexpr static auto Angle     =   12*deg;  // what is true value?
+  constexpr static double Centroids[12][3] = {{ 616.85*mm,   87.79*mm, -2486.38*mm},
+                                              {-618.50*mm, -108.63*mm, -2383.38*mm},
+                                              { -85.73*mm,  616.81*mm, -2049.38*mm},
+                                              {  98.09*mm, -615.71*mm, -2148.38*mm},
+                                              { 616.12*mm,  -94.51*mm,  -651.13*mm},
+                                              {-614.31*mm,  107.15*mm,  -751.13*mm},
+                                              {  94.86*mm,  620.81*mm,  -408.13*mm},
+                                              { -93.55*mm, -614.15*mm,  -311.13*mm},
+                                              { 615.11*mm, -118.18*mm,   983.12*mm},
+                                              {-610.33*mm,  122.71*mm,  1081.12*mm},
+                                              { 120.28*mm,  616.35*mm,  1423.12*mm},
+                                              {-147.19*mm, -601.52*mm,  1323.12*mm}};
+
+  constexpr static double Angles[12] = { 0.14719*rad,
+                                         0.14753*rad,
+                                        -1.42123*rad,
+                                        -1.42069*rad,
+                                         2.98398*rad,
+                                         2.98463*rad,
+                                         1.41717*rad,
+                                         1.41976*rad,
+                                         2.94831*rad,
+                                         2.95236*rad,
+                                         1.37958*rad,
+                                         1.38013*rad};
+
+  constexpr static auto Width       = 1252*mm;
+  constexpr static auto Height      = 2802*mm;
+  constexpr static auto Depth       =   44*mm;
+  constexpr static auto Thickness   =    1*mm;
 
   constexpr static auto PadWidth     = 618*mm;
   constexpr static auto PadHeight    = 556*mm;
-  constexpr static auto PadDepth     =  55*mm;  // what is true value?
-  constexpr static auto PadThickness =  10*mm;  // what is true value?
-  constexpr static auto PadStartX    = 318*mm;
-  constexpr static auto PadStartY    = 312*mm;
-  constexpr static auto PadSpacingX  = 620*mm;
-  constexpr static auto PadSpacingY  = 557*mm;
+  constexpr static auto PadDepth     =  42*mm;
+  constexpr static auto PadThickness =   0*mm;
 
-  constexpr static auto StripWidth     =  618*mm;
-  constexpr static auto StripHeight    = 67.5*mm;
-  constexpr static auto StripDepth     =   50*mm;  // what is true value?
-  constexpr static auto StripThickness =    2*mm;  // what is true value?
-  constexpr static auto StripTopGap    =    1*mm;
-  constexpr static auto StripYGap      =    2*mm;
+  //constexpr static auto PadStartX    = 318*mm;
+  //constexpr static auto PadStartY    = 312*mm;
+  constexpr static auto PadSpacingX = PadWidth + (Width - 2.0 * PadWidth) / 2.0;
+  //constexpr static auto PadSpacingY = 557*mm;
+  constexpr static auto PadSpacingY = PadHeight + (Height - 5.0 * PadHeight) / 5.0;
+
+  constexpr static auto StripWidth      =  618*mm;
+  constexpr static auto StripHeight     = 67.5*mm;
+  constexpr static auto StripDepth      =    6*mm;
+
+  constexpr static auto StripSpacingY = StripHeight + (PadHeight - 8.0 * StripHeight) / 8.0;
+
+  //constexpr static auto StripPadEdgeGap =    1*mm;
+  //constexpr static auto StripYGap       =    2*mm;
 
   constexpr static auto MinDeposit =  0*keV;
   constexpr static auto MaxDeposit = 10*MeV;

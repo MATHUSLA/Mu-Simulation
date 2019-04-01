@@ -24,7 +24,7 @@ namespace MATHUSLA { namespace MU {
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
 //__RPC Pad Constructor_________________________________________________________________________
-RPC::Pad::Pad(int id) : id(id) {}
+RPC::Pad::Pad(int input_id) : id(input_id) {}
 //----------------------------------------------------------------------------------------------
 
 //__RPC Constructor_____________________________________________________________________________
@@ -48,23 +48,25 @@ RPC::RPC(int id) : _pads(), _id(id), _name("RPC" + std::to_string(id)) {
                         + (pad_index < 9 ? std::string("0") : "")
                         + std::to_string(1 + pad_index);
 
-    auto strip_stack = 0.5 * StripHeight;
-    for (int strip_index = 1; strip_index <= 8; ++strip_index) {
+    //auto strip_stack = StripPadEdgeGap + 0.5 * StripHeight;
+    for (int strip_index = 0; strip_index < 8; ++strip_index) {
       auto strip = Construction::BoxVolume(
-        pad_name + std::to_string(strip_index),
+        pad_name + std::to_string(1 + strip_index),
         StripWidth, StripHeight, StripDepth,
         Material::Gas,
         Construction::SensitiveAttributes());
       pad->lvolume_strips.push_back(strip);
       pad->pvolume_strips.push_back(Construction::PlaceVolume(strip, pad->lvolume,
-        G4Translate3D(0, 0.5 * PadHeight - StripTopGap - strip_stack, 0)));
-      strip_stack += StripHeight + StripYGap;
+        G4Translate3D(0, (pad_index % 2 ? -1.0 : 1.0) * (strip_index - 3.5) * StripSpacingY, 0)));
+      //strip_stack += StripHeight + StripYGap;
     }
 
     pad->pvolume = Construction::PlaceVolume(pad->lvolume, _volume,
       G4Translate3D(
-        0.5 * Width  - PadStartX - PadSpacingX * (pad_index % 2),
-        0.5 * Height - PadStartY - PadSpacingY * (pad_index / 2 % 5),
+        //PadStartX + PadSpacingX * (pad_index % 2) - 0.5 * Width,
+        0.5 * PadSpacingX * (pad_index % 2 ? 1 : -1),
+        //PadStartY + PadSpacingY * (pad_index / 2 % 5) - 0.5 * Height,
+        PadSpacingY * (static_cast<int>(pad_index / 2) - 2),
         0));
 
     _pads.push_back(pad);
