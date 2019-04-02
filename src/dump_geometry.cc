@@ -1,11 +1,44 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4ThreeVector.hh"
 #include "Geant4/G4RotationMatrix.hh"
+#include "Geant4/G4Trap.hh"
+#include "Geant4/G4Box.hh"
 
 #include "geometry/Construction.hh"
 
-#include <iostream>
 #include <string>
+#include <cctype>
+#include <iostream>
+
+bool is_scintillator_name(const std::string &name) {
+  if (
+       name.size() == 5
+    && name[0] == 'S'
+    && (name[1] == 'A' || name[1] == 'B')
+    && std::isdigit(name[2])
+    && name[3] == '-'
+    && std::isdigit(name[4])
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool is_strip_name(const std::string &name) {
+  if (
+       name.size() == 5
+    && std::isdigit(name[0])
+    && std::isdigit(name[1])
+    && std::isdigit(name[2])
+    && std::isdigit(name[3])
+    && std::isdigit(name[4])
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 void dump_volume(const G4VPhysicalVolume &physical_volume, const G4ThreeVector &parent_translation, const G4RotationMatrix &parent_rotation, const bool dump_everything = false) {
   const auto &logical_volume = *(physical_volume.GetLogicalVolume());
@@ -13,24 +46,38 @@ void dump_volume(const G4VPhysicalVolume &physical_volume, const G4ThreeVector &
 
   const auto name = logical_volume.GetName();
 
-  //const auto translation = parent_translation + parent_rotation.inverse() * physical_volume.GetTranslation();
   const auto translation = parent_translation + parent_rotation * physical_volume.GetTranslation();
 
   auto rotation = parent_rotation;
   const auto *const relative_rotation_ptr = physical_volume.GetRotation();
   if (relative_rotation_ptr != nullptr) {
-    //rotation = (*relative_rotation_ptr) * rotation;
-    rotation = rotation * (*relative_rotation_ptr);
+    rotation = rotation * relative_rotation_ptr->inverse();
   }
 
-  if (dump_everything || n_daughters == 0) {
-    if ( ! dump_everything && (name.find("_C") != name.npos || name.find("_PMT") != name.npos)) {
-      return;
-    }
+  if (dump_everything || (n_daughters == 0 && (is_scintillator_name(name) || is_strip_name(name)))) {
     std::cout << name;
+    std::cout.setf(std::ios::fixed);
+    std::cout.precision(2);
     std::cout << "," << translation.x() << "," << translation.y() << "," << translation.z();
-    std::cout << "," << rotation.thetaX() << "," << rotation.thetaY() << "," << rotation.thetaZ();
-    std::cout << "," << rotation.phiX() << "," << rotation.phiY() << "," << rotation.phiZ();
+    std::cout.precision(5);
+    std::cout << "," << rotation.thetaX() << "," << rotation.phiX();
+    std::cout << "," << rotation.thetaY() << "," << rotation.phiY();
+    std::cout << "," << rotation.thetaZ() << "," << rotation.phiZ();
+    if (n_daughters == 0 && is_scintillator_name(name)) {
+      const auto &trap = *static_cast<const G4Trap *>(logical_volume.GetSolid());
+      std::cout << "," << 2.0 * trap.GetXHalfLength1();
+      std::cout << "," << 2.0 * trap.GetXHalfLength2();
+      std::cout << "," << 2.0 * trap.GetXHalfLength3();
+      std::cout << "," << 2.0 * trap.GetXHalfLength4();
+      std::cout << "," << 2.0 * trap.GetYHalfLength1();
+      std::cout << "," << 2.0 * trap.GetYHalfLength2();
+      std::cout << "," << 2.0 * trap.GetZHalfLength();
+    } else if (is_strip_name(name)) {
+      const auto &box = *static_cast<const G4Box *>(logical_volume.GetSolid());
+      std::cout << "," << 2.0 * box.GetXHalfLength();
+      std::cout << "," << 2.0 * box.GetYHalfLength();
+      std::cout << "," << 2.0 * box.GetZHalfLength();
+    }
     std::cout << std::endl;
   }
   for (G4int daughter_index = 0; daughter_index < n_daughters; daughter_index++) {
@@ -44,12 +91,27 @@ void dump_world(const G4VPhysicalVolume &physical_volume, const bool dump_everyt
 }
 
 int main(const int argc, const char *const argv[]) {
-  MATHUSLA::MU::Construction::Builder test("Prototype", "test-stand-geometry-dump", true);
-  const auto &world = *(test.Construct());
   bool dump_everything = false;
-  if (argc > 1 && std::string(argv[1]) == "all") {
+  if (argc == 2 && std::string(argv[1]) == "all") {
     dump_everything = true;
+  } else if (argc != 1) {
+    std::cout << "Usage: " << argv[0] << " [all]" << std::endl;
+    return 1;
   }
+  MATHUSLA::MU::Construction::Builder test_stand_builder("Prototype", "test-stand-geometry-dump", true);
+  const auto &world = *(test_stand_builder.Construct());
+  std::cout << "# Format by column:" << std::endl << std::endl;
+  std::cout << "# Volume name" << std::endl;
+  std::cout << "# Global x-coordinate of center of volume (mm)" << std::endl;
+  std::cout << "# Global y-coordinate of center of volume (mm)" << std::endl;
+  std::cout << "# Global z-coordinate of center of volume (mm)" << std::endl;
+  std::cout << "# Global zenith angle of local x-axis of volume (rad)" << std::endl;
+  std::cout << "# Global azimuthal angle of local x-axis of volume (rad)" << std::endl;
+  std::cout << "# Global zenith angle of local y-axis of volume (rad)" << std::endl;
+  std::cout << "# Global azimuthal angle of local y-axis of volume (rad)" << std::endl;
+  std::cout << "# Global zenith angle of local z-axis of volume (rad)" << std::endl;
+  std::cout << "# Global azimuthal angle of local z-axis of volume (rad)" << std::endl;
+  std::cout << std::endl;
   dump_world(world, dump_everything);
   return 0;
 }

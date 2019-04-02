@@ -49,7 +49,6 @@ add_executable(simulation
     src/geometry/flat/Layer.cc
     src/geometry/flat/Scintillator.cc
 
-    src/geometry/prototype/Envelope.cc
     src/geometry/prototype/Prototype.cc
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
@@ -108,7 +107,6 @@ add_executable(dump_geometry
     src/geometry/flat/Layer.cc
     src/geometry/flat/Scintillator.cc
 
-    src/geometry/prototype/Envelope.cc
     src/geometry/prototype/Prototype.cc
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
