@@ -111,6 +111,7 @@ int main(const int argc, const char *const argv[]) {
   std::cout << "# Global azimuthal angle of local y-axis of volume (rad)" << std::endl;
   std::cout << "# Global zenith angle of local z-axis of volume (rad)" << std::endl;
   std::cout << "# Global azimuthal angle of local z-axis of volume (rad)" << std::endl;
+  std::cout << "# (Additional detector-specific fields for dimensions of scintillators and strips) " << std::endl;
   std::cout << std::endl;
   dump_world(world, dump_everything);
   return 0;
