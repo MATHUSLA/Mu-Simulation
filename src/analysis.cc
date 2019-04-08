@@ -19,8 +19,8 @@
 
 #include <Geant4/tls.hh>
 
-#include <ROOT/TFile.h>
-#include <ROOT/TNamed.h>
+#include <TFile.h>
+#include <TNamed.h>
 
 namespace MATHUSLA { namespace MU {
 

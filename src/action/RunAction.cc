@@ -27,10 +27,10 @@
 #include <Geant4/G4MTRunManager.hh>
 #include <Geant4/tls.hh>
 
-#include <ROOT/TFile.h>
-#include <ROOT/TNamed.h>
-#include <ROOT/TTree.h>
-#include <ROOT/TChain.h>
+#include <TFile.h>
+#include <TNamed.h>
+#include <TTree.h>
+#include <TChain.h>
 
 #include "analysis.hh"
 #include "geometry/Construction.hh"

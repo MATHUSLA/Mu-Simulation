@@ -49,7 +49,6 @@ add_executable(simulation
     src/geometry/flat/Layer.cc
     src/geometry/flat/Scintillator.cc
 
-    src/geometry/prototype/Envelope.cc
     src/geometry/prototype/Prototype.cc
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
@@ -75,7 +74,8 @@ target_link_libraries(simulation PUBLIC
     ${Geant4_LIBRARIES}
     ${PYTHIA8_LIBRARY}
     ${ROOT_LIBRARIES}
-    ${HEPMC_LIBRARIES})
+    ${HEPMC_LIBRARIES}
+    dl)
 
 target_include_directories(simulation PUBLIC
     ${Geant4_INCLUDE_DIRS}
@@ -87,5 +87,55 @@ target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 
+add_executable(dump_geometry
+    src/dump_geometry.cc
+
+    src/action/EventAction.cc
+    src/action/GeneratorAction.cc
+
+    src/analysis.cc
+
+    src/geometry/box/Box.cc
+    src/geometry/box/Scintillator.cc
+
+    src/geometry/Construction.cc
+    src/geometry/Cavern.cc
+    src/geometry/Earth.cc
+    src/geometry/MuonMapper.cc
+
+    src/geometry/flat/Flat.cc
+    src/geometry/flat/Layer.cc
+    src/geometry/flat/Scintillator.cc
+
+    src/geometry/prototype/Prototype.cc
+    src/geometry/prototype/RPC.cc
+    src/geometry/prototype/Scintillator.cc
+
+    src/physics/Particle.cc
+    src/physics/Generator.cc
+    src/physics/PythiaGenerator.cc
+    src/physics/RangeGenerator.cc
+    src/physics/CORSIKAReaderGenerator.cc
+
+    src/tracking.cc
+)
+
+target_compile_features(dump_geometry PUBLIC cxx_std_14)
+
+target_include_directories(dump_geometry PUBLIC
+    ${Geant4_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS}
+    ${PYTHIA8_INCLUDE_DIR})
+
+target_link_libraries(dump_geometry PUBLIC
+    ${Geant4_LIBRARIES}
+    ${PYTHIA8_LIBRARY}
+    ${ROOT_LIBRARIES}
+    dl)
+
+target_include_directories(dump_geometry PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+
 install(DIRECTORY scripts DESTINATION bin/MATHUSLA)
-install(TARGETS simulation DESTINATION bin/MATHUSLA)
+install(TARGETS simulation dump_geometry DESTINATION bin/MATHUSLA)

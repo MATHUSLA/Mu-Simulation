@@ -23,9 +23,9 @@
 #include <Geant4/G4MTRunManager.hh>
 #include <Geant4/tls.hh>
 
-#include <ROOT/TFile.h>
-#include <ROOT/TTree.h>
-#include <ROOT/TLeaf.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TLeaf.h>
 
 #include "geometry/Construction.hh"
 #include "physics/Units.hh"
