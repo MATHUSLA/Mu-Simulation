@@ -81,8 +81,8 @@ public:
 
   const static ScintillatorInfo scintillator_infos[n_scintillators];
 
-  constexpr static auto Thickness =  1.3*mm;
-  constexpr static auto Spacing   =  0.0;
+  constexpr static auto Thickness = 1.15*mm;
+  constexpr static auto Spacing   =    0*mm;
   constexpr static auto Depth     = 15.0*mm;
 
   constexpr static auto PMTRadius =  2.1*cm;
@@ -151,8 +151,8 @@ public:
 
   constexpr static auto PadWidth     = 618*mm;
   constexpr static auto PadHeight    = 556*mm;
-  constexpr static auto PadDepth     =  42*mm;
-  constexpr static auto PadThickness = 0.0;
+  constexpr static auto PadDepth     =   6*mm;
+  constexpr static auto PadThickness =   0*mm;
 
   constexpr static auto n_pads_per_row    = 2u;
   constexpr static auto n_pads_per_column = 5u;

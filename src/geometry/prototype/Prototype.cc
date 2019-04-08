@@ -221,7 +221,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
                                          scintillator_info.long_base + 2.0 * Scintillator::Thickness);
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
-        G4RotationMatrix(G4ThreeVector(0, 0, 1), scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1, 0, 0), 90*deg),
+        G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0), scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
         G4ThreeVector(scintillator_info.x, scintillator_info.y, scintillator_info.z)
       )
     );
@@ -234,7 +234,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
         RPC::rpc_infos[rpc_index].x,
         RPC::rpc_infos[rpc_index].y,
         RPC::rpc_infos[rpc_index].z,
-        0, 0, 1, RPC::rpc_infos[rpc_index].z_rotation_angle));
+        0.0, 0.0, 1.0, RPC::rpc_infos[rpc_index].z_rotation_angle));
       _rpcs.push_back(rpc);
   }
 

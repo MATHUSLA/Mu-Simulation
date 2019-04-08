@@ -71,16 +71,16 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
         Construction::SensitiveAttributes());
       pad->lvolume_strips.push_back(strip);
       pad->pvolume_strips.push_back(Construction::PlaceVolume(strip, pad->lvolume,
-        G4Translate3D(0, (strip_index - (n_strips_per_pad - 1) / 2.0) * StripSpacingY, 0)));
+        G4Translate3D(0.0, (strip_index - (n_strips_per_pad - 1) / 2.0) * StripSpacingY, 0.0)));
     }
 
-    constexpr auto pi = 4.0 * atan(1);
+    constexpr auto pi = 4.0 * atan(1.0);
     pad->pvolume = Construction::PlaceVolume(pad->lvolume, _volume,
       Construction::Transform(
         (pad_index % n_pads_per_row - (n_pads_per_row - 1) / 2.0) * PadSpacingX,
         (pad_index / n_pads_per_row - (n_pads_per_column - 1) / 2.0) * PadSpacingY,
-        0,
-        0, 0, 1, pad_index % 2 ? pi : 0));
+        0.0,
+        0.0, 0.0, 1.0, pad_index % 2 ? pi : 0.0));
 
     _pads.push_back(pad);
   }
