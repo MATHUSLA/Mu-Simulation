@@ -151,7 +151,7 @@ public:
 
   constexpr static auto PadHeight    = 556.8*mm;
   constexpr static auto PadWidth     = 616.5*mm;
-  constexpr static auto PadDepth     =     6*mm;
+  constexpr static auto PadDepth     =     2*mm;
   constexpr static auto PadThickness =     0*mm;
 
   constexpr static auto n_pads_per_row    = 2u;
@@ -163,7 +163,7 @@ public:
 
   constexpr static auto StripHeight     =  67.5*mm;
   constexpr static auto StripWidth      = 616.5*mm;
-  constexpr static auto StripDepth      =     6*mm;
+  constexpr static auto StripDepth      =     2*mm;
 
   constexpr static auto n_strips_per_pad = 8u;
 
