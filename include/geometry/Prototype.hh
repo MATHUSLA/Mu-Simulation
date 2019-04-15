@@ -146,28 +146,28 @@ public:
 
   constexpr static auto Thickness   =    1*mm;
   constexpr static auto Height      = 2800*mm + 2.0 * Thickness;
-  constexpr static auto Width       = 1250*mm + 2.0 * Thickness;
+  constexpr static auto Width       = 1248*mm + 2.0 * Thickness;
   constexpr static auto Depth       =   44*mm;
 
-  constexpr static auto PadWidth     = 618*mm;
-  constexpr static auto PadHeight    = 556*mm;
-  constexpr static auto PadDepth     =   6*mm;
-  constexpr static auto PadThickness =   0*mm;
+  constexpr static auto PadHeight    = 556.8*mm;
+  constexpr static auto PadWidth     = 616.5*mm;
+  constexpr static auto PadDepth     =     2*mm;
+  constexpr static auto PadThickness =     0*mm;
 
   constexpr static auto n_pads_per_row    = 2u;
   constexpr static auto n_pads_per_column = 5u;
   constexpr static auto n_pads_per_rpc = n_pads_per_row * n_pads_per_column;
 
-  constexpr static auto PadSpacingX = PadWidth  + (Width  - 2.0 * Thickness - n_pads_per_row    * PadWidth ) / n_pads_per_row;
-  constexpr static auto PadSpacingY = PadHeight + (Height - 2.0 * Thickness - n_pads_per_column * PadHeight) / n_pads_per_column;
+  constexpr static auto PadSpacingX = PadWidth + 1*mm;
+  constexpr static auto PadSpacingY = PadHeight;
 
-  constexpr static auto StripHeight     = 67.5*mm;
-  constexpr static auto StripWidth      =  618*mm;
-  constexpr static auto StripDepth      =    6*mm;
+  constexpr static auto StripHeight     =  67.5*mm;
+  constexpr static auto StripWidth      = 616.5*mm;
+  constexpr static auto StripDepth      =     2*mm;
 
   constexpr static auto n_strips_per_pad = 8u;
 
-  constexpr static auto StripSpacingY = StripHeight + (PadHeight - 2.0 * PadThickness - n_strips_per_pad * StripHeight) / n_strips_per_pad;
+  constexpr static auto StripSpacingY = 69.6*mm;
 
   constexpr static auto MinDeposit =  0*keV;
   constexpr static auto MaxDeposit = 10*MeV;
