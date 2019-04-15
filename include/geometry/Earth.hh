@@ -43,12 +43,13 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Earth Layer Sizes___________________________________________________________________________
-constexpr auto LayerWidthX    = 82500.0L*cm;
-constexpr auto LayerWidthY    = 82500.0L*cm;
-constexpr auto SandstoneDepth =  4530.0L*cm;
-constexpr auto MarlDepth      =  1825.0L*cm;
-constexpr auto MixDepth       =  3645.0L*cm;
-constexpr auto TotalDepth     = SandstoneDepth + MarlDepth + MixDepth;
+constexpr auto LayerWidthX     = 82500.0L*cm;
+constexpr auto LayerWidthY     = 82500.0L*cm;
+constexpr auto BufferZoneDepth =     1.602*m;
+constexpr auto SandstoneDepth  =  4530.0L*cm - BufferZoneDepth;
+constexpr auto MarlDepth       =  1825.0L*cm;
+constexpr auto MixDepth        =  3645.0L*cm;
+constexpr auto TotalDepth      = SandstoneDepth + MarlDepth + MixDepth;
 //----------------------------------------------------------------------------------------------
 
 //__Earth Logical Volumes_______________________________________________________________________
