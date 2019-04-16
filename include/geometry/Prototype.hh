@@ -161,7 +161,7 @@ public:
   constexpr static auto PadSpacingX = PadWidth + 1*mm;
   constexpr static auto PadSpacingY = PadHeight;
 
-  constexpr static auto StripHeight     =  67.5*mm;
+  constexpr static auto StripHeight     =  67.6*mm;
   constexpr static auto StripWidth      = 616.5*mm;
   constexpr static auto StripDepth      =     2*mm;
 

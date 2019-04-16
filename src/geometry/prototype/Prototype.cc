@@ -238,8 +238,9 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
       _rpcs.push_back(rpc);
   }
 
+  const auto buffer_zone_depth = 1.602*m;
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height));
+    G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height + buffer_zone_depth));
 }
 //----------------------------------------------------------------------------------------------
 

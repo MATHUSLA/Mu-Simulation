@@ -40,7 +40,7 @@ constexpr auto DetectorLength = 40*m;
 constexpr auto DetectorRadius = 11*m;
 constexpr auto DetectorHeight = 11.3*m;
 constexpr auto TotalHeight    = 34.9*m;
-constexpr auto BaseDepth      = 92.58*m - 1.602*m;
+constexpr auto BaseDepth      = 92.58*m;
 constexpr auto TopDepth       = BaseDepth - TotalHeight;
 constexpr auto CenterDepth    = BaseDepth - 0.5 * TotalHeight;
 //----------------------------------------------------------------------------------------------
