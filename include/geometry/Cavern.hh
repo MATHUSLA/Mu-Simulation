@@ -44,6 +44,11 @@ long double BaseDepth();
 long double BaseDepth(long double value);
 long double TopDepth();
 long double CenterDepth();
+// constexpr auto DetectorHeight = 11.3*m;
+// constexpr auto TotalHeight    = 34.9*m;
+// constexpr auto BaseDepth      = 92.58*m;
+// constexpr auto TopDepth       = BaseDepth - TotalHeight;
+// constexpr auto CenterDepth    = BaseDepth - 0.5 * TotalHeight;
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Logical Volumes______________________________________________________________________
