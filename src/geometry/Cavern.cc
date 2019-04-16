@@ -26,7 +26,7 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Cavern Dimensions___________________________________________________________________________
-static auto _base_depth = 92*m;
+static auto _base_depth = 92.58*m;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ void Material::Define() {
 
 //__Cavern Dimensions___________________________________________________________________________
 long double BaseDepth() {
-  return _base_depth + Earth::LastShift();
+  return _base_depth + Earth::TotalShift();
 }
 long double BaseDepth(long double value) {
   _base_depth = value;
@@ -56,6 +56,9 @@ long double TopDepth() {
 }
 long double CenterDepth() {
   return BaseDepth() - 0.5 * TotalHeight;
+}
+long double IP() {
+  return BaseDepth() - DetectorHeight;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -147,8 +150,6 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
 
   Construction::PlaceVolume(RingVolume(), earth,
     G4Translate3D(0, 0, -0.5 * Earth::TotalDepth() + CenterDepth() + 0.5 * TotalHeight - DetectorHeight)
-  // Construction::PlaceVolume(RingVolume(), world,
-  //   G4Translate3D(0, 0, BaseDepth - DetectorHeight)
       * Construction::Rotate(0, 1, 0, 90*deg));
   return Construction::PlaceVolume(earth, world, Earth::Transform());
 }

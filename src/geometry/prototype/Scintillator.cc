@@ -32,7 +32,8 @@ namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
-const Scintillator::ScintillatorInfo Scintillator::scintillator_infos[Scintillator::n_scintillators] = {
+//__Scintillator Info___________________________________________________________________________
+const Scintillator::Info Scintillator::InfoArray[Scintillator::Count] = {
   {"SA1-1", -1.00015*m,  1.09070*m, -2.94162*m,  0.00331*rad, 0.24386*m, 0.21381*m, 0.35829*m},
   {"SA1-2", -1.00266*m,  0.69618*m, -2.99162*m, -0.01336*rad, 0.27822*m, 0.24283*m, 0.41378*m},
   {"SA1-3", -1.00470*m,  0.23554*m, -2.94263*m, -0.00225*rad, 0.31529*m, 0.27581*m, 0.48080*m},
@@ -93,6 +94,7 @@ const Scintillator::ScintillatorInfo Scintillator::scintillator_infos[Scintillat
   {"SB6-4",  0.60277*m,  0.84690*m,  2.99938*m, -1.56006*rad, 0.50080*m, 0.45784*m, 0.54577*m},
   {"SB6-5",  1.16085*m,  0.85065*m,  2.95038*m, -1.54896*rad, 0.50116*m, 0.45792*m, 0.54670*m}
 };
+//----------------------------------------------------------------------------------------------
 
 //__Scintillator Constructor____________________________________________________________________
 Scintillator::Scintillator(const std::string& input_name,

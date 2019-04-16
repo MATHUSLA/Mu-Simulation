@@ -23,7 +23,8 @@ namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
-const RPC::RPCInfo RPC::rpc_infos[n_rpcs] = {
+//__RPC Info____________________________________________________________________________________
+const RPC::Info RPC::InfoArray[RPC::Count] = {
   { 616.85*mm,   87.79*mm, -2486.38*mm,  0.14719*rad},
   {-618.50*mm, -108.63*mm, -2383.38*mm,  0.14753*rad},
   { -85.73*mm,  616.81*mm, -2049.38*mm, -1.42123*rad},
@@ -37,6 +38,7 @@ const RPC::RPCInfo RPC::rpc_infos[n_rpcs] = {
   { 120.28*mm,  616.35*mm,  1423.12*mm,  1.37958*rad},
   {-147.19*mm, -601.52*mm,  1323.12*mm,  1.38013*rad}
 };
+//----------------------------------------------------------------------------------------------
 
 //__RPC Pad Constructor_________________________________________________________________________
 RPC::Pad::Pad(int input_id) : id(input_id) {}
@@ -51,7 +53,7 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
 
   const auto id_name = (_id < 9 ? "0" : "") + std::to_string(1 + _id);
 
-  for (unsigned pad_index = 0; pad_index < n_pads_per_rpc; ++pad_index) {
+  for (std::size_t pad_index{}; pad_index < PadsPerRPC; ++pad_index) {
     auto pad = new Pad(pad_index);
 
     pad->lvolume = Construction::OpenBoxVolume(
@@ -63,7 +65,7 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
                         + (pad_index < 9 ? "0" : "")
                         + std::to_string(1 + pad_index);
 
-    for (unsigned strip_index = 0; strip_index < n_strips_per_pad; ++strip_index) {
+    for (std::size_t strip_index{}; strip_index < StripsPerPad; ++strip_index) {
       auto strip = Construction::BoxVolume(
         pad_name + std::to_string(1 + strip_index),
         StripWidth, StripHeight, StripDepth,
@@ -71,16 +73,15 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
         Construction::SensitiveAttributes());
       pad->lvolume_strips.push_back(strip);
       pad->pvolume_strips.push_back(Construction::PlaceVolume(strip, pad->lvolume,
-        G4Translate3D(0.0, (strip_index - (n_strips_per_pad - 1) / 2.0) * StripSpacingY, 0.0)));
+        G4Translate3D(0.0, (strip_index - (StripsPerPad - 1) / 2.0) * StripSpacingY, 0.0)));
     }
 
-    constexpr auto pi = 4.0 * atan(1.0);
     pad->pvolume = Construction::PlaceVolume(pad->lvolume, _volume,
       Construction::Transform(
-        (pad_index % n_pads_per_row - (n_pads_per_row - 1) / 2.0) * PadSpacingX,
-        (pad_index / n_pads_per_row - (n_pads_per_column - 1) / 2.0) * PadSpacingY,
+        (pad_index % PadsPerRow - (PadsPerRow - 1) / 2.0) * PadSpacingX,
+        (pad_index / PadsPerRow - (PadsPerColumn - 1) / 2.0) * PadSpacingY,
         0.0,
-        0.0, 0.0, 1.0, pad_index % 2 ? pi : 0.0));
+        0.0, 0.0, 1.0, pad_index % 2 ? 3.14159265358979323846264 : 0.0));
 
     _pads.push_back(pad);
   }

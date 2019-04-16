@@ -217,34 +217,33 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   auto DetectorVolume = Construction::BoxVolume(
     "Prototype", 3500*mm, 3500*mm, total_outer_box_height);
 
-  for (const auto &scintillator_info : Scintillator::scintillator_infos) {
+  for (const auto &scintillator_info : Scintillator::InfoArray) {
     auto scintillator = new Scintillator(scintillator_info.name,
                                          scintillator_info.trapezoid_height + 2.0 * Scintillator::Thickness,
                                          scintillator_info.short_base + 2.0 * Scintillator::Thickness,
                                          scintillator_info.long_base + 2.0 * Scintillator::Thickness);
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
-        G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0), scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
+        G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0),
+                         scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
         G4ThreeVector(scintillator_info.x, scintillator_info.y, scintillator_info.z)
       )
     );
     _scintillators.push_back(scintillator);
   }
 
-  for (unsigned rpc_index = 0; rpc_index < RPC::n_rpcs; rpc_index++) {
+  for (std::size_t rpc_index{}; rpc_index < RPC::Count; rpc_index++) {
     const auto rpc = new RPC(rpc_index);
       rpc->PlaceIn(DetectorVolume, Construction::Transform(
-        RPC::rpc_infos[rpc_index].x,
-        RPC::rpc_infos[rpc_index].y,
-        RPC::rpc_infos[rpc_index].z,
-        0.0, 0.0, 1.0, RPC::rpc_infos[rpc_index].z_rotation_angle));
+        RPC::InfoArray[rpc_index].x,
+        RPC::InfoArray[rpc_index].y,
+        RPC::InfoArray[rpc_index].z,
+        0.0, 0.0, 1.0, RPC::InfoArray[rpc_index].z_rotation_angle));
       _rpcs.push_back(rpc);
   }
 
-  const auto buffer_zone_depth = 1.602*m;
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(253.9*cm, 0, -0.5 * total_outer_box_height));
-    // G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height + buffer_zone_depth));
+    G4Translate3D(250*cm, 7*cm, -0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 
