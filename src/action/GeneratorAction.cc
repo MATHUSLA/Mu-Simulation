@@ -47,7 +47,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       G4UImessenger(Physics::Generator::MessengerDirectory, "Particle Generators.") {
 
   _gen_map["basic"] = new Physics::Generator(
-      "basic", "Default Generator.", Physics::Particle(13, 0, 0, Cavern::IP(), 0, 0, -100*GeVperC));
+      "basic", "Default Generator.", Physics::Particle(13, 0, 0, Cavern::IP(), 3*GeVperC, 0, -100*GeVperC));
 
   _gen_map["range"] = new Physics::RangeGenerator(
       "range", "Default Range Generator.", {});
