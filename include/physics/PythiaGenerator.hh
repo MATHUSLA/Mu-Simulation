@@ -62,10 +62,12 @@ private:
   ParticleVector _last_event;
   std::uint_fast64_t _counter;
   std::string _path;
+  std::string _process_string;
   Command::StringArg* _add_cut;
   Command::NoArg*     _clear_cuts;
   Command::StringArg* _read_string;
   Command::StringArg* _read_file;
+  Command::StringArg* _process;
 };
 //----------------------------------------------------------------------------------------------
 

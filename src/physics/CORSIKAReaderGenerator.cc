@@ -30,6 +30,8 @@
 #include "geometry/Construction.hh"
 #include "physics/Units.hh"
 #include "util/random.hh"
+#include "action.hh"
+#include "tracking.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -57,6 +59,7 @@ void CORSIKAEvent::clear() {
   px.clear();
   py.clear();
   pz.clear();
+  weight.clear();
 }
 //----------------------------------------------------------------------------------------------
 
@@ -70,6 +73,7 @@ void CORSIKAEvent::reserve(std::size_t capacity) {
   px.reserve(capacity);
   py.reserve(capacity);
   pz.reserve(capacity);
+  weight.reserve(capacity);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -81,7 +85,8 @@ void CORSIKAEvent::push_back(int new_id,
                              double new_z,
                              double new_px,
                              double new_py,
-                             double new_pz) {
+                             double new_pz,
+                             double new_weight) {
   id.push_back(new_id);
   t.push_back(new_t);
   x.push_back(new_x);
@@ -90,12 +95,21 @@ void CORSIKAEvent::push_back(int new_id,
   px.push_back(new_px);
   py.push_back(new_py);
   pz.push_back(new_pz);
+  weight.push_back(new_weight);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Pushback Particle Data______________________________________________________________________
-void CORSIKAEvent::push_back(const Particle& particle) {
-  push_back(particle.id, particle.t, particle.x, particle.y, particle.z, particle.px, particle.py, particle.pz);
+void CORSIKAEvent::push_back(const Particle& particle, double new_weight) {
+  push_back(particle.id,
+            particle.t,
+            particle.x,
+            particle.y,
+            particle.z,
+            particle.px,
+            particle.py,
+            particle.pz,
+            new_weight);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -109,6 +123,14 @@ namespace { ////////////////////////////////////////////////////////////////////
 
 //__Mutex for ROOT Interface____________________________________________________________________
 G4Mutex _mutex = G4MUTEX_INITIALIZER;
+//----------------------------------------------------------------------------------------------
+
+//__Get Range of Thread in Data_________________________________________________________________
+std::pair<std::size_t, std::size_t> _calculate_thread_range(const std::size_t total) {
+  const auto bucket_size = std::ceil(total / static_cast<long double>(G4Threading::GetNumberOfRunningWorkerThreads()));
+  const auto first = bucket_size * G4Threading::G4GetThreadId();
+  return {first, first + bucket_size};
+}
 //----------------------------------------------------------------------------------------------
 
 //__CMS Plot Rotation Angle_____________________________________________________________________
@@ -184,156 +206,85 @@ TLeaf* _load_leaf(TTree* tree,
 }
 //----------------------------------------------------------------------------------------------
 
-//__Load Configuration from TTree to CORSIKAConfig______________________________________________
-void _load_config(TTree* tree,
-                  CORSIKAConfig& config) {
-  auto primary_id = _load_leaf(tree, "run.ParticleID");
-  auto energy_slope = _load_leaf(tree, "run.EnergySlope");
-  auto energy_min = _load_leaf(tree, "run.EnergyMin");
-  auto energy_max = _load_leaf(tree, "run.EnergyMax");
-  auto azimuth_min = _load_leaf(tree, "run.AzimuthMin");
-  auto azimuth_max = _load_leaf(tree, "run.AzimuthMax");
-  auto zenith_min = _load_leaf(tree, "run.ZenithMin");
-  auto zenith_max = _load_leaf(tree, "run.ZenithMax");
-  tree->GetEntry(0);
-
-  config.primary_id = _convert_primary_id(primary_id->GetValue(0)).first;
-  config.energy_slope = energy_slope->GetValue(0);
-  config.energy_min = energy_min->GetValue(0);
-  config.energy_max = energy_max->GetValue(0);
-  config.azimuth_min = azimuth_min->GetValue(0);
-  config.azimuth_max = azimuth_max->GetValue(0);
-  config.zenith_min = zenith_min->GetValue(0);
-  config.zenith_max = zenith_max->GetValue(0);
-}
-//----------------------------------------------------------------------------------------------
-
 //__Event Subtree Struct________________________________________________________________________
-struct _event_subtree { TLeaf *id, *t, *x, *y, *z, *obs, *px, *py, *pz; };
-//----------------------------------------------------------------------------------------------
+struct _event_subtree {
+  TTree *spec_tree, *data_tree;
+  TLeaf *event_id, *energy, *theta, *phi, *z0, *electron_count, *muon_count, *hadron_count,
+        *id, *t, *x, *y, *z, *obs, *px, *py, *pz, *weight,
+        *primary_id,
+        *energy_slope, *energy_min, *energy_max,
+        *azimuth_min, *azimuth_max, *zenith_min, *zenith_max;
 
-//__Load Subtree From Tree______________________________________________________________________
-_event_subtree _load_subtree(TTree* spec_tree,
-                             TTree* data_tree) {
-  _event_subtree out;
-  data_tree->SetBranchStatus("*", 0);
-  out.id = _load_leaf(data_tree, "particle..ParticleID");
-  out.t = _load_leaf(data_tree, "particle..Time");
-  out.x = _load_leaf(data_tree, "particle..x");
-  out.y = _load_leaf(data_tree, "particle..y");
-  out.z = _load_leaf(spec_tree, "run.ObservationLevel");
-  out.px = _load_leaf(data_tree, "particle..Px");
-  out.py = _load_leaf(data_tree, "particle..Py");
-  out.pz = _load_leaf(data_tree, "particle..Pz");
-  spec_tree->GetEntry(0);
-  out.obs = _load_leaf(data_tree, "particle..ObservationLevel");
-  return out;
-}
+  _event_subtree(TTree* spec, TTree* data) : spec_tree(spec), data_tree(data) {
+    data_tree->SetBranchStatus("*", 0);
+    spec_tree->SetBranchStatus("*", 0);
+    event_id       = _load_leaf(data_tree, "shower.EventID");
+    energy         = _load_leaf(data_tree, "shower.Energy");
+    theta          = _load_leaf(data_tree, "shower.Theta");
+    phi            = _load_leaf(data_tree, "shower.Phi");
+    z0             = _load_leaf(data_tree, "shower.FirstHeight");
+    electron_count = _load_leaf(data_tree, "shower.nElectrons");
+    muon_count     = _load_leaf(data_tree, "shower.nMuons");
+    hadron_count   = _load_leaf(data_tree, "shower.nHadrons");
+    id             = _load_leaf(data_tree, "particle..ParticleID");
+    t              = _load_leaf(data_tree, "particle..Time");
+    x              = _load_leaf(data_tree, "particle..x");
+    y              = _load_leaf(data_tree, "particle..y");
+    z              = _load_leaf(data_tree, "particle..ObservationLevel");
+    px             = _load_leaf(data_tree, "particle..Px");
+    py             = _load_leaf(data_tree, "particle..Py");
+    pz             = _load_leaf(data_tree, "particle..Pz");
+    weight         = _load_leaf(data_tree, "particle..Weight");
+    obs            = _load_leaf(spec_tree, "run.ObservationLevel");
+    primary_id     = _load_leaf(spec_tree, "run.ParticleID");
+    energy_slope   = _load_leaf(spec_tree, "run.EnergySlope");
+    energy_min     = _load_leaf(spec_tree, "run.EnergyMin");
+    energy_max     = _load_leaf(spec_tree, "run.EnergyMax");
+    azimuth_min    = _load_leaf(spec_tree, "run.AzimuthMin");
+    azimuth_max    = _load_leaf(spec_tree, "run.AzimuthMax");
+    zenith_min     = _load_leaf(spec_tree, "run.ZenithMin");
+    zenith_max     = _load_leaf(spec_tree, "run.ZenithMax");
+  }
+
+  void load_config(CORSIKAConfig& config) {
+    config.primary_id     = _convert_primary_id(primary_id->GetValue(0)).first;
+    config.energy         = energy->GetValue(0);
+    config.theta          = theta->GetValue(0);
+    config.phi            = phi->GetValue(0);
+    config.z0             = z0->GetValue(0);
+    config.electron_count = electron_count->GetValue(0);
+    config.muon_count     = muon_count->GetValue(0);
+    config.hadron_count   = hadron_count->GetValue(0);
+    config.energy_slope   = energy_slope->GetValue(0);
+    config.energy_min     = energy_min->GetValue(0);
+    config.energy_max     = energy_max->GetValue(0);
+    config.azimuth_min    = azimuth_min->GetValue(0);
+    config.azimuth_max    = azimuth_max->GetValue(0);
+    config.zenith_min     = zenith_min->GetValue(0);
+    config.zenith_max     = zenith_max->GetValue(0);
+  }
+};
 //----------------------------------------------------------------------------------------------
 
 //__Load Particle from Subtree__________________________________________________________________
 void _load_particle(const std::size_t i,
                     _event_subtree& subtree,
                     const int particle_id,
-                    const long double height,
+                    const Particle& origin,
                     CORSIKAEvent& out) {
-  const auto position = _cms_rotation(subtree.x->GetValue(i), subtree.y->GetValue(i));
-  const auto momentum = _cms_rotation(subtree.px->GetValue(i), subtree.py->GetValue(i));
+  const auto position = _cms_rotation(subtree.x->GetValue(i) * cm,
+                                      subtree.y->GetValue(i) * cm);
+  const auto momentum = _cms_rotation(subtree.px->GetValue(i) * GeVperC,
+                                      subtree.py->GetValue(i) * GeVperC);
   out.push_back(particle_id,
                 subtree.t->GetValue(i) * ns,
-                position.first * cm,
-                position.second * cm,
-                subtree.z->GetValue(subtree.obs->GetValue(i) - 1) * cm + height,
-                momentum.first * GeVperC,
-                momentum.second * GeVperC,
-                subtree.pz->GetValue(i) * GeVperC);
-}
-//----------------------------------------------------------------------------------------------
-
-//__Get Range of Thread in Data_________________________________________________________________
-std::pair<std::size_t, std::size_t> _calculate_thread_range(const std::size_t total) {
-  const auto bucket_size = std::ceil(total / static_cast<long double>(G4Threading::GetNumberOfRunningWorkerThreads()));
-  const auto first = bucket_size * G4Threading::G4GetThreadId();
-  return {first, first + bucket_size};
-}
-//----------------------------------------------------------------------------------------------
-
-//__Sort Event in Time Order____________________________________________________________________
-CORSIKAEvent _time_sort(const CORSIKAEvent& event) {
-  const auto size = event.size();
-  if (size == 0UL)
-    return CORSIKAEvent{};
-  CORSIKAEvent out;
-  out.reserve(size);
-  std::vector<std::size_t> indices;
-  indices.reserve(size);
-  for (std::size_t i{}; i < size; ++i)
-    indices.push_back(i);
-  std::sort(std::begin(indices), std::end(indices),
-    [&](const auto left, const auto right) { return event.t[left] < event.t[right]; });
-  for (std::size_t i{}; i < size; ++i)
-    out.push_back(event[indices[i]]);
-  return out;
-}
-//----------------------------------------------------------------------------------------------
-
-//__Shift Event X and Y_________________________________________________________________________
-CORSIKAEvent _shift_event_xy(CORSIKAEvent& event,
-                             const std::size_t size,
-                             const long double x_shift,
-                             const long double y_shift) {
-  CORSIKAEvent out;
-  out.reserve(size);
-  for (std::size_t i{}; i < size; ++i) {
-    event.x[i] -= x_shift;
-    event.y[i] -= y_shift;
-    if (!( std::abs(event.x[i]) >= Construction::WorldLength / 2.0L
-        || std::abs(event.y[i]) >= Construction::WorldLength / 2.0L))
-      out.push_back(event[i]);
-  }
-  return out;
-}
-//----------------------------------------------------------------------------------------------
-
-//__Split Event into Time Windows_______________________________________________________________
-void _transform_and_split_event(const CORSIKAEvent& event,
-                                const long double time_window,
-                                const long double center_x,
-                                const long double center_y,
-                                CORSIKAEventVector& out) {
-  const auto size = event.size();
-  if (size == 0UL)
-    return;
-
-  const auto sorted = _time_sort(event);
-  const auto min_time = sorted.t.front();
-
-  CORSIKAEvent next;
-  next.reserve(size);
-
-  long double sum_x{}, sum_y{};
-  std::size_t i{}, window_counter{};
-  for (; i < size; ++i) {
-    const auto next_size = next.size();
-    if (sorted.t[i] >= min_time + time_window * window_counter) {
-      if (next_size) {
-        out.push_back(_shift_event_xy(next, next_size, sum_x / next_size - center_x, sum_y / next_size - center_y));
-        next.clear();
-      }
-      ++window_counter;
-      sum_x = 0.0L;
-      sum_y = 0.0L;
-    }
-    next.push_back(sorted[i]);
-    sum_x += next.x.back();
-    sum_y += next.y.back();
-  }
-
-  if (i == size) {
-    const auto next_size = next.size();
-    if (next_size)
-      out.push_back(_shift_event_xy(next, next_size, sum_x / next_size - center_x, sum_y / next_size - center_y));
-  }
+                position.first + origin.x,
+                position.second + origin.y,
+                -(subtree.obs->GetValue(subtree.z->GetValue(i) - 1) * cm - origin.z),
+                momentum.first,
+                momentum.second,
+                subtree.pz->GetValue(i) * GeVperC,
+                subtree.weight->GetValue(i));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -345,15 +296,11 @@ std::pair<double, double> _random_translation(double max_radius) {
 }
 //----------------------------------------------------------------------------------------------
 
-//__Fill Tree Data into EventVector_____________________________________________________________
-template<class RangeCalculator>
-void _fill_data(const std::string& path,
-                const Particle& particle,
-                const double time_block,
-                const double max_radius,
-                CORSIKAConfig& config,
-                CORSIKAEventVector& events,
-                RangeCalculator range) {
+//__Collect Data From Tree______________________________________________________________________
+void _collect_source(const std::string& path,
+                     const Particle& origin,
+                     CORSIKAConfig& config,
+                     CORSIKAEvent& event) {
   TFile file(path.c_str(), "READ");
   if (!file.IsZombie()) {
     std::cout << "\n\nLoading Data from " + path + " ...\n\n";
@@ -362,36 +309,29 @@ void _fill_data(const std::string& path,
     auto data_tree = dynamic_cast<TTree*>(file.Get("sim"));
     const auto data_entries = data_tree->GetEntries();
     if (spec_tree && data_tree && (spec_tree->GetEntries() == 1) && (data_entries > 0)) {
-      spec_tree->SetBranchStatus("*", 0);
-      _load_config(spec_tree, config);
+      _event_subtree subtree{spec_tree, data_tree};
+      subtree.spec_tree->GetEntry(0);
+      subtree.data_tree->GetEntry(config.event_id);
+      subtree.load_config(config);
 
-      auto subtree = _load_subtree(spec_tree, data_tree);
-      const auto range_pair = range(static_cast<std::size_t>(data_entries));
+      const auto signed_event_size = subtree.id->GetLen();
+      const auto event_size = signed_event_size > 0 ? static_cast<std::size_t>(signed_event_size) : 0UL;
 
-      const auto translation = _random_translation(max_radius);
-
-      for (std::size_t i{range_pair.first}; i < range_pair.second; ++i) {
-        data_tree->GetEntry(i);
-        const auto signed_event_size = subtree.id->GetLen();
-        const auto event_size = signed_event_size > 0 ? static_cast<std::size_t>(signed_event_size) : 0UL;
-
-        CORSIKAEvent next;
-        next.reserve(event_size);
-
-        for (std::size_t j{}; j < event_size; ++j) {
-          const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(j));
-          // NOTE: fix for bad muons
-          if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
-            continue;
-          _load_particle(j, subtree, particle_id_pair.second, particle.z, next);
-        }
-
-        if (next.empty())
+      event.reserve(event_size);
+      for (std::size_t i{}; i < event_size; ++i) {
+        const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(i));
+        // NOTE: fix for bad muons
+        if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
           continue;
-
-        _transform_and_split_event(next,
-            time_block, particle.x + translation.first, particle.y + translation.second, events);
+        _load_particle(i, subtree, particle_id_pair.second, origin, event);
       }
+
+      if (event.empty()) {
+        std::cout << "No Event in CORSIKA File. Exiting.\n";
+        file.Close();
+        exit(0);
+      }
+
     }
     std::cout << "Completed. Beginning Run ...\n\n";
   }
@@ -401,24 +341,16 @@ void _fill_data(const std::string& path,
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
 
-//__Initialize CORSIKA Data Vector______________________________________________________________
-G4ThreadLocal CORSIKAEventVector* CORSIKAReaderGenerator::_data = nullptr;
-G4ThreadLocal std::size_t CORSIKAReaderGenerator::_data_index = 0UL;
-//----------------------------------------------------------------------------------------------
-
 //__CORSIKA Reader Generator Constructor________________________________________________________
-CORSIKAReaderGenerator::CORSIKAReaderGenerator()
-    : Generator("corsika_reader", "CORSIKA Reader Generator."),
-      _path(""), _max_radius(100*m), _time_block(1*ns) {
+CORSIKAReaderGenerator::CORSIKAReaderGenerator(const std::string& path)
+    : Generator("corsika_reader", "CORSIKA Reader Generator."), _last_event({}), _translation({0, 0}), _path(path) {
   _read_file = CreateCommand<Command::StringArg>("read_file", "Read CORSIKA ROOT File.");
   _read_file->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  _set_time_block = CreateCommand<Command::DoubleUnitArg>("time_block", "Set Shower Time Block.");
-  _set_time_block->AvailableForStates(G4State_PreInit, G4State_Idle);
-  _set_time_block->SetParameterName("block", false, false);
-  _set_time_block->SetRange("block > 0");
-  _set_time_block->SetDefaultUnit("ns");
-  _set_time_block->SetUnitCandidates("ns ms s");
+  _set_event_id = CreateCommand<Command::IntegerArg>("event_id", "Set Shower ID to Simulate.");
+  _set_event_id->AvailableForStates(G4State_PreInit, G4State_Idle);
+  _set_event_id->SetParameterName("event", false, false);
+  _set_event_id->SetRange("event > 0");
 
   _set_max_radius = CreateCommand<Command::DoubleUnitArg>("max_radius", "Set Shower Shift Max Radius.");
   _set_max_radius->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -426,20 +358,29 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator()
   _set_max_radius->SetRange("radius > 0");
   _set_max_radius->SetDefaultUnit("m");
   _set_max_radius->SetUnitCandidates("m cm");
-
-  if (!_data)
-    _data = new CORSIKAEventVector;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Generate Initial Particles__________________________________________________________________
 void CORSIKAReaderGenerator::GeneratePrimaryVertex(G4Event* event) {
-  if (_data_index < _data->size()) {
-    const auto entry = (*_data)[_data_index];
-    for (std::size_t i{}; i < entry.size(); ++i)
-      AddParticle(entry[i], *event);
-    ++_data_index;
+  _last_event.clear();
+  _translation = _random_translation(_config.max_radius);
+  for (std::size_t i{}; i < _event.size(); ++i) {
+    auto particle = _event[i];
+    particle.x -= _translation.first;
+    particle.y -= _translation.second;
+    if (std::abs(particle.x) >= Construction::WorldLength / 2.0L
+        || std::abs(particle.y) >= Construction::WorldLength / 2.0L)
+      continue;
+    _last_event.push_back(particle);
+    AddParticle(particle, *event);
   }
+}
+//----------------------------------------------------------------------------------------------
+
+//__Get Previous Event__________________________________________________________________________
+ParticleVector CORSIKAReaderGenerator::GetLastEvent() const {
+  return _last_event;
 }
 //----------------------------------------------------------------------------------------------
 
@@ -448,14 +389,10 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
                                          G4String value) {
   if (command == _read_file) {
     SetFile(value);
-    if (G4Threading::IsWorkerThread()) {
-      G4AutoLock lock(&_mutex);
-      _fill_data(_path, _particle, _time_block, _max_radius, _config, *_data, _calculate_thread_range);
-    }
-  } else if (command == _set_time_block) {
-    _time_block = _set_time_block->GetNewDoubleValue(value);
+  } else if (command == _set_event_id) {
+    _config.event_id = _set_event_id->GetNewIntValue(value);
   } else if (command == _set_max_radius) {
-    _max_radius = _set_max_radius->GetNewDoubleValue(value);
+    _config.max_radius = _set_max_radius->GetNewDoubleValue(value);
   } else {
     Generator::SetNewValue(command, value);
   }
@@ -465,7 +402,11 @@ void CORSIKAReaderGenerator::SetNewValue(G4UIcommand* command,
 //__Set Pythia Object from Settings_____________________________________________________________
 void CORSIKAReaderGenerator::SetFile(const std::string& path) {
   _path = path;
-  _data_index = 0UL;
+  if (G4Threading::IsWorkerThread()) {
+    G4AutoLock lock(&_mutex);
+    _event.clear();
+    _collect_source(_path, _particle, _config, _event);
+  }
 }
 //----------------------------------------------------------------------------------------------
 
@@ -474,8 +415,15 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
   return Analysis::Settings(SimSettingPrefix,
     "",                  _name,
     "_INPUT_FILE",       _path,
-    "_TIME_BLOCK",       Units::to_string(_time_block, Units::Time, Units::TimeString),
-    "_MAX_SHIFT_RADIUS", Units::to_string(_max_radius, Units::Length, Units::LengthString),
+    "_EVENT_ID",         std::to_string(_config.event_id),
+    "_PRIMARY_ENERGY",   std::to_string(_config.energy),
+    "_THETA",            std::to_string(_config.theta),
+    "_PHI",              std::to_string(_config.phi),
+    "_FIRST_HEIGHT",     std::to_string(_config.z0),
+    "_ELECTRON_COUNT",   std::to_string(_config.electron_count),
+    "_MUON_COUNT",       std::to_string(_config.muon_count),
+    "_HADRON_COUNT",     std::to_string(_config.hadron_count),
+    "_MAX_SHIFT_RADIUS", Units::to_string(_config.max_radius, Units::Length, Units::LengthString),
     "_PRIMARY_ID",       std::to_string(_config.primary_id),
     "_ENERGY_SLOPE",     std::to_string(_config.energy_slope),
     "_ENERGY_MIN",       std::to_string(_config.energy_min),
@@ -483,10 +431,22 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
     "_AZIMUTH_MIN",      std::to_string(_config.azimuth_min),
     "_AZIMUTH_MAX",      std::to_string(_config.azimuth_max),
     "_ZENITH_MIN",       std::to_string(_config.zenith_min),
-    "_ZENITH_MAX",       std::to_string(_config.zenith_max)
+    "_ZENITH_MAX",       std::to_string(_config.zenith_max),
+    "_EXTRA_00",         "[Shower Core X]",
+    "_EXTRA_01",         "[Shower Core Y]"
   );
 }
 //----------------------------------------------------------------------------------------------
+
+//__CORSIKA Reader Generator Extra Details______________________________________________________
+const std::vector<std::vector<double>> CORSIKAReaderGenerator::ExtraDetails() const {
+  auto out = Tracking::EmptyExtra();
+  out[0].push_back(_translation.first);
+  out[1].push_back(_translation.second);
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 

@@ -162,12 +162,12 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
 
   Analysis::ROOT::DataEntryList root_data;
   root_data.reserve(24);
-  root_data.push_back(collection_data[4]);
-  root_data.push_back(collection_data[5]);
-  root_data.push_back(collection_data[3]);
   root_data.push_back(collection_data[0]);
   root_data.push_back(collection_data[1]);
   root_data.push_back(collection_data[2]);
+  root_data.push_back(collection_data[3]);
+  root_data.push_back(collection_data[4]);
+  root_data.push_back(collection_data[5]);
   root_data.push_back(collection_data[6]);
   root_data.push_back(collection_data[7]);
   root_data.push_back(collection_data[8]);
@@ -175,10 +175,13 @@ void Detector::EndOfEvent(G4HCofThisEvent*) {
   root_data.push_back(collection_data[10]);
   root_data.push_back(collection_data[11]);
   root_data.push_back(collection_data[12]);
+  root_data.push_back(collection_data[13]);
 
   const auto gen_particle_data = SaveAll ? Tracking::ConvertToAnalysis(GeneratorAction::GetLastEvent())
                                          : Tracking::ConvertToAnalysis(EventAction::GetEvent());
+  const auto extra_gen_data = Tracking::ConvertToAnalysis(GeneratorAction::GetGenerator()->ExtraDetails());
   root_data.insert(root_data.cend(), gen_particle_data.cbegin(), gen_particle_data.cend());
+  root_data.insert(root_data.cend(), extra_gen_data.cbegin(), extra_gen_data.cend());
 
   Analysis::ROOT::DataEntry metadata;
   metadata.reserve(2);
@@ -240,7 +243,8 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   const auto buffer_zone_depth = 1.602*m;
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height + buffer_zone_depth));
+    G4Translate3D(253.9*cm, 0, -0.5 * total_outer_box_height));
+    // G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height + buffer_zone_depth));
 }
 //----------------------------------------------------------------------------------------------
 

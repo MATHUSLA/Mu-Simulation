@@ -1,0 +1,8 @@
+! File: ccbar_to_muon.cmnd
+
+Print:quiet = on
+Next:numberCount = 10000
+Stat:showErrors = off
+Beams:eCM = 13000.
+HardQCD:hardccbar = on
+PhaseSpace:pTHatMin = 50.0

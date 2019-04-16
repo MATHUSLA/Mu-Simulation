@@ -26,6 +26,7 @@
 #include <Geant4/G4ParticleTable.hh>
 
 #include "physics/Units.hh"
+#include "tracking.hh"
 
 #include "util/string.hh"
 
@@ -335,6 +336,12 @@ const Analysis::SimSettingList Generator::GetSpecification() const {
                    + std::to_string(_particle.x / Units::Length)    + ", "
                    + std::to_string(_particle.y / Units::Length)    + ", "
                    + std::to_string(_particle.z / Units::Length)    + ")");
+}
+//----------------------------------------------------------------------------------------------
+
+//__Generator Extra Details_____________________________________________________________________
+const std::vector<std::vector<double>> Generator::ExtraDetails() const {
+  return Tracking::EmptyExtra();
 }
 //----------------------------------------------------------------------------------------------
 

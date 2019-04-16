@@ -22,7 +22,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 find_package(Geant4  REQUIRED gdml ui_all vis_all)
 find_package(Pythia8 REQUIRED)
-find_package(HepMC   REQUIRED)
 find_package(ROOT    REQUIRED)
 
 include(${Geant4_USE_FILE})
@@ -80,8 +79,7 @@ target_link_libraries(simulation PUBLIC
 target_include_directories(simulation PUBLIC
     ${Geant4_INCLUDE_DIRS}
     ${ROOT_INCLUDE_DIRS}
-    ${PYTHIA8_INCLUDE_DIR}
-    ${HEPMC_INCLUDE_DIR})
+    ${PYTHIA8_INCLUDE_DIR})
 
 target_include_directories(simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
