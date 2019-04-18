@@ -45,7 +45,7 @@ G4ThreadLocal Tracking::HitCollection* _hit_collection;
 //----------------------------------------------------------------------------------------------
 
 //__Encoding/Decoding Maps______________________________________________________________________
-G4ThreadLocal std::unordered_map<std::string, Scintillator*> _sci_map;
+G4ThreadLocal std::unordered_map<std::string, Scintillator*> _scintillator_map;
 G4ThreadLocal std::unordered_map<std::string, double>        _encoding;
 G4ThreadLocal std::unordered_map<int, std::string>           _decoding;
 //----------------------------------------------------------------------------------------------
@@ -62,11 +62,11 @@ bool Detector::SaveAll = false;
 //__Prototype Constructor_______________________________________________________________________
 Detector::Detector() : G4VSensitiveDetector("MATHUSLA/MU/Prototype") {
   collectionName.insert("Prototype_HC");
-  for (auto sci : _scintillators) {
-    sci->Register(this);
-    const auto name = sci->GetFullName();
+  for (auto scintillator : _scintillators) {
+    scintillator->Register(this);
+    const auto name = scintillator->GetFullName();
     const auto id = _decoding.size();
-    _sci_map.insert({name, sci});
+    _scintillator_map.insert({name, scintillator});
     _encoding.insert({name, id});
     _decoding.insert({id, name});
   }
@@ -125,7 +125,7 @@ G4bool Detector::ProcessHits(G4Step* step, G4TouchableHistory*) {
   /* FIXME: add back to data
   Scintillator::PMTPoint pmt_point{0, 0, 0};
   if (detector_id < 100) {
-    const auto sci = _sci_map[name];
+    const auto sci = _scintillator_map[name];
 
     const auto& volume1 = history->GetVolume(history->GetDepth() - 1);
     const auto& volume2 = history->GetVolume(history->GetDepth() - 2);
@@ -217,34 +217,31 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   auto DetectorVolume = Construction::BoxVolume(
     "Prototype", 3500*mm, 3500*mm, total_outer_box_height);
 
-  for (const auto &scintillator_info : Scintillator::scintillator_infos) {
+  for (const auto& scintillator_info : Scintillator::InfoArray) {
     auto scintillator = new Scintillator(scintillator_info.name,
                                          scintillator_info.trapezoid_height + 2.0 * Scintillator::Thickness,
                                          scintillator_info.short_base + 2.0 * Scintillator::Thickness,
                                          scintillator_info.long_base + 2.0 * Scintillator::Thickness);
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
-        G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0), scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
+        G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0),
+                         scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
         G4ThreeVector(scintillator_info.x, scintillator_info.y, scintillator_info.z)
       )
     );
     _scintillators.push_back(scintillator);
   }
 
-  for (unsigned rpc_index = 0; rpc_index < RPC::n_rpcs; rpc_index++) {
-    const auto rpc = new RPC(rpc_index);
-      rpc->PlaceIn(DetectorVolume, Construction::Transform(
-        RPC::rpc_infos[rpc_index].x,
-        RPC::rpc_infos[rpc_index].y,
-        RPC::rpc_infos[rpc_index].z,
-        0.0, 0.0, 1.0, RPC::rpc_infos[rpc_index].z_rotation_angle));
-      _rpcs.push_back(rpc);
+  for (std::size_t rpc_index{}; rpc_index < RPC::Count; rpc_index++) {
+    auto rpc = new RPC(rpc_index);
+    const auto& info = RPC::InfoArray[rpc_index];
+    rpc->PlaceIn(DetectorVolume, Construction::Transform(
+      info.x, info.y, info.z, 0.0, 0.0, 1.0, info.z_rotation_angle));
+    _rpcs.push_back(rpc);
   }
 
-  const auto buffer_zone_depth = 1.602*m;
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(253.9*cm, 0, -0.5 * total_outer_box_height));
-    // G4Translate3D(-250*cm, 7*cm, -0.5 * total_outer_box_height + buffer_zone_depth));
+    G4Translate3D(250*cm, 7*cm, -0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

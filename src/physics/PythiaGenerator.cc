@@ -20,7 +20,7 @@
 
 #include <Pythia8/ParticleData.h>
 
-#include "geometry/Earth.hh"
+#include "geometry/Cavern.hh"
 #include "physics/Units.hh"
 #include "util/string.hh"
 
@@ -131,7 +131,7 @@ Particle _convert_particle(Pythia8::Particle& particle) {
                particle.tProd() * mm / c_light,
                particle.zProd() * mm,
                particle.yProd() * mm,
-              -particle.xProd() * mm + 81*m + static_cast<double>(Earth::LastShift())};
+              -particle.xProd() * mm + static_cast<double>(Cavern::IP())};
   out.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
   return out;
 }

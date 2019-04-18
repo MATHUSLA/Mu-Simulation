@@ -66,7 +66,7 @@ public:
 
   static Scintillator* Clone(const Scintillator* other);
 
-  struct ScintillatorInfo {
+  struct Info {
     std::string name;
     double x;
     double y;
@@ -77,9 +77,9 @@ public:
     double trapezoid_height;
   };
 
-  constexpr static auto n_scintillators = 59u;
+  constexpr static auto Count = 59u;
 
-  const static ScintillatorInfo scintillator_infos[n_scintillators];
+  const static Info InfoArray[Count];
 
   constexpr static auto Thickness = 1.15*mm;
   constexpr static auto Spacing   =    0*mm;
@@ -133,30 +133,28 @@ public:
   G4VPhysicalVolume* PlaceIn(G4LogicalVolume* parent,
                              const G4Transform3D& transform=G4Transform3D());
 
-  struct RPCInfo {
+  struct Info {
     double x;
     double y;
     double z;
     double z_rotation_angle;
   };
 
-  constexpr static auto n_rpcs = 12u;
+  constexpr static auto Count = 12u;
 
-  const static RPCInfo rpc_infos[n_rpcs];
+  const static Info InfoArray[Count];
 
-  constexpr static auto Thickness   =    1*mm;
-  constexpr static auto Height      = 2800*mm + 2.0 * Thickness;
-  constexpr static auto Width       = 1248*mm + 2.0 * Thickness;
+  constexpr static auto Height      = 2802*mm;
+  constexpr static auto Width       = 1250*mm;
   constexpr static auto Depth       =   44*mm;
 
   constexpr static auto PadHeight    = 556.8*mm;
   constexpr static auto PadWidth     = 616.5*mm;
   constexpr static auto PadDepth     =     2*mm;
-  constexpr static auto PadThickness =     0*mm;
 
-  constexpr static auto n_pads_per_row    = 2u;
-  constexpr static auto n_pads_per_column = 5u;
-  constexpr static auto n_pads_per_rpc = n_pads_per_row * n_pads_per_column;
+  constexpr static auto PadsPerRow    = 2u;
+  constexpr static auto PadsPerColumn = 5u;
+  constexpr static auto PadsPerRPC = PadsPerRow * PadsPerColumn;
 
   constexpr static auto PadSpacingX = PadWidth + 1*mm;
   constexpr static auto PadSpacingY = PadHeight;
@@ -165,7 +163,7 @@ public:
   constexpr static auto StripWidth      = 616.5*mm;
   constexpr static auto StripDepth      =     2*mm;
 
-  constexpr static auto n_strips_per_pad = 8u;
+  constexpr static auto StripsPerPad = 8u;
 
   constexpr static auto StripSpacingY = 69.6*mm;
 
