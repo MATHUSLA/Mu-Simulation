@@ -144,15 +144,13 @@ public:
 
   const static Info InfoArray[Count];
 
-  constexpr static auto Thickness   =    1*mm;
-  constexpr static auto Height      = 2800*mm + 2.0 * Thickness;
-  constexpr static auto Width       = 1248*mm + 2.0 * Thickness;
+  constexpr static auto Height      = 2802*mm;
+  constexpr static auto Width       = 1250*mm;
   constexpr static auto Depth       =   44*mm;
 
   constexpr static auto PadHeight    = 556.8*mm;
   constexpr static auto PadWidth     = 616.5*mm;
   constexpr static auto PadDepth     =     2*mm;
-  constexpr static auto PadThickness =     0*mm;
 
   constexpr static auto PadsPerRow    = 2u;
   constexpr static auto PadsPerColumn = 5u;

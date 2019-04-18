@@ -46,24 +46,19 @@ RPC::Pad::Pad(int input_id) : id(input_id) {}
 
 //__RPC Constructor_____________________________________________________________________________
 RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 + input_id)) {
-  _volume = Construction::OpenBoxVolume(
-    _name,
-    Width, Height, Depth, Thickness,
-    Material::Casing);
+  _volume = Construction::BoxVolume(_name, Width, Height, Depth, Material::Casing);
 
   const auto id_name = (_id < 9 ? "0" : "") + std::to_string(1 + _id);
 
   for (std::size_t pad_index{}; pad_index < PadsPerRPC; ++pad_index) {
     auto pad = new Pad(pad_index);
 
-    pad->lvolume = Construction::OpenBoxVolume(
+    pad->lvolume = Construction::BoxVolume(
       "PAD" + std::to_string(1 + pad_index),
-      PadWidth, PadHeight, PadDepth, PadThickness,
+      PadWidth, PadHeight, PadDepth,
       Material::Pad, Construction::CasingAttributes());
 
-    const auto pad_name = id_name
-                        + (pad_index < 9 ? "0" : "")
-                        + std::to_string(1 + pad_index);
+    const auto pad_name = id_name + (pad_index < 9 ? "0" : "") + std::to_string(1 + pad_index);
 
     for (std::size_t strip_index{}; strip_index < StripsPerPad; ++strip_index) {
       auto strip = Construction::BoxVolume(
@@ -115,10 +110,10 @@ void RPC::Material::Define() {
   SF6->AddElement(Construction::Material::F, 6);
   */
 
-  auto argon = new G4Material("argon", 1.635*g/L, 1);
+  auto argon = new G4Material("Argon", 1.635*g/L, 1);
   argon->AddElement(Construction::Material::Ar, 1);
 
-  Material::Gas = new G4Material("gas", 3.773*g/L, 2, G4State::kStateGas);
+  Material::Gas = new G4Material("Gas", 3.773*g/L, 2, G4State::kStateGas);
   Material::Gas->AddMaterial(C2H2F4, 0.93);
   Material::Gas->AddMaterial(argon,  0.07);
 }

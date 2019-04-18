@@ -233,13 +233,11 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   for (std::size_t rpc_index{}; rpc_index < RPC::Count; rpc_index++) {
-    const auto rpc = new RPC(rpc_index);
-      rpc->PlaceIn(DetectorVolume, Construction::Transform(
-        RPC::InfoArray[rpc_index].x,
-        RPC::InfoArray[rpc_index].y,
-        RPC::InfoArray[rpc_index].z,
-        0.0, 0.0, 1.0, RPC::InfoArray[rpc_index].z_rotation_angle));
-      _rpcs.push_back(rpc);
+    auto rpc = new RPC(rpc_index);
+    const auto& info = RPC::InfoArray[rpc_index];
+    rpc->PlaceIn(DetectorVolume, Construction::Transform(
+      info.x, info.y, info.z, 0.0, 0.0, 1.0, info.z_rotation_angle));
+    _rpcs.push_back(rpc);
   }
 
   return Construction::PlaceVolume(DetectorVolume, world,
