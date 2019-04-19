@@ -45,7 +45,7 @@ void Material::Define() {
 
 //__Cavern Dimensions___________________________________________________________________________
 long double BaseDepth() {
-  return _base_depth + Earth::TotalShift();
+  return _base_depth - Earth::TotalShift();
 }
 long double BaseDepth(long double value) {
   _base_depth = value;
@@ -149,7 +149,7 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   }
 
   Construction::PlaceVolume(RingVolume(), earth,
-    G4Translate3D(0, 0, -0.5 * Earth::TotalDepth() + CenterDepth() + 0.5 * TotalHeight - DetectorHeight)
+    G4Translate3D(0, 0, -0.5 * Earth::TotalDepth() + IP())
       * Construction::Rotate(0, 1, 0, 90*deg));
   return Construction::PlaceVolume(earth, world, Earth::Transform());
 }
