@@ -130,8 +130,8 @@ Particle _convert_particle(Pythia8::Particle& particle) {
   Particle out{particle.id(),
                particle.tProd() * mm / c_light,
                particle.zProd() * mm,
-               particle.yProd() * mm,
-              -particle.xProd() * mm + static_cast<double>(Cavern::IP())};
+               -particle.xProd() * mm,
+               static_cast<double>(-particle.yProd() * mm + Earth::TotalShift() + Cavern::IP())};
   out.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
   return out;
 }

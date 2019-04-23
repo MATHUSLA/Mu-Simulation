@@ -31,7 +31,7 @@ const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
   if (magnitude == 0)
     return {};
   const auto eta = std::atanh(momentum.x() / magnitude);
-  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
+  return {magnitude / std::cosh(eta), eta, std::atan2(-momentum.x(), momentum.z())};
 }
 //----------------------------------------------------------------------------------------------
 
@@ -39,8 +39,8 @@ const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
 const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
   return G4ThreeVector(
      triplet.pT * std::sinh(triplet.eta),
-     triplet.pT * std::sin(triplet.phi),
-    -triplet.pT * std::cos(triplet.phi));
+     -triplet.pT * std::cos(triplet.phi),
+     -triplet.pT * std::sin(triplet.phi));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ double BasicParticle::pT() const {
   const auto magnitude = G4ThreeVector(px, py, pz).mag();
   if (magnitude == 0)
     return 0;
-  return magnitude / std::cosh(std::atanh(px / magnitude));
+  return magnitude / std::cosh(std::atanh(pz / magnitude));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -95,13 +95,13 @@ double BasicParticle::eta() const {
   const auto magnitude = G4ThreeVector(px, py, pz).mag();
   if (magnitude == 0)
     return 0;
-  return std::atanh(px / magnitude);
+  return std::atanh(pz / magnitude);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Get Basic Particle PHI______________________________________________________________________
 double BasicParticle::phi() const {
-  return std::atan2(py, -pz);
+  return std::atan2(py, px);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -188,16 +188,17 @@ const std::pair<long double, long double> _rotate(const long double x,
 
 //__Set Basic Particle ETA______________________________________________________________________
 void BasicParticle::set_eta(double new_eta) {
-  const auto rotation = _rotate(px, -pz, _eta_to_theta(new_eta) - _eta_to_theta(eta()));
-  px = rotation.first;
-  pz = -rotation.second;
+  const auto rotation = _rotate(pT(), pz, -(_eta_to_theta(new_eta) - _eta_to_theta(eta())));
+  px = rotation.first * px;
+  py = rotation.first * py;
+  pz = rotation.second;
 }
 //----------------------------------------------------------------------------------------------
 
 //__Set Basic Particle PHI______________________________________________________________________
 void BasicParticle::set_phi(double new_phi) {
-  const auto rotation = _rotate(-pz, py, new_phi - phi());
-  pz = -rotation.first;
+  const auto rotation = _rotate(px, py, new_phi - phi());
+  px = rotation.first;
   py = rotation.second;
 }
 //----------------------------------------------------------------------------------------------
