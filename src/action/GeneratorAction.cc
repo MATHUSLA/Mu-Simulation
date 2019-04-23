@@ -21,6 +21,7 @@
 
 #include <Geant4/tls.hh>
 
+#include "geometry/Earth.hh"
 #include "geometry/Cavern.hh"
 #include "physics/CORSIKAReaderGenerator.hh"
 #include "physics/PythiaGenerator.hh"
@@ -47,7 +48,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       G4UImessenger(Physics::Generator::MessengerDirectory, "Particle Generators.") {
 
   _gen_map["basic"] = new Physics::Generator(
-      "basic", "Default Generator.", Physics::Particle(13, 0, 0, Cavern::IP(), 3*GeVperC, 0, -100*GeVperC));
+      "basic", "Default Generator.", Physics::Particle(13, 0, 0, Earth::TotalShift() + Cavern::IP(), -3*GeVperC, 0, -100*GeVperC));
 
   _gen_map["range"] = new Physics::RangeGenerator(
       "range", "Default Range Generator.", {});
