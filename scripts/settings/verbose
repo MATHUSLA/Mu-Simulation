@@ -29,7 +29,7 @@
 
 /material/verbose 0
 
-/particle/property/verbose 1
+/particle/property/verbose 0
 # 0 : silent
 # 1 : warnings
 # 2 : more

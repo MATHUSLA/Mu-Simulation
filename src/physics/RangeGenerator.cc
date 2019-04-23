@@ -24,8 +24,6 @@
 #include <Geant4/tls.hh>
 
 #include "physics/Units.hh"
-#include "geometry/Earth.hh"
-#include "geometry/Cavern.hh"
 
 #include <iostream>
 
@@ -37,27 +35,15 @@ namespace Physics { ////////////////////////////////////////////////////////////
 RangeGenerator::RangeGenerator(const std::string& name,
                                const std::string& description,
                                const Particle& particle)
-    : RangeGenerator(name, description, particle.pT(), particle.pT(),
-                                        particle.eta(), particle.eta(),
-                                        particle.phi(), particle.phi()) {}
+    : RangeGenerator(name, description, particle, particle) {}
 //----------------------------------------------------------------------------------------------
 
 //__Range Generator Constructor_________________________________________________________________
 RangeGenerator::RangeGenerator(const std::string& name,
                                const std::string& description,
-                               const double min_pT,
-                               const double max_pT,
-                               const double min_eta,
-                               const double max_eta,
-                               const double min_phi,
-                               const double max_phi)
-    : Generator(name, description),
-      _min_pT(min_pT),
-      _max_pT(max_pT),
-      _min_eta(min_eta),
-      _max_eta(max_eta),
-      _min_phi(min_phi),
-      _max_phi(max_phi) {
+                               const Particle& min,
+                               const Particle& max)
+    : Generator(name, description, min), _min(min), _max(max) {
   GenerateCommands();
 }
 //----------------------------------------------------------------------------------------------
@@ -116,21 +102,13 @@ void RangeGenerator::GenerateCommands() {
 
 //__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
-  _particle.set_vertex(0.0, 0.0, 0.0, Earth::TotalShift() + Cavern::IP());
-  const auto eta = G4RandFlat::shoot(min_eta(), max_eta());
-  const auto phi = G4RandFlat::shoot(min_phi(), max_phi());
-  double pt = 0.0;
-//  if (_using_range_ke) {
-//    const auto ke = G4RandFlat::shoot(min_ke(), max_ke());
-//    pt = ke / std::cosh(eta);
-//  } else {
-    pt = G4RandFlat::shoot(min_pT(), max_pT());
-//  }
-  _particle.set_pseudo_lorentz_triplet(pt, eta, phi);
-  std::cout << "pT_min: " << min_pT() << " pT_max: " << max_pT() << std::endl;
-  std::cout << "eta_min: " << min_eta() << " eta_max: " << max_eta() << std::endl;
-  std::cout << "phi_min: " << min_phi() << " phi_max: " << max_phi() << std::endl;
-  std::cout << "pT: " << pt << " eta: " << eta << " phi: " << phi << std::endl;
+  _particle.set_eta(G4RandFlat::shoot(_min.eta(), _max.eta()));
+  _particle.set_phi(G4RandFlat::shoot(_min.phi(), _max.phi()));
+  if (_using_range_ke) {
+    _particle.set_ke(G4RandFlat::shoot(_min.ke(), _max.ke()));
+  } else {
+    _particle.set_pT(G4RandFlat::shoot(_min.pT(), _max.pT()));
+  }
   AddParticle(_particle, *event);
 }
 //----------------------------------------------------------------------------------------------
@@ -146,61 +124,61 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
                                  G4String value) {
   if (command == _ui_id) {
     _particle.id = _ui_id->GetNewIntValue(value);
-    //_min.id = _particle.id;
-    //_max.id = _particle.id;
+    _min.id = _particle.id;
+    _max.id = _particle.id;
   } else if (command == _ui_pT) {
     const auto pT = _ui_pT->GetNewDoubleValue(value);
     _particle.set_pT(pT);
-    _min_pT = pT;
-    _max_pT = pT;
+    _min.set_pT(pT);
+    _max.set_pT(pT);
     _using_range_ke = false;
   } else if (command == _ui_pT_min) {
-    _min_pT = _ui_pT_min->GetNewDoubleValue(value);
+    _min.set_pT(_ui_pT_min->GetNewDoubleValue(value));
     _using_range_ke = false;
   } else if (command == _ui_pT_max) {
-    _max_pT = _ui_pT_max->GetNewDoubleValue(value);
+    _max.set_pT(_ui_pT_max->GetNewDoubleValue(value));
     _using_range_ke = false;
   } else if (command == _ui_eta) {
     const auto eta = _ui_eta->GetNewDoubleValue(value);
     _particle.set_eta(eta);
-    _min_eta = eta;
-    _max_eta = eta;
+    _min.set_eta(eta);
+    _max.set_eta(eta);
   } else if (command == _ui_eta_min) {
-    _min_eta = _ui_eta_min->GetNewDoubleValue(value);
+    _min.set_eta(_ui_eta_min->GetNewDoubleValue(value));
   } else if (command == _ui_eta_max) {
-    _max_eta = _ui_eta_max->GetNewDoubleValue(value);
+    _max.set_eta(_ui_eta_max->GetNewDoubleValue(value));
   } else if (command == _ui_phi) {
     const auto phi = _ui_phi->GetNewDoubleValue(value);
     _particle.set_phi(phi);
-    _min_phi = phi;
-    _max_phi = phi;
+    _min.set_phi(phi);
+    _max.set_phi(phi);
   } else if (command == _ui_phi_min) {
-    _min_phi = _ui_phi_min->GetNewDoubleValue(value);
+    _min.set_phi(_ui_phi_min->GetNewDoubleValue(value));
   } else if (command == _ui_phi_max) {
-    _max_phi = _ui_phi_max->GetNewDoubleValue(value);
-//  } else if (command == _ui_ke) {
-//    const auto ke = _ui_ke->GetNewDoubleValue(value);
-//    _particle.set_ke(ke);
-//    _min.set_ke(ke);
-//    _max.set_ke(ke);
-//    _using_range_ke = true;
-//  } else if (command == _ui_ke_min) {
-//    _min.set_ke(_ui_ke_min->GetNewDoubleValue(value));
-//    _using_range_ke = true;
-//  } else if (command == _ui_ke_max) {
-//    _max.set_ke(_ui_ke_max->GetNewDoubleValue(value));
-//    _using_range_ke = true;
-//  } else if (command == _ui_p_unit) {
-//    const auto unit = _ui_p_unit->GetNew3VectorValue(value).unit();
-//    _particle.set_p_unit(unit);
-//    _min.set_p_unit(unit);
-//    _max.set_p_unit(unit);
-//  } else if (command == _ui_p_mag) {
-//    const auto magnitude = _ui_p_mag->GetNewDoubleValue(value);
-//    _particle.set_p_mag(magnitude);
-//    _min.set_p_mag(magnitude);
-//    _max.set_p_mag(magnitude);
-//    _using_range_ke = true;
+    _max.set_phi(_ui_phi_max->GetNewDoubleValue(value));
+  } else if (command == _ui_ke) {
+    const auto ke = _ui_ke->GetNewDoubleValue(value);
+    _particle.set_ke(ke);
+    _min.set_ke(ke);
+    _max.set_ke(ke);
+    _using_range_ke = true;
+  } else if (command == _ui_ke_min) {
+    _min.set_ke(_ui_ke_min->GetNewDoubleValue(value));
+    _using_range_ke = true;
+  } else if (command == _ui_ke_max) {
+    _max.set_ke(_ui_ke_max->GetNewDoubleValue(value));
+    _using_range_ke = true;
+  } else if (command == _ui_p_unit) {
+    const auto unit = _ui_p_unit->GetNew3VectorValue(value).unit();
+    _particle.set_p_unit(unit);
+    _min.set_p_unit(unit);
+    _max.set_p_unit(unit);
+  } else if (command == _ui_p_mag) {
+    const auto magnitude = _ui_p_mag->GetNewDoubleValue(value);
+    _particle.set_p_mag(magnitude);
+    _min.set_p_mag(magnitude);
+    _max.set_p_mag(magnitude);
+    _using_range_ke = true;
   } else {
     Generator::SetNewValue(command, value);
   }
@@ -209,56 +187,56 @@ void RangeGenerator::SetNewValue(G4UIcommand* command,
 
 //__Range Generator Information String__________________________________________________________
 std::ostream& RangeGenerator::Print(std::ostream& os) const {
-//  os << "Generator Info:\n  "
-//     << "Name:        " << _name        << "\n  "
-//     << "Description: " << _description << "\n  "
-//     << "Particle ID: " << _particle.id << "\n  ";
-//
-//  if (_using_range_ke) {
-//    os << "avg ke:      " << G4BestUnit(0.5 * (_min.ke() + _max.ke()), "Energy") << "\n    "
-//       << "ke min:      " << G4BestUnit(_min.ke(), "Energy")                     << "\n    "
-//       << "ke max:      " << G4BestUnit(_max.ke(), "Energy")                     << "\n  ";
-//  } else {
-//    os << "avg pT:      " << G4BestUnit(0.5 * (_min.pT() + _max.pT()), "Momentum") << "\n    "
-//       << "pT min:      " << G4BestUnit(_min.pT(), "Momentum")                     << "\n    "
-//       << "pT max:      " << G4BestUnit(_max.pT(), "Momentum")                     << "\n  ";
-//  }
-//
-//  os << "avg eta:     "  << 0.5 * (_min.eta() + _max.eta())                      << "\n    "
-//     << "eta min:     "  << _min.eta()                                           << "\n    "
-//     << "eta max:     "  << _max.eta()                                           << "\n  "
-//     << "avg phi:     "  << G4BestUnit(0.5 * (_min.phi() + _max.phi()), "Angle") << "\n    "
-//     << "phi min:     "  << G4BestUnit(_min.phi(), "Angle")                      << "\n    "
-//     << "phi max:     "  << G4BestUnit(_max.phi(), "Angle")                      << "\n  "
-//     << "vertex:      (" << G4BestUnit(_particle.t, "Time")                      << ", "
-//                         << G4BestUnit(_particle.x, "Length")                    << ", "
-//                         << G4BestUnit(_particle.y, "Length")                    << ", "
-//                         << G4BestUnit(_particle.z, "Length")                    << ")\n";
-//  return os;
+  os << "Generator Info:\n  "
+     << "Name:        " << _name        << "\n  "
+     << "Description: " << _description << "\n  "
+     << "Particle ID: " << _particle.id << "\n  ";
+
+  if (_using_range_ke) {
+    os << "avg ke:      " << G4BestUnit(0.5 * (_min.ke() + _max.ke()), "Energy") << "\n    "
+       << "ke min:      " << G4BestUnit(_min.ke(), "Energy")                     << "\n    "
+       << "ke max:      " << G4BestUnit(_max.ke(), "Energy")                     << "\n  ";
+  } else {
+    os << "avg pT:      " << G4BestUnit(0.5 * (_min.pT() + _max.pT()), "Momentum") << "\n    "
+       << "pT min:      " << G4BestUnit(_min.pT(), "Momentum")                     << "\n    "
+       << "pT max:      " << G4BestUnit(_max.pT(), "Momentum")                     << "\n  ";
+  }
+
+  os << "avg eta:     "  << 0.5 * (_min.eta() + _max.eta())                      << "\n    "
+     << "eta min:     "  << _min.eta()                                           << "\n    "
+     << "eta max:     "  << _max.eta()                                           << "\n  "
+     << "avg phi:     "  << G4BestUnit(0.5 * (_min.phi() + _max.phi()), "Angle") << "\n    "
+     << "phi min:     "  << G4BestUnit(_min.phi(), "Angle")                      << "\n    "
+     << "phi max:     "  << G4BestUnit(_max.phi(), "Angle")                      << "\n  "
+     << "vertex:      (" << G4BestUnit(_particle.t, "Time")                      << ", "
+                         << G4BestUnit(_particle.x, "Length")                    << ", "
+                         << G4BestUnit(_particle.y, "Length")                    << ", "
+                         << G4BestUnit(_particle.z, "Length")                    << ")\n";
+  return os;
 }
 //----------------------------------------------------------------------------------------------
 
 //__RangeGenerator Specifications_______________________________________________________________
 const Analysis::SimSettingList RangeGenerator::GetSpecification() const {
-//  return Analysis::Settings(SimSettingPrefix,
-//    "",         _name,
-//    "_PDG_ID",  std::to_string(_particle.id),
-//    (_using_range_ke ? "_KE_MIN" : "_PT_MIN"),
-//    (_using_range_ke ? std::to_string(_min.ke() / Units::Energy)   + " " + Units::EnergyString
-//                     : std::to_string(_min.pT() / Units::Momentum) + " " + Units::MomentumString),
-//    (_using_range_ke ? "_KE_MAX" : "_PT_MAX"),
-//    (_using_range_ke ? std::to_string(_max.ke() / Units::Energy)   + " " + Units::EnergyString
-//                     : std::to_string(_max.pT() / Units::Momentum) + " " + Units::MomentumString),
-//    "_P_MAG_MIN", std::to_string(_min.p_mag() / Units::Momentum) + " " + Units::MomentumString,
-//    "_P_MAG_MAX", std::to_string(_max.p_mag() / Units::Momentum) + " " + Units::MomentumString,
-//    "_ETA_MIN", std::to_string(_min.eta()),
-//    "_ETA_MAX", std::to_string(_max.eta()),
-//    "_PHI_MIN", std::to_string(_min.phi() / Units::Angle) + " " + Units::AngleString,
-//    "_PHI_MAX", std::to_string(_max.phi() / Units::Angle) + " " + Units::AngleString,
-//    "_VERTEX", "(" + std::to_string(_particle.t / Units::Time)   + ", "
-//                   + std::to_string(_particle.x / Units::Length) + ", "
-//                   + std::to_string(_particle.y / Units::Length) + ", "
-//                   + std::to_string(_particle.z / Units::Length) + ")");
+  return Analysis::Settings(SimSettingPrefix,
+    "",         _name,
+    "_PDG_ID",  std::to_string(_particle.id),
+    (_using_range_ke ? "_KE_MIN" : "_PT_MIN"),
+    (_using_range_ke ? std::to_string(_min.ke() / Units::Energy)   + " " + Units::EnergyString
+                     : std::to_string(_min.pT() / Units::Momentum) + " " + Units::MomentumString),
+    (_using_range_ke ? "_KE_MAX" : "_PT_MAX"),
+    (_using_range_ke ? std::to_string(_max.ke() / Units::Energy)   + " " + Units::EnergyString
+                     : std::to_string(_max.pT() / Units::Momentum) + " " + Units::MomentumString),
+    "_P_MAG_MIN", std::to_string(_min.p_mag() / Units::Momentum) + " " + Units::MomentumString,
+    "_P_MAG_MAX", std::to_string(_max.p_mag() / Units::Momentum) + " " + Units::MomentumString,
+    "_ETA_MIN", std::to_string(_min.eta()),
+    "_ETA_MAX", std::to_string(_max.eta()),
+    "_PHI_MIN", std::to_string(_min.phi() / Units::Angle) + " " + Units::AngleString,
+    "_PHI_MAX", std::to_string(_max.phi() / Units::Angle) + " " + Units::AngleString,
+    "_VERTEX", "(" + std::to_string(_particle.t / Units::Time)   + ", "
+                   + std::to_string(_particle.x / Units::Length) + ", "
+                   + std::to_string(_particle.y / Units::Length) + ", "
+                   + std::to_string(_particle.z / Units::Length) + ")");
 }
 //----------------------------------------------------------------------------------------------
 

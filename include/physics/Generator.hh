@@ -124,12 +124,8 @@ public:
                  const Particle& particle);
   RangeGenerator(const std::string& name,
                  const std::string& description,
-                 const double min_pT,
-                 const double max_pT,
-                 const double min_eta,
-                 const double max_eta,
-                 const double min_phi,
-                 const double max_phi);
+                 const Particle& min,
+                 const Particle& max);
 
   virtual ~RangeGenerator() = default;
 
@@ -140,23 +136,13 @@ public:
   virtual std::ostream& Print(std::ostream& os=std::cout) const;
   virtual const Analysis::SimSettingList GetSpecification() const;
 
-  double min_pT() const { return _min_pT; }
-  double max_pT() const { return _max_pT; }
-  double min_eta() const { return _min_eta; }
-  double max_eta() const { return _max_eta; }
-  double min_phi() const { return _min_phi; }
-  double max_phi() const { return _max_phi; }
+  const Particle& min() const { return _min; }
+  const Particle& max() const { return _max; }
 
 protected:
   virtual void GenerateCommands();
 
-  double _min_pT;
-  double _max_pT;
-  double _min_eta;
-  double _max_eta;
-  double _min_phi;
-  double _max_phi;
-
+  Particle _min, _max;
   bool _using_range_ke;
   Command::DoubleUnitArg* _ui_pT_min;
   Command::DoubleUnitArg* _ui_pT_max;

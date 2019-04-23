@@ -9,17 +9,15 @@
 /gen/select range
 
 /gen/range/id 13
-/gen/range/vertex 0 0 81.28 m
+/gen/range/vertex 0 0 81
+/gen/range/p_unit 0 0 -1
 
-#/gen/range/p_unit 0 0 1
-#/gen/range/p_mag {pmag} GeV/c
-/gen/range/pT_min {pmag} GeV/c
-/gen/range/pT_max {pmag} GeV/c
+/gen/range/phi_min -0.065 rad
+/gen/range/phi_max  0.065 rad
+/gen/range/eta_min -0.4
+/gen/range/eta_max  0.9
 
-/gen/range/eta_min -0.04882
-/gen/range/eta_max -0.0121
-/gen/range/phi_min 1.553 rad
-/gen/range/phi_max 1.589 rad
+/gen/range/p_mag {pmag} GeV/c
 
 /run/beamOn {count}
 
