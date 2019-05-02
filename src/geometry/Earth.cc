@@ -26,13 +26,14 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Earth Layer Size Constants__________________________________________________________________
-static auto _lastshift         =     0.0L*cm;
-static auto _layer_width_x     = 82500.0L*cm;
-static auto _layer_width_y     = 82500.0L*cm;
-static auto _sandstone_depth   =  4530.0L*cm;
-static auto _marl_depth        =  1825.0L*cm;
-static auto _mix_depth         =  3645.0L*cm;
-static auto _buffer_zone_depth =   160.2L*cm;
+static auto _lastshift               =     0.0L*cm;
+static auto _layer_width_x           = 82500.0L*cm;
+static auto _layer_width_y           = 82500.0L*cm;
+static auto _buffer_zone_depth       =   160.2L*cm;
+static auto _nominal_sandstone_depth =  4530.0L*cm;
+static auto _sandstone_depth         =  _nominal_sandstone_depth - _buffer_zone_depth;
+static auto _marl_depth              =  1825.0L*cm;
+static auto _mix_depth               =  3645.0L*cm;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -108,7 +109,7 @@ long double BufferZoneDepth(long double value) {
   return BufferZoneDepth();
 }
 long double SandstoneDepth() {
-  return _sandstone_depth + TotalShift();
+  return _sandstone_depth;
 }
 long double SandstoneDepth(long double value) {
   _sandstone_depth = value;
@@ -157,7 +158,7 @@ G4LogicalVolume* MixVolume() {
 
 //__Earth Transformations_______________________________________________________________________
 const G4Translate3D Transform() {
-  return G4Translate3D(0, 0, 0.5L * TotalDepth());
+  return G4Translate3D(0, 0, TotalShift() + 0.5L * TotalDepth());
 }
 const G4Translate3D SandstoneTransform() {
   return G4Translate3D(0, 0, 0.5L * (SandstoneDepth() - TotalDepth()));

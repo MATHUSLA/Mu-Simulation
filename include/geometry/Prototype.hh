@@ -145,7 +145,7 @@ public:
   const static Info InfoArray[Count];
 
   constexpr static auto Height      = 2802*mm;
-  constexpr static auto Width       = 1250*mm;
+  constexpr static auto Width       = 1257*mm;
   constexpr static auto Depth       =   44*mm;
 
   constexpr static auto PadHeight    = 556.8*mm;

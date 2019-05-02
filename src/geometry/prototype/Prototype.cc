@@ -28,6 +28,7 @@
 #include "geometry/Cavern.hh"
 #include "physics/Units.hh"
 #include "tracking.hh"
+#include "geometry/Earth.hh"
 
 namespace MATHUSLA { namespace MU {
 
@@ -241,7 +242,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(250*cm, 7*cm, -0.5 * total_outer_box_height));
+    G4Translate3D(-250*cm, 7*cm, Earth::TotalShift() - 0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

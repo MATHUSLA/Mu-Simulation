@@ -20,27 +20,35 @@
 
 #include <Geant4/G4ParticleDefinition.hh>
 #include <Geant4/G4ParticleTable.hh>
+#include <Geant4/G4SystemOfUnits.hh>
 
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
+
+namespace {
+  constexpr auto lhc_p1_forward_tilt = 0.704 * deg;
+}
 
 //__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
 const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
   const auto magnitude = momentum.mag();
   if (magnitude == 0)
     return {};
-  const auto eta = std::atanh(momentum.x() / magnitude);
-  return {magnitude / std::cosh(eta), eta, std::atan2(momentum.y(), -momentum.z())};
+  const auto eta = std::atanh((momentum.x() * std::cos(lhc_p1_forward_tilt) + momentum.z() * std::sin(lhc_p1_forward_tilt)) / magnitude);
+  return {magnitude / std::cosh(eta), eta, std::atan2(-momentum.z() * std::cos(lhc_p1_forward_tilt) + momentum.x() * std::sin(lhc_p1_forward_tilt), -momentum.y())};
 }
 //----------------------------------------------------------------------------------------------
 
 //__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
 const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
+  const auto ip_px = triplet.pT * std::cos(triplet.phi);
+  const auto ip_py = triplet.pT * std::sin(triplet.phi);
+  const auto ip_pz = triplet.pT * std::sinh(triplet.eta);
   return G4ThreeVector(
-     triplet.pT * std::sinh(triplet.eta),
-     triplet.pT * std::sin(triplet.phi),
-    -triplet.pT * std::cos(triplet.phi));
+     ip_pz * std::cos(lhc_p1_forward_tilt) + ip_py * std::sin(lhc_p1_forward_tilt),
+     -ip_px,
+     -ip_py * std::cos(lhc_p1_forward_tilt) + ip_pz * std::sin(lhc_p1_forward_tilt));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -86,7 +94,8 @@ double BasicParticle::pT() const {
   const auto magnitude = G4ThreeVector(px, py, pz).mag();
   if (magnitude == 0)
     return 0;
-  return magnitude / std::cosh(std::atanh(px / magnitude));
+  const auto eta = std::atanh((px * std::cos(lhc_p1_forward_tilt) + pz * std::sin(lhc_p1_forward_tilt)) / magnitude);
+  return magnitude / std::cosh(eta);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -95,13 +104,13 @@ double BasicParticle::eta() const {
   const auto magnitude = G4ThreeVector(px, py, pz).mag();
   if (magnitude == 0)
     return 0;
-  return std::atanh(px / magnitude);
+  return std::atanh((px * std::cos(lhc_p1_forward_tilt) + pz * std::sin(lhc_p1_forward_tilt)) / magnitude);
 }
 //----------------------------------------------------------------------------------------------
 
 //__Get Basic Particle PHI______________________________________________________________________
 double BasicParticle::phi() const {
-  return std::atan2(py, -pz);
+  return std::atan2(-pz * std::cos(lhc_p1_forward_tilt) + px * std::sin(lhc_p1_forward_tilt), -py);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -165,42 +174,18 @@ void BasicParticle::set_pT(double new_pT) {
 }
 //----------------------------------------------------------------------------------------------
 
-namespace { ////////////////////////////////////////////////////////////////////////////////////
-
-//__Convert Eta to Theta________________________________________________________________________
-long double _eta_to_theta(const long double eta) {
-  const auto subangle = 2.0L * std::atan(std::exp(-std::abs(eta)));
-  return (eta < 0) ? 3.1415926535897932384626L - subangle : subangle;
-}
-//----------------------------------------------------------------------------------------------
-
-//__2D-Rotation_________________________________________________________________________________
-const std::pair<long double, long double> _rotate(const long double x,
-                                                  const long double y,
-                                                  const long double theta) {
-  const long double cosine{std::cos(theta)};
-  const long double sine{std::sin(theta)};
-  return {x * cosine - y * sine, x * sine + y * cosine};
-}
-//----------------------------------------------------------------------------------------------
-
-} /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
-
 //__Set Basic Particle ETA______________________________________________________________________
 void BasicParticle::set_eta(double new_eta) {
-  const auto rotation = _rotate(px, -pz, _eta_to_theta(new_eta) - _eta_to_theta(eta()));
-  px = rotation.first;
-  pz = -rotation.second;
+  set_pseudo_lorentz_triplet(PseudoLorentzTriplet{pT(), new_eta, phi()});
 }
 //----------------------------------------------------------------------------------------------
 
 //__Set Basic Particle PHI______________________________________________________________________
 void BasicParticle::set_phi(double new_phi) {
-  const auto rotation = _rotate(-pz, py, new_phi - phi());
-  pz = -rotation.first;
-  py = rotation.second;
+  set_pseudo_lorentz_triplet(PseudoLorentzTriplet{pT(), eta(), new_phi});
 }
 //----------------------------------------------------------------------------------------------
+
 
 //__Set Basic Particle PseudoLorentzTriplet_____________________________________________________
 void BasicParticle::set_pseudo_lorentz_triplet(double new_pT,
@@ -275,9 +260,7 @@ void Particle::set_vertex(double new_t,
                           double new_y,
                           double new_z) {
   t = new_t;
-  x = new_x;
-  y = new_y;
-  z = new_z;
+  set_vertex(new_x, new_y, new_z);
 }
 //----------------------------------------------------------------------------------------------
 
