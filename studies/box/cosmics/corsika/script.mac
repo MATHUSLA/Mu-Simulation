@@ -1,7 +1,13 @@
 /det/select Box
 
+/vis/filtering/trajectories/create/chargeFilter
+/vis/filtering/trajectories/chargeFilter-0/add 0
+/vis/filtering/trajectories/chargeFilter-0/invert true
+/vis/filtering/trajectories/chargeFilter-0/verbose false
+/vis/filtering/trajectories/chargeFilter-0/active true
+
 /gen/select corsika_reader
-/gen/corsika_reader/vertex 150 0 -40 m
+/gen/corsika_reader/vertex 150 0 -30 m
 /gen/corsika_reader/event_id {event}
 /gen/corsika_reader/max_radius {radius}
 /gen/corsika_reader/read_file {file}
