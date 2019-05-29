@@ -24,6 +24,7 @@
 
 #include "action.hh"
 #include "geometry/Construction.hh"
+#include "geometry/Earth.hh"
 #include "physics/Units.hh"
 #include "ui.hh"
 
@@ -40,6 +41,7 @@ int main(int argc, char* argv[]) {
   option help_opt    ('h', "help",     "MATHUSLA Muon Simulation",  option::no_arguments);
   option gen_opt     ('g', "gen",      "Generator",                 option::required_arguments);
   option det_opt     ('d', "det",      "Detector",                  option::required_arguments);
+  option shift_opt   (0,   "shift",    "Shift Last Earth Layer",    option::required_arguments);
   option data_opt    ('o' ,"out",      "Data Output Directory",     option::required_arguments);
   option export_opt  ('E', "export",   "Export Output Directory",   option::required_arguments);
   option script_opt  ('s', "script",   "Custom Script",             option::required_arguments);
@@ -54,7 +56,7 @@ int main(int argc, char* argv[]) {
   //TODO: pass quiet argument to builder and action initiaization to improve quietness
 
   const auto script_argc = -1 + util::cli::parse(argv,
-    {&help_opt, &gen_opt, &det_opt, &data_opt, &export_opt, &script_opt, &events_opt,
+    {&help_opt, &gen_opt, &det_opt, &shift_opt, &data_opt, &export_opt, &script_opt, &events_opt,
      &save_all_opt, &vis_opt, &quiet_opt, &thread_opt});
 
   util::error::exit_when(script_argc && !script_opt.argument,
@@ -104,6 +106,9 @@ int main(int argc, char* argv[]) {
   run->SetRandomNumberStore(false);
 
   Units::Define();
+
+  if (shift_opt.argument)
+    Earth::LastShift(std::stold(shift_opt.argument) * m);
 
   auto physics = new FTFP_BERT;
   physics->RegisterPhysics(new G4StepLimiterPhysics);

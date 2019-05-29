@@ -40,7 +40,9 @@ void EventAction::BeginOfEventAction(const G4Event* event) {
   _event_id = event->GetEventID();
   std::cout << "\r  Event [ "
              + std::to_string(_event_id)
-             + " ]"
+             + " ] @ ("
+             + std::to_string(event->GetNumberOfPrimaryVertex())
+             + " primaries)"
              + (!(_event_id % _print_modulo) ? "\n\n" : "");
 }
 //----------------------------------------------------------------------------------------------

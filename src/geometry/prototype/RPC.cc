@@ -23,49 +23,60 @@ namespace MATHUSLA { namespace MU {
 
 namespace Prototype { //////////////////////////////////////////////////////////////////////////
 
+//__RPC Info____________________________________________________________________________________
+const RPC::Info RPC::InfoArray[RPC::Count] = {
+  { 616.85*mm,   87.79*mm, -2486.38*mm,  0.14719*rad},
+  {-618.50*mm, -108.63*mm, -2383.38*mm,  0.14753*rad},
+  { -85.73*mm,  616.81*mm, -2049.38*mm, -1.42123*rad},
+  {  98.09*mm, -615.71*mm, -2148.38*mm, -1.42069*rad},
+  { 616.12*mm,  -94.51*mm,  -651.13*mm,  2.98398*rad},
+  {-614.31*mm,  107.15*mm,  -751.13*mm,  2.98463*rad},
+  {  94.86*mm,  620.81*mm,  -408.13*mm,  1.41717*rad},
+  { -93.55*mm, -614.15*mm,  -311.13*mm,  1.41976*rad},
+  { 615.11*mm, -118.18*mm,   983.12*mm,  2.94831*rad},
+  {-610.33*mm,  122.71*mm,  1081.12*mm,  2.95236*rad},
+  { 120.28*mm,  616.35*mm,  1423.12*mm,  1.37958*rad},
+  {-147.19*mm, -601.52*mm,  1323.12*mm,  1.38013*rad}
+};
+//----------------------------------------------------------------------------------------------
+
 //__RPC Pad Constructor_________________________________________________________________________
-RPC::Pad::Pad(int id) : id(id) {}
+RPC::Pad::Pad(int input_id) : id(input_id) {}
 //----------------------------------------------------------------------------------------------
 
 //__RPC Constructor_____________________________________________________________________________
-RPC::RPC(int id) : _pads(), _id(id), _name("RPC" + std::to_string(id)) {
-  _volume = Construction::OpenBoxVolume(
-    _name,
-    Width, Height, Depth, Thickness,
-    Material::Casing);
+RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 + input_id)) {
+  _volume = Construction::BoxVolume(_name, Width, Height, Depth, Material::Casing);
 
-  const auto id_name = std::to_string(id);
+  const auto id_name = (_id < 9 ? "0" : "") + std::to_string(1 + _id);
 
-  for (int pad_index = 0; pad_index < 10; ++pad_index) {
-    auto pad = new Pad(1 + pad_index);
+  for (std::size_t pad_index{}; pad_index < PadsPerRPC; ++pad_index) {
+    auto pad = new Pad(pad_index);
 
-    pad->lvolume = Construction::OpenBoxVolume(
+    pad->lvolume = Construction::BoxVolume(
       "PAD" + std::to_string(1 + pad_index),
-      PadWidth, PadHeight, PadDepth, PadThickness,
+      PadWidth, PadHeight, PadDepth,
       Material::Pad, Construction::CasingAttributes());
 
-    const auto pad_name = id_name
-                        + (pad_index < 9 ? std::string("0") : "")
-                        + std::to_string(1 + pad_index);
+    const auto pad_name = id_name + (pad_index < 9 ? "0" : "") + std::to_string(1 + pad_index);
 
-    auto strip_stack = 0.5 * StripHeight;
-    for (int strip_index = 1; strip_index <= 8; ++strip_index) {
+    for (std::size_t strip_index{}; strip_index < StripsPerPad; ++strip_index) {
       auto strip = Construction::BoxVolume(
-        pad_name + std::to_string(strip_index),
+        pad_name + std::to_string(1 + strip_index),
         StripWidth, StripHeight, StripDepth,
         Material::Gas,
         Construction::SensitiveAttributes());
       pad->lvolume_strips.push_back(strip);
       pad->pvolume_strips.push_back(Construction::PlaceVolume(strip, pad->lvolume,
-        G4Translate3D(0, 0.5 * PadHeight - StripTopGap - strip_stack, 0)));
-      strip_stack += StripHeight + StripYGap;
+        G4Translate3D(0.0, (strip_index - (StripsPerPad - 1) / 2.0) * StripSpacingY, 0.0)));
     }
 
     pad->pvolume = Construction::PlaceVolume(pad->lvolume, _volume,
-      G4Translate3D(
-        0.5 * Width  - PadStartX - PadSpacingX * (pad_index % 2),
-        0.5 * Height - PadStartY - PadSpacingY * (pad_index / 2 % 5),
-        0));
+      Construction::Transform(
+        (pad_index % PadsPerRow - (PadsPerRow - 1) / 2.0) * PadSpacingX,
+        (pad_index / PadsPerRow - (PadsPerColumn - 1) / 2.0) * PadSpacingY,
+        0.0,
+        0.0, 0.0, 1.0, pad_index % 2 ? 3.14159265358979323846264 : 0.0));
 
     _pads.push_back(pad);
   }
@@ -99,10 +110,10 @@ void RPC::Material::Define() {
   SF6->AddElement(Construction::Material::F, 6);
   */
 
-  auto argon = new G4Material("argon", 1.635*g/L, 1);
+  auto argon = new G4Material("Argon", 1.635*g/L, 1);
   argon->AddElement(Construction::Material::Ar, 1);
 
-  Material::Gas = new G4Material("gas", 3.773*g/L, 2, G4State::kStateGas);
+  Material::Gas = new G4Material("Gas", 3.773*g/L, 2, G4State::kStateGas);
   Material::Gas->AddMaterial(C2H2F4, 0.93);
   Material::Gas->AddMaterial(argon,  0.07);
 }

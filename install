@@ -57,7 +57,9 @@ make install -j8
 
 if [[ ! "$?" -eq 0 ]]; then
     echo -e "\nBuild Failed!\n"
+    exit 1
 else
     mv simulation ../simulation
     if [[ "$RUN_BUILD" -eq 1 ]]; then cd ..; ./simulation $OTHER_ARGS; fi;
+    exit $?
 fi

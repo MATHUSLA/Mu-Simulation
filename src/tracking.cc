@@ -169,7 +169,7 @@ namespace { ////////////////////////////////////////////////////////////////////
 template<class NameMap>
 const Analysis::ROOT::DataEntryList _convert_to_analysis(const HitCollection* collection,
                                                          NameMap name_map) {
-  constexpr const std::size_t column_count = 13UL;
+  constexpr const std::size_t column_count = 14UL;
 
   Analysis::ROOT::DataEntryList out;
   out.reserve(column_count);
@@ -183,12 +183,12 @@ const Analysis::ROOT::DataEntryList _convert_to_analysis(const HitCollection* co
 
   for (std::size_t i = 0; i < size; ++i) {
     const auto hit = dynamic_cast<Hit*>(collection->GetHit(i));
-    out[0].push_back(hit->GetPDGEncoding());
-    out[1].push_back(hit->GetTrackID());
-    out[2].push_back(hit->GetParentID());
-    out[3].push_back(name_map(hit->GetChamberID()));
-    out[4].push_back(hit->GetDeposit());
-    out[5].push_back(hit->GetPosition().t());
+    out[0].push_back(hit->GetDeposit());
+    out[1].push_back(hit->GetPosition().t());
+    out[2].push_back(name_map(hit->GetChamberID()));
+    out[3].push_back(hit->GetPDGEncoding());
+    out[4].push_back(hit->GetTrackID());
+    out[5].push_back(hit->GetParentID());
     out[6].push_back(hit->GetPosition().x());
     out[7].push_back(hit->GetPosition().y());
     out[8].push_back(hit->GetPosition().z());
@@ -196,6 +196,7 @@ const Analysis::ROOT::DataEntryList _convert_to_analysis(const HitCollection* co
     out[10].push_back(hit->GetMomentum().px());
     out[11].push_back(hit->GetMomentum().py());
     out[12].push_back(hit->GetMomentum().pz());
+    out[13].push_back(1);
   }
 
   return out;
@@ -223,7 +224,7 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const HitCollection* colle
 
 //__Convert G4Event to Analysis Form____________________________________________________________
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event) {
-  constexpr const std::size_t column_count = 11UL;
+  constexpr const std::size_t column_count = 12UL;
 
   Analysis::ROOT::DataEntryList out;
   out.reserve(column_count);
@@ -259,6 +260,7 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event) {
       out[8].push_back(momentum.x() / Units::Momentum);
       out[9].push_back(momentum.y() / Units::Momentum);
       out[10].push_back(momentum.z() / Units::Momentum);
+      out[11].push_back(1);
 
     }
   }
@@ -269,7 +271,7 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const G4Event* event) {
 
 //__Convert ParticleVector to Analysis Form_____________________________________________________
 const Analysis::ROOT::DataEntryList ConvertToAnalysis(const Physics::ParticleVector& particles) {
-  constexpr const std::size_t column_count = 11UL;
+  constexpr const std::size_t column_count = 12UL;
 
   Analysis::ROOT::DataEntryList out;
   out.reserve(column_count);
@@ -295,6 +297,29 @@ const Analysis::ROOT::DataEntryList ConvertToAnalysis(const Physics::ParticleVec
     out[8].push_back(particle.px / Units::Momentum);
     out[9].push_back(particle.py / Units::Momentum);
     out[10].push_back(particle.pz / Units::Momentum);
+    out[11].push_back(1);
+  }
+
+  return out;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Convert Extra to Analysis Form______________________________________________________________
+const Analysis::ROOT::DataEntryList ConvertToAnalysis(const std::vector<std::vector<double>>& extra) {
+  constexpr const std::size_t column_count = 16UL;
+  Analysis::ROOT::DataEntryList out;
+  out.reserve(column_count);
+
+  for (std::size_t i{}; i < column_count; ++i) {
+    Analysis::ROOT::DataEntry entry;
+    entry.reserve(extra[i].size());
+    out.push_back(entry);
+  }
+
+  for (std::size_t i{}; i < column_count; ++i) {
+    const auto extra_i = extra[i];
+    for (std::size_t index{}; index < extra_i.size(); ++index)
+      out[i].push_back(extra_i[index]);
   }
 
   return out;
