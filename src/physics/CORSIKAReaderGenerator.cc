@@ -317,13 +317,11 @@ void _collect_source(const std::string& path,
       const auto signed_event_size = subtree.id->GetLen();
       const auto event_size = signed_event_size > 0 ? static_cast<std::size_t>(signed_event_size) : 0UL;
 
-      std::cout << "Particles: \n";
       event.reserve(event_size);
       for (std::size_t i{}; i < event_size; ++i) {
         const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(i));
-        if ((std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10) || particle_id_pair.first == 22)
+        if ((std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10))
           continue;
-        std::cout << particle_id_pair.first << " " << particle_id_pair.second << "\n";
         _load_particle(i, subtree, particle_id_pair.first, origin, event);
       }
 
