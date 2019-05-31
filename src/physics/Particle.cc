@@ -22,33 +22,32 @@
 #include <Geant4/G4ParticleTable.hh>
 #include <Geant4/G4SystemOfUnits.hh>
 
+#include "geometry/Cavern.hh"
+
 namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
-
-namespace {
-  constexpr auto lhc_p1_forward_tilt = 0.704 * deg;
-}
 
 //__Convert Momentum to Pseudo-Lorentz Triplet__________________________________________________
 const PseudoLorentzTriplet Convert(const G4ThreeVector& momentum) {
   const auto magnitude = momentum.mag();
   if (magnitude == 0)
     return {};
-  const auto eta = std::atanh((momentum.x() * std::cos(lhc_p1_forward_tilt) + momentum.z() * std::sin(lhc_p1_forward_tilt)) / magnitude);
-  return {magnitude / std::cosh(eta), eta, std::atan2(-momentum.z() * std::cos(lhc_p1_forward_tilt) + momentum.x() * std::sin(lhc_p1_forward_tilt), -momentum.y())};
+  const auto pxpz = Cavern::rotate_from_P1(momentum.x(), momentum.z());
+  const auto eta = std::atanh(pxpz.first / magnitude);
+  return {static_cast<double>(magnitude / std::cosh(eta)),
+          static_cast<double>(eta),
+          static_cast<double>(std::atan2(momentum.y(), -pxpz.second))};
 }
 //----------------------------------------------------------------------------------------------
 
 //__Convert Pseudo-Lorentz Triplet to Momentum__________________________________________________
 const G4ThreeVector Convert(const PseudoLorentzTriplet& triplet) {
-  const auto ip_px = triplet.pT * std::cos(triplet.phi);
-  const auto ip_py = triplet.pT * std::sin(triplet.phi);
-  const auto ip_pz = triplet.pT * std::sinh(triplet.eta);
-  return G4ThreeVector(
-     ip_pz * std::cos(lhc_p1_forward_tilt) + ip_py * std::sin(lhc_p1_forward_tilt),
-     -ip_px,
-     -ip_py * std::cos(lhc_p1_forward_tilt) + ip_pz * std::sin(lhc_p1_forward_tilt));
+  const auto pxpz = Cavern::rotate_to_P1(triplet.pT * std::sinh(triplet.eta),
+                                        -triplet.pT * std::cos(triplet.phi));
+  return G4ThreeVector(static_cast<double>(pxpz.first),
+                       triplet.pT * std::sin(triplet.phi),
+                       static_cast<double>(pxpz.second));
 }
 //----------------------------------------------------------------------------------------------
 
@@ -91,26 +90,26 @@ const std::string GetParticleName(int id) {
 
 //__Get Basic Particle PT_______________________________________________________________________
 double BasicParticle::pT() const {
-  const auto magnitude = G4ThreeVector(px, py, pz).mag();
+  const auto magnitude = p_mag();
   if (magnitude == 0)
     return 0;
-  const auto eta = std::atanh((px * std::cos(lhc_p1_forward_tilt) + pz * std::sin(lhc_p1_forward_tilt)) / magnitude);
-  return magnitude / std::cosh(eta);
+  const auto eta = std::atanh(Cavern::rotate_from_P1_x(px, pz) / magnitude);
+  return static_cast<double>(magnitude / std::cosh(eta));
 }
 //----------------------------------------------------------------------------------------------
 
 //__Get Basic Particle ETA______________________________________________________________________
 double BasicParticle::eta() const {
-  const auto magnitude = G4ThreeVector(px, py, pz).mag();
+  const auto magnitude = p_mag();
   if (magnitude == 0)
     return 0;
-  return std::atanh((px * std::cos(lhc_p1_forward_tilt) + pz * std::sin(lhc_p1_forward_tilt)) / magnitude);
+  return static_cast<double>(std::atanh(Cavern::rotate_from_P1_x(px, pz) / magnitude));
 }
 //----------------------------------------------------------------------------------------------
 
 //__Get Basic Particle PHI______________________________________________________________________
 double BasicParticle::phi() const {
-  return std::atan2(-pz * std::cos(lhc_p1_forward_tilt) + px * std::sin(lhc_p1_forward_tilt), -py);
+  return static_cast<double>(std::atan2(py, -Cavern::rotate_from_P1_z(px, pz)));
 }
 //----------------------------------------------------------------------------------------------
 

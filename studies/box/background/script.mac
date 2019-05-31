@@ -9,7 +9,7 @@
 
 /gen/range/id 13
 /gen/range/t0 0 ns
-/gen/range/vertex 150 0 26 m
+/gen/range/vertex 150 0 25 m
 /gen/range/p_unit 0 0 -1
 
 /gen/range/ke {energy} GeV

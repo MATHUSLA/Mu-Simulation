@@ -102,12 +102,13 @@ void RangeGenerator::GenerateCommands() {
 
 //__Generate Initial Particles__________________________________________________________________
 void RangeGenerator::GeneratePrimaryVertex(G4Event* event) {
-  _particle.set_eta(G4RandFlat::shoot(_min.eta(), _max.eta()));
-  _particle.set_phi(G4RandFlat::shoot(_min.phi(), _max.phi()));
+  const auto eta = G4RandFlat::shoot(_min.eta(), _max.eta());
+  const auto phi = G4RandFlat::shoot(_min.phi(), _max.phi());
   if (_using_range_ke) {
+    _particle.set_pseudo_lorentz_triplet(1, eta, phi);
     _particle.set_ke(G4RandFlat::shoot(_min.ke(), _max.ke()));
   } else {
-    _particle.set_pT(G4RandFlat::shoot(_min.pT(), _max.pT()));
+    _particle.set_pseudo_lorentz_triplet(G4RandFlat::shoot(_min.pT(), _max.pT()), eta, phi);
   }
   AddParticle(_particle, *event);
 }

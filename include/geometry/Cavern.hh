@@ -35,16 +35,29 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Dimensions___________________________________________________________________________
-constexpr auto SteelThickness =  1.85L*m;
-constexpr auto DetectorLength = 40.00L*m;
-constexpr auto DetectorRadius = 11.00L*m;
-constexpr auto DetectorHeight = 11.30L*m;
-constexpr auto TotalHeight    = 34.90L*m;
+constexpr auto SteelThickness   =  1.85L*m;
+constexpr auto DetectorLength   = 40.00L*m;
+constexpr auto DetectorRadius   = 11.00L*m;
+constexpr auto DetectorHeight   = 11.30L*m;
+constexpr auto TotalHeight      = 34.90L*m;
+constexpr auto DefaultBaseDepth = 92.58L*m;
 long double BaseDepth();
 long double BaseDepth(long double value);
 long double TopDepth();
 long double CenterDepth();
 long double IP();
+//----------------------------------------------------------------------------------------------
+
+//__Cavern Rotation_____________________________________________________________________________
+constexpr auto P1ForwardTilt = 0.704L*deg;
+long double cosP1Tilt();
+long double sinP1Tilt();
+long double rotate_from_P1_x(long double x, long double z);
+long double rotate_from_P1_z(long double x, long double z);
+std::pair<long double, long double> rotate_from_P1(long double x, long double z);
+long double rotate_to_P1_x(long double x, long double z);
+long double rotate_to_P1_z(long double x, long double z);
+std::pair<long double, long double> rotate_to_P1(long double x, long double z);
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Logical Volumes______________________________________________________________________
