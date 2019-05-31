@@ -132,11 +132,12 @@ Pythia8::Pythia* _create_pythia(std::vector<std::string>* settings,
 
 //__Convert Pythia Particle to Particle_________________________________________________________
 Particle _convert_particle(Pythia8::Particle& particle) {
+  const auto xz = Cavern::rotate_from_P1(particle.zProd() * mm, -particle.xProd() * mm);
   Particle out{particle.id(),
                particle.tProd() * mm / c_light,
-               particle.zProd() * mm * std::cos(lhc_p1_forward_tilt) + particle.yProd() * mm * std::sin(lhc_p1_forward_tilt),
-               -particle.xProd() * mm,
-               static_cast<double>(-particle.yProd() * mm * std::cos(lhc_p1_forward_tilt) + Earth::TotalShift() + Cavern::IP() + particle.zProd() * mm * std::sin(lhc_p1_forward_tilt))};
+               static_cast<double>(xz.first),
+               particle.yProd() * mm,
+               static_cast<double>(xz.second + Earth::TotalShift() + Cavern::IP())};
   out.set_pseudo_lorentz_triplet(particle.pT() * GeVperC, particle.eta(), particle.phi() * rad);
   return out;
 }

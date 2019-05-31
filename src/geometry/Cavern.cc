@@ -26,7 +26,7 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Cavern Dimensions___________________________________________________________________________
-static auto _base_depth = 92.58*m;
+static auto _base_depth = Cavern::DefaultBaseDepth;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -59,6 +59,37 @@ long double CenterDepth() {
 }
 long double IP() {
   return BaseDepth() - DetectorHeight;
+}
+//----------------------------------------------------------------------------------------------
+
+//__Cavern Rotations____________________________________________________________________________
+long double cosP1Tilt() {
+  return std::cos(P1ForwardTilt / rad);
+}
+long double sinP1Tilt() {
+  return std::sin(P1ForwardTilt / rad);
+}
+long double rotate_from_P1_x(long double x, long double z) {
+  return x * cosP1Tilt() + z * sinP1Tilt();
+}
+long double rotate_from_P1_z(long double x, long double z) {
+  return z * cosP1Tilt() - x * sinP1Tilt();
+}
+std::pair<long double, long double> rotate_from_P1(long double x, long double z) {
+  const auto cosine = cosP1Tilt();
+  const auto sine = sinP1Tilt();
+  return std::make_pair(x * cosine + z * sine, z * cosine - x * sine);
+}
+long double rotate_to_P1_x(long double x, long double z) {
+  return x * cosP1Tilt() - z * sinP1Tilt();
+}
+long double rotate_to_P1_z(long double x, long double z) {
+  return z * cosP1Tilt() + x * sinP1Tilt();
+}
+std::pair<long double, long double> rotate_to_P1(long double x, long double z) {
+  const auto cosine = cosP1Tilt();
+  const auto sine = sinP1Tilt();
+  return std::make_pair(x * cosine - z * sine, z * cosine + x * sine);
 }
 //----------------------------------------------------------------------------------------------
 
