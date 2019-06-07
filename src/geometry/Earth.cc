@@ -29,7 +29,7 @@ namespace { ////////////////////////////////////////////////////////////////////
 static auto _lastshift               =     0.0L*cm;
 static auto _layer_width_x           = 82500.0L*cm;
 static auto _layer_width_y           = 82500.0L*cm;
-static auto _buffer_zone_depth       =   160.2L*cm;
+static auto _buffer_zone_depth       =   160.0L*cm;
 static auto _nominal_sandstone_depth =  4530.0L*cm;
 static auto _sandstone_depth         =  _nominal_sandstone_depth - _buffer_zone_depth;
 static auto _marl_depth              =  1825.0L*cm;

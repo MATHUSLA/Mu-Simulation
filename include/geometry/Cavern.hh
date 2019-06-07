@@ -38,8 +38,11 @@ struct Material {
 constexpr auto SteelThickness =  1.85L*m;
 constexpr auto DetectorLength = 40.00L*m;
 constexpr auto DetectorRadius = 11.00L*m;
-constexpr auto DetectorHeight = 11.30L*m;
-constexpr auto TotalHeight    = 34.90L*m;
+constexpr auto DetectorHeight = 11.37L*m;
+constexpr auto CavernLength   = 53.00L*m;
+constexpr auto CavernWidth    = 30.00L*m;
+constexpr auto VaultRadius    = 20.00L*m;
+constexpr auto CavernHeight   = 34.89L*m;
 long double BaseDepth();
 long double BaseDepth(long double value);
 long double TopDepth();

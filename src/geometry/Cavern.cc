@@ -17,6 +17,8 @@
 
 #include "geometry/Cavern.hh"
 
+#include <Geant4/G4IntersectionSolid.hh>
+#include <Geant4/G4UnionSolid.hh>
 #include <Geant4/G4SubtractionSolid.hh>
 
 #include "geometry/Construction.hh"
@@ -26,7 +28,7 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Cavern Dimensions___________________________________________________________________________
-static auto _base_depth = 92.58*m;
+static auto _base_depth = 92.581*m;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -52,10 +54,10 @@ long double BaseDepth(long double value) {
   return BaseDepth();
 }
 long double TopDepth() {
-  return BaseDepth() - TotalHeight;
+  return BaseDepth() - CavernHeight;
 }
 long double CenterDepth() {
-  return BaseDepth() - 0.5 * TotalHeight;
+  return BaseDepth() - 0.5 * CavernHeight;
 }
 long double IP() {
   return BaseDepth() - DetectorHeight;
@@ -64,7 +66,28 @@ long double IP() {
 
 //__Cavern Logical Volumes______________________________________________________________________
 G4LogicalVolume* Volume() {
-  return Construction::BoxVolume("Cavern", TotalHeight, 2.0L * DetectorRadius, DetectorLength);
+  //auto box = Construction::BoxVolume("CavernBox", CavernLength, CavernWidth, CavernHeight - VaultRadius);
+  auto box = Construction::Box("CavernBox", CavernLength, CavernWidth, CavernHeight - VaultRadius);
+  //auto intersection_box = Construction::BoxVolume("VaultIntersectionBox", CavernHeight, CavernWidth, CavernLength);
+  auto intersection_box = Construction::Box("VaultIntersectionBox", CavernLength, CavernWidth, CavernHeight);
+  //auto intersection_cylinder = Construction::Volume(Construction::Cylinder("VaultIntersectionCylinder", CavernLength, 0.0, VaultRadius));
+  auto intersection_cylinder = Construction::Cylinder("VaultIntersectionCylinder", CavernLength, 0.0, VaultRadius);
+//  auto vault = Construction::Volume(new G4IntersectionSolid("CavernVault",
+  auto vault = new G4IntersectionSolid("CavernVault",
+    intersection_box,
+    intersection_cylinder,
+    G4Translate3D(0, 0, VaultRadius - CavernHeight / 2.0)
+      * Construction::Rotate(0.0, 1.0, 0.0, 90.0 * deg));
+      //* Construction::Rotate(0.0, 1.0, 0.0, 90.0 * deg));
+//  auto vault = Construction::Volume(new G4IntersectionSolid("CavernVault",
+//    intersection_box->GetSolid(),
+//    intersection_cylinder->GetSolid(),
+//    G4Translate3D(0, 0, CavernHeight - VaultRadius)
+//      * Construction::Rotate(0.0, 1.0, 0.0, 90.0 * deg)));
+  return Construction::Volume(new G4UnionSolid("Cavern",
+    vault,
+    box,
+    G4Translate3D(0, 0, CavernHeight / 2.0 - (CavernHeight - VaultRadius) / 2.0)));
 }
 G4LogicalVolume* RingVolume() {
   return Construction::Volume(Construction::Cylinder("DetectorRing",
@@ -92,8 +115,7 @@ G4LogicalVolume* _calculate_modification(const std::string& name,
   return Construction::Volume(new G4SubtractionSolid(name,
     earth_component->GetSolid(),
     Volume()->GetSolid(),
-    Construction::Transform(0, 0, -0.5 * (base_depth - top_depth) + CenterDepth() - top_depth)
-      * Construction::Rotate(0, 1, 0, 90*deg)),
+    Construction::Transform(0, 1.7 * m, -0.5 * (base_depth - top_depth) + CenterDepth() - top_depth)),
     earth_component->GetMaterial());
 }
 //----------------------------------------------------------------------------------------------

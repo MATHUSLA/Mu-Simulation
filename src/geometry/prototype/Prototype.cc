@@ -214,7 +214,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   _scintillators.clear();
   _rpcs.clear();
 
-  constexpr double total_outer_box_height = 6796*mm;
+  constexpr double total_outer_box_height = 6796.2*mm;
   auto DetectorVolume = Construction::BoxVolume(
     "Prototype", 3500*mm, 3500*mm, total_outer_box_height);
 
@@ -242,7 +242,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-250*cm, 7*cm, Earth::TotalShift() - 0.5 * total_outer_box_height));
+    G4Translate3D(-2.386*m, 0.0*m, Earth::TotalShift() - 0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

@@ -30,7 +30,7 @@ namespace MATHUSLA { namespace MU {
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
 namespace {
-  constexpr auto lhc_p1_forward_tilt = 0.704 * deg;
+  constexpr auto lhc_p1_forward_tilt = std::atan(0.01236) * rad;
 }
 
 //__G4ThreadLocal Static Variables______________________________________________________________
