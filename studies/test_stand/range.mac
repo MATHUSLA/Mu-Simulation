@@ -9,21 +9,13 @@
 /gen/select range
 
 /gen/range/id 13
-/gen/range/vertex 0 0 81
 /gen/range/p_unit 0 0 -1
 
-/gen/range/phi_min -0.065 rad
-/gen/range/phi_max  0.065 rad
-/gen/range/eta_min -0.4
-/gen/range/eta_max  0.9
+/gen/range/phi_min -0.1 rad
+/gen/range/phi_max  0.1 rad
+/gen/range/eta_min -0.25
+/gen/range/eta_max  0.25
 
 /gen/range/p_mag {pmag} GeV/c
 
 /run/beamOn {count}
-
-# --------- OLD RUNS --------- #
-# ROUND 1
-# /gen/range/phi_min -0.05 rad
-# /gen/range/phi_max  0.05 rad
-# /gen/range/eta_min -0.05
-# /gen/range/eta_max  0.05

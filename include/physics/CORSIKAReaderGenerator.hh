@@ -28,7 +28,7 @@ namespace Physics { ////////////////////////////////////////////////////////////
 
 //__CORSIKA Simulation Config Structure_________________________________________________________
 struct CORSIKAConfig {
-  int primary_id;
+  std::pair<int, int> primary_id;
   unsigned long long event_id;
   double energy;
   double theta, phi;

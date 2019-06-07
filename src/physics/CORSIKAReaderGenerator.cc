@@ -247,7 +247,7 @@ struct _event_subtree {
   }
 
   void load_config(CORSIKAConfig& config) {
-    config.primary_id     = _convert_primary_id(primary_id->GetValue(0)).first;
+    config.primary_id     = _convert_primary_id(primary_id->GetValue(0));
     config.energy         = energy->GetValue(0);
     config.theta          = theta->GetValue(0);
     config.phi            = phi->GetValue(0);
@@ -320,10 +320,9 @@ void _collect_source(const std::string& path,
       event.reserve(event_size);
       for (std::size_t i{}; i < event_size; ++i) {
         const auto particle_id_pair = _convert_primary_id(subtree.id->GetValue(i));
-        // NOTE: fix for bad muons
-        if (std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10)
+        if ((std::abs(particle_id_pair.first) == 13 && particle_id_pair.second > 10))
           continue;
-        _load_particle(i, subtree, particle_id_pair.second, origin, event);
+        _load_particle(i, subtree, particle_id_pair.first, origin, event);
       }
 
       if (event.empty()) {
@@ -355,7 +354,7 @@ CORSIKAReaderGenerator::CORSIKAReaderGenerator(const std::string& path)
   _set_max_radius = CreateCommand<Command::DoubleUnitArg>("max_radius", "Set Shower Shift Max Radius.");
   _set_max_radius->AvailableForStates(G4State_PreInit, G4State_Idle);
   _set_max_radius->SetParameterName("radius", false, false);
-  _set_max_radius->SetRange("radius > 0");
+  _set_max_radius->SetRange("radius >= 0");
   _set_max_radius->SetDefaultUnit("m");
   _set_max_radius->SetUnitCandidates("m cm");
 }
@@ -423,8 +422,7 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
     "_ELECTRON_COUNT",   std::to_string(_config.electron_count),
     "_MUON_COUNT",       std::to_string(_config.muon_count),
     "_HADRON_COUNT",     std::to_string(_config.hadron_count),
-    "_MAX_SHIFT_RADIUS", Units::to_string(_config.max_radius, Units::Length, Units::LengthString),
-    "_PRIMARY_ID",       std::to_string(_config.primary_id),
+    "_PRIMARY_ID",       std::to_string(_config.primary_id.second),
     "_ENERGY_SLOPE",     std::to_string(_config.energy_slope),
     "_ENERGY_MIN",       std::to_string(_config.energy_min),
     "_ENERGY_MAX",       std::to_string(_config.energy_max),
@@ -432,8 +430,7 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
     "_AZIMUTH_MAX",      std::to_string(_config.azimuth_max),
     "_ZENITH_MIN",       std::to_string(_config.zenith_min),
     "_ZENITH_MAX",       std::to_string(_config.zenith_max),
-    "_EXTRA_00",         "[Shower Core X]",
-    "_EXTRA_01",         "[Shower Core Y]"
+    "_MAX_SHIFT_RADIUS", Units::to_string(_config.max_radius, Units::Length, Units::LengthString)
   );
 }
 //----------------------------------------------------------------------------------------------
@@ -441,12 +438,20 @@ const Analysis::SimSettingList CORSIKAReaderGenerator::GetSpecification() const 
 //__CORSIKA Reader Generator Extra Details______________________________________________________
 const std::vector<std::vector<double>> CORSIKAReaderGenerator::ExtraDetails() const {
   auto out = Tracking::EmptyExtra();
-  out[0].push_back(_translation.first);
-  out[1].push_back(_translation.second);
+  out[0].push_back(_config.event_id);
+  out[1].push_back(_translation.first);
+  out[2].push_back(_translation.second);
+  out[3].push_back(_config.energy);
+  out[4].push_back(_config.theta);
+  out[5].push_back(_config.phi);
+  out[6].push_back(_config.z0);
+  out[7].push_back(_config.electron_count);
+  out[8].push_back(_config.muon_count);
+  out[9].push_back(_config.hadron_count);
+  out[10].push_back(_config.primary_id.second);
   return out;
 }
 //----------------------------------------------------------------------------------------------
-
 
 } /* namespace Physics */ //////////////////////////////////////////////////////////////////////
 

@@ -21,6 +21,8 @@
 
 #include "Earth.hh"
 
+#include <cmath>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Cavern { /////////////////////////////////////////////////////////////////////////////
@@ -43,11 +45,24 @@ constexpr auto CavernLength   = 53.00L*m;
 constexpr auto CavernWidth    = 30.00L*m;
 constexpr auto VaultRadius    = 20.00L*m;
 constexpr auto CavernHeight   = 34.89L*m;
+constexpr auto DefaultBaseDepth = 92.581L*m;
 long double BaseDepth();
 long double BaseDepth(long double value);
 long double TopDepth();
 long double CenterDepth();
 long double IP();
+//----------------------------------------------------------------------------------------------
+
+//__Cavern Rotation_____________________________________________________________________________
+constexpr auto P1ForwardTilt = std::atan(0.01236) * rad;
+long double cosP1Tilt();
+long double sinP1Tilt();
+long double rotate_from_P1_x(long double x, long double z);
+long double rotate_from_P1_z(long double x, long double z);
+std::pair<long double, long double> rotate_from_P1(long double x, long double z);
+long double rotate_to_P1_x(long double x, long double z);
+long double rotate_to_P1_z(long double x, long double z);
+std::pair<long double, long double> rotate_to_P1(long double x, long double z);
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Logical Volumes______________________________________________________________________
