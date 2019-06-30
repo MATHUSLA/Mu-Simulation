@@ -214,6 +214,7 @@ def main(argv):
         for filepath in traverse_root_files(directory, skipext=".digi.root"):
             file, tree = open_tree(filepath, name)
             if file and tree:
+                print("[ Reading Path:", filepath)
                 digitize(filepath, file, tree)
             else:
                 print("[ERROR] Path:", filepath, "could not be read.")
