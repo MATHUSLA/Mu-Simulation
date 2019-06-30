@@ -12,9 +12,6 @@ from path import Path
 from root_numpy import root2array, tree2array, array2tree
 import numpy as np
 import unyt as u
-from collections import namedtuple
-
-# import pandas as pd
 
 
 def open_tree(filepath, tree_key):
@@ -127,11 +124,6 @@ def get_event_components(row):
     return np.sort(np.array(list(zip(*row[KEYS])), dtype=DTYPE), order=["Detector", "Time"]), row
 
 
-def is_rpc(detector):
-    """"""
-    return detector > 1000
-
-
 def get_subtimes(subevent, detector_type, spacing, thresholds):
     """"""
     passing_event = subevent[subevent["E"] * u.MeV > thresholds[detector_type]]
@@ -162,7 +154,7 @@ def fill_tree(tree, subevent, fullevent):
     tree.Fill()
 
 
-def digitize_tree(output, path, ctree, treename, spacing=20 * u.ns, thresholds=None):
+def digitize_tree(output, path, ctree, treename, spacing=20 * u.ns, thresholds=None, is_rpc=lambda d: d > 1000):
     """"""
     if thresholds is None:
         thresholds = {"scintillator": 1.9 * u.MeV, "rpc": 0.24 * u.keV}
@@ -173,7 +165,9 @@ def digitize_tree(output, path, ctree, treename, spacing=20 * u.ns, thresholds=N
         for detector in event["Detector"]:
             detector_only = event[event["Detector"] == detector]
             detector_type = "rpc" if is_rpc(detector) else "scintillator"
-            arrays.append(get_subtimes(detector_only, detector_type, spacing, thresholds))
+            subevent = get_subtimes(detector_only, detector_type, spacing, thresholds)
+            if len(subevent) > 0:
+                arrays.append(subevent)
         fill_tree(ctree, np.concatenate(arrays, axis=0), fullevent)
     return ctree
 
@@ -227,6 +221,9 @@ def main(argv):
     if missing == 1 + counter:
         print("[ERROR] No data found.")
         return 3
+
+    print("[DONE]")
+    return 0
 
 
 if __name__ == "__main__":
