@@ -119,9 +119,17 @@ EXTRA_KEYS = [
 ]
 
 
+ALL_KEYS = KEYS + EXTRA_KEYS
+
+
 def get_event_components(row):
     """"""
-    return np.sort(np.array(list(zip(*row[KEYS])), dtype=DTYPE), order=["Detector", "Time"]), row
+    return (
+        np.sort(
+            np.array(list(zip(*row[KEYS])), dtype=DTYPE), order=["Detector", "Time"]
+        ),
+        row,
+    )
 
 
 def get_subtimes(subevent, detector_type, spacing, thresholds):
@@ -137,8 +145,14 @@ def get_subtimes(subevent, detector_type, spacing, thresholds):
     for t in times[1:]:
         if t > current + spacing:
             current = t
-            indicies.append(times.indexof(current))
+            indices.extend(list(np.where(times == current)[0]))
     return passing_event[indices]
+
+
+def clear_row(tree):
+    """"""
+    for key in ALL_KEYS:
+        getattr(tree, key).clear()
 
 
 def fill_tree(tree, subevent, fullevent):
@@ -152,9 +166,18 @@ def fill_tree(tree, subevent, fullevent):
         for entry in fullevent[key]:
             getattr(tree, key).push_back(entry)
     tree.Fill()
+    clear_row(tree)
 
 
-def digitize_tree(output, path, ctree, treename, spacing=20 * u.ns, thresholds=None, is_rpc=lambda d: d > 1000):
+def digitize_tree(
+    output,
+    path,
+    ctree,
+    treename,
+    spacing=20 * u.ns,
+    thresholds=None,
+    is_rpc=lambda d: d > 1000,
+):
     """"""
     if thresholds is None:
         thresholds = {"scintillator": 1.9 * u.MeV, "rpc": 0.24 * u.keV}
