@@ -3,6 +3,7 @@
 
 import os
 import sys
+from contextlib import contextmanager
 
 import awkward
 import uproot
@@ -87,6 +88,7 @@ KEYS = [
     "WEIGHT",
 ]
 
+
 EXTRA_KEYS = [
     "GEN_PDG",
     "GEN_Track",
@@ -132,21 +134,39 @@ def get_event_components(row):
     )
 
 
-def get_subtimes(subevent, detector_type, spacing, thresholds):
+def get_subtimes(subevent, threshold, spacing):
     """"""
-    passing_event = subevent[subevent["E"] * u.MeV > thresholds[detector_type]]
-    times = passing_event["Time"] * u.ns
-    if len(times) == 0:
-        return []
-    current = times[0]
-    if len(times) == 1:
-        return passing_event[times == current]
+    # passing_event = subevent[subevent["E"] * u.MeV > thresholds[detector_type]]
+    # times = passing_event["Time"] * u.ns
+    # if len(times) == 0:
+    #    return []
+    # current = times[0]
+    # if len(times) == 1:
+    #    return passing_event[times == current]
+    # indices = []
+    # for t in times[1:]:
+    #    if t > current + spacing:
+    #        current = t
+    #    indices.extend(list(np.where(times == current)[0]))
+    # return passing_event[indices]
+    starting_index = 0
+    times = subevent["Time"] * u.ns
     indices = []
-    for t in times[1:]:
-        if t > current + spacing:
-            current = t
-            indices.extend(list(np.where(times == current)[0]))
-    return passing_event[indices]
+    energies = []
+    while starting_index < len(subevent):
+        t0 = times[starting_index]
+        components = subevent[times <= t0 + spacing]
+        summed = np.cumsum(components["E"] * u.MeV)
+        above_threshold = np.where(summed >= threshold)[0]
+        if len(above_threshold) == 0:
+            starting_index += 1
+        else:
+            indices.append(above_threshold[0])
+            energies.append(summed[-1])
+            starting_index += len(summed)
+    subevent = subevent[indices]
+    subevent["E"] = energies
+    return subevent
 
 
 def clear_row(tree):
@@ -188,7 +208,7 @@ def digitize_tree(
         for detector in event["Detector"]:
             detector_only = event[event["Detector"] == detector]
             detector_type = "rpc" if is_rpc(detector) else "scintillator"
-            subevent = get_subtimes(detector_only, detector_type, spacing, thresholds)
+            subevent = get_subtimes(detector_only, thresholds[detector_type], spacing)
             if len(subevent) > 0:
                 arrays.append(subevent)
         fill_tree(ctree, np.concatenate(arrays, axis=0), fullevent)
