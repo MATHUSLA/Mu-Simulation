@@ -132,36 +132,23 @@ def get_event_components(row):
 
 def get_subtimes(subevent, threshold, spacing):
     """"""
-    # passing_event = subevent[subevent["E"] * u.MeV > thresholds[detector_type]]
-    # times = passing_event["Time"] * u.ns
-    # if len(times) == 0:
-    #    return []
-    # current = times[0]
-    # if len(times) == 1:
-    #    return passing_event[times == current]
-    # indices = []
-    # for t in times[1:]:
-    #    if t > current + spacing:
-    #        current = t
-    #    indices.extend(list(np.where(times == current)[0]))
-    # return passing_event[indices]
     starting_index = 0
     times = subevent["Time"] * u.ns
     indices = []
-    energies = []
+    deposits = []
     while starting_index < len(subevent):
         t0 = times[starting_index]
-        components = subevent[times <= t0 + spacing]
-        summed = np.cumsum(components["E"] * u.MeV)
+        components = subevent[times < t0 + spacing]
+        summed = np.cumsum(components["Deposit"] * u.MeV)
         above_threshold = np.where(summed >= threshold)[0]
         if len(above_threshold) == 0:
             starting_index += 1
         else:
             indices.append(above_threshold[0])
-            energies.append(summed[-1])
+            deposits.append(summed[-1])
             starting_index += len(summed)
     subevent = subevent[indices]
-    subevent["E"] = energies
+    subevent["Deposit"] = deposits
     return subevent
 
 
@@ -215,7 +202,7 @@ def digitize_tree(
     ctree.SetDirectory(output)
     for (event, fullevent) in map(get_event_components, root2array(path, treename)):
         arrays = []
-        for detector in event["Detector"]:
+        for detector in np.unique(event["Detector"]):
             detector_only = event[event["Detector"] == detector]
             detector_type = "rpc" if is_rpc(detector) else "scintillator"
             subevent = get_subtimes(detector_only, thresholds[detector_type], spacing)
@@ -267,7 +254,7 @@ def main(argv):
         for filepath in traverse_root_files(directory, skipext=".digi.root"):
             file, tree = open_tree(filepath, name)
             if file and tree:
-                print("[ Reading Path:", filepath)
+                print("  Reading Path:", filepath)
                 digitize(filepath, file, tree)
             else:
                 print("[ERROR] Path:", filepath, "could not be read.")
