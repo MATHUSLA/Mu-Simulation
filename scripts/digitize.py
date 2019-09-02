@@ -3,14 +3,10 @@
 
 import os
 import sys
-from contextlib import contextmanager
 
-import awkward
-import uproot
 from rootpy import ROOT as R
-from rootpy.tree import Tree
-from path import Path
-from root_numpy import root2array, tree2array, array2tree
+from pathlib import Path
+from root_numpy import root2array
 import numpy as np
 import unyt as u
 
@@ -37,7 +33,7 @@ def copytree(file, tree):
 
 def digitize(path, file, tree):
     """"""
-    output = R.TFile.Open(str(Path(path).splitext()[0] + ".digi.root"), "RECREATE")
+    output = R.TFile.Open(str(Path(path).stem + ".digi.root"), "RECREATE")
     output.cd()
     digitized = digitize_tree(output, path, copytree(file, tree), tree.GetName())
     digitized.Write()
@@ -102,17 +98,17 @@ EXTRA_KEYS = [
     "GEN_PY",
     "GEN_PZ",
     "GEN_WEIGHT",
-    "COSMIC_EVENT_ID",
-    "COSMIC_CORE_X",
-    "COSMIC_CORE_Y",
-    "COSMIC_GEN_PRIMARY_ENERGY",
-    "COSMIC_GEN_THETA",
-    "COSMIC_GEN_PHI",
-    "COSMIC_GEN_FIRST_HEIGHT",
-    "COSMIC_GEN_ELECTRON_COUNT",
-    "COSMIC_GEN_MUON_COUNT",
-    "COSMIC_GEN_HADRON_COUNT",
-    "COSMIC_GEN_PRIMARY_ID",
+    ["EXTRA_00", "COSMIC_EVENT_ID"],
+    ["EXTRA_01", "COSMIC_CORE_X"],
+    ["EXTRA_02", "COSMIC_CORE_Y"],
+    ["EXTRA_03", "COSMIC_GEN_PRIMARY_ENERGY"],
+    ["EXTRA_04", "COSMIC_GEN_THETA"],
+    ["EXTRA_05", "COSMIC_GEN_PHI"],
+    ["EXTRA_06", "COSMIC_GEN_FIRST_HEIGHT"],
+    ["EXTRA_07", "COSMIC_GEN_ELECTRON_COUNT"],
+    ["EXTRA_08", "COSMIC_GEN_MUON_COUNT"],
+    ["EXTRA_09", "COSMIC_GEN_HADRON_COUNT"],
+    ["EXTRA_10", "COSMIC_GEN_PRIMARY_ID"],
     "EXTRA_11",
     "EXTRA_12",
     "EXTRA_13",
@@ -172,6 +168,13 @@ def get_subtimes(subevent, threshold, spacing):
 def clear_row(tree):
     """"""
     for key in ALL_KEYS:
+        if isinstance(key, list):
+            for subkey in key:
+                if hasattr(tree, subkey):
+                    key = subkey
+                    break
+            if isinstance(key, list):
+                raise AttributeError('Tree does not contain one of the expected branch names')
         getattr(tree, key).clear()
 
 
@@ -183,6 +186,13 @@ def fill_tree(tree, subevent, fullevent):
         for key in KEYS:
             getattr(tree, key).push_back(entry[key])
     for key in EXTRA_KEYS:
+        if isinstance(key, list):
+            for subkey in key:
+                if hasattr(tree, subkey):
+                    key = subkey
+                    break
+            if isinstance(key, list):
+                raise AttributeError('Tree does not contain one of the expected branch names')
         for entry in fullevent[key]:
             getattr(tree, key).push_back(entry)
     tree.Fill()
@@ -249,7 +259,7 @@ def main(argv):
             print("[ERROR] Directory Missing.")
             missing += 1
             continue
-        if not directory_path.isdir():
+        if not directory_path.is_dir():
             print("[WARN] Can only Analyze Directories. Skipping ... ", directory_path)
             missing += 1
             continue
