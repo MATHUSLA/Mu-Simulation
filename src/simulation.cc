@@ -76,31 +76,26 @@ int main(int argc, char* argv[]) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   G4Random::setTheSeed(time(nullptr));
 
-  #ifdef G4MULTITHREADED
-    if (thread_opt.argument) {
-      auto opt = std::string(thread_opt.argument);
-      if (opt == "on") {
-        thread_opt.count = 2;
-      } else if (opt == "off" || opt == "0") {
-        thread_opt.count = 1;
-      } else {
-        try {
-          thread_opt.count = std::stoi(opt);
-        } catch (...) {
-          thread_opt.count = 2;
-        }
-      }
-    } else if (!thread_opt.count) {
+  if (thread_opt.argument) {
+    auto opt = std::string(thread_opt.argument);
+    if (opt == "on") {
       thread_opt.count = 2;
+    } else if (opt == "off" || opt == "0") {
+      thread_opt.count = 1;
+    } else {
+      try {
+        thread_opt.count = std::stoi(opt);
+      } catch (...) {
+        thread_opt.count = 2;
+      }
     }
-    auto run = new G4MTRunManager;
-    run->SetNumberOfThreads(thread_opt.count);
-    std::cout << "Running " << thread_opt.count
-              << (thread_opt.count > 1 ? " Threads" : " Thread") << "\n";
-  #else
-    auto run = new G4RunManager;
-    std::cout << "Running in Single Threaded Mode.\n";
-  #endif
+  } else if (!thread_opt.count) {
+    thread_opt.count = 2;
+  }
+  auto run = new G4MTRunManager;
+  run->SetNumberOfThreads(thread_opt.count);
+  std::cout << "Running " << thread_opt.count
+            << (thread_opt.count > 1 ? " Threads" : " Thread") << "\n";
 
   run->SetPrintProgress(1000);
   run->SetRandomNumberStore(false);

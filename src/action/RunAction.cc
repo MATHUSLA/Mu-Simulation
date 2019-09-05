@@ -141,19 +141,17 @@ void RunAction::EndOfRunAction(const G4Run*) {
       return;
     auto file = TFile::Open(_path.c_str(), "UPDATE");
     if (file && !file->IsZombie()) {
-      #ifdef G4MULTITHREADED
-        file->cd();
-        auto chain = new TChain(Construction::Builder::GetDetectorDataName().c_str());
-        for (const auto& tag : _worker_tags)
-          chain->Add((_prefix + tag).c_str());
+      file->cd();
+      auto chain = new TChain(Construction::Builder::GetDetectorDataName().c_str());
+      for (const auto& tag : _worker_tags)
+        chain->Add((_prefix + tag).c_str());
 
-        TTree* tree = chain;
-        file->cd();
-        auto clone_tree = tree->CloneTree();
-        if (clone_tree)
-          clone_tree->Write();
-        delete chain;
-      #endif
+      TTree* tree = chain;
+      file->cd();
+      auto clone_tree = tree->CloneTree();
+      if (clone_tree)
+        clone_tree->Write();
+      delete chain;
 
       util::io::remove_file(_prefix + _temp_path);
       for (const auto& tag : _worker_tags)
