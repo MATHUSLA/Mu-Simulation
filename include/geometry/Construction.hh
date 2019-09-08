@@ -48,7 +48,10 @@ extern G4Element* S;
 extern G4Element* Ar;
 extern G4Material* Air;
 extern G4Material* Aluminum;
+extern G4Material* Bakelite;
+extern G4Material* Copper;
 extern G4Material* Iron;
+extern G4Material* PolystyreneFoam;
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
 //__Size of The World___________________________________________________________________________

@@ -81,8 +81,8 @@ public:
 
   const static Info InfoArray[Count];
 
-  constexpr static auto Thickness = 1.15*mm;
-  constexpr static auto Spacing   =    0*mm;
+  constexpr static auto Thickness =  1.0*mm;
+  constexpr static auto Spacing   = 0.15*mm;
   constexpr static auto Depth     = 15.0*mm;
 
   constexpr static auto PMTRadius =  2.1*cm;
@@ -112,9 +112,8 @@ public:
   };
 
   struct Material {
-    static G4Material* Casing;
-    static G4Material* Pad;
     static G4Material* Gas;
+    static G4Material* PET;
     static void Define();
   private:
     Material();
@@ -148,6 +147,15 @@ public:
   constexpr static auto Width       = 1257*mm;
   constexpr static auto Depth       =   44*mm;
 
+  constexpr static auto AluminumDepth  = 200*um;
+  constexpr static auto BakeliteDepth  =   2*mm;
+  constexpr static auto CopperDepth    =  17*um;
+  constexpr static auto ThickFoamDepth =  15*mm;
+  constexpr static auto ThinFoamDepth  =   3*mm;
+  constexpr static auto ThickPETDepth  = 250*um;
+  constexpr static auto MediumPETDepth = 190*um;
+  constexpr static auto ThinPETDepth   =  50*um;
+
   constexpr static auto PadHeight    = 556.8*mm;
   constexpr static auto PadWidth     = 616.5*mm;
   constexpr static auto PadDepth     =     2*mm;
@@ -159,7 +167,7 @@ public:
   constexpr static auto PadSpacingX = PadWidth + 1*mm;
   constexpr static auto PadSpacingY = PadHeight;
 
-  constexpr static auto StripHeight     =  67.6*mm;
+  constexpr static auto StripHeight     =  69.6*mm;
   constexpr static auto StripWidth      = 616.5*mm;
   constexpr static auto StripDepth      =     2*mm;
 

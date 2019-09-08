@@ -73,7 +73,10 @@ G4Element* Material::S = _nist->FindOrBuildElement("S");
 G4Element* Material::Ar = _nist->FindOrBuildElement("Ar");
 G4Material* Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
 G4Material* Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
+G4Material* Material::Bakelite = _nist->FindOrBuildMaterial("G4_BAKELITE");
+G4Material* Material::Copper = _nist->FindOrBuildMaterial("G4_Cu");
 G4Material* Material::Iron = _nist->FindOrBuildMaterial("G4_Fe");
+G4Material* Material::PolystyreneFoam = _nist->BuildMaterialWithNewDensity("PolystyreneFoam", "G4_POLYSTYRENE", 32.0*kg/m3);
 //----------------------------------------------------------------------------------------------
 
 //__Detector Messenger Directory Path___________________________________________________________
