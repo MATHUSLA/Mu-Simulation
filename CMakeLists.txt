@@ -76,7 +76,7 @@ target_link_libraries(simulation PUBLIC
     ${HEPMC_LIBRARIES}
     dl)
 
-target_include_directories(simulation PUBLIC
+target_include_directories(simulation SYSTEM PUBLIC
     ${Geant4_INCLUDE_DIRS}
     ${ROOT_INCLUDE_DIRS}
     ${PYTHIA8_INCLUDE_DIR})
@@ -120,7 +120,7 @@ add_executable(dump_geometry
 
 target_compile_features(dump_geometry PUBLIC cxx_std_14)
 
-target_include_directories(dump_geometry PUBLIC
+target_include_directories(dump_geometry SYSTEM PUBLIC
     ${Geant4_INCLUDE_DIRS}
     ${ROOT_INCLUDE_DIRS}
     ${PYTHIA8_INCLUDE_DIR})
