@@ -208,7 +208,8 @@ def digitize_tree(
             subevent = get_subtimes(detector_only, thresholds[detector_type], spacing)
             if len(subevent) > 0:
                 arrays.append(subevent)
-        fill_tree(ctree, np.concatenate(arrays, axis=0), fullevent)
+        concatenated_array = np.concatenate(arrays, axis=0) if len(arrays) > 0 else []
+        fill_tree(ctree, concatenated_array, fullevent)
     return ctree
 
 
