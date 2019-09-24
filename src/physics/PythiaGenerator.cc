@@ -29,10 +29,6 @@ namespace MATHUSLA { namespace MU {
 
 namespace Physics { ////////////////////////////////////////////////////////////////////////////
 
-namespace {
-  constexpr auto lhc_p1_forward_tilt = 0.704 * deg;
-}
-
 //__G4ThreadLocal Static Variables______________________________________________________________
 G4ThreadLocal Pythia8::Pythia* PythiaGenerator::_pythia = nullptr;
 G4ThreadLocal std::vector<std::string>* PythiaGenerator::_pythia_settings = nullptr;

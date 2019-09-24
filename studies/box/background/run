@@ -1,2 +1,2 @@
 #!/bin/bash
-./simulation -j$2 -o $1 -q -s studies/box/background/script.mac energy $3 count $4
+./studies/run $1 $2 $3 $4 studies/box/background/script.mac $5 energy $6

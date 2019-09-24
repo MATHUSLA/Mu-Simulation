@@ -1,3 +1,2 @@
 #!/bin/bash
-
-./simulation -q -o $1 -j$2 --shift=$4 --save_all -s scripts/looper.mac macro studies/test_stand/$5.mac runs $3 count $6 "${@:7}"
+./studies/run $1 $2 $3 $4 studies/test_stand/$5.mac "${@:6}"
