@@ -206,7 +206,7 @@ void Generator::GenerateCommands() {
 
   _ui_pT = CreateCommand<Command::DoubleUnitArg>("pT", "Set Transverse Momentum.");
   _ui_pT->SetParameterName("pT", false, false);
-  _ui_pT->SetRange("pT > 0");
+  _ui_pT->SetRange("pT >= 0");
   _ui_pT->SetDefaultUnit("GeV/c");
   _ui_pT->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -223,7 +223,7 @@ void Generator::GenerateCommands() {
 
   _ui_ke = CreateCommand<Command::DoubleUnitArg>("ke", "Set Kinetic Energy.");
   _ui_ke->SetParameterName("ke", false, false);
-  _ui_ke->SetRange("ke > 0");
+  _ui_ke->SetRange("ke >= 0");
   _ui_ke->SetDefaultUnit("GeV");
   _ui_ke->SetUnitCandidates("eV keV MeV GeV");
   _ui_ke->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -240,7 +240,7 @@ void Generator::GenerateCommands() {
 
   _ui_p_mag = CreateCommand<Command::DoubleUnitArg>("p_mag", "Set Momentum Magnitude.");
   _ui_p_mag->SetParameterName("p_mag", false, false);
-  _ui_p_mag->SetRange("p_mag > 0");
+  _ui_p_mag->SetRange("p_mag >= 0");
   _ui_p_mag->SetDefaultUnit("GeV/c");
   _ui_p_mag->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_p_mag->AvailableForStates(G4State_PreInit, G4State_Idle);

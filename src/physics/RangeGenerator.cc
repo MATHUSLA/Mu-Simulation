@@ -52,14 +52,14 @@ RangeGenerator::RangeGenerator(const std::string& name,
 void RangeGenerator::GenerateCommands() {
   _ui_pT_min = CreateCommand<Command::DoubleUnitArg>("pT_min", "Set Minimum Transverse Momentum.");
   _ui_pT_min->SetParameterName("pT_min", false, false);
-  _ui_pT_min->SetRange("pT_min > 0");
+  _ui_pT_min->SetRange("pT_min >= 0");
   _ui_pT_min->SetDefaultUnit("GeV/c");
   _ui_pT_min->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   _ui_pT_max = CreateCommand<Command::DoubleUnitArg>("pT_max", "Set Maximum Transverse Momentum.");
   _ui_pT_max->SetParameterName("pT_max", false, false);
-  _ui_pT_max->SetRange("pT_max > 0");
+  _ui_pT_max->SetRange("pT_max >= 0");
   _ui_pT_max->SetDefaultUnit("GeV/c");
   _ui_pT_max->SetUnitCandidates("eV/c keV/c MeV/c GeV/c");
   _ui_pT_max->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -86,14 +86,14 @@ void RangeGenerator::GenerateCommands() {
 
   _ui_ke_min = CreateCommand<Command::DoubleUnitArg>("ke_min", "Set Minimum Kinetic Energy.");
   _ui_ke_min->SetParameterName("ke_min", false, false);
-  _ui_ke_min->SetRange("ke_min > 0");
+  _ui_ke_min->SetRange("ke_min >= 0");
   _ui_ke_min->SetDefaultUnit("GeV");
   _ui_ke_min->SetUnitCandidates("eV keV MeV GeV");
   _ui_ke_min->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   _ui_ke_max = CreateCommand<Command::DoubleUnitArg>("ke_max", "Set Maximum Kinetic Energy.");
   _ui_ke_max->SetParameterName("ke_max", false, false);
-  _ui_ke_max->SetRange("ke_max > 0");
+  _ui_ke_max->SetRange("ke_max >= 0");
   _ui_ke_max->SetDefaultUnit("GeV");
   _ui_ke_max->SetUnitCandidates("eV keV MeV GeV");
   _ui_ke_max->AvailableForStates(G4State_PreInit, G4State_Idle);
