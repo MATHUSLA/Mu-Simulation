@@ -15,6 +15,7 @@
 *.obj
 *.out
 *.pch
+*.root
 *.slo
 *.smod
 *.so
@@ -34,3 +35,6 @@ G4History*
 /export
 
 simulation
+
+test-stand-geometry-dump
+__pycache__
