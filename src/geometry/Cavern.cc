@@ -17,6 +17,8 @@
 
 #include "geometry/Cavern.hh"
 
+#include <Geant4/G4IntersectionSolid.hh>
+#include <Geant4/G4UnionSolid.hh>
 #include <Geant4/G4SubtractionSolid.hh>
 
 #include "geometry/Construction.hh"
@@ -52,10 +54,10 @@ long double BaseDepth(long double value) {
   return BaseDepth();
 }
 long double TopDepth() {
-  return BaseDepth() - TotalHeight;
+  return BaseDepth() - CavernHeight;
 }
 long double CenterDepth() {
-  return BaseDepth() - 0.5 * TotalHeight;
+  return BaseDepth() - 0.5 * CavernHeight;
 }
 long double IP() {
   return BaseDepth() - DetectorHeight;
@@ -95,8 +97,22 @@ std::pair<long double, long double> rotate_to_P1(long double x, long double z) {
 
 //__Cavern Logical Volumes______________________________________________________________________
 G4LogicalVolume* Volume() {
-  return Construction::BoxVolume("Cavern", TotalHeight, 2.0L * DetectorRadius, DetectorLength);
+  auto box = Construction::Box("CavernBox", CavernLength, CavernWidth, CavernHeight - VaultRadius);
+
+  auto intersection_box = Construction::Box("VaultIntersectionBox", CavernLength, CavernWidth, CavernHeight);
+  auto intersection_cylinder = Construction::Cylinder("VaultIntersectionCylinder", CavernLength, 0.0, VaultRadius);
+  auto vault = new G4IntersectionSolid("CavernVault",
+    intersection_box,
+    intersection_cylinder,
+    G4Translate3D(0, 0, VaultRadius - CavernHeight / 2.0)
+      * Construction::Rotate(0.0, 1.0, 0.0, 90.0 * deg));
+
+  return Construction::Volume(new G4UnionSolid("Cavern",
+    vault,
+    box,
+    G4Translate3D(0, 0, CavernHeight / 2.0 - (CavernHeight - VaultRadius) / 2.0)));
 }
+
 G4LogicalVolume* RingVolume() {
   return Construction::Volume(Construction::Cylinder("DetectorRing",
            DetectorLength, DetectorRadius - SteelThickness, DetectorRadius),
@@ -123,8 +139,7 @@ G4LogicalVolume* _calculate_modification(const std::string& name,
   return Construction::Volume(new G4SubtractionSolid(name,
     earth_component->GetSolid(),
     Volume()->GetSolid(),
-    Construction::Transform(0, 0, -0.5 * (base_depth - top_depth) + CenterDepth() - top_depth)
-      * Construction::Rotate(0, 1, 0, 90*deg)),
+    Construction::Transform(0, 1.7 * m, -0.5 * (base_depth - top_depth) + CenterDepth() - top_depth)),
     earth_component->GetMaterial());
 }
 //----------------------------------------------------------------------------------------------
@@ -181,6 +196,7 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
 
   Construction::PlaceVolume(RingVolume(), earth,
     G4Translate3D(0, 0, -0.5 * Earth::TotalDepth() + IP())
+      * Construction::Rotate(0.0, 1.0, 0.0, -P1ForwardTilt)
       * Construction::Rotate(0, 1, 0, 90*deg));
   return Construction::PlaceVolume(earth, world, Earth::Transform());
 }

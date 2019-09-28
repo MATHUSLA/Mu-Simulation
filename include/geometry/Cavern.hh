@@ -21,6 +21,8 @@
 
 #include "Earth.hh"
 
+#include <cmath>
+
 namespace MATHUSLA { namespace MU {
 
 namespace Cavern { /////////////////////////////////////////////////////////////////////////////
@@ -35,12 +37,15 @@ struct Material {
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Dimensions___________________________________________________________________________
-constexpr auto SteelThickness   =  1.85L*m;
-constexpr auto DetectorLength   = 40.00L*m;
-constexpr auto DetectorRadius   = 11.00L*m;
-constexpr auto DetectorHeight   = 11.30L*m;
-constexpr auto TotalHeight      = 34.90L*m;
-constexpr auto DefaultBaseDepth = 92.58L*m;
+constexpr auto SteelThickness   =   1.85L*m;
+constexpr auto DetectorLength   =  40.00L*m;
+constexpr auto DetectorRadius   =  11.00L*m;
+constexpr auto DetectorHeight   =  11.37L*m;
+constexpr auto CavernLength     =  53.00L*m;
+constexpr auto CavernWidth      =  30.00L*m;
+constexpr auto VaultRadius      =  20.00L*m;
+constexpr auto CavernHeight     =  34.89L*m;
+constexpr auto DefaultBaseDepth = 92.581L*m;
 long double BaseDepth();
 long double BaseDepth(long double value);
 long double TopDepth();
@@ -49,7 +54,7 @@ long double IP();
 //----------------------------------------------------------------------------------------------
 
 //__Cavern Rotation_____________________________________________________________________________
-constexpr auto P1ForwardTilt = 0.704L*deg;
+constexpr auto P1ForwardTilt = std::atan(0.01236) * rad;
 long double cosP1Tilt();
 long double sinP1Tilt();
 long double rotate_from_P1_x(long double x, long double z);
