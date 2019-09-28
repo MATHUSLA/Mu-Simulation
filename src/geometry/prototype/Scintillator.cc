@@ -156,7 +156,7 @@ void Scintillator::Material::Define() {
   Material::PMT = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
   Material::Casing = Construction::Material::Aluminum;
 
-  Material::Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2);
+  Material::Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2, G4State::kStateSolid);
   Material::Scintillator->AddElement(Construction::Material::C, 9);
   Material::Scintillator->AddElement(Construction::Material::H, 10);
 
