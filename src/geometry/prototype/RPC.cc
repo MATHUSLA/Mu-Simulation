@@ -53,11 +53,11 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
   auto aluminum_sheet = Construction::BoxVolume(_name + "_Aluminum", Width, Height, AluminumDepth, Construction::Material::Aluminum, Construction::CasingAttributes());
   auto bakelite_sheet = Construction::BoxVolume(_name + "_Bakelite", Width, Height, BakeliteDepth, Construction::Material::Bakelite);
   auto copper_strips = Construction::BoxVolume(_name + "_Copper", Width, Height, CopperDepth, Construction::Material::Copper);
-  auto thick_foam_layer = Construction::BoxVolume(_name + "_Foam", Width, Height, ThickFoamDepth, Construction::Material::PolystyreneFoam);
-  auto thin_foam_layer = Construction::BoxVolume(_name + "_Foam", Width, Height, ThinFoamDepth, Construction::Material::PolystyreneFoam);
-  auto thick_pet_film = Construction::BoxVolume(_name + "_PET", Width, Height, ThickPETDepth, Material::PET);
-  auto medium_pet_film = Construction::BoxVolume(_name + "_PET", Width, Height, MediumPETDepth, Material::PET);
-  auto thin_pet_film = Construction::BoxVolume(_name + "_PET", Width, Height, ThinPETDepth, Material::PET);
+  auto thick_foam_layer = Construction::BoxVolume(_name + "_ThickFoam", Width, Height, ThickFoamDepth, Construction::Material::PolystyreneFoam);
+  auto thin_foam_layer = Construction::BoxVolume(_name + "_ThinFoam", Width, Height, ThinFoamDepth, Construction::Material::PolystyreneFoam);
+  auto thick_pet_film = Construction::BoxVolume(_name + "_ThickPET", Width, Height, ThickPETDepth, Material::PET);
+  auto medium_pet_film = Construction::BoxVolume(_name + "_MediumPET", Width, Height, MediumPETDepth, Material::PET);
+  auto thin_pet_film = Construction::BoxVolume(_name + "_ThinPET", Width, Height, ThinPETDepth, Material::PET);
 
   auto z_shift = -(StripDepth + BakeliteDepth) / 2.0;
   Construction::PlaceVolume(bakelite_sheet, _volume, G4Translate3D(0.0, 0.0, z_shift));
