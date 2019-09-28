@@ -1,2 +1,2 @@
 #!/bin/bash
-./simulation -j$2 -q -o $1 -s studies/box/signal/script.mac particle $3 count $4
+./studies/run $1 $2 $3 $4 studies/box/signal/script.mac $5 particle $6

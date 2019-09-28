@@ -20,7 +20,9 @@ project(MATHUSLA_MU)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-find_package(Geant4  REQUIRED gdml ui_all vis_all)
+set(CMAKE_CXX_STANDARD 14)
+
+find_package(Geant4  REQUIRED multithreaded gdml ui_all vis_all)
 find_package(Pythia8 REQUIRED)
 find_package(ROOT    REQUIRED)
 
