@@ -44,14 +44,18 @@ extern G4Element* C;
 extern G4Element* N;
 extern G4Element* O;
 extern G4Element* F;
+extern G4Element* Al;
+extern G4Element* Si;
 extern G4Element* S;
 extern G4Element* Ar;
+extern G4Element* Ca;
 extern G4Material* Air;
 extern G4Material* Aluminum;
 extern G4Material* Bakelite;
 extern G4Material* Copper;
 extern G4Material* Iron;
 extern G4Material* PolystyreneFoam;
+extern G4Material* Polyvinyltoluene;
 } /* namespace Material */ /////////////////////////////////////////////////////////////////////
 
 //__Size of The World___________________________________________________________________________

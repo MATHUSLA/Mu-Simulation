@@ -104,7 +104,7 @@ Scintillator::Scintillator(const std::string& input_name,
     : name(input_name), height(input_height), minwidth(input_minwidth), maxwidth(input_maxwidth),
       lvolume(nullptr), pvolume(nullptr), sensitive(nullptr) {
 
-  auto solid = Construction::Trap(name, height, minwidth, maxwidth, Depth);
+  auto solid = Construction::Trap("", height, minwidth, maxwidth, Depth);
 
   const double dims[4] = {height   - 2.0 * Thickness, minwidth - 2.0 * Thickness,
                           maxwidth - 2.0 * Thickness, Depth    - 2.0 * Thickness};
@@ -155,10 +155,7 @@ G4Material* Scintillator::Material::Scintillator = nullptr;
 void Scintillator::Material::Define() {
   Material::PMT = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
   Material::Casing = Construction::Material::Aluminum;
-
-  Material::Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2, G4State::kStateSolid);
-  Material::Scintillator->AddElement(Construction::Material::C, 9);
-  Material::Scintillator->AddElement(Construction::Material::H, 10);
+  Material::Scintillator = Construction::Material::Polyvinyltoluene;
 
   constexpr int_fast32_t nSci = 1;
   double eSci[nSci] = { 3.10*eV };

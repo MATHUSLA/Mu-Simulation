@@ -220,9 +220,9 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   for (const auto& scintillator_info : Scintillator::InfoArray) {
     auto scintillator = new Scintillator(scintillator_info.name,
-                                         scintillator_info.trapezoid_height + 2.0 * Scintillator::Thickness,
-                                         scintillator_info.short_base + 2.0 * Scintillator::Thickness,
-                                         scintillator_info.long_base + 2.0 * Scintillator::Thickness);
+                                         scintillator_info.trapezoid_height + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
+                                         scintillator_info.short_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
+                                         scintillator_info.long_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing));
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
         G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0),
@@ -242,7 +242,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-2.386*m, 0.0*m, Earth::TotalShift() - 0.5 * total_outer_box_height));
+    G4Translate3D(-2.386*m, 0.0*m, Earth::TotalShift() + Earth::BufferZoneLowerDepth() - 0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 
