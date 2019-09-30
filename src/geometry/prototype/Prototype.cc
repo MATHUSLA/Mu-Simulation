@@ -242,7 +242,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   }
 
   return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-2.386*m, 0.0*m, Earth::TotalShift() - 0.5 * total_outer_box_height));
+    G4Translate3D(-2.386*m, 0.0*m, Earth::BufferZoneLowerDepth() - 0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 

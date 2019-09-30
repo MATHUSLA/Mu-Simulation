@@ -17,6 +17,7 @@
 
 #include "geometry/Earth.hh"
 
+#include <Geant4/G4SubtractionSolid.hh>
 #include <Geant4/tls.hh>
 
 #include "geometry/Construction.hh"
@@ -26,14 +27,17 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Earth Layer Size Constants__________________________________________________________________
-static auto _lastshift               =     0.0L*cm;
-static auto _layer_width_x           = 82500.0L*cm;
-static auto _layer_width_y           = 82500.0L*cm;
-static auto _buffer_zone_depth       =   160.0L*cm;
-static auto _nominal_sandstone_depth =  4530.0L*cm;
-static auto _sandstone_depth         =  _nominal_sandstone_depth - _buffer_zone_depth;
-static auto _marl_depth              =  1825.0L*cm;
-static auto _mix_depth               =  3645.0L*cm;
+static auto _lastshift                =     0.0L*cm;
+static auto _layer_width_x            = 82500.0L*cm;
+static auto _layer_width_y            = 82500.0L*cm;
+static auto _buffer_zone_length       =  1376.0L*cm;
+static auto _buffer_zone_higher_width =   900.0L*cm;
+static auto _buffer_zone_lower_width  =   300.0L*cm;
+static auto _buffer_zone_higher_depth =   100.0L*cm;
+static auto _buffer_zone_lower_depth  =   160.0L*cm;
+static auto _sandstone_depth          =  4530.0L*cm;
+static auto _marl_depth               =  1825.0L*cm;
+static auto _mix_depth                =  3645.0L*cm;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -50,24 +54,20 @@ G4Material* Material::Mix       = nullptr;
 
 //__Define Earth Materials______________________________________________________________________
 void Material::Define() {
-  auto Al = new G4Element("Aluminum", "Al", 13.,  26.981*g/mole);
-  auto Si = new G4Element("Silicon",  "Si", 14., 28.0855*g/mole);
-  auto Ca = new G4Element("Calcium",  "Ca", 20.,  40.078*g/mole);
-
   Material::CaCO3 = new G4Material("CaCO3", 2.71*g/cm3, 3);
+  Material::CaCO3->AddElement(Construction::Material::Ca, 1);
   Material::CaCO3->AddElement(Construction::Material::C,  1);
-  Material::CaCO3->AddElement(Ca, 1);
   Material::CaCO3->AddElement(Construction::Material::O,  3);
 
   Material::Kaolinite = new G4Material("Clay", 2.65*g/cm3, 4);
-  Material::Kaolinite->AddElement(Al, 2);
-  Material::Kaolinite->AddElement(Si, 2);
+  Material::Kaolinite->AddElement(Construction::Material::Al, 2);
+  Material::Kaolinite->AddElement(Construction::Material::Si, 2);
   Material::Kaolinite->AddElement(Construction::Material::O,  9);
   Material::Kaolinite->AddElement(Construction::Material::H,  4);
 
   Material::SiO2 = new G4Material("Quartz", 2.445*g/cm3, 2);
-  Material::SiO2->AddElement(Si, 46.743*perCent);
-  Material::SiO2->AddElement(Construction::Material::O, 53.257*perCent);
+  Material::SiO2->AddElement(Construction::Material::Si, 1);
+  Material::SiO2->AddElement(Construction::Material::O, 2);
 
   Material::Marl = new G4Material("Marl", 2.46*g/cm3, 2);
   Material::Marl->AddMaterial(Material::Kaolinite, 35*perCent);
@@ -101,12 +101,40 @@ long double LayerWidthY(long double value) {
   _layer_width_y = value;
   return LayerWidthY();
 }
-long double BufferZoneDepth() {
-  return _buffer_zone_depth;
+long double BufferZoneLength() {
+  return _buffer_zone_length;
 }
-long double BufferZoneDepth(long double value) {
-  _buffer_zone_depth = value;
-  return BufferZoneDepth();
+long double BufferZoneLength(long double value) {
+  _buffer_zone_length = value;
+  return BufferZoneLength();
+}
+long double BufferZoneHigherWidth() {
+  return _buffer_zone_higher_width;
+}
+long double BufferZoneHigherWidth(long double value) {
+  _buffer_zone_higher_width = value;
+  return BufferZoneHigherWidth();
+}
+long double BufferZoneLowerWidth() {
+  return _buffer_zone_lower_width;
+}
+long double BufferZoneLowerWidth(long double value) {
+  _buffer_zone_lower_width = value;
+  return BufferZoneLowerWidth();
+}
+long double BufferZoneHigherDepth() {
+  return _buffer_zone_higher_depth;
+}
+long double BufferZoneHigherDepth(long double value) {
+  _buffer_zone_higher_depth = value;
+  return BufferZoneHigherDepth();
+}
+long double BufferZoneLowerDepth() {
+  return _buffer_zone_lower_depth;
+}
+long double BufferZoneLowerDepth(long double value) {
+  _buffer_zone_lower_depth = value;
+  return BufferZoneLowerDepth();
 }
 long double SandstoneDepth() {
   return _sandstone_depth;
@@ -130,7 +158,7 @@ long double MixDepth(long double value) {
   return MixDepth();
 }
 long double TotalShift() {
-  return BufferZoneDepth() + LastShift();
+  return LastShift();
 }
 long double TotalDepth() {
   return SandstoneDepth() + MarlDepth() + MixDepth();
@@ -143,8 +171,19 @@ G4LogicalVolume* Volume() {
     LayerWidthX(), LayerWidthY(), TotalDepth());
 }
 G4LogicalVolume* SandstoneVolume() {
-  return Construction::BoxVolume("Sandstone",
-    LayerWidthX(), LayerWidthY(), SandstoneDepth(), Material::SiO2);
+  auto sandstone_box = Construction::Box("SandstoneBox", LayerWidthX(), LayerWidthY(), SandstoneDepth());
+
+  const auto safety_margin = 1.0*cm;
+
+  auto buffer_zone_higher_box = Construction::Box("HigherBufferZoneBox", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
+  auto buffer_zone_lower_box = Construction::Box("LowerBufferZoneBox", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
+
+  auto buffer_zone_higher_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth()));;
+  auto buffer_zone_lower_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - SandstoneDepth()));;
+
+  auto sandstone_solid = new G4SubtractionSolid("Sandstone", new G4SubtractionSolid("", sandstone_box, buffer_zone_higher_box, buffer_zone_higher_transform), buffer_zone_lower_box, buffer_zone_lower_transform);
+
+  return Construction::Volume(sandstone_solid, Material::SiO2, Construction::BorderAttributes());
 }
 G4LogicalVolume* MarlVolume() {
   return Construction::BoxVolume("Marl",
