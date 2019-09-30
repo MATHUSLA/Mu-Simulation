@@ -149,11 +149,20 @@ void RPC::Material::Define() {
   auto argon = new G4Material("Argon", 1.6339*g/L, 1, G4State::kStateGas, 298.15*kelvin);
   argon->AddElement(Construction::Material::Ar, 1);
 
-  Material::Gas = new G4Material("Gas", 3.7269*g/L, 4, G4State::kStateGas, 298.15*kelvin);
-  Material::Gas->AddMaterial(C2H2F4,    0.85 * 0.952);
-  Material::Gas->AddMaterial(isobutane, 0.85 * 0.045);
-  Material::Gas->AddMaterial(SF6,       0.85 * 0.003);
-  Material::Gas->AddMaterial(argon,     0.15);
+  const auto atlas_gas_fraction = 0.85;
+
+  const auto c2h2f4_partial_density    = atlas_gas_fraction * 0.952 * C2H2F4->GetDensity();
+  const auto isobutane_partial_density = atlas_gas_fraction * 0.045 * isobutane->GetDensity();
+  const auto sf6_partial_density       = atlas_gas_fraction * 0.003 * SF6->GetDensity();
+  const auto argon_partial_density     = (1.0 - atlas_gas_fraction) * argon->GetDensity();
+
+  const auto gas_density = c2h2f4_partial_density + isobutane_partial_density + sf6_partial_density + argon_partial_density;
+
+  Material::Gas = new G4Material("Gas", gas_density, 4, G4State::kStateGas, 298.15*kelvin);
+  Material::Gas->AddMaterial(C2H2F4,    c2h2f4_partial_density    / gas_density);
+  Material::Gas->AddMaterial(isobutane, isobutane_partial_density / gas_density);
+  Material::Gas->AddMaterial(SF6,       sf6_partial_density       / gas_density);
+  Material::Gas->AddMaterial(argon,     argon_partial_density     / gas_density);
 
   Material::PET = new G4Material("PET", 1.397*g/cm3, 3, G4State::kStateSolid);
   Material::PET->AddElement(Construction::Material::C, 10);
