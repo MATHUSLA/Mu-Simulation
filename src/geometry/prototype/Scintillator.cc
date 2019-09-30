@@ -104,7 +104,7 @@ Scintillator::Scintillator(const std::string& input_name,
     : name(input_name), height(input_height), minwidth(input_minwidth), maxwidth(input_maxwidth),
       lvolume(nullptr), pvolume(nullptr), sensitive(nullptr) {
 
-  auto solid = Construction::Trap(name, height, minwidth, maxwidth, Depth);
+  auto solid = Construction::Trap("", height, minwidth, maxwidth, Depth);
 
   const double dims[4] = {height   - 2.0 * Thickness, minwidth - 2.0 * Thickness,
                           maxwidth - 2.0 * Thickness, Depth    - 2.0 * Thickness};

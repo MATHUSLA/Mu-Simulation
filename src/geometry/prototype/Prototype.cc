@@ -220,9 +220,9 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
 
   for (const auto& scintillator_info : Scintillator::InfoArray) {
     auto scintillator = new Scintillator(scintillator_info.name,
-                                         scintillator_info.trapezoid_height + 2.0 * Scintillator::Thickness,
-                                         scintillator_info.short_base + 2.0 * Scintillator::Thickness,
-                                         scintillator_info.long_base + 2.0 * Scintillator::Thickness);
+                                         scintillator_info.trapezoid_height + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
+                                         scintillator_info.short_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
+                                         scintillator_info.long_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing));
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
         G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0),
