@@ -69,14 +69,18 @@ G4Element* Material::C = _nist->FindOrBuildElement("C");
 G4Element* Material::N = _nist->FindOrBuildElement("N");
 G4Element* Material::O = _nist->FindOrBuildElement("O");
 G4Element* Material::F = _nist->FindOrBuildElement("F");
+G4Element* Material::Al = _nist->FindOrBuildElement("Al");
+G4Element* Material::Si = _nist->FindOrBuildElement("Si");
 G4Element* Material::S = _nist->FindOrBuildElement("S");
 G4Element* Material::Ar = _nist->FindOrBuildElement("Ar");
+G4Element* Material::Ca = _nist->FindOrBuildElement("Ca");
 G4Material* Material::Air = _nist->FindOrBuildMaterial("G4_AIR");
 G4Material* Material::Aluminum = _nist->FindOrBuildMaterial("G4_Al");
 G4Material* Material::Bakelite = _nist->FindOrBuildMaterial("G4_BAKELITE");
 G4Material* Material::Copper = _nist->FindOrBuildMaterial("G4_Cu");
 G4Material* Material::Iron = _nist->FindOrBuildMaterial("G4_Fe");
 G4Material* Material::PolystyreneFoam = _nist->BuildMaterialWithNewDensity("PolystyreneFoam", "G4_POLYSTYRENE", 32.0*kg/m3);
+G4Material* Material::Polyvinyltoluene = _nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 //----------------------------------------------------------------------------------------------
 
 //__Detector Messenger Directory Path___________________________________________________________

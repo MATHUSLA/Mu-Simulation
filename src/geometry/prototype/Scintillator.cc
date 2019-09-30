@@ -155,10 +155,7 @@ G4Material* Scintillator::Material::Scintillator = nullptr;
 void Scintillator::Material::Define() {
   Material::PMT = G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
   Material::Casing = Construction::Material::Aluminum;
-
-  Material::Scintillator = new G4Material("Scintillator", 1.032*g/cm3, 2, G4State::kStateSolid);
-  Material::Scintillator->AddElement(Construction::Material::C, 9);
-  Material::Scintillator->AddElement(Construction::Material::H, 10);
+  Material::Scintillator = Construction::Material::Polyvinyltoluene;
 
   constexpr int_fast32_t nSci = 1;
   double eSci[nSci] = { 3.10*eV };
