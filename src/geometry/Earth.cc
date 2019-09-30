@@ -26,10 +26,13 @@ namespace MATHUSLA { namespace MU {
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
+constexpr auto safety_margin = 1.0*mm;
+
 //__Earth Layer Size Constants__________________________________________________________________
 static auto _lastshift                =     0.0L*cm;
 static auto _layer_width_x            = 82500.0L*cm;
 static auto _layer_width_y            = 82500.0L*cm;
+static auto _buffer_zone_x_shift      =  -338.7L*cm;
 static auto _buffer_zone_length       =  1376.0L*cm;
 static auto _buffer_zone_higher_width =   900.0L*cm;
 static auto _buffer_zone_lower_width  =   300.0L*cm;
@@ -165,34 +168,26 @@ long double TotalDepth() {
 }
 //----------------------------------------------------------------------------------------------
 
+G4Box* BufferZoneHigherVolume() {
+  return Construction::Box("", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
+}
+
+G4Box* BufferZoneLowerVolume() {
+  return Construction::Box("", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
+}
+
 //__Earth Logical Volumes_______________________________________________________________________
 G4LogicalVolume* Volume() {
-  const auto safety_margin = 1.0*cm;
-
-  auto buffer_zone_higher_box = Construction::Box("HigherBufferZoneBox", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
-  auto buffer_zone_lower_box = Construction::Box("LowerBufferZoneBox", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
-
-  auto buffer_zone_higher_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - TotalDepth()));;
-  auto buffer_zone_lower_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - TotalDepth()));;
-
   auto earth_box = Construction::Box("", LayerWidthX(), LayerWidthY(), TotalDepth());
 
-  auto earth_solid = new G4SubtractionSolid("Earth", new G4SubtractionSolid("", earth_box, buffer_zone_higher_box, buffer_zone_higher_transform), buffer_zone_lower_box, buffer_zone_lower_transform);
+  auto earth_solid = new G4SubtractionSolid("Earth", new G4SubtractionSolid("", earth_box, BufferZoneHigherVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - TotalDepth()))), BufferZoneLowerVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - TotalDepth())));
 
   return Construction::Volume(earth_solid);
 }
 G4LogicalVolume* SandstoneVolume() {
   auto sandstone_box = Construction::Box("", LayerWidthX(), LayerWidthY(), SandstoneDepth());
 
-  const auto safety_margin = 1.0*cm;
-
-  auto buffer_zone_higher_box = Construction::Box("", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
-  auto buffer_zone_lower_box = Construction::Box("", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
-
-  auto buffer_zone_higher_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth()));;
-  auto buffer_zone_lower_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - SandstoneDepth()));;
-
-  auto sandstone_solid = new G4SubtractionSolid("Sandstone", new G4SubtractionSolid("", sandstone_box, buffer_zone_higher_box, buffer_zone_higher_transform), buffer_zone_lower_box, buffer_zone_lower_transform);
+  auto sandstone_solid = new G4SubtractionSolid("Sandstone", new G4SubtractionSolid("", sandstone_box, BufferZoneHigherVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth()))), BufferZoneLowerVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - SandstoneDepth())));
 
   return Construction::Volume(sandstone_solid, Material::SiO2, Construction::BorderAttributes());
 }
