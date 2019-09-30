@@ -167,16 +167,27 @@ long double TotalDepth() {
 
 //__Earth Logical Volumes_______________________________________________________________________
 G4LogicalVolume* Volume() {
-  return Construction::BoxVolume("Earth",
-    LayerWidthX(), LayerWidthY(), TotalDepth());
-}
-G4LogicalVolume* SandstoneVolume() {
-  auto sandstone_box = Construction::Box("SandstoneBox", LayerWidthX(), LayerWidthY(), SandstoneDepth());
-
   const auto safety_margin = 1.0*cm;
 
   auto buffer_zone_higher_box = Construction::Box("HigherBufferZoneBox", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
   auto buffer_zone_lower_box = Construction::Box("LowerBufferZoneBox", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
+
+  auto buffer_zone_higher_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - TotalDepth()));;
+  auto buffer_zone_lower_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - TotalDepth()));;
+
+  auto earth_box = Construction::Box("", LayerWidthX(), LayerWidthY(), TotalDepth());
+
+  auto earth_solid = new G4SubtractionSolid("Earth", new G4SubtractionSolid("", earth_box, buffer_zone_higher_box, buffer_zone_higher_transform), buffer_zone_lower_box, buffer_zone_lower_transform);
+
+  return Construction::Volume(earth_solid);
+}
+G4LogicalVolume* SandstoneVolume() {
+  auto sandstone_box = Construction::Box("", LayerWidthX(), LayerWidthY(), SandstoneDepth());
+
+  const auto safety_margin = 1.0*cm;
+
+  auto buffer_zone_higher_box = Construction::Box("", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
+  auto buffer_zone_lower_box = Construction::Box("", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
 
   auto buffer_zone_higher_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth()));;
   auto buffer_zone_lower_transform = Construction::Transform(-3387*mm, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - SandstoneDepth()));;
