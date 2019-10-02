@@ -1,0 +1,16 @@
+# An example of how to use FileReaderGenerator.
+
+/det/select Prototype
+
+/gen/select file_reader
+
+# The pathname parameter should be a text file with seven columns,
+# representing: PDG ID; initial x, y, and z coordinates; and initial x, y, z
+# components of the momentum of the particle, respectively. Each row
+# corresponds to one particle and one event.
+
+/gen/file_reader/pathname studies/test_stand/particle_parameters.tsv
+
+# The number of events here must be equal to the number of rows in the file.
+
+/run/beamOn 1
