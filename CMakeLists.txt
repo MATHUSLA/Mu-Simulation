@@ -54,12 +54,13 @@ add_executable(simulation
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
 
-    src/physics/Particle.cc
+    src/physics/CORSIKAReaderGenerator.cc
+    src/physics/FileReaderGenerator.cc
     src/physics/Generator.cc
     src/physics/HepMCGenerator.cc
+    src/physics/Particle.cc
     src/physics/PythiaGenerator.cc
     src/physics/RangeGenerator.cc
-    src/physics/CORSIKAReaderGenerator.cc
 
     src/tracking.cc
 
@@ -111,11 +112,12 @@ add_executable(dump_geometry
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
 
-    src/physics/Particle.cc
+    src/physics/CORSIKAReaderGenerator.cc
+    src/physics/FileReaderGenerator.cc
     src/physics/Generator.cc
+    src/physics/Particle.cc
     src/physics/PythiaGenerator.cc
     src/physics/RangeGenerator.cc
-    src/physics/CORSIKAReaderGenerator.cc
 
     src/tracking.cc
 )

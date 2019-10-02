@@ -23,6 +23,7 @@
 
 #include "geometry/Earth.hh"
 #include "geometry/Cavern.hh"
+#include "physics/FileReaderGenerator.hh"
 #include "physics/CORSIKAReaderGenerator.hh"
 #include "physics/PythiaGenerator.hh"
 #include "physics/HepMCGenerator.hh"
@@ -52,6 +53,9 @@ GeneratorAction::GeneratorAction(const std::string& generator)
 
   _gen_map["range"] = new Physics::RangeGenerator(
       "range", "Default Range Generator.", {});
+
+  _gen_map["file_reader"] = new Physics::FileReaderGenerator(
+      "file_reader", "File Reader Generator.");
 
   _gen_map["pythia"] = new Physics::PythiaGenerator(
       {},
