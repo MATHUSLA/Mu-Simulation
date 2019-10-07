@@ -3,28 +3,29 @@
 #include "physics/Particle.hh"
 #include "analysis.hh"
 
-#include <fstream>
-#include <limits>
-#include <ios>
+#include <string>
+#include <sstream>
 #include <stdexcept>
+#include <fstream>
 
 namespace MATHUSLA { namespace MU { namespace Physics {
 
 namespace {
 
-void skip_whitespace(std::ifstream &stream) {
-  std::ifstream::int_type next_char;
-  while (   (next_char = stream.peek()) != std::ifstream::traits_type::eof()
-         && (next_char == '\t' || next_char == '\n' || next_char == ' ')) {
-    stream.ignore();
+void remove_comments(std::string &line) {
+  const auto first_comment_character = line.find('#');
+  if (first_comment_character == std::string::npos) {
+    return;
+  } else {
+    line.erase(first_comment_character);
   }
 }
 
-void skip_comments_and_whitespace(std::ifstream &stream) {
-  std::ifstream::int_type next_char;
-  while (   (skip_whitespace(stream), next_char = stream.peek()) != std::ifstream::traits_type::eof()
-         && next_char == '#') {
-    stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+bool is_blank(const std::string &line) {
+  if (line.find_first_not_of(" \t\n") == std::string::npos) {
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -39,19 +40,15 @@ FileReaderGenerator::FileReaderGenerator(const std::string &name,
 void FileReaderGenerator::GeneratePrimaryVertex(G4Event *event) {
   _particle.t = 0.0;
 
-  if ( ! _input_stream) {
-    throw std::runtime_error("Unable to read particle parameters file");
-  }
+  std::istringstream stream(_input_lines[_event_counter++]);
 
-  skip_comments_and_whitespace(_input_stream);
-
-  if ( ! (_input_stream >> _particle.id
-                        >> _particle.x
-                        >> _particle.y
-                        >> _particle.z
-                        >> _particle.px
-                        >> _particle.py
-                        >> _particle.pz)) {
+  if ( ! (stream >> _particle.id
+                 >> _particle.x
+                 >> _particle.y
+                 >> _particle.z
+                 >> _particle.px
+                 >> _particle.py
+                 >> _particle.pz)) {
     throw std::runtime_error("Unable to parse particle parameters file");
   }
 
@@ -60,7 +57,21 @@ void FileReaderGenerator::GeneratePrimaryVertex(G4Event *event) {
 
 void FileReaderGenerator::SetNewValue(G4UIcommand *command, G4String value) {
   if (command == _ui_pathname) {
-    _input_stream.open(value);
+    std::ifstream stream(value);
+    if ( ! stream) {
+      throw std::runtime_error("Unable to read particle parameters file");
+    }
+    while ( ! stream.eof()) {
+      if ( ! stream.good() ) {
+        throw std::runtime_error("Unable to read particle parameters file");
+      }
+      std::string temp;
+      std::getline(stream, temp);
+      remove_comments(temp);
+      if ( ! is_blank(temp)) {
+        _input_lines.push_back(temp);
+      }
+    }
   } else {
     Generator::SetNewValue(command, value);
   }

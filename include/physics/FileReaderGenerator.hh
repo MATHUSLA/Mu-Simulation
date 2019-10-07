@@ -7,7 +7,8 @@
 
 #include <string>
 #include <iostream>
-#include <fstream>
+#include <cstddef>
+#include <vector>
 
 namespace MATHUSLA { namespace MU { namespace Physics {
 
@@ -25,7 +26,8 @@ public:
 protected:
   virtual void GenerateCommands();
 
-  std::ifstream _input_stream;
+  std::size_t _event_counter = 0;
+  std::vector<std::string> _input_lines;
 
   Command::StringArg *_ui_pathname;
 };
