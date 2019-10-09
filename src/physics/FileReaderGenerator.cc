@@ -22,7 +22,7 @@ void remove_comments(std::string &line) {
 }
 
 bool is_blank(const std::string &line) {
-  if (line.find_first_not_of(" \t\n") == std::string::npos) {
+  if (line.find_first_not_of(" \t\r\n") == std::string::npos) {
     return true;
   } else {
     return false;
