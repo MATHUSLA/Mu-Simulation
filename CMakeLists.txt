@@ -28,23 +28,22 @@ find_package(ROOT    REQUIRED)
 
 include(${Geant4_USE_FILE})
 
-add_executable(simulation
-    src/simulation.cc
+add_library(mu-simulation-lib SHARED
+    src/analysis.cc
+    src/tracking.cc
 
     src/action/ActionInitialization.cc
     src/action/EventAction.cc
     src/action/GeneratorAction.cc
     src/action/RunAction.cc
 
-    src/analysis.cc
+    src/geometry/Cavern.cc
+    src/geometry/Construction.cc
+    src/geometry/Earth.cc
+    src/geometry/MuonMapper.cc
 
     src/geometry/box/Box.cc
     src/geometry/box/Scintillator.cc
-
-    src/geometry/Construction.cc
-    src/geometry/Cavern.cc
-    src/geometry/Earth.cc
-    src/geometry/MuonMapper.cc
 
     src/geometry/flat/Flat.cc
     src/geometry/flat/Layer.cc
@@ -62,82 +61,29 @@ add_executable(simulation
     src/physics/PythiaGenerator.cc
     src/physics/RangeGenerator.cc
 
-    src/tracking.cc
-
     src/util/command_line_parser.cc
 )
 
-target_compile_features(simulation PUBLIC cxx_std_14)
-target_compile_options(simulation PUBLIC -Wno-missing-braces
-                                         -pthread
-                                         -fPIC)
-
-target_link_libraries(simulation PUBLIC
+target_link_libraries(mu-simulation-lib PUBLIC
     ${Geant4_LIBRARIES}
+    #${HEPMC_LIBRARIES}
     ${PYTHIA8_LIBRARY}
-    ${ROOT_LIBRARIES}
-    ${HEPMC_LIBRARIES}
-    dl)
+    ${ROOT_LIBRARIES})
 
-target_include_directories(simulation SYSTEM PUBLIC
+target_include_directories(mu-simulation-lib PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+
+target_include_directories(mu-simulation-lib SYSTEM PUBLIC
     ${Geant4_INCLUDE_DIRS}
     ${ROOT_INCLUDE_DIRS}
     ${PYTHIA8_INCLUDE_DIR})
 
-target_include_directories(simulation PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+add_executable(simulation src/simulation.cc)
+target_link_libraries(simulation PUBLIC mu-simulation-lib)
 
-add_executable(dump_geometry
-    src/dump_geometry.cc
-
-    src/action/EventAction.cc
-    src/action/GeneratorAction.cc
-
-    src/analysis.cc
-
-    src/geometry/box/Box.cc
-    src/geometry/box/Scintillator.cc
-
-    src/geometry/Construction.cc
-    src/geometry/Cavern.cc
-    src/geometry/Earth.cc
-    src/geometry/MuonMapper.cc
-
-    src/geometry/flat/Flat.cc
-    src/geometry/flat/Layer.cc
-    src/geometry/flat/Scintillator.cc
-
-    src/geometry/prototype/Prototype.cc
-    src/geometry/prototype/RPC.cc
-    src/geometry/prototype/Scintillator.cc
-
-    src/physics/CORSIKAReaderGenerator.cc
-    src/physics/FileReaderGenerator.cc
-    src/physics/Generator.cc
-    src/physics/Particle.cc
-    src/physics/PythiaGenerator.cc
-    src/physics/RangeGenerator.cc
-
-    src/tracking.cc
-)
-
-target_compile_features(dump_geometry PUBLIC cxx_std_14)
-
-target_include_directories(dump_geometry SYSTEM PUBLIC
-    ${Geant4_INCLUDE_DIRS}
-    ${ROOT_INCLUDE_DIRS}
-    ${PYTHIA8_INCLUDE_DIR})
-
-target_link_libraries(dump_geometry PUBLIC
-    ${Geant4_LIBRARIES}
-    ${PYTHIA8_LIBRARY}
-    ${ROOT_LIBRARIES}
-    dl)
-
-target_include_directories(dump_geometry PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+add_executable(dump_geometry src/dump_geometry.cc)
+target_link_libraries(dump_geometry PUBLIC mu-simulation-lib)
 
 install(DIRECTORY scripts DESTINATION bin/MATHUSLA)
 install(TARGETS simulation dump_geometry DESTINATION bin/MATHUSLA)
