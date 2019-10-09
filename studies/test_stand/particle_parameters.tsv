@@ -1,0 +1,11 @@
+# Format (by column):
+
+# PDG ID of generated particle
+# Initial x-coordinate (mm)
+# Initial y-coordinate (mm)
+# Initial z-coordinate (mm)
+# Initial x-component of momentum (MeV/c)
+# Initial y-component of momentum (MeV/c)
+# Initial z-component of momentum (MeV/c)
+
+      13	 -2386.0	     0.0	-10000.0	     0.0	     0.0	  4000.0
