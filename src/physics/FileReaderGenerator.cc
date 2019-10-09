@@ -3,6 +3,8 @@
 #include "physics/Particle.hh"
 #include "analysis.hh"
 
+#include <Geant4/G4AutoLock.hh>
+
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -11,6 +13,8 @@
 namespace MATHUSLA { namespace MU { namespace Physics {
 
 namespace {
+
+G4Mutex mutex = G4MUTEX_INITIALIZER;
 
 void remove_comments(std::string &line) {
   const auto first_comment_character = line.find('#');
@@ -40,7 +44,12 @@ FileReaderGenerator::FileReaderGenerator(const std::string &name,
 void FileReaderGenerator::GeneratePrimaryVertex(G4Event *event) {
   _particle.t = 0.0;
 
-  std::istringstream stream(_input_lines[_event_counter++]);
+  std::istringstream stream;
+
+  {
+    G4AutoLock lock(mutex);
+    stream.str(_input_lines[_event_counter++]);
+  }
 
   if ( ! (stream >> _particle.id
                  >> _particle.x
