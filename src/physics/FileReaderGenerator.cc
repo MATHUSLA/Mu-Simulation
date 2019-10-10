@@ -7,32 +7,16 @@
 
 #include <string>
 #include <cstddef>
-#include <sstream>
-#include <stdexcept>
 #include <fstream>
+#include <limits>
+#include <ios>
+#include <stdexcept>
 
 namespace MATHUSLA { namespace MU { namespace Physics {
 
 namespace {
 
 G4Mutex mutex = G4MUTEX_INITIALIZER;
-
-void remove_comments(std::string &line) {
-  const auto first_comment_character = line.find('#');
-  if (first_comment_character == std::string::npos) {
-    return;
-  } else {
-    line.erase(first_comment_character);
-  }
-}
-
-bool is_blank(const std::string &line) {
-  if (line.find_first_not_of(" \t\r\n") == std::string::npos) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 } // anonymous namespace
 
@@ -43,46 +27,45 @@ FileReaderGenerator::FileReaderGenerator(const std::string &name,
 }
 
 void FileReaderGenerator::GeneratePrimaryVertex(G4Event *event) {
-  _particle.t = 0.0;
-
-  std::size_t line_index = _input_lines.size();
-
+  std::size_t particle_parameters_index = _particle_parameters.size();
   {
     G4AutoLock lock(mutex);
-    line_index = _event_counter;
-    ++_event_counter
+    particle_parameters_index = _event_counter;
+    ++_event_counter;
   }
-  std::istringstream line_stream(_input_lines[line_index]);
-
-  if ( ! (line_stream >> _particle.id
-                      >> _particle.x
-                      >> _particle.y
-                      >> _particle.z
-                      >> _particle.px
-                      >> _particle.py
-                      >> _particle.pz)) {
-    throw std::runtime_error("Unable to parse particle parameters file");
-  }
-
-  AddParticle(_particle, *event);
+  AddParticle(_particle_parameters.at(particle_parameters_index), *event);
 }
 
 void FileReaderGenerator::SetNewValue(G4UIcommand *command, G4String value) {
   if (command == _ui_pathname) {
-    std::ifstream stream(value);
-    if ( ! stream) {
-      throw std::runtime_error("Unable to read particle parameters file");
+    std::ifstream input_stream(value);
+    while (input_stream) {
+      const auto next_char = input_stream.peek();
+      if (next_char == std::ifstream::traits_type::eof()) {
+              break;
+      }
+      if (next_char == ' ' || next_char == '\t' || next_char == '\r' || next_char == '\n') {
+              input_stream.ignore();
+              continue;
+      }
+      if (next_char == '#') {
+              input_stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+              continue;
+      }
+      _particle_parameters.emplace_back();
+      auto &new_parameters = _particle_parameters.back();
+      if ( ! (input_stream >> new_parameters.id
+                           >> new_parameters.x
+                           >> new_parameters.y
+                           >> new_parameters.z
+                           >> new_parameters.px
+                           >> new_parameters.py
+                           >> new_parameters.pz)) {
+        throw std::runtime_error("Unable to parse particle parameters file");
+      }
     }
-    while ( ! stream.eof()) {
-      if ( ! stream.good() ) {
-        throw std::runtime_error("Unable to read particle parameters file");
-      }
-      std::string temp;
-      std::getline(stream, temp);
-      remove_comments(temp);
-      if ( ! is_blank(temp)) {
-        _input_lines.push_back(temp);
-      }
+    if ( ! input_stream) {
+      throw std::runtime_error("Unable to read particle parameters file");
     }
   } else {
     Generator::SetNewValue(command, value);

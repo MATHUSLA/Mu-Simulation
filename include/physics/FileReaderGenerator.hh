@@ -3,6 +3,7 @@
 
 #include "physics/Generator.hh"
 
+#include "physics/Particle.hh"
 #include "ui.hh"
 
 #include <string>
@@ -27,7 +28,7 @@ protected:
   virtual void GenerateCommands();
 
   std::size_t _event_counter = 0;
-  std::vector<std::string> _input_lines;
+  std::vector<Particle> _particle_parameters;
 
   Command::StringArg *_ui_pathname;
 };
