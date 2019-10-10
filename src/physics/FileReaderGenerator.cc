@@ -6,6 +6,7 @@
 #include <Geant4/G4AutoLock.hh>
 
 #include <string>
+#include <cstddef>
 #include <sstream>
 #include <stdexcept>
 #include <fstream>
@@ -44,20 +45,22 @@ FileReaderGenerator::FileReaderGenerator(const std::string &name,
 void FileReaderGenerator::GeneratePrimaryVertex(G4Event *event) {
   _particle.t = 0.0;
 
-  std::istringstream stream;
+  std::size_t line_index = _input_lines.size();
 
   {
     G4AutoLock lock(mutex);
-    stream.str(_input_lines[_event_counter++]);
+    line_index = _event_counter;
+    ++_event_counter
   }
+  std::istringstream line_stream(_input_lines[line_index]);
 
-  if ( ! (stream >> _particle.id
-                 >> _particle.x
-                 >> _particle.y
-                 >> _particle.z
-                 >> _particle.px
-                 >> _particle.py
-                 >> _particle.pz)) {
+  if ( ! (line_stream >> _particle.id
+                      >> _particle.x
+                      >> _particle.y
+                      >> _particle.z
+                      >> _particle.px
+                      >> _particle.py
+                      >> _particle.pz)) {
     throw std::runtime_error("Unable to parse particle parameters file");
   }
 
