@@ -197,7 +197,7 @@ def digitize_tree(
 ):
     """"""
     if thresholds is None:
-        thresholds = {"scintillator": 0.68 * u.MeV, "rpc": 0.17 * u.keV}
+        thresholds = {"scintillator": 1.9 * u.MeV, "rpc": 0.0 * u.keV}
     output.cd()
     ctree.SetDirectory(output)
     for (event, fullevent) in map(get_event_components, root2array(path, treename)):
