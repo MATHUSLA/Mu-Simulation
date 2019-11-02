@@ -17,18 +17,18 @@
 
 #include "geometry/Construction.hh"
 
-#include <Geant4/G4SubtractionSolid.hh>
-#include <Geant4/G4GeometryManager.hh>
-#include <Geant4/G4GeometryTolerance.hh>
-#include <Geant4/G4LogicalVolumeStore.hh>
-#include <Geant4/G4PhysicalVolumeStore.hh>
-#include <Geant4/G4SDManager.hh>
-#include <Geant4/G4Colour.hh>
-#include <Geant4/G4SolidStore.hh>
-#include <Geant4/G4PVPlacement.hh>
-#include <Geant4/G4NistManager.hh>
-#include <Geant4/G4GDMLParser.hh>
-#include <Geant4/tls.hh>
+#include <G4SubtractionSolid.hh>
+#include <G4GeometryManager.hh>
+#include <G4GeometryTolerance.hh>
+#include <G4LogicalVolumeStore.hh>
+#include <G4PhysicalVolumeStore.hh>
+#include <G4SDManager.hh>
+#include <G4Colour.hh>
+#include <G4SolidStore.hh>
+#include <G4PVPlacement.hh>
+#include <G4NistManager.hh>
+#include <G4GDMLParser.hh>
+#include <tls.hh>
 
 #include "geometry/Box.hh"
 #include "geometry/Prototype.hh"

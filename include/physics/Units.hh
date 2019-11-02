@@ -20,9 +20,9 @@
 #define MU__PHYSICS_UNITS_HH
 #pragma once
 
-#include <Geant4/G4UnitsTable.hh>
-#include <Geant4/G4SystemOfUnits.hh>
-#include <Geant4/G4PhysicalConstants.hh>
+#include <G4UnitsTable.hh>
+#include <G4SystemOfUnits.hh>
+#include <G4PhysicalConstants.hh>
 
 namespace MATHUSLA { namespace MU {
 

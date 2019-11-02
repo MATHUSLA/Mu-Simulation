@@ -17,7 +17,7 @@
 
 #include "geometry/Flat.hh"
 
-#include <Geant4/tls.hh>
+#include <tls.hh>
 
 #include "geometry/Earth.hh"
 #include "tracking.hh"

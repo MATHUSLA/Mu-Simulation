@@ -17,8 +17,8 @@
 
 #include "action.hh"
 
-#include <Geant4/G4MTRunManager.hh>
-#include <Geant4/tls.hh>
+#include <G4MTRunManager.hh>
+#include <tls.hh>
 
 namespace MATHUSLA { namespace MU {
 

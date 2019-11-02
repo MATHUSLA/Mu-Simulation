@@ -3,7 +3,7 @@
 #include "physics/Particle.hh"
 #include "analysis.hh"
 
-#include <Geant4/G4AutoLock.hh>
+#include <G4AutoLock.hh>
 
 #include <string>
 #include <cstddef>

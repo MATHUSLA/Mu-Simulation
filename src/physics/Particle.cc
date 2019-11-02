@@ -18,9 +18,9 @@
 
 #include "physics/Particle.hh"
 
-#include <Geant4/G4ParticleDefinition.hh>
-#include <Geant4/G4ParticleTable.hh>
-#include <Geant4/G4SystemOfUnits.hh>
+#include <G4ParticleDefinition.hh>
+#include <G4ParticleTable.hh>
+#include <G4SystemOfUnits.hh>
 
 #include "geometry/Cavern.hh"
 

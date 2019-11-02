@@ -1,7 +1,7 @@
 #include "geometry/Box.hh"
 
-#include <Geant4/G4SubtractionSolid.hh>
-#include <Geant4/tls.hh>
+#include <G4SubtractionSolid.hh>
+#include <tls.hh>
 
 namespace MATHUSLA { namespace MU {
 

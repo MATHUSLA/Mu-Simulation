@@ -19,7 +19,7 @@
 #define MU__GEOMETRY_FLAT_HH
 #pragma once
 
-#include "Geant4/G4VSensitiveDetector.hh"
+#include "G4VSensitiveDetector.hh"
 
 #include "geometry/Construction.hh"
 #include "tracking.hh"

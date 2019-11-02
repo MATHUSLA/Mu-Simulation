@@ -20,8 +20,8 @@
 #define MU__PHYSICS_PARTICLE_HH
 #pragma once
 
-#include <Geant4/G4ThreeVector.hh>
-#include <Geant4/G4Event.hh>
+#include <G4ThreeVector.hh>
+#include <G4Event.hh>
 
 namespace MATHUSLA { namespace MU {
 
