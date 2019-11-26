@@ -81,12 +81,23 @@ public:
 
   const static Info InfoArray[Count];
 
-  constexpr static auto Thickness =  1.0*mm;
-  constexpr static auto Spacing   = 0.15*mm;
-  constexpr static auto Depth     = 15.0*mm;
+  constexpr static auto Depth = 12.7 * mm;
 
-  constexpr static auto PMTRadius =  2.1*cm;
-  constexpr static auto PMTLength = 19.3*cm;
+  constexpr static auto PlateDepth   = 1.0  * mm;
+  constexpr static auto PlateSpacing = 0.15 * mm;
+
+  constexpr static auto HorizontalEdgeSpacing   = 4.3 * mm;
+  constexpr static auto HorizontalEdgeThickness = 1.8 * mm;
+
+  constexpr static auto VerticalEdgeSpacing   = 0.9 * mm;
+  constexpr static auto VerticalEdgeThickness = 1.0 * mm;
+
+  constexpr static auto EdgeOverlap = 18.7 * mm - HorizontalEdgeThickness - HorizontalEdgeSpacing;
+
+  constexpr static auto PMTRadius  =  2.1 * cm;
+  constexpr static auto PMTLength  = 19.3 * cm;
+  constexpr static auto PMTSpacing =  3.0 * cm;
+  constexpr static auto PMTAngle   = 46.1 * deg;
 
   constexpr static auto MinDeposit =  0*keV;
   constexpr static auto MaxDeposit = 10*MeV;

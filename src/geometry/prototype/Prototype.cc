@@ -214,19 +214,21 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   _scintillators.clear();
   _rpcs.clear();
 
-  constexpr double total_outer_box_height = 6796.2*mm;
-  auto DetectorVolume = Construction::BoxVolume(
-    "Prototype", 3500*mm, 3500*mm, total_outer_box_height);
+  constexpr double total_outer_box_height = 6796.2 * mm;
+  auto DetectorVolume = Construction::BoxVolume("Prototype",
+                                                3500 * mm,
+                                                3500 * mm,
+                                                total_outer_box_height);
 
   for (const auto& scintillator_info : Scintillator::InfoArray) {
     auto scintillator = new Scintillator(scintillator_info.name,
-                                         scintillator_info.trapezoid_height + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
-                                         scintillator_info.short_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing),
-                                         scintillator_info.long_base + 2.0 * (Scintillator::Thickness + Scintillator::Spacing));
+                                         scintillator_info.trapezoid_height,
+                                         scintillator_info.short_base,
+                                         scintillator_info.long_base);
     scintillator->pvolume = Construction::PlaceVolume(scintillator->lvolume, DetectorVolume,
       G4Transform3D(
         G4RotationMatrix(G4ThreeVector(0.0, 0.0, 1.0),
-                         scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90*deg),
+                         scintillator_info.z_rotation_angle) * G4RotationMatrix(G4ThreeVector(1.0, 0.0, 0.0), 90 * deg),
         G4ThreeVector(scintillator_info.x, scintillator_info.y, scintillator_info.z)
       )
     );
@@ -241,8 +243,11 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     _rpcs.push_back(rpc);
   }
 
-  return Construction::PlaceVolume(DetectorVolume, world,
-    G4Translate3D(-2.386*m, 0.0*m, Earth::TotalShift() + Earth::BufferZoneLowerDepth() - 0.5 * total_outer_box_height));
+  return Construction::PlaceVolume(DetectorVolume,
+                                   world,
+                                   G4Translate3D(-2.386 * m,
+                                   0.0 * m,
+                                   Earth::TotalShift() + Earth::BufferZoneLowerDepth() - 0.5 * total_outer_box_height));
 }
 //----------------------------------------------------------------------------------------------
 
