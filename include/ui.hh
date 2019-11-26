@@ -20,23 +20,23 @@
 #define MU__UI_HH
 #pragma once
 
-#include <Geant4/G4VMarker.hh>
-#include <Geant4/G4Circle.hh>
-#include <Geant4/G4VisAttributes.hh>
-#include <Geant4/G4VVisManager.hh>
-#include <Geant4/G4ThreeVector.hh>
-#include <Geant4/G4UIcommand.hh>
-#include <Geant4/G4UIdirectory.hh>
-#include <Geant4/G4UIcmdWithoutParameter.hh>
-#include <Geant4/G4UIcmdWithAString.hh>
-#include <Geant4/G4UIcmdWithABool.hh>
-#include <Geant4/G4UIcmdWithAnInteger.hh>
-#include <Geant4/G4UIcmdWithADouble.hh>
-#include <Geant4/G4UIcmdWith3Vector.hh>
-#include <Geant4/G4UIcmdWithADoubleAndUnit.hh>
-#include <Geant4/G4UIcmdWith3VectorAndUnit.hh>
-#include <Geant4/G4UImessenger.hh>
-#include <Geant4/G4UImanager.hh>
+#include <G4VMarker.hh>
+#include <G4Circle.hh>
+#include <G4VisAttributes.hh>
+#include <G4VVisManager.hh>
+#include <G4ThreeVector.hh>
+#include <G4UIcommand.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithoutParameter.hh>
+#include <G4UIcmdWithAString.hh>
+#include <G4UIcmdWithABool.hh>
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWith3Vector.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
+#include <G4UIcmdWith3VectorAndUnit.hh>
+#include <G4UImessenger.hh>
+#include <G4UImanager.hh>
 
 namespace MATHUSLA { namespace MU {
 

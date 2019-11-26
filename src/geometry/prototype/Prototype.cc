@@ -19,9 +19,9 @@
 
 #include <unordered_map>
 
-#include <Geant4/G4HCofThisEvent.hh>
-#include <Geant4/G4Step.hh>
-#include <Geant4/tls.hh>
+#include <G4HCofThisEvent.hh>
+#include <G4Step.hh>
+#include <tls.hh>
 
 #include "action.hh"
 #include "analysis.hh"

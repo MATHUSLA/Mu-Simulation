@@ -17,9 +17,9 @@
 
 #include "geometry/Cavern.hh"
 
-#include <Geant4/G4IntersectionSolid.hh>
-#include <Geant4/G4UnionSolid.hh>
-#include <Geant4/G4SubtractionSolid.hh>
+#include <G4IntersectionSolid.hh>
+#include <G4UnionSolid.hh>
+#include <G4SubtractionSolid.hh>
 
 #include "geometry/Construction.hh"
 

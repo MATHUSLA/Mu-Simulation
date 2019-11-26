@@ -20,12 +20,12 @@
 #define MU__ACTION_HH
 #pragma once
 
-#include <Geant4/G4VUserActionInitialization.hh>
-#include <Geant4/G4UserEventAction.hh>
-#include <Geant4/G4UserRunAction.hh>
-#include <Geant4/G4VUserPrimaryGeneratorAction.hh>
-#include <Geant4/G4Event.hh>
-#include <Geant4/G4Run.hh>
+#include <G4VUserActionInitialization.hh>
+#include <G4UserEventAction.hh>
+#include <G4UserRunAction.hh>
+#include <G4VUserPrimaryGeneratorAction.hh>
+#include <G4Event.hh>
+#include <G4Run.hh>
 
 #include "physics/Generator.hh"
 #include "ui.hh"

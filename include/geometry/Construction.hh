@@ -19,17 +19,17 @@
 #define MU__GEOMETRY_CONSTRUCTION_HH
 #pragma once
 
-#include <Geant4/G4VSensitiveDetector.hh>
-#include <Geant4/G4VUserDetectorConstruction.hh>
-#include <Geant4/G4LogicalVolume.hh>
-#include <Geant4/G4VPhysicalVolume.hh>
-#include <Geant4/G4VisAttributes.hh>
-#include <Geant4/G4Transform3D.hh>
-#include <Geant4/G4Box.hh>
-#include <Geant4/G4Trap.hh>
-#include <Geant4/G4Tubs.hh>
-#include <Geant4/G4Material.hh>
-#include <Geant4/G4SystemOfUnits.hh>
+#include <G4VSensitiveDetector.hh>
+#include <G4VUserDetectorConstruction.hh>
+#include <G4LogicalVolume.hh>
+#include <G4VPhysicalVolume.hh>
+#include <G4VisAttributes.hh>
+#include <G4Transform3D.hh>
+#include <G4Box.hh>
+#include <G4Trap.hh>
+#include <G4Tubs.hh>
+#include <G4Material.hh>
+#include <G4SystemOfUnits.hh>
 
 #include "analysis.hh"
 #include "ui.hh"

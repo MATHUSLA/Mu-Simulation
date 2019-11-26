@@ -22,15 +22,15 @@
 
 #include <ostream>
 
-#include <Geant4/G4Allocator.hh>
-#include <Geant4/G4THitsCollection.hh>
-#include <Geant4/G4LorentzVector.hh>
-#include <Geant4/G4VHit.hh>
-#include <Geant4/G4Step.hh>
-#include <Geant4/G4Event.hh>
-#include <Geant4/G4HCofThisEvent.hh>
-#include <Geant4/G4VSensitiveDetector.hh>
-#include <Geant4/G4ParticleDefinition.hh>
+#include <G4Allocator.hh>
+#include <G4THitsCollection.hh>
+#include <G4LorentzVector.hh>
+#include <G4VHit.hh>
+#include <G4Step.hh>
+#include <G4Event.hh>
+#include <G4HCofThisEvent.hh>
+#include <G4VSensitiveDetector.hh>
+#include <G4ParticleDefinition.hh>
 
 #include "analysis.hh"
 #include "physics/Particle.hh"

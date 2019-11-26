@@ -20,9 +20,9 @@
 #define MU__PHYSICS_GENERATOR_HH
 #pragma once
 
-#include <Geant4/G4Event.hh>
-#include <Geant4/G4PrimaryVertex.hh>
-#include <Geant4/G4PrimaryParticle.hh>
+#include <G4Event.hh>
+#include <G4PrimaryVertex.hh>
+#include <G4PrimaryParticle.hh>
 
 #include "analysis.hh"
 #include "ui.hh"

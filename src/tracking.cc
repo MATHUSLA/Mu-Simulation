@@ -19,9 +19,9 @@
 
 #include <iomanip>
 
-#include <Geant4/G4SDManager.hh>
-#include <Geant4/G4RunManager.hh>
-#include <Geant4/tls.hh>
+#include <G4SDManager.hh>
+#include <G4RunManager.hh>
+#include <tls.hh>
 
 #include "physics/Units.hh"
 #include "ui.hh"

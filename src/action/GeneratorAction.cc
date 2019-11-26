@@ -19,7 +19,7 @@
 
 #include <unordered_map>
 
-#include <Geant4/tls.hh>
+#include <tls.hh>
 
 #include "geometry/Earth.hh"
 #include "geometry/Cavern.hh"

@@ -19,11 +19,11 @@
 #define MU__GEOMETRY_EARTH_HH
 #pragma once
 
-#include <Geant4/G4Material.hh>
-#include <Geant4/G4VPhysicalVolume.hh>
-#include <Geant4/G4LogicalVolume.hh>
-#include <Geant4/G4Transform3D.hh>
-#include <Geant4/G4SystemOfUnits.hh>
+#include <G4Material.hh>
+#include <G4VPhysicalVolume.hh>
+#include <G4LogicalVolume.hh>
+#include <G4Transform3D.hh>
+#include <G4SystemOfUnits.hh>
 
 namespace MATHUSLA { namespace MU {
 

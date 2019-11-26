@@ -21,7 +21,7 @@
 
 #include <vector>
 
-#include "Geant4/G4VSensitiveDetector.hh"
+#include "G4VSensitiveDetector.hh"
 
 #include "geometry/Construction.hh"
 

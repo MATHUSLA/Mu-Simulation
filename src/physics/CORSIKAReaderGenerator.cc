@@ -18,10 +18,10 @@
 
 #include "physics/CORSIKAReaderGenerator.hh"
 
-#include <Geant4/G4Threading.hh>
-#include <Geant4/G4AutoLock.hh>
-#include <Geant4/G4MTRunManager.hh>
-#include <Geant4/tls.hh>
+#include <G4Threading.hh>
+#include <G4AutoLock.hh>
+#include <G4MTRunManager.hh>
+#include <tls.hh>
 
 #include <TFile.h>
 #include <TTree.h>

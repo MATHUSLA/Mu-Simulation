@@ -20,8 +20,8 @@
 
 #include <ostream>
 
-#include <Geant4/Randomize.hh>
-#include <Geant4/tls.hh>
+#include <Randomize.hh>
+#include <tls.hh>
 
 #include "physics/Units.hh"
 

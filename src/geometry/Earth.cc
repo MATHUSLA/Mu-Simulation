@@ -17,8 +17,8 @@
 
 #include "geometry/Earth.hh"
 
-#include <Geant4/G4SubtractionSolid.hh>
-#include <Geant4/tls.hh>
+#include <G4SubtractionSolid.hh>
+#include <tls.hh>
 
 #include "geometry/Construction.hh"
 

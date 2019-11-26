@@ -1,8 +1,8 @@
-#include "Geant4/G4VPhysicalVolume.hh"
-#include "Geant4/G4ThreeVector.hh"
-#include "Geant4/G4RotationMatrix.hh"
-#include "Geant4/G4Trap.hh"
-#include "Geant4/G4Box.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4ThreeVector.hh"
+#include "G4RotationMatrix.hh"
+#include "G4Trap.hh"
+#include "G4Box.hh"
 
 #include "geometry/Construction.hh"
 
