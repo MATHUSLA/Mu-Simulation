@@ -7,7 +7,7 @@
 namespace MATHUSLA { namespace MU { namespace Prototype {
 
 const UChannel::Info UChannel::InfoArray[UChannel::Count] = {
-  {"SA1", -1.07961 * m, -0.04760 * m, -2.90712 * m, 2.76551 * m,  3.13935 * rad},
+  {"SA1", -1.07961 * m, -0.04740 * m, -2.90712 * m, 2.76551 * m,  3.13935 * rad},
   {"SA2", -0.78732 * m, -0.04867 * m, -3.14587 * m, 2.76552 * m, -3.13785 * rad},
   {"SA3", -0.38147 * m, -0.04949 * m, -2.90712 * m, 2.76266 * m, -3.13073 * rad},
   {"SA4", -0.02495 * m, -0.04655 * m, -3.14737 * m, 2.76550 * m, -3.14047 * rad},
