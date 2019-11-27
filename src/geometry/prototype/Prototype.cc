@@ -39,6 +39,7 @@ namespace { ////////////////////////////////////////////////////////////////////
 //__Scintillators and RPCs for Prototype________________________________________________________
 std::vector<Scintillator*> _scintillators;
 std::vector<RPC*> _rpcs;
+std::vector<UChannel *> _uchannels;
 //----------------------------------------------------------------------------------------------
 
 //__Prototype Hit Collection____________________________________________________________________
@@ -213,6 +214,7 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
   RPC::Material::Define();
   _scintillators.clear();
   _rpcs.clear();
+  _uchannels.clear();
 
   constexpr double total_outer_box_height = 6796.2 * mm;
   auto DetectorVolume = Construction::BoxVolume("Prototype",
@@ -241,6 +243,12 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     rpc->PlaceIn(DetectorVolume, Construction::Transform(
       info.x, info.y, info.z, 0.0, 0.0, 1.0, info.z_rotation_angle));
     _rpcs.push_back(rpc);
+  }
+
+  for (const auto &uchannel_info : UChannel::InfoArray) {
+    auto uchannel = new UChannel(uchannel_info.name, uchannel_info.length);
+    Construction::PlaceVolume(uchannel->getLogicalVolume(), DetectorVolume, Construction::Transform(uchannel_info.x, uchannel_info.y, uchannel_info.z, 0.0, 0.0, 1.0, uchannel_info.z_rotation_angle));
+    _uchannels.push_back(uchannel);
   }
 
   return Construction::PlaceVolume(DetectorVolume,

@@ -89,7 +89,7 @@ public:
   constexpr static auto HorizontalEdgeSpacing   = 4.3 * mm;
   constexpr static auto HorizontalEdgeThickness = 1.8 * mm;
 
-  constexpr static auto VerticalEdgeSpacing   = 0.9 * mm;
+  constexpr static auto VerticalEdgeSpacing   = 0.0 * mm;
   constexpr static auto VerticalEdgeThickness = 1.0 * mm;
 
   constexpr static auto EdgeOverlap = 18.7 * mm - HorizontalEdgeThickness - HorizontalEdgeSpacing;
@@ -198,6 +198,35 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+class UChannel {
+public:
+  UChannel(const std::string &name, const double length);
+  G4LogicalVolume *getLogicalVolume() { return m_logical_volume; }
+
+  struct Info {
+    std::string name;
+    double x;
+    double y;
+    double z;
+    double length;
+    double z_rotation_angle;
+  };
+
+  constexpr static auto Count = 12u;
+
+  const static Info InfoArray[Count];
+
+  constexpr static auto Height = 5.0 * cm;
+  constexpr static auto Width = 9.0 * cm;
+  constexpr static auto VerticalThickness = 5.33 * mm;
+  constexpr static auto HorizontalThickness = 8.89 * mm;
+
+private:
+  std::string m_name;
+  double m_length = 0.0;
+  G4LogicalVolume *m_logical_volume = nullptr;
+};
 
 class Detector : public G4VSensitiveDetector {
 public:
