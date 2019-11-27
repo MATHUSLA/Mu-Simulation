@@ -165,7 +165,7 @@ Scintillator::Scintillator(const std::string& input_name,
   pmtAttr.SetForceSolid(true);
   auto pmt_volume = Construction::Volume(pmt_solid, Material::PMT, pmtAttr);
 
-  lvolume = Construction::Volume(new G4UnionSolid("",
+  lvolume = Construction::Volume(new G4UnionSolid(name + "_Counter",
                                                   edge_convex_solid,
                                                   pmt_solid,
                                                   pmt_transform),

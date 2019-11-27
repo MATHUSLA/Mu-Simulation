@@ -22,12 +22,12 @@ const UChannel::Info UChannel::InfoArray[UChannel::Count] = {
 };
 
 UChannel::UChannel(const std::string &name, const double length) : m_name(name), m_length(length) {
-  m_logical_volume = Construction::BoxVolume("", Width, m_length, Height);
+  m_logical_volume = Construction::BoxVolume(name, Width, m_length, Height);
 
   auto top_box = Construction::Box("", Width, m_length, VerticalThickness);
   auto side_box = Construction::Box("", HorizontalThickness, m_length, Height);
 
-  auto material_volume = Construction::Volume(new G4UnionSolid(name,
+  auto material_volume = Construction::Volume(new G4UnionSolid(name + "_Material",
                                                   new G4UnionSolid("",
                                                                    top_box,
                                                                    side_box,
