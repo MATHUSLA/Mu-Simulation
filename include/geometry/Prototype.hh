@@ -219,8 +219,8 @@ public:
 
   constexpr static auto Height = 5.0 * cm;
   constexpr static auto Width = 9.0 * cm;
-  constexpr static auto VerticalThickness = 5.33 * mm;
-  constexpr static auto HorizontalThickness = 8.89 * mm;
+  constexpr static auto VerticalThickness = 6.85 * mm;
+  constexpr static auto HorizontalThickness = 7.75 * mm;
 
 private:
   std::string m_name;
