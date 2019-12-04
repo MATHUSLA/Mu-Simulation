@@ -52,6 +52,7 @@ add_library(mu-simulation-lib SHARED
     src/geometry/prototype/Prototype.cc
     src/geometry/prototype/RPC.cc
     src/geometry/prototype/Scintillator.cc
+    src/geometry/prototype/UChannel.cc
 
     src/physics/CORSIKAReaderGenerator.cc
     src/physics/FileReaderGenerator.cc

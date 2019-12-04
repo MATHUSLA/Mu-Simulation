@@ -34,11 +34,11 @@ namespace Prototype { //////////////////////////////////////////////////////////
 
 //__Scintillator Info___________________________________________________________________________
 const Scintillator::Info Scintillator::InfoArray[Scintillator::Count] = {
-  {"SA1-1", -1.00015*m,  1.09070*m, -2.94162*m,  0.00331*rad, 0.24386*m, 0.21381*m, 0.35829*m},
-  {"SA1-2", -1.00266*m,  0.69618*m, -2.99162*m, -0.01336*rad, 0.27822*m, 0.24283*m, 0.41378*m},
-  {"SA1-3", -1.00470*m,  0.23554*m, -2.94263*m, -0.00225*rad, 0.31529*m, 0.27581*m, 0.48080*m},
-  {"SA1-4", -1.00885*m, -0.29779*m, -2.99162*m,  0.00331*rad, 0.36453*m, 0.32081*m, 0.56529*m},
-  {"SA1-5", -1.00506*m, -0.93431*m, -2.94062*m, -0.01336*rad, 0.41329*m, 0.36683*m, 0.67383*m},
+  {"SA1-1", -1.09015*m,  1.09090*m, -2.94162*m,  0.00331*rad, 0.24386*m, 0.21381*m, 0.35829*m},
+  {"SA1-2", -1.09266*m,  0.69638*m, -2.99162*m, -0.01336*rad, 0.27822*m, 0.24283*m, 0.41378*m},
+  {"SA1-3", -1.09470*m,  0.23574*m, -2.94263*m, -0.00225*rad, 0.31529*m, 0.27581*m, 0.48080*m},
+  {"SA1-4", -1.09885*m, -0.29759*m, -2.99162*m,  0.00331*rad, 0.36453*m, 0.32081*m, 0.56529*m},
+  {"SA1-5", -1.09506*m, -0.93411*m, -2.94062*m, -0.01336*rad, 0.41329*m, 0.36683*m, 0.67383*m},
   {"SA2-1", -0.76814*m,  0.95462*m, -3.18038*m, -3.13229*rad, 0.41253*m, 0.36181*m, 0.67139*m},
   {"SA2-2", -0.76802*m,  0.31925*m, -3.23038*m, -3.13785*rad, 0.35949*m, 0.31581*m, 0.56385*m},
   {"SA2-3", -0.77578*m, -0.21938*m, -3.18038*m,  3.13423*rad, 0.31453*m, 0.27783*m, 0.48077*m},
@@ -104,44 +104,85 @@ Scintillator::Scintillator(const std::string& input_name,
     : name(input_name), height(input_height), minwidth(input_minwidth), maxwidth(input_maxwidth),
       lvolume(nullptr), pvolume(nullptr), sensitive(nullptr) {
 
-  auto solid = Construction::Trap("", height, minwidth, maxwidth, Depth);
+  auto sensitive_trap = Construction::Trap(name, height, minwidth, maxwidth, Depth);
 
-  const double dims[4] = {height   - 2.0 * Thickness, minwidth - 2.0 * Thickness,
-                          maxwidth - 2.0 * Thickness, Depth    - 2.0 * Thickness};
+  auto sensitive_volume = Construction::Volume(sensitive_trap,
+                                               Material::Scintillator,
+                                               Construction::SensitiveAttributes());
 
-  auto casing = new G4SubtractionSolid(name + "_C", solid,
-    Construction::Trap("", dims[0], dims[1], dims[2], dims[3]));
+  const auto slope = 0.5 * (maxwidth - minwidth) / height;
 
-  auto sensitive_trap = Construction::Trap(name,
-    dims[0] - 2.0 * Spacing, dims[1] - 2.0 * Spacing, dims[2] - 2.0 * Spacing, dims[3] - 2.0 * Spacing);
+  const auto plate_height = height + 2.0 * HorizontalEdgeSpacing;
+  const auto plate_minwidth = minwidth + 2.0 * HorizontalEdgeSpacing * (1.0 - slope);
+  const auto plate_maxwidth = maxwidth + 2.0 * HorizontalEdgeSpacing * (1.0 + slope);
 
-  auto pmt = new G4Tubs(
-    name + "_PMT", 0, PMTRadius, 0.5 * PMTLength, 0, 360.0*deg);
+  auto plate_casing_trap = Construction::Trap(name + "_PlateCasing",
+                                              plate_height,
+                                              plate_minwidth,
+                                              plate_maxwidth,
+                                              PlateDepth);
 
-  auto pmtTransform = Construction::Transform(
-    0.5 * maxwidth + 0.25 * PMTLength, 0, 0.5 * height + 0.25 * PMTLength,
-    0, 1, 0, 45*deg);
+  auto plate_casing_volume = Construction::Volume(plate_casing_trap,
+                                                  Material::Casing,
+                                                  Construction::CasingAttributes());
 
-  lvolume = Construction::Volume(
-    new G4UnionSolid(name,
-    new G4UnionSolid("", casing, sensitive_trap), pmt, pmtTransform),
-    Construction::BorderAttributes());
+  const auto edge_height = height + 2.0 * (HorizontalEdgeSpacing + HorizontalEdgeThickness);
+  const auto edge_minwidth = minwidth + 2.0 * (HorizontalEdgeSpacing + HorizontalEdgeThickness) * (1.0 - slope);
+  const auto edge_maxwidth = maxwidth + 2.0 * (HorizontalEdgeSpacing + HorizontalEdgeThickness) * (1.0 + slope);
+  const auto edge_depth = Depth + 2.0 * (PlateSpacing + PlateDepth + VerticalEdgeSpacing + VerticalEdgeThickness);
 
-  auto casingLV = Construction::Volume(casing,
-    Material::Casing,
-    Construction::CasingAttributes());
+  auto edge_convex_solid = Construction::Trap("", edge_height, edge_minwidth, edge_maxwidth, edge_depth);
 
-  auto sensitiveLV = Construction::Volume(sensitive_trap,
-    Material::Scintillator,
-    Construction::SensitiveAttributes());
+  auto edge_casing_solid = new G4SubtractionSolid(name + "_EdgeCasing",
+                                                  new G4SubtractionSolid("",
+                                                                         edge_convex_solid,
+                                                                         Construction::Trap("",
+                                                                                            plate_height,
+                                                                                            plate_minwidth,
+                                                                                            plate_maxwidth,
+                                                                                            Depth + 2.0 * (PlateSpacing + PlateDepth + VerticalEdgeSpacing))),
+                                                  Construction::Trap("",
+                                                                     height - 2.0 * EdgeOverlap,
+                                                                     minwidth - 2.0 * EdgeOverlap * (1.0 - slope),
+                                                                     maxwidth - 2.0 * EdgeOverlap * (1.0 + slope),
+                                                                     1.1 * edge_depth));
+
+  auto edge_casing_volume = Construction::Volume(edge_casing_solid,
+                                                 Material::Casing,
+                                                 Construction::CasingAttributes());
+
+  auto pmt_solid = new G4Tubs(name + "_PMT", 0, PMTRadius, 0.5 * PMTLength, 0, 360.0 * deg);
+
+  auto pmt_transform = Construction::Transform(0.5 * edge_maxwidth + (0.5 * PMTLength + PMTSpacing) * std::sin(PMTAngle),
+                                               0,
+                                               0.5 * edge_height + (0.5 * PMTLength + PMTSpacing) * std::cos(PMTAngle),
+                                               0,
+                                               1,
+                                               0,
+                                               PMTAngle);
 
   auto pmtAttr = G4VisAttributes(G4Colour(0.7, 0.7, 0.7));
   pmtAttr.SetForceSolid(true);
-  auto pmtLV = Construction::Volume(pmt, Material::PMT, pmtAttr);
+  auto pmt_volume = Construction::Volume(pmt_solid, Material::PMT, pmtAttr);
 
-  Construction::PlaceVolume(casingLV, lvolume);
-  sensitive = Construction::PlaceVolume(sensitiveLV, lvolume);
-  Construction::PlaceVolume(pmtLV, lvolume, pmtTransform);
+  lvolume = Construction::Volume(new G4UnionSolid(name + "_Counter",
+                                                  edge_convex_solid,
+                                                  pmt_solid,
+                                                  pmt_transform),
+                                 Construction::BorderAttributes());
+
+  sensitive = Construction::PlaceVolume(sensitive_volume, lvolume);
+
+  Construction::PlaceVolume(plate_casing_volume,
+                            lvolume,
+                            G4Translate3D(0.0, 0.5 * (Depth + PlateDepth) + PlateSpacing, 0.0));
+  Construction::PlaceVolume(plate_casing_volume,
+                            lvolume,
+                            G4Translate3D(0.0, -(0.5 * (Depth + PlateDepth) + PlateSpacing), 0.0));
+
+  Construction::PlaceVolume(edge_casing_volume, lvolume);
+
+  Construction::PlaceVolume(pmt_volume, lvolume, pmt_transform);
 }
 //----------------------------------------------------------------------------------------------
 
