@@ -18,6 +18,10 @@
 #include "geometry/Prototype.hh"
 
 #include <unordered_map>
+#include <cstddef>
+#include <algorithm>
+#include <cmath>
+#include <string>
 
 #include <G4HCofThisEvent.hh>
 #include <G4Step.hh>
@@ -249,6 +253,25 @@ G4VPhysicalVolume* Detector::Construct(G4LogicalVolume* world) {
     auto uchannel = new UChannel(uchannel_info.name, uchannel_info.length);
     Construction::PlaceVolume(uchannel->getLogicalVolume(), DetectorVolume, Construction::Transform(uchannel_info.x, uchannel_info.y, uchannel_info.z, 0.0, 0.0, 1.0, uchannel_info.z_rotation_angle));
     _uchannels.push_back(uchannel);
+  }
+
+  for (std::size_t rpc_sublayer_index = 0; rpc_sublayer_index < RPC::Count / 2; ++rpc_sublayer_index) {
+    const auto &rpc_1_info = RPC::InfoArray[2 * rpc_sublayer_index];
+    const auto &rpc_2_info = RPC::InfoArray[2 * rpc_sublayer_index + 1];
+    const auto average_rpc_x = (rpc_1_info.x + rpc_2_info.x) / 2.0;
+    const auto average_rpc_y = (rpc_1_info.y + rpc_2_info.y) / 2.0;
+    const auto max_rpc_z = std::max(rpc_1_info.z, rpc_2_info.z);
+    const auto u_channel_z = max_rpc_z + RPC::Depth / 2.0 + 5.0 * mm + UChannel::Height / 2.0;
+    const auto average_rpc_angle = (rpc_1_info.z_rotation_angle + rpc_2_info.z_rotation_angle) / 2.0;
+    const auto u_channel_z_rotation_angle = average_rpc_angle + 4.0 * std::atan(1.0) / 2.0;
+    const auto u_channel_1_x = average_rpc_x + RPC::Height / 4.0 * -std::sin(average_rpc_angle);
+    const auto u_channel_1_y = average_rpc_y + RPC::Height / 4.0 *  std::cos(average_rpc_angle);
+    auto uchannel_1 = new UChannel("RPC_UChannel_" + std::to_string(rpc_sublayer_index + 1) + "_1", 2.8 * m);
+    Construction::PlaceVolume(uchannel_1->getLogicalVolume(), DetectorVolume, Construction::Transform(u_channel_1_x, u_channel_1_y, u_channel_z, 0.0, 0.0, 1.0, u_channel_z_rotation_angle));
+    _uchannels.push_back(uchannel_1);
+    auto uchannel_2 = new UChannel("RPC_UChannel_" + std::to_string(rpc_sublayer_index + 1) + "_2", 2.8 * m);
+    Construction::PlaceVolume(uchannel_2->getLogicalVolume(), DetectorVolume, Construction::Transform(-u_channel_1_x, -u_channel_1_y, u_channel_z, 0.0, 0.0, 1.0, u_channel_z_rotation_angle));
+    _uchannels.push_back(uchannel_2);
   }
 
   return Construction::PlaceVolume(DetectorVolume,

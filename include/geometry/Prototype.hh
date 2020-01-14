@@ -154,9 +154,22 @@ public:
 
   const static Info InfoArray[Count];
 
-  constexpr static auto Height      = 2800*mm;
-  constexpr static auto Width       = 1257*mm;
-  constexpr static auto Depth       =   44*mm;
+  constexpr static auto Height = 2800*mm;
+  constexpr static auto Width  = 1248*mm;
+  constexpr static auto Depth  =   44*mm;
+
+  constexpr static auto OuterCasingThickness = 2.35*mm;
+  constexpr static auto OuterCasingHeight    = 2850*mm;
+  constexpr static auto OuterCasingWidth     = 1257*mm;
+  constexpr static auto OuterCasingDepth     = Depth + 2.0 * OuterCasingThickness;
+
+  constexpr static auto CasingGap = 4*mm;
+
+  constexpr static auto InnerCasingThickness = 1*mm;
+  constexpr static auto InnerCasingHeight    = Height + 2.0 * InnerCasingThickness;
+  constexpr static auto InnerCasingWidth     = 1120*mm;
+  constexpr static auto InnerCasingDepth     = Depth + 2.0 * InnerCasingThickness;
+  constexpr static auto InnerCasingOverlap   = 25*mm;
 
   constexpr static auto AluminumDepth  = 200*um;
   constexpr static auto BakeliteDepth  =   2*mm;
