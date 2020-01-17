@@ -17,6 +17,7 @@
 
 #include "geometry/Prototype.hh"
 
+#include <G4SubtractionSolid.hh>
 #include <tls.hh>
 
 namespace MATHUSLA { namespace MU {
@@ -58,9 +59,49 @@ RPC::Pad::Pad(int input_id) : id(input_id) {}
 
 //__RPC Constructor_____________________________________________________________________________
 RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 + input_id)) {
-  _volume = Construction::BoxVolume(_name, Width, Height, Depth, Construction::Material::Air, Construction::BorderAttributes());
+  auto outer_solid = Construction::Box("", OuterCasingWidth, OuterCasingHeight, OuterCasingDepth);
 
-  const auto id_name = (_id < 9 ? "0" : "") + std::to_string(1 + _id);
+  _volume = Construction::Volume(_name, outer_solid);
+
+  auto outer_casing_solid = new G4SubtractionSolid(_name + "_OuterCasing",
+                                                   new G4SubtractionSolid("",
+                                                                          outer_solid,
+                                                                          Construction::Box("",
+                                                                                            OuterCasingWidth - 2.0 * OuterCasingThickness,
+                                                                                            OuterCasingHeight + OuterCasingThickness,
+                                                                                            OuterCasingDepth - 2.0 * OuterCasingThickness)),
+                                                  Construction::Box("",
+                                                                    InnerCasingWidth + 2.0 * CasingGap,
+                                                                    OuterCasingHeight + OuterCasingThickness,
+                                                                    OuterCasingDepth + OuterCasingThickness));
+
+  auto outer_casing_volume = Construction::Volume(outer_casing_solid,
+                                                  Construction::Material::Iron,
+                                                  Construction::CasingAttributes());
+
+  Construction::PlaceVolume(outer_casing_volume, _volume, G4Translate3D(0.0, 0.0, 0.0));
+
+  auto inner_casing_solid = new G4SubtractionSolid(_name + "_InnerCasing",
+                                                   new G4SubtractionSolid("",
+                                                                         Construction::Box("",
+                                                                                           InnerCasingWidth,
+                                                                                           InnerCasingHeight,
+                                                                                           InnerCasingDepth),
+                                                                         Construction::Box("",
+                                                                                           InnerCasingWidth + InnerCasingThickness,
+                                                                                           InnerCasingHeight - 2.0 * InnerCasingThickness,
+                                                                                           InnerCasingDepth - 2.0 * InnerCasingThickness)),
+                                                  Construction::Box("",
+                                                                    InnerCasingWidth + InnerCasingThickness,
+                                                                    InnerCasingHeight - 2.0 * InnerCasingOverlap,
+                                                                    InnerCasingDepth + InnerCasingThickness));
+
+
+  auto inner_casing_volume = Construction::Volume(inner_casing_solid,
+                                                  Construction::Material::Aluminum,
+                                                  Construction::CasingAttributes());
+
+  Construction::PlaceVolume(inner_casing_volume, _volume, G4Translate3D(0.0, 0.0, 0.0));
 
   auto aluminum_sheet = Construction::BoxVolume(_name + "_Aluminum", Width, Height, AluminumDepth, Construction::Material::Aluminum, Construction::CasingAttributes());
   auto bakelite_sheet = Construction::BoxVolume(_name + "_Bakelite", Width, Height, BakeliteDepth, Construction::Material::Bakelite);
@@ -106,6 +147,8 @@ RPC::RPC(int input_id) : _pads(), _id(input_id), _name("RPC" + std::to_string(1 
   Construction::PlaceVolume(thick_foam_layer, _volume, G4Translate3D(0.0, 0.0, z_shift));
   z_shift += (ThickFoamDepth + AluminumDepth) / 2.0;
   Construction::PlaceVolume(aluminum_sheet, _volume, G4Translate3D(0.0, 0.0, z_shift));
+
+  const auto id_name = (_id < 9 ? "0" : "") + std::to_string(1 + _id);
 
   for (std::size_t pad_index{}; pad_index < PadsPerRPC; ++pad_index) {
     auto pad = new Pad(pad_index);
