@@ -158,10 +158,11 @@ public:
   constexpr static auto Width  = 1248*mm;
   constexpr static auto Depth  =   44*mm;
 
-  constexpr static auto OuterCasingThickness = 2.35*mm;
-  constexpr static auto OuterCasingHeight    = 2850*mm;
-  constexpr static auto OuterCasingWidth     = 1257*mm;
-  constexpr static auto OuterCasingDepth     = Depth + 2.0 * OuterCasingThickness;
+  constexpr static auto OuterCasingThickness   = 2.35*mm;
+  constexpr static auto OuterCasingHeight      = 2850*mm;
+  constexpr static auto OuterCasingWidth       = 1257*mm;
+  constexpr static auto OuterCasingDepth       = Depth + 2.0 * OuterCasingThickness;
+  constexpr static auto OuterCasingCornerDepth = 5*mm;
 
   constexpr static auto CasingGap = 4*mm;
 
@@ -234,6 +235,8 @@ public:
   constexpr static auto Width = 9.0 * cm;
   constexpr static auto VerticalThickness = 6.85 * mm;
   constexpr static auto HorizontalThickness = 7.75 * mm;
+
+  constexpr static auto RPCUChannelLength = 2.8 * m;
 
 private:
   std::string m_name;
