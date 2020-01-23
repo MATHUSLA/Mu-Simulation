@@ -71,6 +71,7 @@ long double TotalDepth();
 
 //__Earth Logical Volumes_______________________________________________________________________
 G4LogicalVolume* Volume();
+G4LogicalVolume* SX1SlabVolume();
 G4LogicalVolume* SandstoneVolume();
 G4LogicalVolume* MarlVolume();
 G4LogicalVolume* MixVolume();
@@ -78,6 +79,7 @@ G4LogicalVolume* MixVolume();
 
 //__Earth Transformations_______________________________________________________________________
 const G4Translate3D Transform();
+const G4Translate3D SX1SlabTransform();
 const G4Translate3D SandstoneTransform();
 const G4Translate3D MarlTransform();
 const G4Translate3D MixTransform();
