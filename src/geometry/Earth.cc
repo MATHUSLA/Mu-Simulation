@@ -38,6 +38,7 @@ static auto _buffer_zone_higher_width =   900.0L*cm;
 static auto _buffer_zone_lower_width  =   300.0L*cm;
 static auto _buffer_zone_higher_depth =   100.0L*cm;
 static auto _buffer_zone_lower_depth  =   160.0L*cm;
+static auto _sx1_slab_depth           =   200.0L*cm;
 static auto _sandstone_depth          =  4530.0L*cm;
 static auto _marl_depth               =  1825.0L*cm;
 static auto _mix_depth                =  3645.0L*cm;
@@ -139,6 +140,9 @@ long double BufferZoneLowerDepth(long double value) {
   _buffer_zone_lower_depth = value;
   return BufferZoneLowerDepth();
 }
+long double SX1SlabDepth() {
+  return _sx1_depth;
+}
 long double SandstoneDepth() {
   return _sandstone_depth;
 }
@@ -168,26 +172,31 @@ long double TotalDepth() {
 }
 //----------------------------------------------------------------------------------------------
 
-G4Box* BufferZoneHigherVolume() {
-  return Construction::Box("", BufferZoneLength(), BufferZoneHigherWidth(), BufferZoneHigherDepth() + safety_margin);
-}
-
-G4Box* BufferZoneLowerVolume() {
-  return Construction::Box("", BufferZoneLength(), BufferZoneLowerWidth(), BufferZoneLowerDepth() + safety_margin);
+G4Box* BufferZoneSolid() {
+  auto higher_solid = Construction::Box("", BufferZoneLength() + safety_margin, BufferZoneHigherWidth() + safety_margin, BufferZoneHigherDepth() + safety_margin);
+  auto lower_solid = Construction::Box("", BufferZoneLength() + safety_margin, BufferZoneLowerWidth() + safety_margin, BufferZoneLowerDepth());
+  return new G4UnionSolid("", higher_solid, lower_solid, Construction::Transform(0.0, 0.0, 0.5 * (BufferZoneHigherDepth() + BufferZoneLowerDepth() - safety_margin)));
 }
 
 //__Earth Logical Volumes_______________________________________________________________________
 G4LogicalVolume* Volume() {
   auto earth_box = Construction::Box("", LayerWidthX(), LayerWidthY(), TotalDepth());
 
-  auto earth_solid = new G4SubtractionSolid("Earth", new G4SubtractionSolid("", earth_box, BufferZoneHigherVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - TotalDepth()))), BufferZoneLowerVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - TotalDepth())));
+  auto earth_solid = new G4SubtractionSolid("Earth", earth_box, BufferZoneSolid(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - TotalDepth())));
 
   return Construction::Volume(earth_solid);
+}
+G4LogicalVolume* SX1SlabVolume() {
+  auto sx1_slab_box = Construction::Box("", BufferZoneLength(), BufferZoneHigherWidth(), SX1SlabDepth());
+
+  auto sx1_slab_solid = new G4SubtractionSolid("SX1Slab", sx1_slab_box, BufferZoneSolid(), Construction::Transform(0.0, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SX1SlabDepth())));
+
+  return Construction::Volume(sx1_slab_solid, Construction::Material::Concrete, Construction::BorderAttributes());
 }
 G4LogicalVolume* SandstoneVolume() {
   auto sandstone_box = Construction::Box("", LayerWidthX(), LayerWidthY(), SandstoneDepth());
 
-  auto sandstone_solid = new G4SubtractionSolid("Sandstone", new G4SubtractionSolid("", sandstone_box, BufferZoneHigherVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth()))), BufferZoneLowerVolume(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneLowerDepth() - safety_margin - SandstoneDepth())));
+  auto sandstone_solid = new G4SubtractionSolid("Sandstone", sandstone_box, BufferZoneHigherSolid(), Construction::Transform(_buffer_zone_x_shift, 0.0, 0.5 * (BufferZoneHigherDepth() - safety_margin - SandstoneDepth())));
 
   return Construction::Volume(sandstone_solid, Material::SiO2, Construction::BorderAttributes());
 }
@@ -205,6 +214,9 @@ G4LogicalVolume* MixVolume() {
 const G4Translate3D Transform() {
   return G4Translate3D(0, 0, TotalShift() + 0.5L * TotalDepth());
 }
+const G4Translate3D SX1SlabTransform() {
+  return G4Translate3D(0, 0, 0.5L * (SX1SlabDepth() - TotalDepth()));
+}
 const G4Translate3D SandstoneTransform() {
   return G4Translate3D(0, 0, 0.5L * (SandstoneDepth() - TotalDepth()));
 }
@@ -220,6 +232,7 @@ const G4Translate3D MixTransform() {
 G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
   Material::Define();
   auto earth = Volume();
+  Construction::PlaceVolume(SX1SlabVolume(), earth, SX1SlabTransform());
   Construction::PlaceVolume(SandstoneVolume(), earth, SandstoneTransform());
   Construction::PlaceVolume(MarlVolume(), earth, MarlTransform());
   Construction::PlaceVolume(MixVolume(), earth, MixTransform());
