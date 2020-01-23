@@ -194,6 +194,8 @@ G4VPhysicalVolume* Construct(G4LogicalVolume* world) {
     Construction::PlaceVolume(Earth::SandstoneVolume(), earth, Earth::SandstoneTransform());
   }
 
+  Construction::PlaceVolume(Earth::SX1SlabVolume(), earth, Earth::SX1SlabTransform());
+
   Construction::PlaceVolume(RingVolume(), earth,
     G4Translate3D(0, 0, -0.5 * Earth::TotalDepth() + IP())
       * Construction::Rotate(0.0, 1.0, 0.0, -P1ForwardTilt)

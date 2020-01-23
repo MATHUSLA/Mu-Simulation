@@ -53,6 +53,7 @@ extern G4Material* Air;
 extern G4Material* Aluminum;
 extern G4Material* Bakelite;
 extern G4Material* Copper;
+extern G4Material* Concrete;
 extern G4Material* Iron;
 extern G4Material* PolystyreneFoam;
 extern G4Material* Polyvinyltoluene;
