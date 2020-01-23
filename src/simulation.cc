@@ -16,7 +16,7 @@
  */
 
 #include <G4MTRunManager.hh>
-#include <FTFP_BERT.hh>
+#include <Shielding.hh>
 #include <G4StepLimiterPhysics.hh>
 #include <G4UIExecutive.hh>
 #include <G4VisExecutive.hh>
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
   if (shift_opt.argument)
     Earth::LastShift(std::stold(shift_opt.argument) * m);
 
-  auto physics = new FTFP_BERT;
+  auto physics = new Shielding;
   physics->RegisterPhysics(new G4StepLimiterPhysics);
   run->SetUserInitialization(physics);
 
