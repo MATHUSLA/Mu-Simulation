@@ -96,7 +96,7 @@ namespace { ////////////////////////////////////////////////////////////////////
 //__Setup Pythia Randomness_____________________________________________________________________
 Pythia8::Pythia* _setup_random(Pythia8::Pythia* pythia) {
   pythia->readString("Random:setSeed = on");
-  pythia->readString("Random:seed = 0");
+  pythia->readString("Random:seed = " + std::to_string(std::chrono::nanoseconds(std::chrono::steady_clock::now().time_since_epoch()).count() % 900000000L + 1));
   return pythia;
 }
 //----------------------------------------------------------------------------------------------
