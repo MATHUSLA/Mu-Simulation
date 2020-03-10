@@ -5,7 +5,5 @@
 
 /gen/pythia/cuts/clear
 /gen/pythia/cuts/add 13 | | -0.15:0.15 | -0.1:0.1 rad
-/gen/pythia/cuts/add 15 | | -0.15:0.15 | -0.1:0.1 rad
-/gen/pythia/cuts/add 17 | | -0.15:0.15 | -0.1:0.1 rad
 
 /run/beamOn 100000
