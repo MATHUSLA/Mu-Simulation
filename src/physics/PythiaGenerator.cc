@@ -169,8 +169,8 @@ ParticleVector _convert_pythia_event(Pythia8::Pythia* pythia,
                                      const std::string& type,
                                      Predicate predicate) {
   const auto type_string = util::string::strip(type);
-  auto& event = type_string == "hard" ? pythia->process : pythia->event;
-  const auto starting_index = type_string == "soft" ? pythia->process.size() : 0;
+  auto& event = pythia->event;
+  const auto starting_index = 0;
   ParticleVector out;
   for (int i = starting_index; i < event.size(); ++i) {
     if (!event[i].isFinal())
