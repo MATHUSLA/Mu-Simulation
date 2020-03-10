@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+#include <chrono>
+#include <limits>
+
 #include <G4MTRunManager.hh>
 #include <Shielding.hh>
 #include <G4StepLimiterPhysics.hh>
@@ -74,7 +77,7 @@ int main(int argc, char* argv[]) {
     "              A script OR an event count can be provided, but not both.\n");
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  G4Random::setTheSeed(time(nullptr));
+  G4Random::setTheSeed(std::chrono::nanoseconds(std::chrono::steady_clock::now().time_since_epoch()).count() % std::numeric_limits<long>::max());
 
   if (thread_opt.argument) {
     auto opt = std::string(thread_opt.argument);
