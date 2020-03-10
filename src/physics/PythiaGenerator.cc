@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+#include <string>
+#include <chrono>
+
 #include "physics/PythiaGenerator.hh"
 
 #include <Pythia8/ParticleData.h>
@@ -90,6 +93,14 @@ PythiaGenerator::PythiaGenerator(const std::vector<std::string>& settings) : Pyt
 //__Pythia Generator Construction_______________________________________________________________
 PythiaGenerator::PythiaGenerator(const std::string& path) : PythiaGenerator({}, path) {}
 //----------------------------------------------------------------------------------------------
+
+PythiaGenerator::~PythiaGenerator() {
+  _pythia->stat();
+  delete _pythia;
+  _pythia = nullptr;
+  delete _pythia_settings;
+  _pythia_settings = nullptr;
+}
 
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
@@ -230,7 +241,9 @@ void PythiaGenerator::SetPythia(Pythia8::Pythia* pythia) {
   _counter = 0ULL;
   _pythia_settings->clear();
   _settings_on = false;
-  _pythia = _reconstruct_pythia(pythia);
+  auto *temp = _reconstruct_pythia(pythia);
+  delete _pythia;
+  _pythia = temp;
   _pythia->init();
 }
 //----------------------------------------------------------------------------------------------

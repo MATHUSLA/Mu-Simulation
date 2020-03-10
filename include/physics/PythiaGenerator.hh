@@ -45,6 +45,8 @@ public:
   PythiaGenerator(const std::vector<std::string>& settings);
   PythiaGenerator(const std::string& path);
 
+  ~PythiaGenerator();
+
   void GeneratePrimaryVertex(G4Event* event);
   ParticleVector GetLastEvent() const;
   void SetNewValue(G4UIcommand* command, G4String value);

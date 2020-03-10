@@ -34,11 +34,11 @@ namespace MATHUSLA { namespace MU {
 namespace { ////////////////////////////////////////////////////////////////////////////////////
 
 //__Generator Map_______________________________________________________________________________
-G4ThreadLocal std::unordered_map<std::string, Physics::Generator*> _gen_map;
+std::unordered_map<std::string, Physics::Generator*> _gen_map;
 //----------------------------------------------------------------------------------------------
 
 //__Current Generator___________________________________________________________________________
-Physics::Generator* _gen;
+Physics::Generator* _gen = nullptr;
 //----------------------------------------------------------------------------------------------
 
 } /* anonymous namespace */ ////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
       {},
       {
           "Print:quiet = on",
-          "Next:numberCount = 10000",
+          "Next:numberCount = 0",
           "Stat:showErrors = off",
           "Beams:eCM = 13000.",
           "WeakSingleBoson:ffbar2W = on",
@@ -69,7 +69,7 @@ GeneratorAction::GeneratorAction(const std::string& generator)
           "24:onIfAny = 13"
       });
 
-  // _gen_map["hepmc"] = new Physics::HepMCGenerator({});
+  //_gen_map["hepmc"] = new Physics::HepMCGenerator({});
 
   _gen_map["corsika_reader"] = new Physics::CORSIKAReaderGenerator("");
 
@@ -94,6 +94,14 @@ GeneratorAction::GeneratorAction(const std::string& generator)
   _current->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 //----------------------------------------------------------------------------------------------
+
+GeneratorAction::~GeneratorAction() {
+  _gen = nullptr;
+  for (const auto &pair : _gen_map) {
+    delete pair.second;
+  }
+  _gen_map.clear();
+}
 
 //__Create Initial Vertex_______________________________________________________________________
 void GeneratorAction::GeneratePrimaries(G4Event* event) {

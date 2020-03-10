@@ -68,6 +68,7 @@ public:
 class GeneratorAction : public G4VUserPrimaryGeneratorAction, public G4UImessenger {
 public:
   GeneratorAction(const std::string& generator="");
+  ~GeneratorAction();
   void GeneratePrimaries(G4Event* event);
   void SetNewValue(G4UIcommand* command, G4String value);
   static const Physics::Generator* GetGenerator();
