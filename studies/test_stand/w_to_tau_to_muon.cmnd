@@ -1,0 +1,11 @@
+! File: w_to_tau_to_muon.cmnd
+
+Print:quiet = on
+Next:numberCount = 0
+Stat:showErrors = off
+Beams:eCM = 13000.
+WeakSingleBoson:ffbar2W = on
+24:onMode = off
+24:onIfAny = 15
+15:onMode = off
+15:onIfAny = 13
