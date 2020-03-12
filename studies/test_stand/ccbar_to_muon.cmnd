@@ -5,4 +5,4 @@ Next:numberCount = 0
 Stat:showErrors = off
 Beams:eCM = 13000.
 HardQCD:hardccbar = on
-PhaseSpace:pTHatMin = 50.0
+PhaseSpace:pTHatMin = 25.0
